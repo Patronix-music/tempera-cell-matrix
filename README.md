@@ -86,4 +86,4 @@ No install. No build. Just open and go.
 
 ## 📄 License
 MIT License  
-© 2026 Patrick Piersma
+© 2026 Patronix
