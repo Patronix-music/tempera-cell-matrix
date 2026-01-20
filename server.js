@@ -10,7 +10,7 @@ app.use((req, res, next) => {
 });
 
 
-app.use(express.static("tcm-split"));
+app.use(express.static("."));
 app.listen(8000, () => console.log("http://localhost:8000"));
 
 const USER_AGENT = "CD-Hoes-Maker/1.0 (mailto:patrickpiersma@icloud.com)";
