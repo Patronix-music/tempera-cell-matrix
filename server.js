@@ -58,7 +58,8 @@ apiApp.use(cors());
 apiApp.set("etag", false);
 apiApp.use(noStore);
 
-apiApp.get("/health", (req, res) => res.json({ ok: true }));
+apiApp.get("/health", (req, res) => res.type("application/json").send('{"ok":true}\n'));
+
 
 apiApp.get("/api/search", async (req, res) => {
   const artist = req.query.artist;
