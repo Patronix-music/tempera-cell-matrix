@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 app.use(cors());
@@ -10,7 +11,7 @@ app.use((req, res, next) => {
 });
 
 
-app.use(express.static("."));
+app.use(express.static(__dirname));
 app.listen(8000, () => console.log("http://localhost:8000"));
 
 const USER_AGENT = "CD-Hoes-Maker/1.0 (mailto:patrickpiersma@icloud.com)";
