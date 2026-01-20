@@ -14,7 +14,7 @@ const path = require("path");
 const STATIC_PORT = 8000;
 const API_PORT = 3000;
 
-const USER_AGENT = "CD-Hoes-Maker/1.0 (mailto:patrickpiersma@icloud.com)";
+const USER_AGENT = "CD-Hoes-Maker/1.0 ()";
 
 // =====================
 // Helpers
