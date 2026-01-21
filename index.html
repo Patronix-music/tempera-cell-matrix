@@ -1701,76 +1701,6 @@ header{ overflow: visible; }
 .helpCard.releaseNotes ul { columns: 2; column-gap: 16px; }
 .helpCard.releaseNotes li { break-inside: avoid; margin: 0 0 6px 0; }
 
-
-
-/* === TCM slider theme (volume / fade in / fade out) === */
-input[type="range"]{
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 22px;
-  background: transparent;
-}
-
-/* Track */
-input[type="range"]::-webkit-slider-runnable-track{
-  height: 10px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.14);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
-}
-
-input[type="range"]::-moz-range-track{
-  height: 10px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.14);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
-}
-
-/* Thumb */
-input[type="range"]::-webkit-slider-thumb{
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  margin-top: -5px; /* centers thumb on 10px track */
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.26), rgba(255,255,255,0.10));
-  border: 1px solid rgba(255,255,255,0.22);
-  box-shadow:
-    0 10px 22px rgba(0,0,0,0.35),
-    inset 0 1px 0 rgba(255,255,255,0.10);
-}
-
-input[type="range"]::-moz-range-thumb{
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.26), rgba(255,255,255,0.10));
-  border: 1px solid rgba(255,255,255,0.22);
-  box-shadow:
-    0 10px 22px rgba(0,0,0,0.35),
-    inset 0 1px 0 rgba(255,255,255,0.10);
-}
-
-/* Focus (keyboard) */
-input[type="range"]:focus{
-  outline: none;
-}
-input[type="range"]:focus::-webkit-slider-thumb{
-  box-shadow:
-    0 0 0 3px rgba(140,200,255,0.10),
-    0 10px 22px rgba(0,0,0,0.35),
-    inset 0 1px 0 rgba(255,255,255,0.10);
-}
-input[type="range"]:focus::-moz-range-thumb{
-  box-shadow:
-    0 0 0 3px rgba(140,200,255,0.10),
-    0 10px 22px rgba(0,0,0,0.35),
-    inset 0 1px 0 rgba(255,255,255,0.10);
-}
 </style>
 </head>
 <body>
@@ -2012,7 +1942,7 @@ input[type="range"]:focus::-moz-range-thumb{
 <div class="toast" id="toast"></div>
 
   <!-- One hidden input for all loads -->
-  <input id="fileInput" type="file" accept="audio/*" hidden />
+  <input id="fileInput" type="file" hidden />
   <input id="folderInput" type="file" accept="audio/*" webkitdirectory multiple hidden />
 
 
@@ -7789,7 +7719,17 @@ if (e.key === "Escape"){
 
   // File picker
   fileInput.addEventListener("change", async () => {
-    const files = Array.from(fileInput.files || []);
+    let files = Array.from(fileInput.files || []);
+    // iOS/Safari can grey out WAV files when accept=audio/* is used.
+    // We keep the picker unfiltered and validate here instead.
+    const wavs = files.filter(f => /\.wav$/i.test(f.name) || /audio\/(wav|x-wav)/i.test(f.type || ""));
+    if (!wavs.length){
+      toast("Only .wav files are supported");
+      fileInput.value = "";
+      return;
+    }
+    files = wavs;
+
     if (!files.length) return;
 
     const p = state.pick;
@@ -8221,30 +8161,6 @@ window.addEventListener("keydown", (ev)=>{
   }catch(_){ }
 }, {capture:true});
 
-
-
-// --- UX: double-click range sliders to reset to their default value ---
-(function(){
-  function fire(el, type){
-    try { el.dispatchEvent(new Event(type, { bubbles: true })); } catch(e){}
-  }
-  document.addEventListener("dblclick", (ev) => {
-    const el = ev.target;
-    if (!(el instanceof HTMLInputElement)) return;
-    if (el.type !== "range") return;
-
-    // Use HTML defaultValue (from the value="" attribute) if present, otherwise keep current.
-    const def = el.defaultValue;
-    if (def === undefined || def === null || def === "") return;
-
-    if (el.value !== def) {
-      el.value = def;
-      // trigger handlers that update UI/state
-      fire(el, "input");
-      fire(el, "change");
-    }
-  }, true);
-})();
 </script>
 
   
