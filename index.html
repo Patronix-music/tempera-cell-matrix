@@ -2205,7 +2205,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.7.20-beta';
+  const APP_VERSION = '2.7.21-beta';
 
   const APP_BUILD_DATE = "2026-01-22";
   const CHANGELOG = [
@@ -6382,9 +6382,22 @@ if (__inspCache.descText !== descText){
   // ====== Playback ======
   function makeAudioBufferFromLR(L,R){
     const ctx = getAudioCtx();
-    const buf = ctx.createBuffer(2, L.length, SR);
-    buf.copyToChannel(L, 0, 0);
-    buf.copyToChannel(R, 1, 0);
+
+    // iOS Safari can behave badly if buffer sampleRate differs from the AudioContext sampleRate.
+    // Keep desktop behavior intact; only resample if needed.
+    const ctxSR = ctx.sampleRate || SR;
+
+    let LL = L, RR = R;
+    if (tcmIsIOS && typeof tcmIsIOS === "function" && tcmIsIOS() && ctxSR !== SR){
+      const newLen = Math.max(1, Math.round(L.length * (ctxSR / SR)));
+      // resampleToLength is already used elsewhere in the app
+      LL = resampleToLength(L, newLen);
+      RR = resampleToLength(R, newLen);
+    }
+
+    const buf = ctx.createBuffer(2, LL.length, ctxSR);
+    buf.copyToChannel(LL, 0, 0);
+    buf.copyToChannel(RR, 1, 0);
     return buf;
   }
 
