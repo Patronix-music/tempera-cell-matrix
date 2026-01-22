@@ -2205,7 +2205,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.7.21-beta';
+  const APP_VERSION = '2.7.22-beta';
 
   const APP_BUILD_DATE = "2026-01-22";
   const CHANGELOG = [
@@ -2381,6 +2381,64 @@ function computeRootHintFromPreset(preset){
 
   document.addEventListener("pointerdown", tcmPrimeAudioOnce, {capture:true, passive:true});
   document.addEventListener("touchstart", tcmPrimeAudioOnce, {capture:true, passive:true});
+
+
+
+  // --- iOS Safari fallback: play via <audio> element (more reliable than WebAudio on some iPads) ---
+  let __tcmAudioTag = null;
+  function tcmPlayViaAudioTagFromLR(L, R, cellEl){
+    try{
+      if (!__tcmAudioTag){
+        __tcmAudioTag = new Audio();
+        __tcmAudioTag.preload = "auto";
+        __tcmAudioTag.playsInline = true;
+        __tcmAudioTag.muted = false;
+        __tcmAudioTag.volume = 1.0;
+      }
+
+      // stop any current playback
+      try{ __tcmAudioTag.pause(); }catch(_){}
+      try{ __tcmAudioTag.currentTime = 0; }catch(_){}
+
+      // update UI
+      if (cellEl){
+        cellEl.classList.add("playing");
+        state.currentCellEl = cellEl;
+      }
+
+      // build WAV blob from rendered cell audio (uses existing encoder)
+      const ab = encodeWav16Stereo(L, R);
+      const blob = new Blob([ab], {type:"audio/wav"});
+      const url = URL.createObjectURL(blob);
+
+      // revoke previous
+      try{
+        if (__tcmAudioTag.__tcmUrl) URL.revokeObjectURL(__tcmAudioTag.__tcmUrl);
+      }catch(_){}
+      __tcmAudioTag.__tcmUrl = url;
+
+      __tcmAudioTag.src = url;
+
+      __tcmAudioTag.onended = () => {
+        if (state.currentCellEl){
+          state.currentCellEl.classList.remove("playing");
+        }
+        state.currentCellEl = null;
+      };
+
+      const p = __tcmAudioTag.play();
+      if (p && typeof p.catch === "function"){
+        p.catch(()=>{});
+      }
+      return true;
+    }catch(_){
+      try{
+        if (state.currentCellEl) state.currentCellEl.classList.remove("playing");
+      }catch(_2){}
+      state.currentCellEl = null;
+      return false;
+    }
+  }
 
 const state = {
     audioCtx: null,
@@ -6382,22 +6440,9 @@ if (__inspCache.descText !== descText){
   // ====== Playback ======
   function makeAudioBufferFromLR(L,R){
     const ctx = getAudioCtx();
-
-    // iOS Safari can behave badly if buffer sampleRate differs from the AudioContext sampleRate.
-    // Keep desktop behavior intact; only resample if needed.
-    const ctxSR = ctx.sampleRate || SR;
-
-    let LL = L, RR = R;
-    if (tcmIsIOS && typeof tcmIsIOS === "function" && tcmIsIOS() && ctxSR !== SR){
-      const newLen = Math.max(1, Math.round(L.length * (ctxSR / SR)));
-      // resampleToLength is already used elsewhere in the app
-      LL = resampleToLength(L, newLen);
-      RR = resampleToLength(R, newLen);
-    }
-
-    const buf = ctx.createBuffer(2, LL.length, ctxSR);
-    buf.copyToChannel(LL, 0, 0);
-    buf.copyToChannel(RR, 1, 0);
+    const buf = ctx.createBuffer(2, L.length, SR);
+    buf.copyToChannel(L, 0, 0);
+    buf.copyToChannel(R, 1, 0);
     return buf;
   }
 
@@ -6414,6 +6459,14 @@ if (__inspCache.descText !== descText){
 
     const targetFrames = getCellFrames(row);
     const {L,R} = renderCellToTarget(cell, targetFrames);
+
+    // iOS: prefer <audio> element playback to avoid silent WebAudio on some iPads
+    if (tcmIsIOS()){
+      stopPlayback();
+      const ok = tcmPlayViaAudioTagFromLR(L, R, cellEl);
+      if (!ok) toast("iOS audio fallback failed");
+      return;
+    }
 
     const buf = makeAudioBufferFromLR(L,R);
 
@@ -6460,6 +6513,13 @@ if (__inspCache.descText !== descText){
     }
 
     if (!any){ toast("Sample column is empty"); return; }
+
+    if (tcmIsIOS()){
+      stopPlayback();
+      const ok = tcmPlayViaAudioTagFromLR(outL, outR, null);
+      if (!ok) toast("iOS audio fallback failed");
+      return;
+    }
 
     await ensureAudio();
     stopPlayback();
