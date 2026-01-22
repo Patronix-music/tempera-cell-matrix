@@ -2205,7 +2205,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.7.17-beta';
+  const APP_VERSION = '2.7.20-beta';
 
   const APP_BUILD_DATE = "2026-01-22";
   const CHANGELOG = [
@@ -2342,7 +2342,47 @@ function computeRootHintFromPreset(preset){
   const FIXED_CELL_FRAMES = FIXED_COL_FRAMES / ROWS; // 65536
 
   // ====== State ======
-  const state = {
+    // --- iOS Safari: unlock WebAudio as early as possible (does not change desktop behavior) ---
+  function tcmIsIOS(){
+    return /iPad|iPhone|iPod/.test(navigator.userAgent || "") ||
+           (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  }
+
+  let __tcmAudioPrimed = false;
+
+  function tcmUnlockAudioNow(){
+    if (!tcmIsIOS()) return;
+    try{
+      const ctx = (state && state.audioCtx) ? state.audioCtx : (typeof getAudioCtx === "function" ? getAudioCtx() : null);
+      if (!ctx) return;
+
+      if (ctx.state !== "running"){
+        try{ ctx.resume(); }catch(_){}
+        // Silent 1-sample buffer unlock (common iOS requirement)
+        try{
+          const b = ctx.createBuffer(1, 1, ctx.sampleRate);
+          const s = ctx.createBufferSource();
+          s.buffer = b;
+          s.connect(ctx.destination);
+          s.start(0);
+        }catch(_){}
+        try{ ctx.resume(); }catch(_){}
+      }
+    }catch(_){
+      // never break app
+    }
+  }
+
+  function tcmPrimeAudioOnce(){
+    if (__tcmAudioPrimed) return;
+    __tcmAudioPrimed = true;
+    tcmUnlockAudioNow();
+  }
+
+  document.addEventListener("pointerdown", tcmPrimeAudioOnce, {capture:true, passive:true});
+  document.addEventListener("touchstart", tcmPrimeAudioOnce, {capture:true, passive:true});
+
+const state = {
     audioCtx: null,
     currentSrc: null,
     currentCellEl: null,
@@ -6349,6 +6389,7 @@ if (__inspCache.descText !== descText){
   }
 
   async function playCell(col,row, cellEl){
+    tcmUnlockAudioNow();
     const cell = state.cells[col][row];
     if (!cell.left || !cell.right){
       toast("Cell is empty");
