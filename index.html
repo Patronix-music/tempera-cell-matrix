@@ -2012,7 +2012,7 @@ input[type="range"]:focus::-moz-range-thumb{
 <div class="toast" id="toast"></div>
 
   <!-- One hidden input for all loads -->
-  <input id="fileInput" type="file" accept="audio/*" hidden />
+  <input id="fileInput" type="file" hidden />
   <input id="folderInput" type="file" accept="audio/*" webkitdirectory multiple hidden />
 
 
@@ -7789,7 +7789,17 @@ if (e.key === "Escape"){
 
   // File picker
   fileInput.addEventListener("change", async () => {
-    const files = Array.from(fileInput.files || []);
+    let files = Array.from(fileInput.files || []);
+    // iOS/Safari can grey out WAV files when accept=audio/* is used.
+    // We keep the picker unfiltered and validate here instead.
+    const wavs = files.filter(f => /\.wav$/i.test(f.name) || /audio\/(wav|x-wav)/i.test(f.type || ""));
+    if (!wavs.length){
+      toast("Only .wav files are supported");
+      fileInput.value = "";
+      return;
+    }
+    files = wavs;
+
     if (!files.length) return;
 
     const p = state.pick;
