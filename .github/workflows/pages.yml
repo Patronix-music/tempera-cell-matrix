@@ -1,0 +1,68 @@
+name: Deploy Pages (stable + beta)
+
+on:
+  push:
+    branches:
+      - main
+      - beta
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch main + beta
+        run: |
+          git fetch origin main beta
+
+      - name: Create worktrees for main and beta
+        run: |
+          git worktree add ../wt-main origin/main
+          git worktree add ../wt-beta origin/beta
+
+      - name: Build Pages site folder (stable at /, beta at /beta/)
+        run: |
+          rm -rf site
+          mkdir -p site/beta
+
+          # Stable (main) to site root
+          cp -R ../wt-main/. site/
+
+          # Beta index.html to /beta/
+          cp ../wt-beta/index.html site/beta/index.html
+
+          # Avoid Jekyll processing
+          touch site/.nojekyll
+
+          # Never deploy workflow/git metadata
+          rm -rf site/.github
+          rm -rf site/.git
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+
