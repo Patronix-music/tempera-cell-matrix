@@ -1705,6 +1705,7 @@ header{ overflow: visible; }
 
 /* --- BETA badge --- */
 .betaBadge{
+  display: none;
   position: fixed;
   top: 12px;
   right: 12px;
@@ -8294,5 +8295,14 @@ window.addEventListener("keydown", (ev)=>{
     <div id="tcmMagLbl" class="tcmMagLbl"><span id="tcmMagLblTxt"></span><span id="zIndMag" class="z-indicator" title="Z: Auto-Norm">Z</span></div>
   </div>
 
+<script>
+  (function () {
+    var badge = document.querySelector(".betaBadge");
+    if (!badge) return;
+    if (location.pathname.includes("/beta/")) {
+      badge.style.display = "block";
+    }
+  })();
+</script>
 </body>
 </html>
