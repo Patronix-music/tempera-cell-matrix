@@ -2205,10 +2205,12 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.7.16';
+  const APP_VERSION = '2.7.17-beta';
 
-  const APP_BUILD_DATE = "2026-01-13";
+  const APP_BUILD_DATE = "2026-01-22";
   const CHANGELOG = [
+  
+  "2.7.17 — iOS Safari: unlock WebAudio on first touch/click so cell playback works reliably.",
   "2.7.16 — Matrix cell labels: filename truncates with … so C1–C8 stays visible.",
   "2.7.15 — Imported slices: mini-wave shows selection overlay + scissors correctly.",
   "2.7.14 — Mini-wave click always opens Wave Editor (also for sliced/imported cells).",
@@ -4524,9 +4526,32 @@ const exportAllBtn = document.getElementById("exportAllBtn");
 
   async function ensureAudio(){
     const ctx = getAudioCtx();
+
+    // iOS/Safari often starts in "suspended" until a user gesture unlocks audio.
+    try{
+      if (ctx.state !== "running"){
+        await ctx.resume();
+      }
+    }catch(_){}
+
+    // Extra hard unlock for iOS: play a 1-sample silent buffer.
     if (ctx.state !== "running"){
-      await ctx.resume();
+      try{
+        const b = ctx.createBuffer(1, 1, ctx.sampleRate);
+        const s = ctx.createBufferSource();
+        s.buffer = b;
+        s.connect(ctx.destination);
+        s.start(0);
+      }catch(_){}
+
+      try{
+        if (ctx.state !== "running"){
+          await ctx.resume();
+        }
+      }catch(_){}
     }
+
+    return ctx;
   }
 
   function stopPlayback(){
@@ -6862,7 +6887,38 @@ topFolders: computeTopFoldersFromState(),
     }
   }
 
-  // ====== Global events ======
+  
+  // iOS/Safari: unlock audio on first user gesture (touch/click) to avoid silent playback.
+  let _audioUnlocked = false;
+  function unlockAudioOnce(){
+    if (_audioUnlocked) return;
+    const ctx = getAudioCtx();
+    try{ ctx.resume(); }catch(_){}
+    try{
+      const b = ctx.createBuffer(1, 1, ctx.sampleRate);
+      const s = ctx.createBufferSource();
+      s.buffer = b;
+      s.connect(ctx.destination);
+      s.start(0);
+    }catch(_){}
+
+    const done = () => {
+      if (ctx.state === "running"){
+        _audioUnlocked = true;
+        document.removeEventListener("pointerdown", unlockAudioOnce, true);
+        document.removeEventListener("touchend", unlockAudioOnce, true);
+        try{ ctx.onstatechange = null; }catch(_){}
+      }
+    };
+    try{
+      ctx.onstatechange = done;
+    }catch(_){}
+    done();
+  }
+  document.addEventListener("pointerdown", unlockAudioOnce, true);
+  document.addEventListener("touchend", unlockAudioOnce, true);
+
+// ====== Global events ======
   enableAudioBtn.addEventListener("click", async () => {
     try{
       await ensureAudio();
