@@ -2205,7 +2205,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.7.23-beta';
+  const APP_VERSION = '2.7.24-beta';
 
   const APP_BUILD_DATE = "2026-01-22";
   const CHANGELOG = [
@@ -2469,18 +2469,7 @@ const state = {
 
 
   // ====== Full-source store for Wave Editor (foundation) ======
-  const sourceStore = new Map();
-  const MAX_SOURCE_STORE = 64; // cap decoded sources to control memory
-  function pruneSourceStore(){
-    while (sourceStore.size > MAX_SOURCE_STORE){
-      const oldestKey = sourceStore.keys().next().value;
-      const oldest = sourceStore.get(oldestKey);
-      // help GC
-      try{ if (oldest && oldest.peaksByW) oldest.peaksByW.clear(); }catch(_){ }
-      sourceStore.delete(oldestKey);
-    }
-  }
- // key -> {L,R,name,peaks}
+  const sourceStore = new Map(); // key -> {L,R,name,peaks}
   function getSourceKeyFromFile(file, fallbackName=""){
     const n0 = (file && file.name) ? file.name : (fallbackName || "");
     const n = (n0 && String(n0).trim()) ? String(n0).trim() : "sample";
@@ -2498,8 +2487,7 @@ const state = {
     if (sourceStore.has(key)) return;
     const peaks = computePeaks(left, right, 900);
     sourceStore.set(key, {L:left, R:right, name: name || "sample", peaks, peaksByW: new Map([[900,peaks]])});
-  
-    pruneSourceStore();}
+  }
 
   function makeEmptyCell(){
     return {
@@ -3669,8 +3657,7 @@ function splitDraw(){
         // Store this slice as an editor source so Wave Editor can open even if it exactly matches cell length
         const ek = `splitSlice:${col}:${r}:${Date.now()}:${Math.random().toString(16).slice(2)}`;
         sourceStore.set(ek, { L: cell.left, R: cell.right, SR: SR, name: (typeof splitSrcName!=='undefined' && splitSrcName) ? splitSrcName : "split slice" });
-        
-    pruneSourceStore();cell.editorKey = ek;
+        cell.editorKey = ek;
         cell.allowWaveEditor = true;
         // Reset Wave Editor trim/undo state when overwriting via Load+Slice Apply
         cell.editorUndo = [];
@@ -3925,7 +3912,6 @@ function waveAttachHandlers(){
         L: nL, R: nR,
         peaksByW: new Map()
       });
-        pruneSourceStore();
 
       waveEditor.key = newKey;
       waveEditor.src = sourceStore.get(newKey);
@@ -4668,20 +4654,10 @@ const exportAllBtn = document.getElementById("exportAllBtn");
 
   function stopPlayback(){
     if (state.currentSrc){
-      try { state.currentSrc.onended = null; } catch {}
       try { state.currentSrc.stop(); } catch {}
       try { state.currentSrc.disconnect(); } catch {}
-      try { state.currentSrc.buffer = null; } catch {}
       state.currentSrc = null;
     }
-    // iOS audio-tag fallback
-    try{
-      if (typeof __tcmAudioTag !== "undefined" && __tcmAudioTag){
-        __tcmAudioTag.onended = null;
-        __tcmAudioTag.pause();
-        __tcmAudioTag.currentTime = 0;
-      }
-    }catch(_){}
     if (state.currentCellEl){
       state.currentCellEl.classList.remove("playing");
       state.currentCellEl = null;
@@ -6508,8 +6484,6 @@ if (__inspCache.descText !== descText){
     src.start(0);
 
     src.onended = () => {
-      try{ src.disconnect(); }catch{}
-      try{ src.buffer = null; }catch{}
       if (state.currentCellEl){
         state.currentCellEl.classList.remove("playing");
       }
