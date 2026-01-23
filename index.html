@@ -1720,7 +1720,7 @@ header{ overflow: visible; }
         </div>
 
         <div class="actionsWrap"><div class="actions">
-          <div class="btnGroupInline"><button class="pop" id="random64Btn" title="Pick a folder (recursive) and randomly fill all 64 cells. Tip: hold Shift to filter which files are used for loading samples.">Random 64 <span class="filterIcon" aria-hidden="true"></span></button>
+          <div class="btnGroupInline"><button class="pop" id="random64Btn" title="Select a folder (including subfolders). In the picker, files may appear grey—choose the folder and confirm.">Random 64 <span class="filterIcon" aria-hidden="true"></span></button>
           <button class="warn" id="exportAllBtn">Export all (ZIP)</button>
           <button class="secondary" id="importPresetBtn" title="Load preset JSON exported by this app, then relink samples from a folder">Import Preset</button>
           <button class="secondary" id="helpBtn" title="Show help / shortcuts">Help</button></div>
@@ -1942,8 +1942,8 @@ header{ overflow: visible; }
 <div class="toast" id="toast"></div>
 
   <!-- One hidden input for all loads -->
-  <input id="fileInput" type="file" accept="audio/*" hidden />
-  <input id="folderInput" type="file" accept="audio/*" webkitdirectory multiple hidden />
+  <input id="fileInput" type="file" accept=".wav,audio/wav,audio/x-wav,audio/wave,audio/vnd.wave,audio/*" hidden />
+  <input id="folderInput" type="file" accept=".wav,audio/wav,audio/x-wav,audio/wave,audio/vnd.wave,audio/*" webkitdirectory multiple hidden />
 
 
   <!-- Help Overlay -->
@@ -2180,7 +2180,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.7.16';
+  const APP_VERSION = '2.7.27-beta';
 
   const APP_BUILD_DATE = "2026-01-13";
   const CHANGELOG = [
@@ -4870,7 +4870,36 @@ const exportAllBtn = document.getElementById("exportAllBtn");
     markAllWavesDirty();
   }
 
-  function scheduleWaveFlush(){
+  
+  function hardResetEngines(){
+    // Attempt to drop CPU/memory pressure on Safari/Firefox by stopping any pending RAF loops
+    try{ if (__waveDrawPending) { /* flag only */ __waveDrawPending = false; } }catch(e){}
+    try{ if (_waveRAF) cancelAnimationFrame(_waveRAF); }catch(e){}
+    _waveRAF = 0;
+    try{ if (splitRAF) cancelAnimationFrame(splitRAF); }catch(e){}
+    splitRAF = 0;
+    try{ if (_mag && _mag._raf) cancelAnimationFrame(_mag._raf); }catch(e){}
+    if (_mag){ _mag._raf = 0; _mag.on = false; }
+
+    // Drop wave queues / maps to release references
+    try{ _waveQueue && _waveQueue.clear(); }catch(e){}
+    try{ _waveDirty = new WeakMap(); }catch(e){}
+    try{ _waveMeta = new WeakMap(); }catch(e){}
+
+    // Stop playback + fully reset AudioContext (Safari tends to retain buffers until context is closed)
+    try{ stopPlayback(); }catch(e){}
+    try{
+      if (state && state.audioCtx){
+        const ctx = state.audioCtx;
+        state.audioCtx = null;
+        // close is async; fire and forget
+        Promise.resolve(ctx.close && ctx.close()).catch(()=>{});
+      }
+    }catch(e){}
+    state.currentSrc = null;
+    state.currentCellEl = null;
+  }
+function scheduleWaveFlush(){
     if (_waveRAF) return;
     _waveRAF = requestAnimationFrame(() => {
       _waveRAF = 0;
@@ -5726,7 +5755,7 @@ const btns = document.createElement("div");
     }
 
     updateAllTimeLabels();
-    updateAllUI();
+    updateAllUIBatched(6);
 
     // default select 1st cell
     setSelected(0,0);
@@ -5901,6 +5930,31 @@ const btns = document.createElement("div");
     }
     updateInspector();
   }
+
+  // Batched UI refresh to avoid long main-thread stalls (Safari can crash on huge synchronous redraws)
+  function updateAllUIBatched(batchCells=6){
+    const coords = [];
+    for (let c=0;c<COLS;c++){
+      for (let r=0;r<ROWS;r++) coords.push([c,r]);
+    }
+    let i = 0;
+    function step(){
+      const end = Math.min(coords.length, i + Math.max(1, batchCells|0));
+      for (; i<end; i++){
+        const [c,r] = coords[i];
+        updateCellUI(c,r);
+      }
+      if (i < coords.length){
+        requestAnimationFrame(step);
+        return;
+      }
+      // column UI can also be heavy; do it after cells
+      for (let c=0;c<COLS;c++) updateColUI(c);
+      updateInspector();
+    }
+    requestAnimationFrame(step);
+  }
+
 
   // ====== Selection + Inspector ======
   
@@ -6274,7 +6328,7 @@ if (__inspCache.descText !== descText){
   }
 
   function clearAll(){
-    stopPlayback();
+    hardResetEngines();
     for (let c=0;c<COLS;c++){
       clearColumn(c);
     }
@@ -7433,12 +7487,14 @@ if (Array.isArray(preset.cellNames)){
   }
 
   async function randomFill64FromFiles(files){
+    // Stability: reset engines before heavy batch load
+    hardResetEngines();
     try{ updateRandom64FilterIndicator(); }catch(_){}
     files = applyRandomFilters(files);
     const all = Array.from(files || []);
     const pool = all.filter(isAudioFile);
     const nonAudio = all.length - pool.length;
-    const MAX_RANDOM_SEC = 300; // Only use files shorter than this (seconds) for Random 64
+    const MAX_RANDOM_SEC = 60; // Random 64 only uses files shorter than this (seconds) // Only use files shorter than this (seconds) for Random 64
 
     if (!pool.length){
       toast(`No audio files found in that selection. (${nonAudio} non-audio items)`, 3200);
@@ -7502,9 +7558,13 @@ if (Array.isArray(preset.cellNames)){
       }
 
       if (i === 31) toast('Random fill: halfway (32/64)…', 1400);
+    
+
+      // Yield periodically to keep Safari responsive
+      if ((i % 2) === 1) await new Promise(requestAnimationFrame);
     }
 
-    updateAllUI();
+    updateAllUIBatched(6);
     if (failCount){
       toast(`Random fill complete with ${failCount} decode/load failure(s). Last: ${lastFail || "?"}`, 4200);
     } else {
