@@ -1726,64 +1726,49 @@ header{ overflow: visible; }
   pointer-events: none;
 }
 
-/* --- Perf panel (beta only) --- */
+/* --- PERF panel (overlay) --- */
 #tcmPerfPanel{
   position: fixed;
   right: 12px;
-  bottom: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
   z-index: 2147483647;
-  width: 320px;
+  width: 340px;
   max-width: calc(100vw - 24px);
   font: 12px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color: rgba(255,255,255,0.92);
-  background: linear-gradient(180deg, rgba(35,45,60,0.72), rgba(20,26,36,0.62));
+  background: linear-gradient(180deg, rgba(35,45,60,0.78), rgba(20,26,36,0.68));
   border: 1px solid rgba(170,210,255,0.18);
   border-radius: 14px;
   box-shadow: 0 18px 40px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.06);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  padding: 10px 10px 8px;
-  user-select: none;
+  overflow: hidden;
 }
-#tcmPerfPanel[hidden]{ display:none !important; }
-#tcmPerfPanel .row{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
-#tcmPerfPanel .title{ font-weight:700; letter-spacing:0.06em; opacity:0.95; }
-#tcmPerfPanel .muted{ opacity:0.75; }
-#tcmPerfPanel .btns{ display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
-#tcmPerfPanel button{
-  appearance: none;
-  border: 1px solid rgba(170,210,255,0.18);
+#tcmPerfPanel *{ box-sizing: border-box; }
+#tcmPerfHdr{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 10px 10px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+#tcmPerfHdr b{ letter-spacing: .14em; font-size: 11px; }
+#tcmPerfBody{ padding: 10px; }
+#tcmPerfBody .row{ display:flex; justify-content:space-between; gap:10px; padding: 3px 0; }
+#tcmPerfBody .k{ color: rgba(255,255,255,0.72); }
+#tcmPerfBtns{ display:flex; gap:8px; }
+#tcmPerfBtns button{
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.14);
   background: rgba(255,255,255,0.06);
   color: rgba(255,255,255,0.92);
-  padding: 6px 8px;
-  border-radius: 10px;
-  font: inherit;
-  cursor: pointer;
+  font: 600 12px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  cursor:pointer;
 }
-#tcmPerfPanel button:hover{ background: rgba(255,255,255,0.10); }
-#tcmPerfPanel pre{
-  margin: 8px 0 0;
-  padding: 8px;
-  background: rgba(0,0,0,0.18);
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.06);
-  white-space: pre-wrap;
-  word-break: break-word;
-  max-height: 220px;
-  overflow: auto;
-}
-
-/* --- PERF panel hard overlay (ensure visible above inspector/matrix) --- */
-#tcmPerfPanel, .tcmPerfPanel {
-  position: fixed !important;
-  right: 12px !important;
-  bottom: calc(12px + env(safe-area-inset-bottom)) !important;
-  top: auto !important;
-  left: auto !important;
-  z-index: 2147483647 !important;
-  pointer-events: auto !important;
-}
-#tcmPerfPanel * { pointer-events: auto !important; }
+#tcmPerfBtns button:hover{ background: rgba(255,255,255,0.10); }
+#tcmPerfMini{ font-variant-numeric: tabular-nums; }
+#tcmPerfHint{ margin-top:8px; color: rgba(255,255,255,0.62); font-size: 11px; }
 </style>
 </head>
 <body>
@@ -2264,7 +2249,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.7.27-beta';
+  const APP_VERSION = '2.7.28-beta';
 
   const APP_BUILD_DATE = "2026-01-22";
   const CHANGELOG = [
@@ -8528,10 +8513,167 @@ window.addEventListener("keydown", (ev)=>{
   (function () {
     var badge = document.querySelector(".betaBadge");
     if (!badge) return;
-    if (((location.pathname.includes('/beta/') || location.search.includes('perf=1') || location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') || location.search.includes('perf=1') || location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+    if (location.pathname.includes("/beta/")) {
       badge.style.display = "block";
     }
   })();
+</script>
+<div id="tcmPerfPanel" style="display:none">
+  <div id="tcmPerfHdr">
+    <b>PERF</b>
+    <div id="tcmPerfBtns">
+      <button type="button" id="tcmPerfToggle">Enable</button>
+      <button type="button" id="tcmPerfCopy">Copy</button>
+      <button type="button" id="tcmPerfHide">Hide</button>
+    </div>
+  </div>
+  <div id="tcmPerfBody">
+    <div id="tcmPerfMini">
+      <div class="row"><div class="k">FPS</div><div id="tcmPerfFps">–</div></div>
+      <div class="row"><div class="k">Long frames (&gt;50ms)</div><div id="tcmPerfLong">–</div></div>
+      <div class="row"><div class="k">Last frame (ms)</div><div id="tcmPerfLast">–</div></div>
+      <div class="row"><div class="k">Scroll/wheel events</div><div id="tcmPerfWheel">–</div></div>
+      <div class="row"><div class="k">Pointer move events</div><div id="tcmPerfMove">–</div></div>
+      <div class="row"><div class="k">JS heap</div><div id="tcmPerfHeap">n/a</div></div>
+    </div>
+    <div id="tcmPerfHint">Tip: open with <code>?perf=1</code> (works local) or use the beta URL.</div>
+  </div>
+</div>
+<script>
+(function(){
+  function shouldShow(){
+    try{
+      var p = String(location.pathname||"");
+      var q = String(location.search||"");
+      if (q.indexOf("perf=1") !== -1) return true;
+      if (p.indexOf("/beta/") !== -1) return true;
+      if (location.protocol === "file:") return true;
+      if (location.hostname === "localhost" || location.hostname === "127.0.0.1") return true;
+    }catch(_){}
+    return false;
+  }
+
+  var panel = document.getElementById("tcmPerfPanel");
+  if (!panel) return;
+
+  if (shouldShow()){
+    panel.style.display = "block";
+  }else{
+    return;
+  }
+
+  var enabled = false;
+  var last = performance.now();
+  var frames = 0;
+  var longFrames = 0;
+  var lastMs = 0;
+  var fps = 0;
+
+  var wheelCount = 0;
+  var moveCount = 0;
+  var wheelSince = 0;
+  var moveSince = 0;
+
+  window.addEventListener("wheel", function(){ wheelCount++; }, {passive:true});
+  window.addEventListener("scroll", function(){ wheelCount++; }, {passive:true});
+  window.addEventListener("pointermove", function(){ moveCount++; }, {passive:true});
+
+  function setText(id, v){
+    var el = document.getElementById(id);
+    if (el) el.textContent = v;
+  }
+
+  function updateHeap(){
+    // Safari: performance.memory usually undefined
+    var mem = (performance && performance.memory) ? performance.memory : null;
+    if (!mem){ setText("tcmPerfHeap","n/a"); return; }
+    var mb = Math.round((mem.usedJSHeapSize / (1024*1024)) * 10) / 10;
+    setText("tcmPerfHeap", mb + " MB");
+  }
+
+  function tick(now){
+    if (!enabled){
+      last = now;
+      requestAnimationFrame(tick);
+      return;
+    }
+    var dt = now - last;
+    last = now;
+    lastMs = dt;
+    frames++;
+    if (dt > 50) longFrames++;
+
+    // update approx 2x/sec
+    if ((now - (tick._t0||0)) > 500){
+      tick._t0 = now;
+
+      // fps over last window
+      var win = (tick._win||{t:now, f:0});
+      win.f += frames;
+      if ((now - win.t) > 2000){
+        fps = Math.round((win.f / ((now - win.t)/1000)) * 10) / 10;
+        win.t = now;
+        win.f = 0;
+      }
+      tick._win = win;
+
+      // event rates
+      var w = wheelCount - wheelSince; wheelSince = wheelCount;
+      var m = moveCount - moveSince; moveSince = moveCount;
+
+      setText("tcmPerfFps", fps ? String(fps) : "–");
+      setText("tcmPerfLong", String(longFrames));
+      setText("tcmPerfLast", String(Math.round(lastMs*10)/10));
+      setText("tcmPerfWheel", String(wheelCount) + " (+"+w+"/0.5s)");
+      setText("tcmPerfMove", String(moveCount) + " (+"+m+"/0.5s)");
+      updateHeap();
+
+      frames = 0;
+    }
+
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  var btnToggle = document.getElementById("tcmPerfToggle");
+  var btnCopy = document.getElementById("tcmPerfCopy");
+  var btnHide = document.getElementById("tcmPerfHide");
+
+  function snapshot(){
+    return [
+      "TCM PERF SNAPSHOT",
+      "url: " + location.href,
+      "ua: " + navigator.userAgent,
+      "fps: " + (fps || "n/a"),
+      "longFrames>50ms: " + longFrames,
+      "lastFrameMs: " + (Math.round(lastMs*10)/10),
+      "wheelEvents: " + wheelCount,
+      "pointerMoveEvents: " + moveCount,
+      "jsHeap: " + (document.getElementById("tcmPerfHeap") ? document.getElementById("tcmPerfHeap").textContent : "n/a")
+    ].join("
+");
+  }
+
+  btnToggle && btnToggle.addEventListener("click", function(){
+    enabled = !enabled;
+    btnToggle.textContent = enabled ? "Disable" : "Enable";
+  });
+
+  btnCopy && btnCopy.addEventListener("click", async function(){
+    var txt = snapshot();
+    try{
+      await navigator.clipboard.writeText(txt);
+      btnCopy.textContent = "Copied";
+      setTimeout(function(){ btnCopy.textContent = "Copy"; }, 900);
+    }catch(_){
+      prompt("Copy this:", txt);
+    }
+  });
+
+  btnHide && btnHide.addEventListener("click", function(){
+    panel.style.display = "none";
+  });
+})();
 </script>
 </body>
 </html>
