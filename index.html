@@ -1725,6 +1725,53 @@ header{ overflow: visible; }
   user-select: none;
   pointer-events: none;
 }
+
+/* --- Perf panel (beta only) --- */
+#tcmPerfPanel{
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 2147483647;
+  width: 320px;
+  max-width: calc(100vw - 24px);
+  font: 12px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: rgba(255,255,255,0.92);
+  background: linear-gradient(180deg, rgba(35,45,60,0.72), rgba(20,26,36,0.62));
+  border: 1px solid rgba(170,210,255,0.18);
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 10px 10px 8px;
+  user-select: none;
+}
+#tcmPerfPanel[hidden]{ display:none !important; }
+#tcmPerfPanel .row{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+#tcmPerfPanel .title{ font-weight:700; letter-spacing:0.06em; opacity:0.95; }
+#tcmPerfPanel .muted{ opacity:0.75; }
+#tcmPerfPanel .btns{ display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+#tcmPerfPanel button{
+  appearance: none;
+  border: 1px solid rgba(170,210,255,0.18);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.92);
+  padding: 6px 8px;
+  border-radius: 10px;
+  font: inherit;
+  cursor: pointer;
+}
+#tcmPerfPanel button:hover{ background: rgba(255,255,255,0.10); }
+#tcmPerfPanel pre{
+  margin: 8px 0 0;
+  padding: 8px;
+  background: rgba(0,0,0,0.18);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 220px;
+  overflow: auto;
+}
 </style>
 </head>
 <body>
@@ -2205,7 +2252,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.7.24-beta';
+  const APP_VERSION = '2.7.25-beta';
 
   const APP_BUILD_DATE = "2026-01-22";
   const CHANGELOG = [
