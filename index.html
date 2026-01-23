@@ -1720,7 +1720,7 @@ header{ overflow: visible; }
         </div>
 
         <div class="actionsWrap"><div class="actions">
-          <div class="btnGroupInline"><button class="pop" id="random64Btn" title="Pick a folder (recursive) and randomly fill all 64 cells. Tip: hold Shift to filter which files are used for loading samples.">Random 64 <span class="filterIcon" aria-hidden="true"></span></button>
+          <div class="btnGroupInline"><button class="pop" id="random64Btn" title="Select a folder (including subfolders). In the picker, files may appear grey—choose the folder and confirm.">Random 64 <span class="filterIcon" aria-hidden="true"></span></button>
           <button class="warn" id="exportAllBtn">Export all (ZIP)</button>
           <button class="secondary" id="importPresetBtn" title="Load preset JSON exported by this app, then relink samples from a folder">Import Preset</button>
           <button class="secondary" id="helpBtn" title="Show help / shortcuts">Help</button></div>
@@ -1942,8 +1942,8 @@ header{ overflow: visible; }
 <div class="toast" id="toast"></div>
 
   <!-- One hidden input for all loads -->
-  <input id="fileInput" type="file" accept="audio/*" hidden />
-  <input id="folderInput" type="file" accept="audio/*" webkitdirectory multiple hidden />
+  <input id="fileInput" type="file" accept=".wav,audio/wav,audio/x-wav,audio/wave,audio/vnd.wave,audio/*" hidden />
+  <input id="folderInput" type="file" accept=".wav,audio/wav,audio/x-wav,audio/wave,audio/vnd.wave,audio/*" webkitdirectory multiple hidden />
 
 
   <!-- Help Overlay -->
@@ -2180,7 +2180,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.7.17';
+  const APP_VERSION = '2.7.27-beta';
 
   const APP_BUILD_DATE = "2026-01-13";
   const CHANGELOG = [
@@ -2880,8 +2880,87 @@ cell.selStartFrames = waveEditor.selStart;
   }
 
 async function _playLR(L, R){
-    return playLRUnified(L, R);
+    if (!L || !R || !L.length) return;
+    await ensureAudio();
+    stopPlayback();
+    const buf = makeAudioBufferFromLR(L,R);
+    const ctx = getAudioCtx();
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    state.currentSrc = src;
+    src.start();
+    src.onended = () => { if (state.currentSrc === src) state.currentSrc = null; };
   }
+
+  function applyWaveSelectionToCell(){
+    // Apply selection: slice full source into the cell's audio buffers (used for playback/export)
+    const cell = state.cells[waveEditor.col][waveEditor.row];
+    if (!waveEditor.src) return;
+
+    const total = waveEditor.src.L.length;
+    let start = clamp(waveEditor.selStart, 0, Math.max(0, total - waveEditor.selLen));
+    if (waveEditor.snap){
+      start = findNearestZeroCrossing(waveEditor.src.L, start, 4096);
+      start = clamp(start, 0, Math.max(0, total - waveEditor.selLen));
+    }
+    const end = Math.min(total, start + waveEditor.selLen);
+
+    const L = waveEditor.src.L.subarray(start, end);
+    const R = waveEditor.src.R.subarray(start, end);
+
+    // Materialize a real copy so it survives even if source arrays are GC'd or reused
+    cell.left  = new Float32Array(L);
+    cell.right = new Float32Array(R);
+// Remember the applied trim window on the ORIGINAL full source (non-destructive metadata for preset export)
+cell.trimStartSrcFrames = start;
+cell.trimLenSrcFrames   = (end - start);
+
+// --- Mini-wave behavior: only switch the cell's visible source when the user TRIMMED in the editor ---
+// If the editor is currently showing a trimmed source (created by the Trim button), we want the cell
+// to visually become trimmed too (same as copy behavior). If the user did NOT trim and just hit Apply,
+// keep the original full source visible and only update the selection window as before.
+const editorIsTrimmed = !!(
+  (waveEditor.key && String(waveEditor.key).includes("::trim@")) ||
+  (cell.editorKey && String(cell.editorKey).includes("::trim@")) ||
+  (Array.isArray(waveEditor.undo) && waveEditor.undo.length > 0)
+);
+
+if (editorIsTrimmed){
+  // Use the editor's current trimmed source as the cell's visible source
+  cell.fullSourceKey = cell.fullSourceKey || (cell.sourceKey || waveEditor.key);
+  cell.sourceKey = waveEditor.key;
+
+  // After trimming, selection is the whole trimmed buffer
+  cell.selStartFrames = 0;
+  cell.selLenFrames   = (end - start);
+
+  // Persist editor state on the cell
+  cell.editorKey      = waveEditor.key;
+  cell.editorUndo     = Array.isArray(waveEditor.undo) ? waveEditor.undo.slice() : [];
+  cell.editorSelStart = 0;
+  cell.editorSelLen   = (end - start);
+}else{
+  // No trim: keep original source visible and store selection window in source-time
+
+  // If we previously applied a Trim (cell.sourceKey points to a trimmed source),
+  // and the editor is now back to an untrimmed view (Undo), restore the original full source.
+  if (cell.fullSourceKey && sourceStore.has(cell.fullSourceKey)){
+    cell.sourceKey = cell.fullSourceKey;
+  }
+  cell.fullSourceKey = null;
+
+  // No trim: keep original source visible and store selection window in source-time
+  // (mini-wave keeps showing full sample + selection overlay)
+  cell.selStartFrames = start;
+  cell.selLenFrames   = (end - start);
+
+  // Reset editor state to follow the full source for next open
+  cell.editorKey      = cell.sourceKey || waveEditor.key;
+  cell.editorUndo     = [];
+  cell.editorSelStart = cell.selStartFrames;
+  cell.editorSelLen   = cell.selLenFrames;
+}
 // Reset derived caches
     cell.cache = { key:"", L:null, R:null, frames:0 };
 
@@ -4431,14 +4510,6 @@ const exportAllBtn = document.getElementById("exportAllBtn");
       try { state.currentSrc.disconnect(); } catch {}
       state.currentSrc = null;
     }
-    if (state.audioTag){
-      try { state.audioTag.pause(); } catch {}
-      try { state.audioTag.currentTime = 0; } catch {}
-      if (state.audioTagUrl){
-        try{ URL.revokeObjectURL(state.audioTagUrl); }catch(_){}
-        state.audioTagUrl = null;
-      }
-    }
     if (state.currentCellEl){
       state.currentCellEl.classList.remove("playing");
       state.currentCellEl = null;
@@ -4799,7 +4870,36 @@ const exportAllBtn = document.getElementById("exportAllBtn");
     markAllWavesDirty();
   }
 
-  function scheduleWaveFlush(){
+  
+  function hardResetEngines(){
+    // Attempt to drop CPU/memory pressure on Safari/Firefox by stopping any pending RAF loops
+    try{ if (__waveDrawPending) { /* flag only */ __waveDrawPending = false; } }catch(e){}
+    try{ if (_waveRAF) cancelAnimationFrame(_waveRAF); }catch(e){}
+    _waveRAF = 0;
+    try{ if (splitRAF) cancelAnimationFrame(splitRAF); }catch(e){}
+    splitRAF = 0;
+    try{ if (_mag && _mag._raf) cancelAnimationFrame(_mag._raf); }catch(e){}
+    if (_mag){ _mag._raf = 0; _mag.on = false; }
+
+    // Drop wave queues / maps to release references
+    try{ _waveQueue && _waveQueue.clear(); }catch(e){}
+    try{ _waveDirty = new WeakMap(); }catch(e){}
+    try{ _waveMeta = new WeakMap(); }catch(e){}
+
+    // Stop playback + fully reset AudioContext (Safari tends to retain buffers until context is closed)
+    try{ stopPlayback(); }catch(e){}
+    try{
+      if (state && state.audioCtx){
+        const ctx = state.audioCtx;
+        state.audioCtx = null;
+        // close is async; fire and forget
+        Promise.resolve(ctx.close && ctx.close()).catch(()=>{});
+      }
+    }catch(e){}
+    state.currentSrc = null;
+    state.currentCellEl = null;
+  }
+function scheduleWaveFlush(){
     if (_waveRAF) return;
     _waveRAF = requestAnimationFrame(() => {
       _waveRAF = 0;
@@ -5655,7 +5755,7 @@ const btns = document.createElement("div");
     }
 
     updateAllTimeLabels();
-    updateAllUI();
+    updateAllUIBatched(6);
 
     // default select 1st cell
     setSelected(0,0);
@@ -5830,6 +5930,31 @@ const btns = document.createElement("div");
     }
     updateInspector();
   }
+
+  // Batched UI refresh to avoid long main-thread stalls (Safari can crash on huge synchronous redraws)
+  function updateAllUIBatched(batchCells=6){
+    const coords = [];
+    for (let c=0;c<COLS;c++){
+      for (let r=0;r<ROWS;r++) coords.push([c,r]);
+    }
+    let i = 0;
+    function step(){
+      const end = Math.min(coords.length, i + Math.max(1, batchCells|0));
+      for (; i<end; i++){
+        const [c,r] = coords[i];
+        updateCellUI(c,r);
+      }
+      if (i < coords.length){
+        requestAnimationFrame(step);
+        return;
+      }
+      // column UI can also be heavy; do it after cells
+      for (let c=0;c<COLS;c++) updateColUI(c);
+      updateInspector();
+    }
+    requestAnimationFrame(step);
+  }
+
 
   // ====== Selection + Inspector ======
   
@@ -6203,7 +6328,7 @@ if (__inspCache.descText !== descText){
   }
 
   function clearAll(){
-    stopPlayback();
+    hardResetEngines();
     for (let c=0;c<COLS;c++){
       clearColumn(c);
     }
@@ -6227,137 +6352,6 @@ if (__inspCache.descText !== descText){
     return buf;
   }
 
-  // ====== iOS Safari playback via <audio> (keeps desktop WebAudio path unchanged) ======
-  function isIOSLike(){
-    // Covers iPhone/iPad/iPod + iPadOS "MacIntel" with touch.
-    const ua = navigator.userAgent || "";
-    const iOS = /iPad|iPhone|iPod/.test(ua);
-    const iPadOS = (navigator.platform === "MacIntel" && (navigator.maxTouchPoints||0) > 1);
-    return iOS || iPadOS;
-  }
-
-  function ensureAudioTag(){
-    if (state.audioTag) return state.audioTag;
-    const a = document.createElement("audio");
-    a.preload = "auto";
-    a.playsInline = true;
-    a.setAttribute("playsinline", "");
-    a.setAttribute("webkit-playsinline", "");
-    a.style.display = "none";
-    document.body.appendChild(a);
-    state.audioTag = a;
-    state.audioTagUrl = null;
-    return a;
-  }
-
-  function encodeWav16Stereo(L, R, sampleRate){
-    // 16-bit PCM stereo WAV (little-endian)
-    const n = Math.min(L.length|0, R.length|0);
-    const bytesPerSample = 2;
-    const numCh = 2;
-    const blockAlign = numCh * bytesPerSample;
-    const byteRate = sampleRate * blockAlign;
-    const dataSize = n * blockAlign;
-    const buf = new ArrayBuffer(44 + dataSize);
-    const dv = new DataView(buf);
-    let o = 0;
-
-    function wstr(s){ for (let i=0;i<s.length;i++) dv.setUint8(o++, s.charCodeAt(i)); }
-    function w32(v){ dv.setUint32(o, v, true); o += 4; }
-    function w16(v){ dv.setUint16(o, v, true); o += 2; }
-
-    wstr("RIFF"); w32(36 + dataSize); wstr("WAVE");
-    wstr("fmt "); w32(16); w16(1); // PCM
-    w16(numCh); w32(sampleRate); w32(byteRate); w16(blockAlign); w16(16);
-    wstr("data"); w32(dataSize);
-
-    // interleave
-    let p = 44;
-    for (let i=0;i<n;i++){
-      let x = L[i]; x = x < -1 ? -1 : (x > 1 ? 1 : x);
-      let y = R[i]; y = y < -1 ? -1 : (y > 1 ? 1 : y);
-      dv.setInt16(p, (x * 0x7fff) | 0, true); p += 2;
-      dv.setInt16(p, (y * 0x7fff) | 0, true); p += 2;
-    }
-    return new Blob([buf], { type: "audio/wav" });
-  }
-
-  async function playLRUnified(L, R, opts){
-    opts = opts || {};
-    if (!L || !R || !L.length) return;
-
-    // iOS Safari: <audio> is most reliable for user-provided WAV playback.
-    if (isIOSLike()){
-      stopPlayback();
-      const a = ensureAudioTag();
-
-      // revoke previous URL to avoid leaks
-      if (state.audioTagUrl){
-        try{ URL.revokeObjectURL(state.audioTagUrl); }catch(_){}
-        state.audioTagUrl = null;
-      }
-
-      const wav = encodeWav16Stereo(L, R, SR);
-      const url = URL.createObjectURL(wav);
-      state.audioTagUrl = url;
-
-      a.src = url;
-      a.currentTime = 0;
-
-      if (opts.cellEl){
-        opts.cellEl.classList.add("playing");
-        state.currentCellEl = opts.cellEl;
-      }
-
-      // ensure play happens in this user gesture context
-      let playErr = null;
-      try{
-        const p = a.play();
-        if (p && typeof p.then === "function") await p;
-      }catch(e){
-        playErr = e;
-      }
-      if (playErr){
-        // fallback: try resuming WebAudio (keeps desktop behavior) but do not break iOS.
-        try{ await ensureAudio(); }catch(_){}
-        throw playErr;
-      }
-
-      a.onended = () => {
-        if (state.currentCellEl){
-          state.currentCellEl.classList.remove("playing");
-        }
-        state.currentCellEl = null;
-      };
-      return;
-    }
-
-    // Desktop / non-iOS: fast path using WebAudio
-    await ensureAudio();
-    stopPlayback();
-    const buf = makeAudioBufferFromLR(L,R);
-    const ctx = getAudioCtx();
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    src.connect(ctx.destination);
-
-    if (opts.cellEl){
-      opts.cellEl.classList.add("playing");
-      state.currentCellEl = opts.cellEl;
-    }
-
-    state.currentSrc = src;
-    src.start(0);
-
-    src.onended = () => {
-      if (state.currentCellEl){
-        state.currentCellEl.classList.remove("playing");
-      }
-      state.currentCellEl = null;
-      state.currentSrc = null;
-    };
-  }
-
   async function playCell(col,row, cellEl){
     const cell = state.cells[col][row];
     if (!cell.left || !cell.right){
@@ -6371,9 +6365,28 @@ if (__inspCache.descText !== descText){
     const targetFrames = getCellFrames(row);
     const {L,R} = renderCellToTarget(cell, targetFrames);
 
+    const buf = makeAudioBufferFromLR(L,R);
 
-    await playLRUnified(L, R, { cellEl });
-    return;
+    const ctx = getAudioCtx();
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+
+    if (cellEl){
+      cellEl.classList.add("playing");
+      state.currentCellEl = cellEl;
+    }
+
+    state.currentSrc = src;
+    src.start(0);
+
+    src.onended = () => {
+      if (state.currentCellEl){
+        state.currentCellEl.classList.remove("playing");
+      }
+      state.currentCellEl = null;
+      state.currentSrc = null;
+    };
   }
 
   async function playColumn(col){
@@ -6398,7 +6411,16 @@ if (__inspCache.descText !== descText){
 
     if (!any){ toast("Sample column is empty"); return; }
 
-    await playLRUnified(outL, outR);
+    await ensureAudio();
+    stopPlayback();
+
+    const buf = makeAudioBufferFromLR(outL, outR);
+    const ctx = getAudioCtx();
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    state.currentSrc = src;
+    src.start(0);
     toast(`Play column ${col+1}`);
   }
 
@@ -7465,12 +7487,14 @@ if (Array.isArray(preset.cellNames)){
   }
 
   async function randomFill64FromFiles(files){
+    // Stability: reset engines before heavy batch load
+    hardResetEngines();
     try{ updateRandom64FilterIndicator(); }catch(_){}
     files = applyRandomFilters(files);
     const all = Array.from(files || []);
     const pool = all.filter(isAudioFile);
     const nonAudio = all.length - pool.length;
-    const MAX_RANDOM_SEC = 300; // Only use files shorter than this (seconds) for Random 64
+    const MAX_RANDOM_SEC = 60; // Random 64 only uses files shorter than this (seconds) // Only use files shorter than this (seconds) for Random 64
 
     if (!pool.length){
       toast(`No audio files found in that selection. (${nonAudio} non-audio items)`, 3200);
@@ -7534,9 +7558,13 @@ if (Array.isArray(preset.cellNames)){
       }
 
       if (i === 31) toast('Random fill: halfway (32/64)…', 1400);
+    
+
+      // Yield periodically to keep Safari responsive
+      if ((i % 2) === 1) await new Promise(requestAnimationFrame);
     }
 
-    updateAllUI();
+    updateAllUIBatched(6);
     if (failCount){
       toast(`Random fill complete with ${failCount} decode/load failure(s). Last: ${lastFail || "?"}`, 4200);
     } else {
