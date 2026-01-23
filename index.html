@@ -1772,6 +1772,18 @@ header{ overflow: visible; }
   max-height: 220px;
   overflow: auto;
 }
+
+/* --- PERF panel hard overlay (ensure visible above inspector/matrix) --- */
+#tcmPerfPanel, .tcmPerfPanel {
+  position: fixed !important;
+  right: 12px !important;
+  bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+  top: auto !important;
+  left: auto !important;
+  z-index: 2147483647 !important;
+  pointer-events: auto !important;
+}
+#tcmPerfPanel * { pointer-events: auto !important; }
 </style>
 </head>
 <body>
@@ -2252,7 +2264,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.7.26-beta';
+  const APP_VERSION = '2.7.27-beta';
 
   const APP_BUILD_DATE = "2026-01-22";
   const CHANGELOG = [
