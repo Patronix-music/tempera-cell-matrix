@@ -1726,49 +1726,49 @@ header{ overflow: visible; }
   pointer-events: none;
 }
 
-/* --- PERF panel (overlay) --- */
+/* --- PERF monitor overlay (safe, standalone) --- */
 #tcmPerfPanel{
   position: fixed;
   right: 12px;
   bottom: calc(12px + env(safe-area-inset-bottom));
+  width: min(360px, calc(100vw - 24px));
+  max-height: min(46vh, 420px);
+  overflow: hidden;
   z-index: 2147483647;
-  width: 340px;
-  max-width: calc(100vw - 24px);
-  font: 12px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  color: rgba(255,255,255,0.92);
-  background: linear-gradient(180deg, rgba(35,45,60,0.78), rgba(20,26,36,0.68));
-  border: 1px solid rgba(170,210,255,0.18);
   border-radius: 14px;
-  box-shadow: 0 18px 40px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(12,14,18,0.78);
+  color: rgba(255,255,255,0.92);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  overflow: hidden;
+  box-shadow: 0 18px 48px rgba(0,0,0,0.45);
+  font: 12px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
-#tcmPerfPanel *{ box-sizing: border-box; }
-#tcmPerfHdr{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding: 10px 10px 8px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+#tcmPerfPanel .tcmPerfHead{
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 10px 10px 8px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
 }
-#tcmPerfHdr b{ letter-spacing: .14em; font-size: 11px; }
-#tcmPerfBody{ padding: 10px; }
-#tcmPerfBody .row{ display:flex; justify-content:space-between; gap:10px; padding: 3px 0; }
-#tcmPerfBody .k{ color: rgba(255,255,255,0.72); }
-#tcmPerfBtns{ display:flex; gap:8px; }
-#tcmPerfBtns button{
-  padding: 6px 10px;
+#tcmPerfPanel .tcmPerfTitle{
+  font-weight: 700; letter-spacing: .12em;
+}
+#tcmPerfPanel .tcmPerfBtns{ display:flex; gap:8px; align-items:center; }
+#tcmPerfPanel button{
   border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.10);
   color: rgba(255,255,255,0.92);
-  font: 600 12px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  cursor:pointer;
+  padding: 5px 8px;
+  cursor: pointer;
 }
-#tcmPerfBtns button:hover{ background: rgba(255,255,255,0.10); }
-#tcmPerfMini{ font-variant-numeric: tabular-nums; }
-#tcmPerfHint{ margin-top:8px; color: rgba(255,255,255,0.62); font-size: 11px; }
+#tcmPerfPanel button:hover{ background: rgba(255,255,255,0.16); }
+#tcmPerfPanel pre{
+  margin:0;
+  padding: 10px 12px 12px 12px;
+  overflow:auto;
+  max-height: calc(min(46vh, 420px) - 46px);
+  white-space: pre-wrap;
+}
 </style>
 </head>
 <body>
@@ -2249,7 +2249,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.7.28-beta';
+  const APP_VERSION = '2.7.29-beta';
 
   const APP_BUILD_DATE = "2026-01-22";
   const CHANGELOG = [
@@ -8519,158 +8519,162 @@ window.addEventListener("keydown", (ev)=>{
   })();
 </script>
 <div id="tcmPerfPanel" style="display:none">
-  <div id="tcmPerfHdr">
-    <b>PERF</b>
-    <div id="tcmPerfBtns">
-      <button type="button" id="tcmPerfToggle">Enable</button>
-      <button type="button" id="tcmPerfCopy">Copy</button>
-      <button type="button" id="tcmPerfHide">Hide</button>
+  <div class="tcmPerfHead">
+    <div class="tcmPerfTitle">PERF</div>
+    <div class="tcmPerfBtns">
+      <button id="tcmPerfEnable" type="button">Enable</button>
+      <button id="tcmPerfCopy" type="button">Copy</button>
+      <button id="tcmPerfClose" type="button">×</button>
     </div>
   </div>
-  <div id="tcmPerfBody">
-    <div id="tcmPerfMini">
-      <div class="row"><div class="k">FPS</div><div id="tcmPerfFps">–</div></div>
-      <div class="row"><div class="k">Long frames (&gt;50ms)</div><div id="tcmPerfLong">–</div></div>
-      <div class="row"><div class="k">Last frame (ms)</div><div id="tcmPerfLast">–</div></div>
-      <div class="row"><div class="k">Scroll/wheel events</div><div id="tcmPerfWheel">–</div></div>
-      <div class="row"><div class="k">Pointer move events</div><div id="tcmPerfMove">–</div></div>
-      <div class="row"><div class="k">JS heap</div><div id="tcmPerfHeap">n/a</div></div>
-    </div>
-    <div id="tcmPerfHint">Tip: open with <code>?perf=1</code> (works local) or use the beta URL.</div>
-  </div>
+  <pre id="tcmPerfOut">Perf monitor ready.</pre>
 </div>
 <script>
 (function(){
   function shouldShow(){
     try{
-      var p = String(location.pathname||"");
-      var q = String(location.search||"");
-      if (q.indexOf("perf=1") !== -1) return true;
-      if (p.indexOf("/beta/") !== -1) return true;
-      if (location.protocol === "file:") return true;
+      var p = (location.pathname || "");
+      var q = new URLSearchParams(location.search || "");
+      if (q.get("perf") === "1") return true;
+      if (p.includes("/beta/")) return true;
       if (location.hostname === "localhost" || location.hostname === "127.0.0.1") return true;
-    }catch(_){}
+      if ((location.protocol || "").startsWith("file")) return true;
+    }catch(e){}
     return false;
   }
 
   var panel = document.getElementById("tcmPerfPanel");
   if (!panel) return;
+  if (!shouldShow()) return;
+  panel.style.display = "block";
 
-  if (shouldShow()){
-    panel.style.display = "block";
-  }else{
-    return;
-  }
+  var out = document.getElementById("tcmPerfOut");
+  var btnEnable = document.getElementById("tcmPerfEnable");
+  var btnCopy = document.getElementById("tcmPerfCopy");
+  var btnClose = document.getElementById("tcmPerfClose");
 
   var enabled = false;
-  var last = performance.now();
+
+  // Basic metrics
   var frames = 0;
-  var longFrames = 0;
-  var lastMs = 0;
   var fps = 0;
+  var lastFpsT = performance.now();
+  var longTasks = 0;
+  var longTaskTotal = 0;
+  var lastLongTask = 0;
+  var maxFrame = 0;
+  var lastFrameT = performance.now();
+  var memJS = null; // Chrome only
+  var memNote = "";
 
-  var wheelCount = 0;
-  var moveCount = 0;
-  var wheelSince = 0;
-  var moveSince = 0;
+  function fmt(n, d){ return (isFinite(n) ? n.toFixed(d) : "n/a"); }
 
-  window.addEventListener("wheel", function(){ wheelCount++; }, {passive:true});
-  window.addEventListener("scroll", function(){ wheelCount++; }, {passive:true});
-  window.addEventListener("pointermove", function(){ moveCount++; }, {passive:true});
-
-  function setText(id, v){
-    var el = document.getElementById(id);
-    if (el) el.textContent = v;
+  // Long task observer (if available)
+  var po = null;
+  function startLongTaskObs(){
+    try{
+      if (!("PerformanceObserver" in window)) return;
+      po = new PerformanceObserver(function(list){
+        var entries = list.getEntries();
+        for (var i=0;i<entries.length;i++){
+          var dur = entries[i].duration || 0;
+          if (dur > 0){
+            longTasks++;
+            longTaskTotal += dur;
+            lastLongTask = dur;
+          }
+        }
+      });
+      po.observe({entryTypes:["longtask"]});
+    }catch(e){}
   }
 
-  function updateHeap(){
-    // Safari: performance.memory usually undefined
-    var mem = (performance && performance.memory) ? performance.memory : null;
-    if (!mem){ setText("tcmPerfHeap","n/a"); return; }
-    var mb = Math.round((mem.usedJSHeapSize / (1024*1024)) * 10) / 10;
-    setText("tcmPerfHeap", mb + " MB");
+  function stopLongTaskObs(){
+    try{ if (po) po.disconnect(); }catch(e){}
+    po = null;
   }
 
-  function tick(now){
-    if (!enabled){
-      last = now;
-      requestAnimationFrame(tick);
-      return;
-    }
-    var dt = now - last;
-    last = now;
-    lastMs = dt;
-    frames++;
-    if (dt > 50) longFrames++;
-
-    // update approx 2x/sec
-    if ((now - (tick._t0||0)) > 500){
-      tick._t0 = now;
-
-      // fps over last window
-      var win = (tick._win||{t:now, f:0});
-      win.f += frames;
-      if ((now - win.t) > 2000){
-        fps = Math.round((win.f / ((now - win.t)/1000)) * 10) / 10;
-        win.t = now;
-        win.f = 0;
+  function sampleMemory(){
+    // Chromium: performance.memory; Safari: not available.
+    try{
+      if (performance && performance.memory && performance.memory.usedJSHeapSize){
+        memJS = performance.memory.usedJSHeapSize / (1024*1024);
+        memNote = "";
+      }else{
+        memJS = null;
+        memNote = "JS heap: n/a (Safari hides this)";
       }
-      tick._win = win;
+    }catch(e){
+      memJS = null;
+      memNote = "JS heap: n/a";
+    }
+  }
 
-      // event rates
-      var w = wheelCount - wheelSince; wheelSince = wheelCount;
-      var m = moveCount - moveSince; moveSince = moveCount;
+  function render(){
+    sampleMemory();
+    var now = performance.now();
+    var dt = now - lastFrameT;
+    if (dt > maxFrame) maxFrame = dt;
+    lastFrameT = now;
 
-      setText("tcmPerfFps", fps ? String(fps) : "–");
-      setText("tcmPerfLong", String(longFrames));
-      setText("tcmPerfLast", String(Math.round(lastMs*10)/10));
-      setText("tcmPerfWheel", String(wheelCount) + " (+"+w+"/0.5s)");
-      setText("tcmPerfMove", String(moveCount) + " (+"+m+"/0.5s)");
-      updateHeap();
-
+    frames++;
+    if (now - lastFpsT >= 1000){
+      fps = frames * 1000 / (now - lastFpsT);
       frames = 0;
+      lastFpsT = now;
+      // decay maxFrame slowly
+      maxFrame = Math.max(maxFrame, 0);
     }
 
-    requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
+    var s = "";
+    s += "FPS: " + fmt(fps,1) + "
+";
+    s += "Max frame (ms): " + fmt(maxFrame,1) + "
+";
+    s += "Long tasks: " + longTasks + " | last(ms): " + fmt(lastLongTask,1) + " | total(ms): " + fmt(longTaskTotal,1) + "
+";
+    s += (memJS !== null ? ("JS heap used (MB): " + fmt(memJS,1)) : memNote) + "
+";
+    s += "
+Tips:
+- Run Random 64 a few times
+- Scroll matrix
+- Edit slices
+Then click Copy and paste here.
+";
+    out.textContent = s;
 
-  var btnToggle = document.getElementById("tcmPerfToggle");
-  var btnCopy = document.getElementById("tcmPerfCopy");
-  var btnHide = document.getElementById("tcmPerfHide");
-
-  function snapshot(){
-    return [
-      "TCM PERF SNAPSHOT",
-      "url: " + location.href,
-      "ua: " + navigator.userAgent,
-      "fps: " + (fps || "n/a"),
-      "longFrames>50ms: " + longFrames,
-      "lastFrameMs: " + (Math.round(lastMs*10)/10),
-      "wheelEvents: " + wheelCount,
-      "pointerMoveEvents: " + moveCount,
-      "jsHeap: " + (document.getElementById("tcmPerfHeap") ? document.getElementById("tcmPerfHeap").textContent : "n/a")
-    ].join("
-");
+    if (enabled) requestAnimationFrame(render);
   }
 
-  btnToggle && btnToggle.addEventListener("click", function(){
+  btnEnable && btnEnable.addEventListener("click", function(){
     enabled = !enabled;
-    btnToggle.textContent = enabled ? "Disable" : "Enable";
+    btnEnable.textContent = enabled ? "Disable" : "Enable";
+    if (enabled){
+      longTasks = 0; longTaskTotal = 0; lastLongTask = 0; maxFrame = 0;
+      lastFpsT = performance.now(); frames = 0;
+      lastFrameT = performance.now();
+      startLongTaskObs();
+      requestAnimationFrame(render);
+    }else{
+      stopLongTaskObs();
+      out.textContent = "Perf monitor paused.
+Click Enable to resume.";
+    }
   });
 
   btnCopy && btnCopy.addEventListener("click", async function(){
-    var txt = snapshot();
+    var txt = out.textContent || "";
     try{
       await navigator.clipboard.writeText(txt);
       btnCopy.textContent = "Copied";
       setTimeout(function(){ btnCopy.textContent = "Copy"; }, 900);
-    }catch(_){
+    }catch(e){
       prompt("Copy this:", txt);
     }
   });
 
-  btnHide && btnHide.addEventListener("click", function(){
+  btnClose && btnClose.addEventListener("click", function(){
     panel.style.display = "none";
   });
 })();
