@@ -2249,7 +2249,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.7.29-beta';
+  const APP_VERSION = '2.7.30-beta';
 
   const APP_BUILD_DATE = "2026-01-22";
   const CHANGELOG = [
@@ -8555,7 +8555,6 @@ window.addEventListener("keydown", (ev)=>{
 
   var enabled = false;
 
-  // Basic metrics
   var frames = 0;
   var fps = 0;
   var lastFpsT = performance.now();
@@ -8564,12 +8563,11 @@ window.addEventListener("keydown", (ev)=>{
   var lastLongTask = 0;
   var maxFrame = 0;
   var lastFrameT = performance.now();
-  var memJS = null; // Chrome only
+  var memJS = null;
   var memNote = "";
 
   function fmt(n, d){ return (isFinite(n) ? n.toFixed(d) : "n/a"); }
 
-  // Long task observer (if available)
   var po = null;
   function startLongTaskObs(){
     try{
@@ -8588,14 +8586,12 @@ window.addEventListener("keydown", (ev)=>{
       po.observe({entryTypes:["longtask"]});
     }catch(e){}
   }
-
   function stopLongTaskObs(){
     try{ if (po) po.disconnect(); }catch(e){}
     po = null;
   }
 
   function sampleMemory(){
-    // Chromium: performance.memory; Safari: not available.
     try{
       if (performance && performance.memory && performance.memory.usedJSHeapSize){
         memJS = performance.memory.usedJSHeapSize / (1024*1024);
@@ -8622,26 +8618,18 @@ window.addEventListener("keydown", (ev)=>{
       fps = frames * 1000 / (now - lastFpsT);
       frames = 0;
       lastFpsT = now;
-      // decay maxFrame slowly
-      maxFrame = Math.max(maxFrame, 0);
     }
 
-    var s = "";
-    s += "FPS: " + fmt(fps,1) + "
-";
-    s += "Max frame (ms): " + fmt(maxFrame,1) + "
-";
-    s += "Long tasks: " + longTasks + " | last(ms): " + fmt(lastLongTask,1) + " | total(ms): " + fmt(longTaskTotal,1) + "
-";
-    s += (memJS !== null ? ("JS heap used (MB): " + fmt(memJS,1)) : memNote) + "
-";
-    s += "
+    var s = `FPS: ${fmt(fps,1)}
+Max frame (ms): ${fmt(maxFrame,1)}
+Long tasks: ${longTasks} | last(ms): ${fmt(lastLongTask,1)} | total(ms): ${fmt(longTaskTotal,1)}
+${memJS !== null ? ("JS heap used (MB): " + fmt(memJS,1)) : memNote}
+
 Tips:
+- Click Enable
 - Run Random 64 a few times
-- Scroll matrix
-- Edit slices
-Then click Copy and paste here.
-";
+- Scroll matrix, edit slices
+- Click Copy and paste the snapshot`;
     out.textContent = s;
 
     if (enabled) requestAnimationFrame(render);
@@ -8658,8 +8646,7 @@ Then click Copy and paste here.
       requestAnimationFrame(render);
     }else{
       stopLongTaskObs();
-      out.textContent = "Perf monitor paused.
-Click Enable to resume.";
+      out.textContent = "Perf monitor paused. Click Enable to resume.";
     }
   });
 
