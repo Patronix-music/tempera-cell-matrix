@@ -2252,7 +2252,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.7.25-beta';
+  const APP_VERSION = '2.7.26-beta';
 
   const APP_BUILD_DATE = "2026-01-22";
   const CHANGELOG = [
@@ -8516,7 +8516,7 @@ window.addEventListener("keydown", (ev)=>{
   (function () {
     var badge = document.querySelector(".betaBadge");
     if (!badge) return;
-    if (location.pathname.includes("/beta/")) {
+    if (((location.pathname.includes('/beta/') || location.search.includes('perf=1') || location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') || location.search.includes('perf=1') || location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
       badge.style.display = "block";
     }
   })();
