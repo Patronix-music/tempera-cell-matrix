@@ -26,6 +26,7 @@ https://patronix-music.github.io/tempera-cell-matrix/
 - Scissors only visible when file is edited, also when preset is loaded.
 - IOS Audio is audible and file picker can load WAV files.
 
+
 ## ✨ What’s new in v2.7
 
 ### Load + Slice Editor (major upgrade)
