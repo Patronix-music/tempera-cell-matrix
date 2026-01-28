@@ -13,6 +13,18 @@ Focus: **fast, visual sample preparation** that feels like an **instrument**, no
 https://patronix-music.github.io/tempera-cell-matrix/
 
 ---
+## ✨ What’s new in v2.9
+
+### CPU and memory overload for Safari fixed. Chrome is also low on CPU.
+- NEW RELEASE and separate HELP-editor for easy writing.
+- Import Preset restores selection for long samples (mini-wave + Wave Editor).
+- Sliders are themed with double-click option for reset.
+— Reset Volume/Fade sliders on every load (Load, Load 8, Load+Slice, Random 64).
+- Green play-outline plays length of sample instead of cell.
+- Source file duration in Wave/Slice editor.
+- Slice behavior fine-tuned.
+- Scissors only visible when file is edited, also when preset is loaded.
+- IOS Audio is audible and file picker can load WAV files.
 
 ## ✨ What’s new in v2.7
 
