@@ -602,6 +602,9 @@
       justify-content: space-between;
       align-items:center;
     }
+    .cellBtns .left, .cellBtns .right{ display:flex; gap: 6px; align-items:center; flex-wrap: nowrap; }
+    .cellBtns .right{ margin-left:auto; }
+
     .cellBtns .left, .cellBtns .right{
       display:flex;
       gap: 6px;
@@ -1043,7 +1046,7 @@
 
     /* Number steppers (Safari-safe) */
 
-/* v2.5.12: hide native number input spinners (Firefox + WebKit) */
+/* v2.8.68: hide native number input spinners (Firefox + WebKit) */
 input[type="number"]{
   -moz-appearance: textfield;   /* Firefox */
   appearance: textfield;        /* modern */
@@ -1301,12 +1304,12 @@ input[type="number"]::-webkit-inner-spin-button{
     }
 
 
-/* v2.28.43: M/R pills normal weight */
+/* v2.8.68: M/R pills normal weight */
 .cellTop .icons .icon{ font-weight: 400 !important; }
 
 
 
-/* v2.28.48: keep all 6 inspector control blocks on one row (when screen allows) */
+/* v2.8.68: keep all 6 inspector control blocks on one row (when screen allows) */
 .inspBody{
   grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
 }
@@ -1321,14 +1324,14 @@ input[type="number"]::-webkit-inner-spin-button{
   word-break: break-word;
   line-height: 1.25;
 }
-/* v2.28.49: Info control should be same width as other inspector controls */
+/* v2.8.68: Info control should be same width as other inspector controls */
 .infoCtrl{ grid-column: auto !important; }
 
-/* v2.28.52: Info block mag niet clippen */
+/* v2.8.68: Info block mag niet clippen */
 .ctrl.infoCtrl{ overflow: visible; }
 
 
-/* v2.28.57: visual separators between header control groups */
+/* v2.8.68: visual separators between header control groups */
 .actions .sep{
   width: 1px;
   height: 32px;                 /* match button height */
@@ -1340,7 +1343,7 @@ input[type="number"]::-webkit-inner-spin-button{
 }
 
 
-/* v2.28.59: prevent header horizontal overflow (Name field) */
+/* v2.8.68: prevent header horizontal overflow (Name field) */
 .actions .field{ min-width: 0; }
 .actions .field input[type="text"]{ min-width: 0; box-sizing: border-box; }
 
@@ -1354,7 +1357,7 @@ input[type="number"]::-webkit-inner-spin-button{
   max-width: 100%;
 }
 
-/* v2.5.4: merged Name input + history dropdown button (no typeahead) */
+/* v2.8.68: merged Name input + history dropdown button (no typeahead) */
 .field.nameTpl{ position: relative; }
 .field.nameTpl .tplWrap{ display:flex; align-items:stretch; gap:0; margin-top: 6px; }
 .field.nameTpl .tplWrap > *{ height: calc(var(--ctrlH) - 8px); }
@@ -1422,12 +1425,13 @@ input[type="number"]::-webkit-inner-spin-button{
   max-width: 100%;
   height: calc(var(--ctrlH) - 8px);
 }
-/* v2.3.1: editable column names */
+/* v2.8.68: editable column names */
 .colName{ display:flex; flex-direction:column; gap:6px; min-width: 0; }
 .colTitle{ font-size: 11px; opacity: .85; }
 .colTitleInput{
   width: 100%;
-  max-width: 220px;
+  max-width: none;
+  box-sizing: border-box;
   padding: 6px 8px;
   border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.14);
@@ -1441,10 +1445,10 @@ input[type="number"]::-webkit-inner-spin-button{
 }
 
 
-/* v2.4.0: export preset naming + column name input styled like cell buttons */
+/* v2.8.68: export preset naming + column name input styled like cell buttons */
 .colTitleInput{
   width: 100%;
-  max-width: 240px;
+  max-width: none;
   padding: 7px 10px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.14);
@@ -1464,13 +1468,13 @@ input[type="number"]::-webkit-inner-spin-button{
 }
 
 
-/* v2.5.5: allow header dropdowns to overlap main */
+/* v2.8.68: allow header dropdowns to overlap main */
 header{ overflow: visible; }
 .actions{ overflow: visible; }
 
 
 
-/* v2.5.24 Wave Editor overlay (foundation) */
+/* v2.8.68 Wave Editor overlay (foundation) */
 .wavePanel{ width: min(980px, calc(100vw - 24px)); }
 .waveEditorWrap{ display:flex; flex-direction:column; gap:12px; }
 .waveBig{ width:100%; height:auto; border-radius:14px; border:1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.25); }
@@ -1481,7 +1485,7 @@ header{ overflow: visible; }
 .waveEditorHint{ font-size:12px; opacity:0.7; }
 
 
-/* v2.5.30 Wave Editor shortcuts */
+/* v2.8.68 Wave Editor shortcuts */
 .waveShortcuts{ margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.10); }
 .waveShortcutsTitle{ font-size:12px; opacity:0.85; margin-bottom:6px; letter-spacing:0.2px; }
 .waveShortcutsList{ margin:0; padding-left:18px; column-count:2; column-gap:26px; }
@@ -1490,7 +1494,7 @@ header{ overflow: visible; }
 
 
 
-/* v2.6.7 Wave Editor affordances */
+/* v2.8.68 Wave Editor affordances */
 .wave.waveLong {
   cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2732%27%20height%3D%2732%27%20viewBox%3D%270%200%2032%2032%27%3E%0A%3Cpath%20d%3D%27M10.2%208.2a3.2%203.2%200%201%200%200%206.4a3.2%203.2%200%200%200%200-6.4Zm0%201.8a1.4%201.4%200%201%201%200%202.8a1.4%201.4%200%200%201%200-2.8Zm11.6%200a3.2%203.2%200%201%200%200%206.4a3.2%203.2%200%200%200%200-6.4Zm0%201.8a1.4%201.4%200%201%201%200%202.8a1.4%201.4%200%200%201%200-2.8Z%27%20fill%3D%27white%27%20fill-opacity%3D%270.95%27/%3E%0A%3Cpath%20d%3D%27M12.2%2014.2l7.6%207.6c.4.4.4%201%200%201.4s-1%20.4-1.4%200l-7.6-7.6l-2.6%202.6c-.4.4-1%20.4-1.4%200s-.4-1%200-1.4l4-4c.4-.4%201-.4%201.4%200Z%27%20fill%3D%27white%27%20fill-opacity%3D%270.95%27/%3E%0A%3Cpath%20d%3D%27M19.8%2014.2l-7.6%207.6c-.4.4-.4%201%200%201.4s1%20.4%201.4%200l7.6-7.6l2.6%202.6c.4.4%201%20.4%201.4%200s.4-1%200-1.4l-4-4c-.4-.4-1-.4-1.4%200Z%27%20fill%3D%27white%27%20fill-opacity%3D%270.95%27/%3E%0A%3C/svg%3E") 16 16, pointer;
 }
@@ -1499,7 +1503,7 @@ header{ overflow: visible; }
 }
 
 
-/* v2.6.7 Scissors affordance (cross-browser) */
+/* v2.8.68 Scissors affordance (cross-browser) */
 .wave.scissors{ cursor: crosshair; }
 .waveBadge{
   position:absolute;
@@ -1518,7 +1522,7 @@ header{ overflow: visible; }
 }
 
 
-/* v2.6.7 Wave Editor corner scissor */
+/* v2.8.68 Wave Editor corner scissor */
 .waveCanvasWrap{ position:relative; }
 .waveScissorIcon{
   position:absolute;
@@ -1533,7 +1537,7 @@ header{ overflow: visible; }
 }
 
 
-/* v2.6.7 Waveform wrapper for in-scope scissors */
+/* v2.8.68 Waveform wrapper for in-scope scissors */
 .waveWrap{ position:relative; display:block; }
 .waveWrap .waveBadge{
   position:absolute;
@@ -1553,7 +1557,7 @@ header{ overflow: visible; }
 }
 
 
-/* v2.6.7 Random 64 filter indicator */
+/* v2.8.68 Random 64 filter indicator */
 #random64Btn{ position:relative; }
 #random64Btn .filterIcon{
   display:none;
@@ -1675,7 +1679,7 @@ header{ overflow: visible; }
 }
 #tcmMag.tcmMagOn{ opacity: 1; transform: translate(-50%, -115%); }
 
-/* Help compactness tweaks (2.7.16) */
+/* Help compactness tweaks (2.7.39) */
 .helpCardRelease .helpList{ column-gap: 18px; }
 .helpCardRelease .helpList li{ margin: 2px 0; }
 .helpCardRelease{ padding-bottom: 10px; }
@@ -1701,6 +1705,101 @@ header{ overflow: visible; }
 .helpCard.releaseNotes ul { columns: 2; column-gap: 16px; }
 .helpCard.releaseNotes li { break-inside: avoid; margin: 0 0 6px 0; }
 
+
+    /* Wave Editor: Slice badge (does not shift buttons) */
+    #waveOverlay .wavePanel{ position: relative; }
+    #waveSliceHint
+/* Slice badge in Wave Editor (non-intrusive; bottom-right; does not push buttons) */
+#waveOverlay .helpPanel.wavePanel{ position: relative; }
+#waveOverlay .waveSliceHint{
+  position:absolute;
+  right:12px;
+  bottom:10px;
+  z-index:5;
+  padding:2px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.85);
+  color:rgba(0,0,0,0.85);
+  font-size:12px;
+  line-height:1.2;
+  border:1px solid rgba(0,0,0,0.15);
+  pointer-events:none;
+}
+
+
+
+/* Prevent accidental text selection (esp. iPad/iPhone) */
+html, body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+* {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+/* Allow selection/cursor in editable fields */
+input, textarea, [contenteditable="true"], [contenteditable=""] {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
+
+/* Themed sliders (Volume / Fade) */
+input[type="range"]{
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 18px;
+  background: transparent;
+  margin: 0;
+  padding: 0;
+  touch-action: pan-x;
+}
+input[type="range"]:focus{ outline: none; }
+
+/* WebKit track */
+input[type="range"]::-webkit-slider-runnable-track{
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+/* WebKit thumb */
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -5px; /* center on 10px track */
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.75), rgba(255,255,255,0.25) 40%, rgba(255,255,255,0.0) 60%), var(--accent);
+  border: 1px solid rgba(255,255,255,0.28);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+}
+/* Firefox track */
+input[type="range"]::-moz-range-track{
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+}
+input[type="range"]::-moz-range-thumb{
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--accent);
+  border: 1px solid rgba(255,255,255,0.28);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+}
+/* Reduce the default iOS highlight */
+input[type="range"]::-webkit-slider-thumb:active{
+  box-shadow: 0 0 0 6px rgba(125,211,252,0.18), 0 6px 16px rgba(0,0,0,0.35);
+}
+
 </style>
 </head>
 <body>
@@ -1720,7 +1819,7 @@ header{ overflow: visible; }
         </div>
 
         <div class="actionsWrap"><div class="actions">
-          <div class="btnGroupInline"><button class="pop" id="random64Btn" title="Select a folder (including subfolders). In the picker, files may appear grey—choose the folder and confirm.">Random 64 <span class="filterIcon" aria-hidden="true"></span></button>
+          <div class="btnGroupInline"><button class="pop" id="random64Btn" title="Pick a folder (recursive) and randomly fill all 64 cells. Tip: hold Shift to filter which files are used for loading samples.">Random 64 <span class="filterIcon" aria-hidden="true"></span></button>
           <button class="warn" id="exportAllBtn">Export all (ZIP)</button>
           <button class="secondary" id="importPresetBtn" title="Load preset JSON exported by this app, then relink samples from a folder">Import Preset</button>
           <button class="secondary" id="helpBtn" title="Show help / shortcuts">Help</button></div>
@@ -1778,7 +1877,7 @@ header{ overflow: visible; }
           
           
         </div>
-      </div>
+</div>
     </div>
   <div class="copyrightTop"><span id="copyrightText"></span><div class="miniRow"><button class="good audioMini" id="enableAudioBtn" title="Required on some browsers before audio playback">Enable audio</button><button class="secondary audioMini" id="stopBtn">Stop</button><button class="danger audioMini" id="clearAllBtn">Clear all</button></div></div>
 </header>
@@ -1942,8 +2041,8 @@ header{ overflow: visible; }
 <div class="toast" id="toast"></div>
 
   <!-- One hidden input for all loads -->
-  <input id="fileInput" type="file" accept=".wav,audio/wav,audio/x-wav,audio/wave,audio/vnd.wave,audio/*" hidden />
-  <input id="folderInput" type="file" accept=".wav,audio/wav,audio/x-wav,audio/wave,audio/vnd.wave,audio/*" webkitdirectory multiple hidden />
+  <input id="fileInput" type="file" accept="audio/*" hidden />
+  <input id="folderInput" type="file" accept="audio/*" webkitdirectory multiple hidden />
 
 
   <!-- Help Overlay -->
@@ -1957,26 +2056,11 @@ header{ overflow: visible; }
       <div class="helpBody">
 <div class="helpGrid">
 
-          <div class="helpCard">
-            <h3>Wave Editor</h3>
-            <p>Click the <b>waveform</b> in a cell to open the full source waveform and choose the exact slice for that cell.</p>
+          <div class="helpCard"><h3>Basics</h3>
+<p>8 columns × 8 rows. Columns are <b>Samples</b>. Rows are <b>Cells</b> (1..8).</p>
             <ul class="helpList">
-              <li><b>Click</b> the mini-wave in a cell to open the full source waveform.</li>
-              <li><b>Drag</b> inside selection to move. Drag edges to resize.</li>
-              <li><b>L / M / R</b> — choose Left edge / Move / Right edge control (also affects arrow nudges).</li>
-              <li><b>Zoom window</b>: appears on dense waves (or when resizing). <b>+</b>/<b>-</b> zooms, <b>Z</b> toggles Auto‑Norm.</li>
-              <li><b>Esc</b>: if zoom window is visible → hide zoom. Otherwise → close editor.</li>
-              <li><b>← / →</b> nudge selection • <b>Shift</b>=coarse • <b>Alt/Option</b>=fine.</li>
-              <li><b>Trim</b> trims source to selection (Undo available). <b>Apply</b> commits selection to the cell (used for playback + export).</li>
-</ul>
-          </div>
-
-          <div class="helpCard">
-            <h3>Basics</h3>
-            <p>8 columns × 8 rows. Columns are <b>Samples</b>. Rows are <b>Cells</b> (1..8).</p>
-            <ul class="helpList">
-              <li>Click a cell to select it (settings panel).</li>
-              <li><b>Double‑click</b> a cell or press <b>▶</b> to play.</li>
+              <li>Click a cell to select it or use the arrows to navigate around. Use the settings panel below to tweak the sound.</li>
+              <li><b>Double‑click</b> a cell, press <b>▶</b> or <b>spacebar</b> to play.</li>
               <li><b>Esc</b> stops playback. In editors: Esc hides the zoom window first, then closes the editor.</li>
               <li><b>Tempo mode</b> uses BPM + Beats/cell and distributes rounding across 8 slices (no drift).</li>
               <li>Drag cell→cell: swap. <b>Alt</b> + drag: copy.</li>
@@ -1988,43 +2072,51 @@ header{ overflow: visible; }
                 </ul>
                 Example: include <span class="kbd">kick,snare,hat</span> and exclude <span class="kbd">fx,loop</span>.
               </li>
-</ul>
-</div>
-
-          <div class="helpCard">
-            <h3>Loading audio</h3>
+</ul></div><div class="helpCard"><h3>Wave Editor</h3>
+<p>Click the <b>waveform</b> in a cell to open the full source waveform and choose the exact slice for that cell.</p>
             <ul class="helpList">
+              <li><b>Click</b> the mini-wave in a cell to open the full source waveform.</li>
+              <li><b>Drag</b> inside selection to move. Drag edges to resize.</li>
+              <li><b>L / M / R</b> — choose Left edge / Move / Right edge control (also affects arrow nudges).</li>
+              <li><b>← / →</b> nudge selection • <b>Shift</b>=coarse • <b>Alt/Option</b>=fine.</li>
+              <li><b>Zoom window</b>: for close inspection of the trim section. Zoom can be turned off. <b>+</b>/<b>-</b> zooms, <b>Z</b> toggles Auto‑Norm.</li>
+              <li><b>Esc</b>: if zoom window is visible → hide zoom. Otherwise → close editor.</li>
+              <li><b>Apply</b> commits selection to the cell (used for playback + export).</li>
+              <li><b>Undo</b> can still restore sample state after apply.</li>
+</ul></div><div class="helpCard"><h3>Loading audio</h3>
+<ul class="helpList">
               <li><b>Cell Load</b>: click <b>Load</b> inside a cell or drop a file onto that cell.</li>
               <li><b>Load+Slice</b>: pick one file → opens Slice Editor where you can drag/resize 8 blocks, then <b>Apply</b> to the column.</li>
               <li><b>Load 8</b>: select 8 files → fills the 8 cells top→bottom.</li>
-              <li><b>Random 64</b>: pick a folder (subfolders included) → fills all cells randomly.</li>
-            </ul>
-</div>
-
-          <div class="helpCard">
-            <h3>Editing</h3>
-            <ul class="helpList">
+              <li><b>Random 64</b>: pick a folder (subfolders included) → fills all cells randomly. Samples longer the 60sec. are skipped.</li>
+            </ul></div><div class="helpCard"><h3>Editing</h3>
+<ul class="helpList">
               <li>Use the <b>Cell settings</b> panel to change Gain, Mute, Reverse, Fade In/Out and Fit mode.</li>
               <li>Fades are drawn as an <b>envelope overlay</b> on top of the oscilloscope.</li>
               <li>Gain is shown as a small bar under the oscilloscope (no text).</li>
-            </ul>
-          </div>
-
-          <div class="helpCard">
-            <h3>Import / Export</h3>
-              <p><b>Import Preset</b>: load the preset JSON exported by this app (e.g. <span class="kbd">zz_TCM-Preset_MyPreset_20260111.json</span>), then choose your top-level sample folder. Subfolders are included. The folder overlay shows example filenames to help you pick the right folder.</p>
+<li>Use <b>Tab</b> to jump from one column title to the next for fast naming.</li>
+<li>Use <b>Enter</b> on the current cell to edit the cell name, then Enter to commit.</li>
+            </ul></div><div class="helpCard"><h3>Import / Export</h3>
+<p><b>Import Preset</b>: load the preset JSON exported by this app (e.g. <span class="kbd">zz_TCM-Preset_MyPreset_20260111.json</span>), then choose your top-level sample folder. Subfolders are included. The folder overlay shows example filenames to help you pick the right folder.</p>
             <ul class="helpList">
               <li><b>Export</b> in a column: exports that column to WAV.</li>
               <li><b>Export 8</b> in a column: exports the 8 cells as separate WAV files (downloaded as one ZIP). Filenames use Sample + C#.</li>
               <li><b>Export all (ZIP)</b>: exports up to 8 columns and downloads one ZIP file.</li>
               <li>Empty columns are skipped.</li>
-            </ul>
-          </div>
-
-          <div class="helpCard helpCardRelease">
+            </ul></div><div class="helpCard helpCardRelease">
             <h3>Release notes</h3>
             <ul class="helpList" id="releaseNotes"></ul>
           </div>
+
+          
+
+          
+
+          
+
+          
+
+          
 
 </div>
 
@@ -2180,27 +2272,33 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.7.27-beta';
+  const APP_VERSION = '2.9.8';
 
-  const APP_BUILD_DATE = "2026-01-13";
+  const APP_BUILD_DATE = "2026-01-27";
   const CHANGELOG = [
+  "2.9.8 - NEW RELEASE and separate HELP-editor for easy writing.",
+  "2.9.1 - Import Preset restores selection for long samples (mini-wave + Wave Editor).",
+  "2.8.71 - Sliders are themed with double-click option for reset.",
+  "2.8.69 — Reset Volume/Fade sliders on every load (Load, Load 8, Load+Slice, Random 64).",
+  "2.8.66 - Green play-outline plays length of sample instead of cell.",
+  "2.8.49 - Source file duration in Wave/Slice editor.",
+  "2.8.30 - Slice behavior fine-tuned.",
+  "2.7.70 - Scissors only visible when file is edited, also when preset is loaded.",
+  "2.7.53 - IOS Audio is audible and file picker can load WAV files.",
+  "2.7.40 - CPU en memory overload for Safari fixed. Chrome is also low on CPU.",
   "2.7.16 — Matrix cell labels: filename truncates with … so C1–C8 stays visible.",
   "2.7.15 — Imported slices: mini-wave shows selection overlay + scissors correctly.",
   "2.7.14 — Mini-wave click always opens Wave Editor (also for sliced/imported cells).",
   "2.7.13 — Matrix labels use C1–C8 (no more ‘Cell 1…’).",
   "2.7.12 — Fast naming: Enter focuses Cell name; Tab jumps across Sample names.",
-  "2.7.11 — Wave Editor prefers original full source for sliced cells.",
   "2.7.10 — Presets now store original slice windows (start/length) from Load+Slice.",
   "2.7.9 — Preset import restores Load+Slice edits (custom slice windows, not full samples).",
-  "2.7.8 — UI: Footer cards compact + equal height; controls centered.",
   "2.7.7 — Export 8 uses Column/Cell names for filenames.",
   "2.7.6 — Names: editable Column/Cell names + presets save/load them.",
   "2.7.4 — Zoom window: smaller size used in Slice Editor + Wave Editor.",
-  "2.7.0 — Load+Slice: new Slice Editor + Wave Editor with zoom, Z auto-norm, L/M/R + nudging."
+  "2.7.0 — Load+Slice: new Slice Editor + Wave Editor with zoom, Z auto-norm, L/M/R + nudging.",
 ];
-
-
-  function renderReleaseNotes(){
+function renderReleaseNotes(){
     const ul = document.getElementById("releaseNotes");
     if (!ul) return;
     ul.innerHTML = "";
@@ -2305,6 +2403,7 @@ function computeRootHintFromPreset(preset){
   const SR = 48000;
   const CH = 2;
 
+  const MAX_CELL_LOAD_SEC = 60; // Hard cap for any cell load (seconds)
   // Perf step 2b: cache DOM refs for cells (avoid repeated getElementById/querySelector in hot paths)
   const __cellDom = Array.from({length: COLS}, () => Array.from({length: ROWS}, () => null));
 
@@ -2316,6 +2415,7 @@ function computeRootHintFromPreset(preset){
 
   // ====== State ======
   const state = {
+    playGen: 0,
     audioCtx: null,
     currentSrc: null,
     currentCellEl: null,
@@ -2359,7 +2459,13 @@ function computeRootHintFromPreset(preset){
   }
   function ensureSourceInStore(key, left, right, name){
     if (!key) return;
-    if (sourceStore.has(key)) return;
+    if (sourceStore.has(key)){
+      // If a different file maps to the same key (e.g. same filename), overwrite to avoid stale editor/playback.
+      const prev = sourceStore.get(key);
+      if (prev && prev.L && left && (prev.L.length === left.length) && (prev.name === (name||prev.name))) return;
+      sourceStore.delete(key);
+    }
+
     const peaks = computePeaks(left, right, 900);
     sourceStore.set(key, {L:left, R:right, name: name || "sample", peaks, peaksByW: new Map([[900,peaks]])});
   }
@@ -2445,6 +2551,22 @@ function computeRootHintFromPreset(preset){
     if (!state.selected.has) return;
     const {col,row} = state.selected;
     const cell = state.cells[col][row];
+// Reset any prior editor/trim metadata for this cell (prevents stale wave-editor source after reloading)
+try{
+      // Clear any prior origin/split linkage so Wave Editor won't prefer an old split source
+      cell.origin = null;
+  cell.fullSourceKey = null;
+  cell.editorKey = null;
+  cell.editorUndo = null;
+  cell.editorSelStart = null;
+  cell.editorSelLen = null;
+  cell.trimStartSrcFrames = null;
+  cell.trimLenSrcFrames = null;
+  // Also reset visible selection to default cell length (will be re-applied below if imported)
+  cell.selStartFrames = 0;
+  cell.selLenFrames   = Math.max(1, getCellFrames(row));
+}catch(_e){}
+
     pendingSettingsUndo = { col, row, before: cloneSettings(cell.settings) };
   }
   function commitSettingsUndo(){
@@ -2508,8 +2630,7 @@ function computeRootHintFromPreset(preset){
   let wavePlayFullBtnEl = null;
   let waveApplyBtnEl = null;
   let waveSnapBtnEl = null;
-  let waveTrimBtnEl = null;
-  let waveUndoBtnEl = null;
+let waveUndoBtnEl = null;
   let waveResetBtnEl = null;
   let waveBigEl = null;
   let waveTitleEl = null;
@@ -2534,6 +2655,46 @@ function computeRootHintFromPreset(preset){
     _start0:0,
     _len0:0,
   };
+  // --- Persistent "back to original" undo support (for both normal cells and slices) ---
+  function _waveCloneF32(a){ return a ? new Float32Array(a) : null; }
+  function _waveSnapshotCell(cell){
+    if (!cell) return null;
+    return {
+      left: _waveCloneF32(cell.left),
+      right: _waveCloneF32(cell.right),
+      sr: cell.sr || null,
+      selEdited: !!cell.selEdited,
+      trimStartSrcFrames: (typeof cell.trimStartSrcFrames === "number") ? cell.trimStartSrcFrames : 0,
+      trimLenSrcFrames: (typeof cell.trimLenSrcFrames === "number") ? cell.trimLenSrcFrames : 0,
+      selStartFrames: (typeof cell.selStartFrames === "number") ? cell.selStartFrames : 0,
+      selLenFrames: (typeof cell.selLenFrames === "number") ? cell.selLenFrames : 0,
+      cache: cell.cache ? { key:cell.cache.key||"", L:_waveCloneF32(cell.cache.L), R:_waveCloneF32(cell.cache.R), frames:cell.cache.frames||0 } : { key:"", L:null, R:null, frames:0 },
+      editorKey: cell.editorKey || "",
+      editorUndo: Array.isArray(cell.editorUndo) ? cell.editorUndo.slice() : [],
+      editorSelStart: (typeof cell.editorSelStart === "number") ? cell.editorSelStart : 0,
+      editorSelLen: (typeof cell.editorSelLen === "number") ? cell.editorSelLen : 0,
+      origin: cell.origin ? JSON.parse(JSON.stringify(cell.origin)) : null,
+      fileName: cell.fileName || "",
+    };
+  }
+  function _waveRestoreSnapshot(cell, snap){
+    if (!cell || !snap) return;
+    cell.left  = snap.left || null;
+    cell.right = snap.right || null;
+    cell.sr    = snap.sr || cell.sr;
+    cell.selEdited = !!snap.selEdited;
+    cell.trimStartSrcFrames = snap.trimStartSrcFrames || 0;
+    cell.trimLenSrcFrames   = snap.trimLenSrcFrames || 0;
+    cell.selStartFrames = (typeof snap.selStartFrames === "number") ? snap.selStartFrames : 0;
+    cell.selLenFrames   = (typeof snap.selLenFrames === "number") ? snap.selLenFrames : 0;
+    cell.cache = snap.cache ? { key:snap.cache.key||"", L:snap.cache.L||null, R:snap.cache.R||null, frames:snap.cache.frames||0 } : { key:"", L:null, R:null, frames:0 };
+    cell.editorKey = snap.editorKey || "";
+    cell.editorUndo = Array.isArray(snap.editorUndo) ? snap.editorUndo.slice() : [];
+    cell.editorSelStart = (typeof snap.editorSelStart === "number") ? snap.editorSelStart : 0;
+    cell.editorSelLen   = (typeof snap.editorSelLen === "number") ? snap.editorSelLen : 0;
+    if (snap.origin) cell.origin = snap.origin;
+  }
+
 
   function ensureWaveEls(){
     if (waveOverlayEl) return true;
@@ -2542,9 +2703,9 @@ function computeRootHintFromPreset(preset){
     wavePlaySelBtnEl = document.getElementById("wavePlaySelBtn");
     wavePlayFullBtnEl = document.getElementById("wavePlayFullBtn");
     waveSnapBtnEl    = document.getElementById("waveSnapBtn");
-    waveTrimBtnEl   = document.getElementById("waveTrimBtn");
     waveUndoBtnEl   = document.getElementById("waveUndoBtn");
     waveApplyBtnEl   = document.getElementById("waveApplyBtn");
+    waveTitleEl     = document.getElementById("waveTitle");
     waveResetBtnEl  = document.getElementById("waveResetBtn");
     waveBigEl       = document.getElementById("waveBig");
     waveTitleEl     = document.getElementById("waveTitle");
@@ -2563,7 +2724,18 @@ function computeRootHintFromPreset(preset){
                 : (s.toFixed(3) + "s"));
   }
 
-  // ====== Wave Editor draw scheduling (performance) ======
+  
+  function fmtDurFromFrames(frames, sr){
+    const rate = (sr && isFinite(sr) && sr>0) ? sr : SR;
+    const sec = (frames||0) / rate;
+    const m = Math.floor(sec / 60);
+    const s = sec - m*60;
+    const sInt = Math.floor(s);
+    const frac = Math.round((s - sInt) * 100); // 2 decimals
+    const fracStr = String(frac).padStart(2,"0");
+    return (m>0 ? (m + ":" + String(sInt).padStart(2,"0") + "." + fracStr) : (sInt + "." + fracStr)) + "s";
+  }
+// ====== Wave Editor draw scheduling (performance) ======
   // Avoid doing multiple full-canvas redraws per pointermove/keydown.
   // We batch redraws to at most once per animation frame.
   let __waveDrawPending = false;
@@ -2643,23 +2815,56 @@ function computeRootHintFromPreset(preset){
 
     if (waveSelStartEl) waveSelStartEl.textContent = fmtTime(a);
     if (waveSelLenEl) waveSelLenEl.textContent = fmtTime(waveEditor.selLen);
-    if (waveSrcNameEl) waveSrcNameEl.textContent = waveEditor.src.name || "sample";
+    if (waveSrcNameEl){
+      // Show ORIGINAL source duration (pre-trim, pre-apply), not the current cell buffer length.
+      const c = (state && state.cells && state.cells[waveEditor.col] && state.cells[waveEditor.col][waveEditor.row]) || null;
+      const key = (c && (c.sourceKey || (c.origin && c.origin.split && c.origin.split.sourceKey))) || "";
+      const src0 = (key && sourceStore && sourceStore.has(key)) ? sourceStore.get(key) : null;
+      const name0 = (src0 && src0.name) ? src0.name : (waveEditor.src.name || "sample");
+      const len0 = (src0 && src0.L) ? src0.L.length : (waveEditor.src.L ? waveEditor.src.L.length : 0);
+      const sr0  = SR; // sources are stored/resampled at SR
+      waveSrcNameEl.textContent = name0 + " (" + fmtDurFromFrames(len0, sr0) + ")";
+    }
   }
 
   function openWaveEditor(col, row){
     if (!ensureWaveEls()) { setStatus("Wave editor UI not ready", "warn"); return; }
     const cell = state.cells[col][row];
-    // Prefer editing the original full source for split-applied cells, so slice start/length are visible
-    let key = "";
+    // Capture a persistent baseline snapshot the first time this source is edited, so Undo can always return to the original.
     try{
-      if (cell && cell.origin && cell.origin.type==="split" && cell.origin.split && cell.origin.split.sourceKey && sourceStore.has(cell.origin.split.sourceKey))
-        key = cell.origin.split.sourceKey;
+      const srcId = (cell && cell.origin && (cell.origin.sourceKey || (cell.origin.split && cell.origin.split.sourceKey))) || (cell && cell.fileName) || "";
+      if (cell && cell.left && cell.right){
+        if (!cell._waveBaseUndo || cell._waveBaseId !== srcId){
+          cell._waveBaseUndo = _waveSnapshotCell(cell);
+          cell._waveBaseId = srcId;
+        }
+      }
     }catch(_e){}
-    if (!key){
-      key = ((cell.editorKey && sourceStore.has(cell.editorKey)) ? cell.editorKey : (cell.sourceKey || ""));
-    }
+    // Prefer editing the in-cell buffer when available (including Load+Slice results).
+    // This keeps Wave Editor consistent with what the cell will actually play.
+    let key = "";
+    const hasCellBuf = !!(cell && cell.left && cell.left.length);
+    const isSliceCell = !!(cell && cell.origin && (cell.origin.type === "split" || cell.origin.split));
+    try{
+      if (hasCellBuf){
+        // Use a temp key so existing Wave Editor code can treat it like a normal sourceStore entry.
+        if (waveEditor && waveEditor._tmpKey && typeof waveEditor._tmpKey === "string" && waveEditor._tmpKey.startsWith("__cellbuf__")){
+          try{ sourceStore.delete(waveEditor._tmpKey); }catch(_){}
+        }
+        key = "__cellbuf__" + col + "_" + row;
+        const _L = cell.left;
+        const _R = (cell.right && cell.right.length === _L.length) ? cell.right : _L;
+        const _sr = (cell.sr || (cell.meta && cell.meta.sr) || (typeof SR !== "undefined" ? SR : (state.audioCtx ? state.audioCtx.sampleRate : 44100)));
+        sourceStore.set(key, { L: _L, R: _R, sr: _sr, frames: _L.length, name: (cell.fileName || cell.name || "slice") });
+        waveEditor._tmpKey = key;
+        waveEditor._tmpIsSlice = isSliceCell;
+      } else {
+        key = ((cell.editorKey && sourceStore.has(cell.editorKey)) ? cell.editorKey : (cell.sourceKey || ""));
+        waveEditor._tmpIsSlice = isSliceCell;
+      }
+    }catch(_e){}
     if (!key || !sourceStore.has(key)){
-      setStatus("No full source for this cell", "warn");
+      setStatus("No audio buffer for this cell", "warn");
       return;
     }
 
@@ -2675,8 +2880,10 @@ function computeRootHintFromPreset(preset){
 
     const total = waveEditor.src.L.length;
     const cellFrames = getCellFrames(row);
-    // Show scissors whenever trimming makes sense (i.e. source > 1 frame)
-    if (waveScissorIconEl) waveScissorIconEl.style.display = (total > 1) ? "block" : "none";
+    // Show scissors only when there is an actual applied edit (Apply/Trim) and Undo is available
+    const hasEdit = !!(cell && (cell.selEdited === true || cell.trimStartSrcFrames != null));
+    const hasUndo = !!(waveEditor.undo && waveEditor.undo.length) || !!(cell && (cell._waveApplyUndo || cell._waveBaseUndo));
+    if (waveScissorIconEl) waveScissorIconEl.style.display = (hasEdit || hasUndo) ? "block" : "none";
 
     // Allow editor even when source <= cell length: user may want to trim further.
     // Default selection length is the smaller of cellFrames and source length.
@@ -2699,11 +2906,24 @@ if (cell.editorKey && cell.editorKey === waveEditor.key){
     _selStart = 0;
   }
 }else{
-  if (Number.isFinite(cell.trimLenSrcFrames) && cell.trimLenSrcFrames > 0){
-    _selLen = clamp(Math.round(cell.trimLenSrcFrames), 1, total);
-  }
-  if (Number.isFinite(cell.trimStartSrcFrames) && cell.trimStartSrcFrames >= 0){
-    _selStart = Math.round(cell.trimStartSrcFrames);
+  // Full-source cell: selection window is stored on the cell (selStartFrames/selLenFrames).
+  // After preset import we must restore that window here, otherwise long samples show "no selection" in the editor.
+  const hasSel = Number.isFinite(cell.selLenFrames) && cell.selLenFrames > 0;
+  if (hasSel){
+    _selLen = clamp(Math.round(cell.selLenFrames), 1, total);
+    if (Number.isFinite(cell.selStartFrames) && cell.selStartFrames >= 0){
+      _selStart = Math.round(cell.selStartFrames);
+    } else {
+      _selStart = 0;
+    }
+  } else {
+    // Back-compat: older presets only stored trimStartSrcFrames/trimLenSrcFrames
+    if (Number.isFinite(cell.trimLenSrcFrames) && cell.trimLenSrcFrames > 0){
+      _selLen = clamp(Math.round(cell.trimLenSrcFrames), 1, total);
+    }
+    if (Number.isFinite(cell.trimStartSrcFrames) && cell.trimStartSrcFrames >= 0){
+      _selStart = Math.round(cell.trimStartSrcFrames);
+    }
   }
 }
 
@@ -2712,12 +2932,31 @@ waveEditor.selStart = clamp(_selStart, 0, Math.max(0, total - waveEditor.selLen)
 if (waveTitleEl){
       waveTitleEl.textContent = `Wave Editor · ${getColDisplayName(col)} / ${getCellDisplayName(col, row)}`;
     }
-    if (waveSnapBtnEl){
+
+    // Slice hint: show a non-intrusive badge in the Wave Editor. This does not affect layout.
+    try {
+      const hint = document.getElementById("waveSliceHint");
+      if (hint) {
+        if (isSliceCell) {
+          hint.textContent = "Slice";
+          hint.title = "Editing a slice buffer. Use Load+Slice to edit/re-slice the original sample.";
+          hint.style.display = "block";
+        } else {
+          hint.style.display = "none";
+        }
+      }
+      // Hide any older inline pill if present from previous builds
+      const pill = document.getElementById("waveSliceHintPill");
+      if (pill) pill.style.display = "none";
+    } catch (_e) {}
+if (waveSnapBtnEl){
       waveSnapBtnEl.textContent = "Snap: " + (waveEditor.snap ? "on" : "off");
     }
 
     if (waveOverlayEl){
       waveOverlayEl.style.display = "flex";
+    try{ const h=document.getElementById("waveSliceHint"); if(h) h.style.display = (waveEditor._tmpIsSlice ? "block" : "none"); }catch(_e){}
+
       waveOverlayEl.classList.add("show");
       waveOverlayEl.setAttribute("aria-hidden", "false");
       waveOverlayEl.style.zIndex = "34000";
@@ -2726,6 +2965,12 @@ if (waveTitleEl){
   }
 
   function closeWaveEditor(){
+    try{
+      if (waveEditor && waveEditor._tmpKey && typeof waveEditor._tmpKey === "string" && waveEditor._tmpKey.startsWith("__cellbuf__")){
+        sourceStore.delete(waveEditor._tmpKey);
+        waveEditor._tmpKey = "";
+      }
+    }catch(_){ }
 magHide();
 // Persist editor state for reopen (trim + undo)
     try{
@@ -2737,12 +2982,19 @@ magHide();
         _cell.editorSelLen = waveEditor.selLen;
       }
     }catch(_e){}
+    
+    // Hard reset editor state (prevents stale source if a cell reload happens)
+    waveEditor.key = "";
+    waveEditor.src = null;
+    waveEditor.undo = [];
     waveEditor.open = false;
     try{ if (reverseEl) reverseEl.disabled = false; }catch(_e){}
     waveEditor.dragging = false;
     if (waveOverlayEl){
       waveOverlayEl.classList.remove("show");
       waveOverlayEl.style.display = "none";
+    try{ const h=document.getElementById("waveSliceHint"); if(h) h.style.display="none"; }catch(_e){}
+
       waveOverlayEl.setAttribute("aria-hidden", "true");
     }
   }
@@ -2893,38 +3145,249 @@ async function _playLR(L, R){
     src.onended = () => { if (state.currentSrc === src) state.currentSrc = null; };
   }
 
-  function applyWaveSelectionToCell(){
+  
+// --- Wave Editor snapshots (baseline + apply undo) ---
+function _waveCloneF32(arr){
+  try { return (arr && arr.slice) ? arr.slice(0) : arr; } catch(_e){ return arr; }
+}
+function _waveMakeSnapshotFromCell(cell){
+  if (!cell) return null;
+  return {
+    left: _waveCloneF32(cell.left),
+    right: _waveCloneF32(cell.right),
+    selStartFrames: (Number.isFinite(cell.selStartFrames) ? cell.selStartFrames : 0),
+    selLenFrames: (Number.isFinite(cell.selLenFrames) ? cell.selLenFrames : (cell.left ? cell.left.length : 0)),
+    trimStartSrcFrames: (Number.isFinite(cell.trimStartSrcFrames) ? cell.trimStartSrcFrames : 0),
+    trimLenSrcFrames: (Number.isFinite(cell.trimLenSrcFrames) ? cell.trimLenSrcFrames : 0),
+    editorKey: (cell.editorKey || ""),
+    fileName: (cell.fileName || "")
+  };
+}
+function _waveRestoreSnapshotToCell(cell, snap){
+  if (!cell || !snap) return;
+  cell.left = snap.left ? _waveCloneF32(snap.left) : null;
+  cell.right = snap.right ? _waveCloneF32(snap.right) : null;
+  cell.selStartFrames = snap.selStartFrames || 0;
+  cell.selLenFrames = snap.selLenFrames || (cell.left ? cell.left.length : 0);
+  cell.trimStartSrcFrames = snap.trimStartSrcFrames || 0;
+  cell.trimLenSrcFrames = snap.trimLenSrcFrames || 0;
+  cell.editorKey = snap.editorKey || "";
+  cell.fileName = snap.fileName || cell.fileName || "";
+}
+function _waveCellDiffersFromSnapshot(cell, snap){
+  if (!cell || !snap) return false;
+  const llen = cell.left ? cell.left.length : 0;
+  const rlen = cell.right ? cell.right.length : 0;
+  const slen = snap.left ? snap.left.length : 0;
+  const srlen = snap.right ? snap.right.length : 0;
+  if (llen !== slen || rlen !== srlen) return true;
+  if ((cell.editorKey||"") !== (snap.editorKey||"")) return true;
+  if ((cell.trimStartSrcFrames||0) !== (snap.trimStartSrcFrames||0)) return true;
+  if ((cell.trimLenSrcFrames||0) !== (snap.trimLenSrcFrames||0)) return true;
+  if ((cell.selStartFrames||0) !== (snap.selStartFrames||0)) return true;
+  if ((cell.selLenFrames||0) !== (snap.selLenFrames||0)) return true;
+  return false;
+}
+function _waveEnsureBaseline(cell, rowHint){
+  if (!cell) return;
+  if (cell._waveBaseline) return;
+  // Only baseline when there is audio loaded
+  if (!cell.left || !cell.right) return;
+
+  const total = cell.left ? (cell.left.length|0) : 0;
+  let cellFrames = 0;
+  try{
+    const r = Number.isFinite(rowHint) ? (rowHint|0) : (waveEditor ? (waveEditor.row|0) : 0);
+    if (typeof getCellFrames === 'function') cellFrames = (getCellFrames(r)|0);
+  }catch(_e){}
+  if (!cellFrames || cellFrames < 1) cellFrames = total;
+
+  // Baseline rule: long samples baseline selection is the cell window (start=0,len=cellFrames).
+  // Short/equal samples baseline selection is full sample (start=0,len=total).
+  const snap = _waveMakeSnapshotFromCell(cell);
+  snap.selStartFrames = 0;
+  if (total > cellFrames) snap.selLenFrames = clamp(cellFrames, 1, total);
+  else snap.selLenFrames = clamp(total, 1, total);
+
+  cell._waveBaseline = snap;
+}
+// --- end snapshots ---
+
+function applyWaveSelectionToCell(){
     // Apply selection: slice full source into the cell's audio buffers (used for playback/export)
     const cell = state.cells[waveEditor.col][waveEditor.row];
+  _waveEnsureBaseline(cell, waveEditor ? (waveEditor.row|0) : 0);
+  cell._waveApplyUndo = _waveMakeSnapshotFromCell(cell);
     if (!waveEditor.src) return;
 
     const total = waveEditor.src.L.length;
-    let start = clamp(waveEditor.selStart, 0, Math.max(0, total - waveEditor.selLen));
-    if (waveEditor.snap){
-      start = findNearestZeroCrossing(waveEditor.src.L, start, 4096);
-      start = clamp(start, 0, Math.max(0, total - waveEditor.selLen));
-    }
-    const end = Math.min(total, start + waveEditor.selLen);
+// Quantize selection to integer frames once, and use those same integers everywhere.
+// This avoids off-by-one drift when moving/resizing the selection.
+let len = Math.max(1, Math.round(waveEditor.selLen));
+let start = clamp(Math.round(waveEditor.selStart), 0, Math.max(0, total - len));
+let end = Math.min(total, start + len);
 
-    const L = waveEditor.src.L.subarray(start, end);
-    const R = waveEditor.src.R.subarray(start, end);
+// Edge-aware Snap:
+// Infer which edge moved based on selection at drag start (recorded on pointerdown) vs current selection.
+// - if start unchanged but len changed => RIGHT edge move
+// - if end unchanged but start changed => LEFT edge move
+// - otherwise => MOVE
+if (waveEditor.snap && (total > getCellFrames(waveEditor.row)) && typeof findNearestZeroCrossing === "function" && waveEditor.src && waveEditor.src.L){
+  const s0 = (typeof waveEditor._dragStart0 === "number") ? waveEditor._dragStart0 : start;
+  const l0 = (typeof waveEditor._dragLen0 === "number") ? waveEditor._dragLen0 : len;
+  const end0 = s0 + l0;
 
-    // Materialize a real copy so it survives even if source arrays are GC'd or reused
-    cell.left  = new Float32Array(L);
-    cell.right = new Float32Array(R);
-// Remember the applied trim window on the ORIGINAL full source (non-destructive metadata for preset export)
-cell.trimStartSrcFrames = start;
-cell.trimLenSrcFrames   = (end - start);
+  const startNow = start;
+  const endNow = start + len;
+
+  const startMoved = Math.abs(startNow - s0) >= 1;
+  const endMoved   = Math.abs(endNow - end0) >= 1;
+
+  const mode = (!startMoved && endMoved) ? "resizeR" : (startMoved && !endMoved) ? "resizeL" : "move";
+
+  if (mode === "resizeR"){
+    let endSn = findNearestZeroCrossing(waveEditor.src.L, end, 4096);
+    endSn = clamp(endSn, start + 1, total);
+    end = endSn;
+    len = Math.max(1, end - start);
+  }else if (mode === "resizeL"){
+    let startSn = findNearestZeroCrossing(waveEditor.src.L, start, 4096);
+    startSn = clamp(startSn, 0, Math.max(0, total - len));
+    start = startSn;
+    end = Math.min(total, start + len);
+  }else{
+    // move: snap start for predictable behavior
+    let startSn = findNearestZeroCrossing(waveEditor.src.L, start, 4096);
+    startSn = clamp(startSn, 0, Math.max(0, total - len));
+    start = startSn;
+    end = Math.min(total, start + len);
+  }
+
+  // Keep editor view consistent with what Apply actually does.
+  waveEditor.selStart = start;
+  waveEditor.selLen = len;
+}
+
+
+
+const cellFrames = getCellFrames(waveEditor.row);
+const defaultStart = 0;
+const defaultLen = (total > cellFrames) ? cellFrames : total;
+const selLenNow = (end - start);
+const selectionChanged = !(start === defaultStart && selLenNow === defaultLen);
 
 // --- Mini-wave behavior: only switch the cell's visible source when the user TRIMMED in the editor ---
 // If the editor is currently showing a trimmed source (created by the Trim button), we want the cell
-// to visually become trimmed too (same as copy behavior). If the user did NOT trim and just hit Apply,
-// keep the original full source visible and only update the selection window as before.
+// to visually become trimmed too. If the user did NOT trim and selection didn't change, Apply is a no-op.
 const editorIsTrimmed = !!(
   (waveEditor.key && String(waveEditor.key).includes("::trim@")) ||
   (cell.editorKey && String(cell.editorKey).includes("::trim@")) ||
   (Array.isArray(waveEditor.undo) && waveEditor.undo.length > 0)
 );
+
+if (!editorIsTrimmed && !selectionChanged){
+  // No real change: do not mark as edited, do not show scissors, keep original buffers
+  cell.selEdited = false;
+        cell.scissors = false;
+  cell.trimStartSrcFrames = null;
+  cell.trimLenSrcFrames   = null;
+  // Keep selection window at default (for long samples we keep left window; for short samples hidden)
+  cell.selStartFrames = defaultStart;
+  cell.selLenFrames   = defaultLen;
+  cell.cache = { key:"", L:null, R:null, frames:0 };
+  updateCellUI(waveEditor.col, waveEditor.row);
+  markWaveDirty(waveEditor.col, waveEditor.row);
+  updateInspector();
+  setStatus("Apply: no changes", "info");
+  return;
+}
+
+// Selection was changed and/or the editor is trimmed: this is an actual edit
+
+// Snapshot for Undo (pre-Apply state). Stored on the cell so Undo works even after closing/reopening the editor.
+cell._waveApplyUndo = {
+  left: cell.left, right: cell.right,
+  sr: cell.sr,
+  selEdited: cell.selEdited === true,
+  trimStartSrcFrames: cell.trimStartSrcFrames ?? null,
+  trimLenSrcFrames: cell.trimLenSrcFrames ?? null,
+  selStartFrames: (typeof cell.selStartFrames === "number") ? cell.selStartFrames : 0,
+  selLenFrames: (typeof cell.selLenFrames === "number") ? cell.selLenFrames : 0,
+  cache: cell.cache ? { key: cell.cache.key || "", L: cell.cache.L || null, R: cell.cache.R || null, frames: cell.cache.frames || 0 } : null,
+  editorKey: cell.editorKey || "",
+  editorUndo: Array.isArray(cell.editorUndo) ? cell.editorUndo.slice() : [],
+  editorSelStart: (typeof cell.editorSelStart === "number") ? cell.editorSelStart : 0,
+  editorSelLen: (typeof cell.editorSelLen === "number") ? cell.editorSelLen : 0,
+  origin: cell.origin ? JSON.parse(JSON.stringify(cell.origin)) : null
+};
+
+
+// Determine whether this Apply represents a user-changed selection (shows scissors).
+// Default (no move or Reset): start=0 and len equals the default window for this cell.
+const _targetLen = (()=>{
+  try{
+    const _cf = (typeof getCellFrames === "function") ? (getCellFrames(waveEditor.row)|0) : 0;
+    const _srcLen = (waveEditor && waveEditor.src && waveEditor.src.L) ? (waveEditor.src.L.length|0) : 0;
+    if (_cf > 0) return Math.min(_cf, _srcLen || _cf);
+    return (_srcLen || ((end-start)|0));
+  }catch(_e){ return ((end-start)|0); }
+})();
+const _didMoveSel = !((start|0) === 0 && (((end-start)|0) === (_targetLen|0)));
+cell.scissors = !!_didMoveSel;
+cell.selEdited = !!_didMoveSel;
+
+
+cell._forceCellWave = !!_didMoveSel;
+// Slice full source into the cell's audio buffers (used for playback/export)
+const L = waveEditor.src.L.subarray(start, end);
+const R = waveEditor.src.R.subarray(start, end);
+
+// Materialize a real copy so it survives even if source arrays are GC'd or reused
+cell.left  = new Float32Array(L);
+cell.right = new Float32Array(R);
+      // Ensure mini-wave redraw reflects new audio immediately (clear per-width peaks cache)
+      try {
+        if (cell._trimPeaksByW && cell._trimPeaksByW.clear) cell._trimPeaksByW.clear();
+        cell._trimPeaksByW = null;
+      } catch (_e) {}
+
+// Recompute peaks for mini-wave (otherwise canvas can stay stale after Apply).
+try{
+  cell.peaks = computePeaks(cell.left, cell.right, 900);
+}catch(_e){ cell.peaks = null; }
+
+// If this cell is a slice-cell, the old full-source key would keep mini-wave drawing the original source.
+
+// Keep the wave-editor sourceStore entry in sync so reopening shows the applied buffer.
+try{
+  if (typeof ensureSourceInStore === "function" && waveEditor && waveEditor.key){
+    ensureSourceInStore(waveEditor.key, cell.left, cell.right, (cell.fileName || cell.name || "slice"));
+    waveEditor.src = sourceStore.get(waveEditor.key);
+  }
+}catch(_e){}
+
+    // After Apply, the cell's audio IS the selection. Keep playback + mini-wave identical.
+    cell.selStartFrames = 0;
+    cell.selLenFrames   = cell.left.length;
+
+
+    // After Apply, the cell's audio IS the selection. Reset selection window to match the new buffers
+    // so mini-wave and playback are guaranteed to match exactly.
+    cell.selStartFrames = 0;
+    cell.selLenFrames   = cell.left.length;
+    cell._selDefaultStart = 0;
+    cell._selDefaultLen   = cell.selLenFrames;
+
+
+// Remember the applied window on the ORIGINAL full source (non-destructive metadata for preset export)
+cell.trimStartSrcFrames = start;
+cell.trimLenSrcFrames   = (end - start);
+
+
+// --- Mini-wave behavior: only switch the cell's visible source when the user TRIMMED in the editor ---
+// If the editor is currently showing a trimmed source (created by the Trim button), we want the cell
+// to visually become trimmed too (same as copy behavior). If the user did NOT trim and just hit Apply,
+// keep the original full source visible and only update the selection window as before.
 
 if (editorIsTrimmed){
   // Use the editor's current trimmed source as the cell's visible source
@@ -2952,9 +3415,7 @@ if (editorIsTrimmed){
 
   // No trim: keep original source visible and store selection window in source-time
   // (mini-wave keeps showing full sample + selection overlay)
-  cell.selStartFrames = start;
-  cell.selLenFrames   = (end - start);
-
+        // Keep selStartFrames/selLenFrames as selection within the cell buffer (0..sliceFrames).
   // Reset editor state to follow the full source for next open
   cell.editorKey      = cell.sourceKey || waveEditor.key;
   cell.editorUndo     = [];
@@ -3128,8 +3589,8 @@ let splitPointerId = null; let splitActiveIdx = 0;
     const b = st.blocks[splitActiveIdx] || {s:0,l:0};
     splitSelStartEl.textContent = fmtTime(b.s|0);
     splitSelLenEl.textContent   = fmtTime(b.l|0);
-    splitSrcNameEl.textContent  = (src.name || "sample");
-  }
+    splitSrcNameEl.textContent  = (src.name || "sample") + " (" + fmtDurFromFrames((src.L ? src.L.length : 0), SR) + ")";
+}
 
   function splitGetState(col){
     let st = splitStateByCol.get(col);
@@ -3495,6 +3956,31 @@ function splitDraw(){
         toast((err && err.message) ? err.message : String(err), 6500);
       }
     });
+
+    // Zoom window toggle (magnifier) for Slice Editor
+    const splitZoomBtnEl = document.getElementById("splitZoomBtn");
+    const waveZoomBtnEl  = document.getElementById("waveZoomBtn");
+    function _syncZoomBtns(){
+      const on = (_mag.userEnabled !== false);
+      try{ splitZoomBtnEl && (splitZoomBtnEl.textContent = on ? "Zoom: on" : "Zoom: off"); }catch(_){}
+      try{ waveZoomBtnEl  && (waveZoomBtnEl.textContent  = on ? "Zoom: on" : "Zoom: off"); }catch(_){}
+    }
+    splitZoomBtnEl?.addEventListener("click", (e)=>{
+      e.preventDefault();
+      _mag.userEnabled = !_mag.userEnabled;
+      if(_mag.userEnabled === false){ try{ magHide(); }catch(_){ } }
+      _syncZoomBtns();
+      try{ toast((_mag.userEnabled!==false) ? "Zoom window on" : "Zoom window off"); }catch(_){}
+    });
+    waveZoomBtnEl?.addEventListener("click", (e)=>{
+      e.preventDefault();
+      _mag.userEnabled = !_mag.userEnabled;
+      if(_mag.userEnabled === false){ try{ magHide(); }catch(_){ } }
+      _syncZoomBtns();
+      try{ toast((_mag.userEnabled!==false) ? "Zoom window on" : "Zoom window off"); }catch(_){}
+    });
+    _syncZoomBtns();
+
     splitUndoBtnEl.addEventListener("click", splitUndo);
     splitApplyBtnEl.addEventListener("click", ()=>{
       const col = splitCol|0;
@@ -3519,36 +4005,61 @@ function splitDraw(){
         const end = Math.min(srcLen, start + len);
 
         const cell = state.cells[col][r];
+        // Reset per-cell gain/fades when materializing slices
+        try{
+          if (cell && cell.settings){
+            cell.settings.gain = 1;
+            cell.settings.fadeInMs = 0;
+            cell.settings.fadeOutMs = 0;
+          }
+        }catch(_e){}
+        try{ delete cell._waveApplyUndo; }catch(_e){ cell._waveApplyUndo = null; }
         cell.cache = { key:"", L:null, R:null, frames:0 };
-        cell.sourceKey = st.sourceKey;
+        cell.sourceKey = ""; // slices are materialized buffers; keep full source only in origin.split.sourceKey
 
         const Lseg = src.L.subarray(start, end);
         const Rseg = src.R.subarray(start, end);
         cell.left  = new Float32Array(Lseg);
         cell.right = new Float32Array(Rseg);
 
-
-        
-        // Store this slice as an editor source so Wave Editor can open even if it exactly matches cell length
-        const ek = `splitSlice:${col}:${r}:${Date.now()}:${Math.random().toString(16).slice(2)}`;
-        sourceStore.set(ek, { L: cell.left, R: cell.right, SR: SR, name: (typeof splitSrcName!=='undefined' && splitSrcName) ? splitSrcName : "split slice" });
-        cell.editorKey = ek;
+        try { cell._waveBaseline = _waveSnapshotCell(cell); cell._waveApplyUndo = null; } catch(_e) {}
+// Force mini-wave redraw data for slice-applied cells (fixes 2nd Apply not visually updating)
+try { if (cell._trimPeaksByW && cell._trimPeaksByW.clear) cell._trimPeaksByW.clear(); } catch(_e){}
+cell._trimPeaksByW = null;
+try { cell.peaks = computePeaks(cell.left, cell.right, 900); } catch(_e){ cell.peaks = null; }
+        // Make slice editable in Wave Editor by ensuring the cell has an in-cell buffer + sample rate.
+        // (We avoid relying on any global 'SR' variable here to keep Apply robust.)
+        cell.sr = (src.sr || (typeof SR !== "undefined" ? SR : (state.audioCtx ? state.audioCtx.sampleRate : 44100)));
         cell.allowWaveEditor = true;
-        // Reset Wave Editor trim/undo state when overwriting via Load+Slice Apply
+// Reset Wave Editor trim/undo state when overwriting via Load+Slice Apply
         cell.editorUndo = [];
         cell.editorTrimmed = false;
         cell.editorSelStart = null;
         cell.editorSelLen = null;
-        // Reset cell selection to full cell length after split overwrite
+        // Selection rules after Load+Slice Apply:
+        // - The cell buffer IS the slice.
+        // - Keep editor selection spanning the whole slice (0..sliceFrames).
+        // - Mini-wave will only show a selection overlay when the slice is longer than the cell length (handled elsewhere).
         const cf = getCellFrames(r)|0;
+        const sliceFrames = (end - start)|0;
         cell.selStart = 0;
-        cell.selLen = cf;
+        cell.selLen = Math.max(1, sliceFrames);
+
+        // Keep mini-wave and playback selection in sync (frames-domain fields used elsewhere).
+        cell.selStartFrames = 0;
+        cell.selLenFrames = Math.max(1, sliceFrames);
+
+        if (cell.meta) {
+          cell.meta.frames = Math.max(1, sliceFrames);
+          cell.meta.totalFrames = Math.max(1, sliceFrames);
+        }
+
+        // This is not a Wave-Editor Apply/Trim edit; keep scissors off until user edits in Wave Editor.
+        cell.selEdited = false;
 // This cell now owns its audio buffers (do not reference full source for mini-wave)
         cell.sourceKey = null;
         cell.sourceMeta = null;
         // Remember slice window on ORIGINAL source so preset export/import can reconstruct the slices
-        cell.selStartFrames = start;
-        cell.selLenFrames   = (end - start);
         cell.trimStartSrcFrames = start;
         cell.trimLenSrcFrames   = (end - start);
         // Cell label in the matrix: file name + user cell name (defaults to "Cell N")
@@ -3567,7 +4078,21 @@ function splitDraw(){
         markWaveDirty(col, r);
 }
       updateColUI(col);
-      toast(`Applied split to column ${col+1}`);
+      try{ updateInspector(); }catch(_e){}
+      try{ hardResetMiniWavesForCol(col); }catch(_e){}
+      try{ markAllWavesDirty(); scheduleWaveFlush(); }catch(_e){}
+      try{ markAllWavesDirty(); scheduleWaveFlush(); requestAnimationFrame(()=>{ try{ scheduleWaveFlush(); }catch(_e){} }); }catch(_e){}
+      try{
+  const b0 = st.blocks[0]||{s:0,l:0};
+  const b7 = st.blocks[7]||{s:0,l:0};
+  window.__TCM_DEBUG__ = [
+    `[Split Apply] col=${col+1} src="${srcName}" srcLen=${srcLen}`,
+    `block0 s=${b0.s|0} l=${b0.l|0}`,
+    `block7 s=${b7.s|0} l=${b7.l|0}`,
+    `cell0 frames=${(state.cells[col][0].left?state.cells[col][0].left.length:0)} selStart=${state.cells[col][0].selStartFrames||0} selLen=${state.cells[col][0].selLenFrames||0}`
+  ].join("\n");
+}catch(_e){}
+toast(`Applied split to column ${col+1}`);
       splitClose();
     });
 splitBigEl.addEventListener("pointerdown", (ev)=>{
@@ -3690,7 +4215,8 @@ function waveAttachHandlers(){
 
       const total = waveEditor.src.L.length;
       const start = clamp(waveEditor.selStart, 0, Math.max(0, total - waveEditor.selLen));
-      const end = Math.min(total, start + waveEditor.selLen);
+          const len = Math.max(1, Math.round(waveEditor.selLen));
+      const end = Math.min(total, start + len);
 
       let L = waveEditor.src.L.subarray(start, end);
       let R = waveEditor.src.R.subarray(start, end);
@@ -3708,16 +4234,44 @@ function waveAttachHandlers(){
       }
 
       await _playLR(L, R);
-    });
+    // If Snap is ON, snap the selection start to the nearest zero-cross AFTER the drag ends,
+// so dragging stays smooth but Apply/Play sel remain identical.
+try{
+  if (waveEditor.snap && waveEditor.src && waveEditor.src.L){
+    const total = waveEditor.src.L.length;
+    const len = Math.max(1, Math.round(waveEditor.selLen));
+    let start = clamp(Math.round(waveEditor.selStart), 0, Math.max(0, total - len));
+    start = findNearestZeroCrossing(waveEditor.src.L, start, 4096);
+    start = clamp(start, 0, Math.max(0, total - len));
+    waveEditor.selStart = start;
+    if (typeof renderWaveEditor === "function") renderWaveEditor();
+  }
+}catch(_e){}
+});
 
 
     waveSnapBtnEl?.addEventListener("click", (e)=>{ 
-      e.preventDefault();
-      waveEditor.snap = !waveEditor.snap;
-      if (waveSnapBtnEl) waveSnapBtnEl.textContent = "Snap: " + (waveEditor.snap ? "on" : "off");
-    });
+  e.preventDefault();
+  waveEditor.snap = !waveEditor.snap;
+  if (waveSnapBtnEl) waveSnapBtnEl.textContent = "Snap: " + (waveEditor.snap ? "on" : "off");
 
-    wavePlayFullBtnEl?.addEventListener("click", async (e)=>{ 
+  // IMPORTANT: When toggling Snap ON, immediately update the editor selection to the snapped start,
+  // so what you SEE/HEAR in Play sel matches what Apply will do (no surprise shift after Apply).
+  try{
+    if (waveEditor.snap && waveEditor.src && waveEditor.src.L){
+      const total = waveEditor.src.L.length;
+      const len = Math.max(1, Math.round(waveEditor.selLen));
+      let start = clamp(Math.round(waveEditor.selStart), 0, Math.max(0, total - len));
+      start = findNearestZeroCrossing(waveEditor.src.L, start, 4096);
+      start = clamp(start, 0, Math.max(0, total - len));
+      waveEditor.selStart = start;
+      waveEditor.selStart = start;
+      // keep len as-is
+      if (typeof renderWaveEditor === "function") renderWaveEditor();
+    }
+  }catch(_e){}
+});
+wavePlayFullBtnEl?.addEventListener("click", async (e)=>{ 
       e.preventDefault();
       if (!waveEditor.src) return;
       const cell = getCell(waveEditor.col, waveEditor.row);
@@ -3741,7 +4295,17 @@ function waveAttachHandlers(){
 
     waveApplyBtnEl?.addEventListener("click", (e)=>{
       e.preventDefault();
+
+      // Apply edits into the cell buffer (including slice-cells).
       applyWaveSelectionToCell();
+
+      // Force mini-wave redraw immediately (Safari can otherwise keep stale peaks/canvases).
+      try{
+        updateCellUI(waveEditor.col, waveEditor.row);
+        markWaveDirty(waveEditor.col, waveEditor.row);
+        scheduleWaveFlush();
+      }catch(_e){}
+
       closeWaveEditor();
     });
 
@@ -3763,7 +4327,11 @@ function waveAttachHandlers(){
     }
     function _waveUndoBtnRefresh(){
       if (!waveUndoBtnEl) return;
-      waveUndoBtnEl.disabled = !(waveEditor.undo && waveEditor.undo.length);
+      const cell = _getWaveEditorCell();
+      const hasApplyUndo = !!(cell && cell._waveApplyUndo);
+      const hasEditorUndo = !!(waveEditor.undo && waveEditor.undo.length);
+      const hasBaseUndo = !!(cell && cell._waveBaseUndo && (cell.selEdited || (cell.trimLenSrcFrames|0) > 0 || (cell.editorUndo && cell.editorUndo.length)));
+      waveUndoBtnEl.disabled = !(hasApplyUndo || hasEditorUndo || hasBaseUndo);
     }
 
     function waveEditorTrimToSelection(){
@@ -3806,7 +4374,101 @@ function waveAttachHandlers(){
 
     function waveEditorUndoTrim(){
       const cell = _getWaveEditorCell();
-      if (!cell || !waveEditor.undo || !waveEditor.undo.length) return;
+      
+      // First priority: Undo the last Apply (cell-level undo). This works for normal cells and slice-cells.
+      if (cell && cell._waveApplyUndo){
+        const u = cell._waveApplyUndo;
+        try{
+          cell.left  = u.left || null;
+          cell.right = u.right || null;
+          cell.sr    = u.sr || cell.sr;
+          cell._trimPeaksByW = null;
+          cell.selEdited = !!u.selEdited;
+          cell.trimStartSrcFrames = u.trimStartSrcFrames;
+          cell.trimLenSrcFrames   = u.trimLenSrcFrames;
+          cell.selStartFrames = (typeof u.selStartFrames === "number") ? u.selStartFrames : 0;
+          cell.selLenFrames   = (typeof u.selLenFrames === "number") ? u.selLenFrames : 0;
+          cell.cache = u.cache ? { key:u.cache.key||"", L:u.cache.L||null, R:u.cache.R||null, frames:u.cache.frames||0 } : { key:"", L:null, R:null, frames:0 };
+          cell.editorKey = u.editorKey || "";
+          cell.editorUndo = Array.isArray(u.editorUndo) ? u.editorUndo.slice() : [];
+          cell.editorSelStart = (typeof u.editorSelStart === "number") ? u.editorSelStart : 0;
+          cell.editorSelLen   = (typeof u.editorSelLen === "number") ? u.editorSelLen : 0;
+          cell.origin = u.origin || cell.origin || null;
+        // Recompute mini-wave peaks and redraw matrix after undo restore
+        try{ cell.peaks = computePeaks(cell.left, cell.right, MINI_PEAKS_POINTS); }catch(_e){}
+        try{ invalidateCellCache(waveEditor.col|0, waveEditor.row|0); }catch(_e){}
+        try{ updateCellUI(waveEditor.col|0, waveEditor.row|0); }catch(_e){}
+        try{ markWaveDirty(waveEditor.col|0, waveEditor.row|0); scheduleWaveFlush(); }catch(_e){}
+
+        }catch(_e){}
+
+        try{ delete cell._waveApplyUndo; }catch(_e){ cell._waveApplyUndo = null; }
+
+        // Re-sync the Wave Editor with the restored cell buffers so Apply/preview can't drift.
+        // This also re-initializes selection/scissors state consistently after an Undo.
+        try{ openWaveEditor(waveEditor.col|0, waveEditor.row|0); }catch(_e){}
+        try{ _waveUndoBtnRefresh(); }catch(_e){}
+        return;
+
+        // Refresh the editor sourceStore binding if we are editing the cell buffer temp-key
+        try{
+          if (waveEditor.key && String(waveEditor.key).startsWith("__cellbuf__")){
+            const _L = cell.left || new Float32Array(1);
+            const _R = (cell.right && cell.right.length === _L.length) ? cell.right : _L;
+            const _sr = (cell.sr || (cell.meta && cell.meta.sr) || (typeof SR !== "undefined" ? SR : (state.audioCtx ? state.audioCtx.sampleRate : 44100)));
+            sourceStore.set(waveEditor.key, { L:_L, R:_R, sr:_sr, frames:_L.length, name:(cell.fileName||cell.name||"slice") });
+            waveEditor.src = sourceStore.get(waveEditor.key);
+          }
+        }catch(_e){}
+
+        // Restore selection into editor view
+        try{
+          if (waveEditor.src){
+            const total = waveEditor.src.L.length;
+            const s = clamp(Math.round(cell.selStartFrames||0), 0, Math.max(0, total-1));
+            const l = clamp(Math.round(cell.selLenFrames||1), 1, total);
+            waveEditor.selStart = s;
+            waveEditor.selLen = Math.min(l, total - s);
+          }
+        }catch(_e){}
+
+        // Scissors visibility + redraw
+        try{
+          const hasEdit = !!(cell && (cell.selEdited === true || cell.trimStartSrcFrames != null));
+          const hasUndo = !!(waveEditor.undo && waveEditor.undo.length) || !!(cell && (cell._waveApplyUndo || cell._waveBaseUndo));
+          if (waveScissorIconEl) waveScissorIconEl.style.display = (hasEdit || hasUndo) ? "block" : "none";
+        }catch(_e){}
+
+        try{
+          updateCellUI(waveEditor.col, waveEditor.row);
+          markWaveDirty(waveEditor.col, waveEditor.row);
+          scheduleWaveFlush();
+          updateInspector();
+          _waveUndoBtnRefresh();
+          scheduleWaveDraw();
+        }catch(_e){}
+
+        setStatus("Undid Apply", "ok");
+        return;
+      }
+
+      // If there is no "last-apply" undo left, we still allow Undo back to the original (baseline) buffer.
+      if (cell && cell._waveBaseUndo && (cell.selEdited || (cell.trimLenSrcFrames|0) > 0 || (cell.editorUndo && cell.editorUndo.length))){
+        try{
+          _waveRestoreSnapshot(cell, cell._waveBaseUndo);
+          cell._trimPeaksByW = null;
+          try{ cell.peaks = computePeaks(cell.left, cell.right, MINI_PEAKS_POINTS); }catch(_e){}
+          try{ invalidateCellCache(waveEditor.col|0, waveEditor.row|0); }catch(_e){}
+          try{ updateCellUI(waveEditor.col|0, waveEditor.row|0); }catch(_e){}
+          try{ markWaveDirty(waveEditor.col|0, waveEditor.row|0); scheduleWaveFlush(); }catch(_e){}
+          try{ updateInspector(); }catch(_e){}
+          try{ openWaveEditor(waveEditor.col|0, waveEditor.row|0); }catch(_e){}
+          setStatus("Undid to Original", "ok");
+        }catch(_e){}
+        try{ _waveUndoBtnRefresh(); }catch(_e){}
+        return;
+      }
+if (!cell || !waveEditor.undo || !waveEditor.undo.length) return;
       const prev = waveEditor.undo.pop();
       if (!prev || !prev.key || !sourceStore.has(prev.key)) { _waveUndoBtnRefresh(); return; }
 
@@ -3824,21 +4486,67 @@ function waveAttachHandlers(){
       commitWaveSelection();
       scheduleWaveDraw();
     }
+    waveUndoBtnEl?.addEventListener("click", (e) => {
+  try { e.preventDefault(); } catch(_e){}
+  const cell = (state && state.cells && state.cells[waveEditor.col] && state.cells[waveEditor.col][waveEditor.row]) || null;
+  if (!cell) return;
+  _waveEnsureBaseline(cell, waveEditor ? (waveEditor.row|0) : 0);
+  // Prefer undo of last Apply, else revert to original baseline
+  if (cell._waveApplyUndo) {
+    _waveRestoreSnapshotToCell(cell, cell._waveApplyUndo);
+    cell._waveApplyUndo = null;
+  } else if (cell._waveBaseline && _waveCellDiffersFromSnapshot(cell, cell._waveBaseline)) {
+    _waveRestoreSnapshotToCell(cell, cell._waveBaseline);
+    try{
+      const total = cell.left ? (cell.left.length|0) : 0;
+      const r = waveEditor ? (waveEditor.row|0) : 0;
+      const cf = (typeof getCellFrames === 'function') ? (getCellFrames(r)|0) : total;
+      const cellFrames = (cf && cf > 0) ? cf : total;
+      cell.selStartFrames = 0;
+      cell.selLenFrames = (total > cellFrames) ? clamp(cellFrames, 1, total) : clamp(total, 1, total);
+    }catch(_e){}
+  }
 
-    waveTrimBtnEl?.addEventListener("click", (e)=>{
-      e.preventDefault();
-      waveEditorTrimToSelection();
-    });
+  // Force mini-wave + caches to refresh after Undo (Safari keeps stale bitmaps/peaks otherwise)
+  try { cell._trimPeaksByW = null; } catch(_e){}
+  try { cell.peaks = computePeaks(cell.left, cell.right, MINI_PEAKS_POINTS); } catch(_e){}
+  try { invalidateCellCache(waveEditor.col|0, waveEditor.row|0); } catch(_e){}
+  try { hardResetMiniWavesForCol(waveEditor.col|0); } catch(_e){}
+  try { updateCellUI(waveEditor.col, waveEditor.row); } catch(_e){}
+  try { markWaveDirty(waveEditor.col, waveEditor.row); scheduleWaveFlush(); } catch(_e){}
+  try { if (typeof openWaveEditor === 'function') openWaveEditor(waveEditor.col|0, waveEditor.row|0); } catch(_e){}
 
-    waveUndoBtnEl?.addEventListener("click", (e)=>{
-      e.preventDefault();
-      waveEditorUndoTrim();
-    });
+  // After reopening the editor, force selection to match the cell's actual play window.
+// (Delay one tick because openWaveEditor rebuilds the editor UI and may re-init selection.)
+  try{
+    if (typeof openWaveEditor === 'function') {
+      setTimeout(() => {
+        try{
+          const src = (waveEditor && waveEditor.key) ? sourceStore.get(waveEditor.key) : null;
+          const total = src && src.frames ? (src.frames|0) : ((cell.left && cell.left.length) ? (cell.left.length|0) : 0);
+          if (total > 0){
+            const len0 = (cell.selLenFrames|0) || total;
+            const start0 = (cell.selStartFrames|0) || 0;
+            const len = clamp(len0, 1, total);
+            const start = clamp(start0, 0, Math.max(0, total - len));
+            waveEditor.selLen = len;
+            waveEditor.selStart = start;
+            if (typeof updateWaveSelectionUI === 'function') updateWaveSelectionUI();
+            if (typeof renderWaveEditor === 'function') renderWaveEditor();
+          }
+        }catch(_e){}
+      }, 0);
+    }
+  }catch(_e){}
 
-
-    waveOverlayEl.addEventListener("click", (e)=>{ if (e.target === waveOverlayEl) closeWaveEditor(); });
+});
+waveOverlayEl.addEventListener("click", (e)=>{ if (e.target === waveOverlayEl) closeWaveEditor(); });
 
     waveBigEl.addEventListener("pointerdown", (e)=>{
+      // Remember selection at drag start so we can infer which edge moved (L/R/move)
+      waveEditor._dragStart0 = Math.round(waveEditor.selStart||0);
+      waveEditor._dragLen0   = Math.round(waveEditor.selLen||0);
+
       if (!waveEditor.open) return;
       waveBigEl.setPointerCapture(e.pointerId);
       waveEditor.dragging = true;
@@ -4097,8 +4805,9 @@ if (!waveEditor.open) return;
         if (_ae && _ae.tagName === "BUTTON") _ae.blur();
 try{
           const total = waveEditor.src.L.length;
-          const start = clamp(waveEditor.selStart, 0, Math.max(0, total - waveEditor.selLen));
-          const end = Math.min(total, start + waveEditor.selLen);
+          const len = Math.max(1, Math.round(waveEditor.selLen));
+          const start = clamp(Math.round(waveEditor.selStart), 0, Math.max(0, total - len));
+          const end = Math.min(total, start + len);
 
           const cell = getCell(waveEditor.col, waveEditor.row);
           const isRev = !!(cell && cell.settings && cell.settings.reverse);
@@ -4165,6 +4874,20 @@ try{
   // So we query them lazily when needed (prevents null references).
   let dlModalItems = [];
 const fileInput = document.getElementById("fileInput");
+  // iOS/iPadOS Files picker sometimes greys out WAV when accept is restrictive/ambiguous.
+  // For iOS-like devices: remove accept filter and validate extensions ourselves on load.
+  try{
+    if (typeof isIOSLike === "function" && isIOSLike()){
+      fileInput.removeAttribute("accept");
+      fileInput.accept = "";
+      // folderInput (webkitdirectory) is not reliably supported on iOS, but remove accept anyway.
+      if (folderInput){
+        folderInput.removeAttribute("accept");
+        folderInput.accept = "";
+      }
+    }
+  }catch(e){}
+
   const folderInput = document.getElementById("folderInput");
   const random64Btn = document.getElementById("random64Btn");
 
@@ -4504,7 +5227,119 @@ const exportAllBtn = document.getElementById("exportAllBtn");
     }
   }
 
-  function stopPlayback(){
+  
+// iOS Safari audio fallback (WebAudio can be muted even when "playing" icon appears)
+let iosAudioEl = null;
+let iosAudioURL = null;
+
+function isIOSLike(){
+  const ua = navigator.userAgent || "";
+  const iOSUA = /iPad|iPhone|iPod/.test(ua);
+  const iPadOS13 = (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  return iOSUA || iPadOS13;
+}
+
+function getIOSAudioEl(){
+  if (!iosAudioEl){
+    iosAudioEl = document.createElement("audio");
+    iosAudioEl.preload = "auto";
+    iosAudioEl.playsInline = true;
+    iosAudioEl.setAttribute("playsinline", "");
+    iosAudioEl.style.display = "none";
+    document.body.appendChild(iosAudioEl);
+  }
+  return iosAudioEl;
+}
+
+function encodeWav16Blob(L, R, sampleRate){
+  const n = Math.min(L.length, R.length);
+  const numCh = 2;
+  const bytesPerSample = 2;
+  const blockAlign = numCh * bytesPerSample;
+  const byteRate = sampleRate * blockAlign;
+  const dataSize = n * blockAlign;
+  const buf = new ArrayBuffer(44 + dataSize);
+  const dv = new DataView(buf);
+
+  function writeStr(off, s){
+    for (let i=0;i<s.length;i++) dv.setUint8(off+i, s.charCodeAt(i));
+  }
+
+  let o = 0;
+  writeStr(o, "RIFF"); o += 4;
+  dv.setUint32(o, 36 + dataSize, true); o += 4;
+  writeStr(o, "WAVE"); o += 4;
+  writeStr(o, "fmt "); o += 4;
+  dv.setUint32(o, 16, true); o += 4;            // PCM fmt chunk size
+  dv.setUint16(o, 1, true); o += 2;             // PCM
+  dv.setUint16(o, numCh, true); o += 2;
+  dv.setUint32(o, sampleRate, true); o += 4;
+  dv.setUint32(o, byteRate, true); o += 4;
+  dv.setUint16(o, blockAlign, true); o += 2;
+  dv.setUint16(o, 16, true); o += 2;            // bits
+  writeStr(o, "data"); o += 4;
+  dv.setUint32(o, dataSize, true); o += 4;
+
+  // interleave
+  let p = 44;
+  for (let i=0;i<n;i++){
+    let a = Math.max(-1, Math.min(1, L[i]));
+    let b = Math.max(-1, Math.min(1, R[i]));
+    dv.setInt16(p, (a < 0 ? a * 0x8000 : a * 0x7FFF) | 0, true); p += 2;
+    dv.setInt16(p, (b < 0 ? b * 0x8000 : b * 0x7FFF) | 0, true); p += 2;
+  }
+
+  return new Blob([buf], {type: "audio/wav"});
+}
+
+async function playIOSFromLR(L, R, cellEl){
+  // stop any existing playback first
+  stopPlayback();
+  const a = getIOSAudioEl();
+
+  // Create a short-lived object URL for this render
+  if (iosAudioURL){
+    try { URL.revokeObjectURL(iosAudioURL); } catch {}
+    iosAudioURL = null;
+  }
+  const wavBlob = encodeWav16Blob(L, R, SR);
+iosAudioURL = URL.createObjectURL(wavBlob);
+  a.src = iosAudioURL;
+
+  if (cellEl){
+      cellEl.classList.add("playing");
+      state.currentCellEl = cellEl;
+    }
+
+    const myCellEl = cellEl;
+
+  // iOS: play() must be initiated from a user gesture; this is called from the click handler path.
+  try{
+    await a.play();
+  }catch(e){
+    // If blocked, try to resume after a tiny delay (still within gesture window in most cases)
+    try{
+      await new Promise(r=>setTimeout(r, 0));
+      await a.play();
+    }catch(_){}
+  }
+
+  a.onended = () => {
+    if (state.currentCellEl){
+      state.currentCellEl.classList.remove("playing");
+    }
+    state.currentCellEl = null;
+    // Revoke the URL to avoid leaks
+    if (iosAudioURL){
+      try { URL.revokeObjectURL(iosAudioURL); } catch {}
+      iosAudioURL = null;
+    }
+  };
+}
+
+function stopPlayback(){
+    // Cancel any in-flight async render-to-play jobs
+    state.playGen = (state.playGen||0) + 1;
     if (state.currentSrc){
       try { state.currentSrc.stop(); } catch {}
       try { state.currentSrc.disconnect(); } catch {}
@@ -4870,36 +5705,7 @@ const exportAllBtn = document.getElementById("exportAllBtn");
     markAllWavesDirty();
   }
 
-  
-  function hardResetEngines(){
-    // Attempt to drop CPU/memory pressure on Safari/Firefox by stopping any pending RAF loops
-    try{ if (__waveDrawPending) { /* flag only */ __waveDrawPending = false; } }catch(e){}
-    try{ if (_waveRAF) cancelAnimationFrame(_waveRAF); }catch(e){}
-    _waveRAF = 0;
-    try{ if (splitRAF) cancelAnimationFrame(splitRAF); }catch(e){}
-    splitRAF = 0;
-    try{ if (_mag && _mag._raf) cancelAnimationFrame(_mag._raf); }catch(e){}
-    if (_mag){ _mag._raf = 0; _mag.on = false; }
-
-    // Drop wave queues / maps to release references
-    try{ _waveQueue && _waveQueue.clear(); }catch(e){}
-    try{ _waveDirty = new WeakMap(); }catch(e){}
-    try{ _waveMeta = new WeakMap(); }catch(e){}
-
-    // Stop playback + fully reset AudioContext (Safari tends to retain buffers until context is closed)
-    try{ stopPlayback(); }catch(e){}
-    try{
-      if (state && state.audioCtx){
-        const ctx = state.audioCtx;
-        state.audioCtx = null;
-        // close is async; fire and forget
-        Promise.resolve(ctx.close && ctx.close()).catch(()=>{});
-      }
-    }catch(e){}
-    state.currentSrc = null;
-    state.currentCellEl = null;
-  }
-function scheduleWaveFlush(){
+  function scheduleWaveFlush(){
     if (_waveRAF) return;
     _waveRAF = requestAnimationFrame(() => {
       _waveRAF = 0;
@@ -4913,7 +5719,7 @@ function scheduleWaveFlush(){
         _waveDirty.set(cv, false);
         const cell = state.cells[meta.col][meta.row];
 
-        if (!cell || !cell.peaks){
+        if (!cell){
           const ctx = cv.getContext("2d");
           ctx.clearRect(0,0,cv.width,cv.height);
           return;
@@ -4921,18 +5727,75 @@ function scheduleWaveFlush(){
 
         {
         // If Apply created a trimmed cell buffer, show THAT in the mini-wave (requested UX)
-        if (cell.viewTrimmed && cell.left && cell.left.length){
+        if (cell.left && cell.left.length){
+          if (!cell._forceCellWave && !cell.scissors){
+          // Prefer drawing the FULL source waveform (from sourceStore) when available and longer than the cell,
+          // so long samples keep their visible selection window after import/load (non-destructive).
+          try{
+            const cellFrames0 = getCellFrames(meta.row);
+            const k0 = cell.sourceKey || ""; // Do not use origin.split.sourceKey for mini-wave; slice cells must show their own buffer.
+            if (k0 && sourceStore && sourceStore.has(k0)){
+              const src0 = sourceStore.get(k0);
+              if (src0 && src0.L && (src0.L.length|0) > (cellFrames0|0)){
+                const peaks0 = getSourcePeaks(src0, cv.width);
+                const edited0 = (cell.selEdited === true);
+                const selStart0 = (cell.selStartFrames != null) ? Math.round(cell.selStartFrames) : 0;
+                const selLen0 = (cell.selLenFrames != null) ? Math.round(cell.selLenFrames) : (cellFrames0|0);
+                const showSel0 = edited0 || true; // long sample => always show a window
+                const drawSelStart0 = showSel0 ? (edited0 ? selStart0 : 0) : null;
+                const drawSelLen0   = showSel0 ? (edited0 ? selLen0   : (cellFrames0|0)) : null;
+                drawWave(cv, peaks0, cell.settings, src0.L.length, !!cell.settings.reverse, drawSelStart0, drawSelLen0, src0.L.length);
+                return;
+              }
+            }
+          }catch(_e){}
+          if (cell._forceCellWave && !cell.peaks && cell.left && cell.right){
+            try{ cell.peaks = computePeaks(cell.left, cell.right, MINI_PEAKS_POINTS); }catch(_e){ cell.peaks=null; }
+          }
+
+
           const w = cv.width;
+          }
+
+          const w = cv.width;
+
+          // Safety: peaks can be cleared elsewhere (e.g. editor focus/memory). Recompute on-demand
+          // so canvases never stay blank after editing another cell.
+          if (!cell.peaks && cell.left && cell.right && cell.left.length){
+            try{ cell.peaks = computePeaks(cell.left, cell.right, 900); }catch(_e){ cell.peaks = null; }
+          }
+          if (!cell.peaks){
+            const ctx = cv.getContext("2d");
+            ctx.clearRect(0,0,cv.width,cv.height);
+            return;
+          }
+
           if (!cell._trimPeaksByW) cell._trimPeaksByW = new Map();
           let peaks = cell._trimPeaksByW.get(w);
           if (!peaks){
-            peaks = computePeaks(cell.left, w);
+            peaks = computePeaks(cell.left, cell.right, w);
             cell._trimPeaksByW.set(w, peaks);
           }
           const total = cell.left.length;
           const selStart = (cell.selStartFrames != null) ? Math.round(cell.selStartFrames) : 0;
           const selLen = (cell.selLenFrames != null) ? Math.round(cell.selLenFrames) : total;
-          drawWave(cv, peaks, cell.settings, total, !!cell.settings.reverse, selStart, selLen, total);
+
+          const cellFrames = getCellFrames(meta.row);
+          const edited = (cell.selEdited === true);
+
+          // IMPORTANT:
+          // - For unedited cells (normal load / slice apply), base "long sample" detection on the ACTUAL cell buffer length.
+          // - For edited cells (Wave Editor Apply/Trim), keep using the ORIGINAL source length so the selection overlay remains visible (per UX rules).
+          const isLong = (total > cellFrames);
+          const srcFrames = (cell.origin && cell.origin.split && cell.origin.split.frames) ? cell.origin.split.frames : total;
+          const totalFramesForSel = edited ? srcFrames : total;
+
+          const showSel = edited || isLong;
+          const drawSelStart = showSel ? (edited ? selStart : 0) : null;
+          const drawSelLen   = showSel ? (edited ? selLen   : cellFrames) : null;
+
+          drawWave(cv, peaks, cell.settings, total, !!cell.settings.reverse, drawSelStart, drawSelLen, totalFramesForSel);
+
         }else{
           // Otherwise: if we have a full source, show that waveform with the selection window overlay.
           const key = cell.sourceKey || (cell.origin && cell.origin.split && cell.origin.split.sourceKey) || "";
@@ -4945,7 +5808,14 @@ function scheduleWaveFlush(){
             const selLen = (Number.isFinite(cell.trimLenSrcFrames) && cell.trimLenSrcFrames > 0)
               ? Math.round(cell.trimLenSrcFrames)
               : ((cell.selLenFrames != null) ? cell.selLenFrames : getCellFrames(meta.row));
-            drawWave(cv, peaks, cell.settings, getCellFrames(meta.row), !!cell.settings.reverse, selStart, selLen, src.L.length);
+            const cellFrames = getCellFrames(meta.row);
+const isLong = (src.L.length > cellFrames);
+const edited = (cell.selEdited === true);
+const showSel = edited || isLong;
+const drawSelStart = showSel ? (edited ? selStart : 0) : null;
+const drawSelLen   = showSel ? (edited ? selLen   : cellFrames) : null;
+drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSelStart, drawSelLen, src.L.length);
+
           }else{
             drawWave(cv, cell.peaks, cell.settings, getCellFrames(meta.row), !!cell.settings.reverse);
           }
@@ -4954,6 +5824,22 @@ function scheduleWaveFlush(){
       });
     });
   }
+
+  // Hard reset mini-wave canvases for a column (Safari/Chrome sometimes keep stale pixels after rapid buffer swaps).
+  function hardResetMiniWavesForCol(col){
+    col = col|0;
+    for (let r=0;r<8;r++){
+      const cv = document.getElementById(`wave-${col}-${r}`);
+      if (!cv) continue;
+      try{
+        // Resetting width clears the bitmap and internal state without changing layout.
+        const w = cv.width, h = cv.height;
+        cv.width = w; cv.height = h;
+      }catch(_){}
+    }
+  }
+
+
 
   function markWaveDirty(col, row){
     const dom = (__cellDom[col] && __cellDom[col][row]) ? __cellDom[col][row] : null;
@@ -5147,10 +6033,100 @@ function scheduleWaveFlush(){
   async function loadFileIntoCell(col, row, file, opts={}){
     const silent = !!opts.silent;
     const cell = state.cells[col][row];
+    const _isImport = !!(opts && (opts.importing || typeof opts.importSelEdited === 'boolean' || (opts.importTrimStart != null) || (opts.importTrimLen != null) || (opts.importSelStart != null) || (opts.importSelLen != null)));
+    if (!_isImport){
+      cell.scissors = false;
+      cell.selEdited = false;
+      cell.trimStartSrcFrames = null;
+      cell.trimLenSrcFrames = null;
+      cell._forceCellWave = false;
+    }
     cell.cache = { key:"", L:null, R:null, frames:0 };
 
-    const {left, right, name} = await decodeFileToStereo48k(file);
-    const _srcKey = getSourceKeyFromFile(file, name);
+    // Reset per-cell gain/fades on every load (prevents previous sample settings carrying over)
+    try{
+      if (cell && cell.settings){
+        cell.settings.gain = 1;
+        cell.settings.fadeInMs = 0;
+        cell.settings.fadeOutMs = 0;
+      }
+    }catch(_e){}
+
+// Reloading into an existing cell must clear prior editor/split/trim metadata,
+// otherwise Wave Editor can keep showing/playing a previous source.
+try{
+  cell.fullSourceKey = null;
+  cell.editorKey = null;
+  cell.editorUndo = null;
+  cell.editorSelStart = null;
+  cell.editorSelLen = null;
+  cell.trimStartSrcFrames = null;
+  cell.trimLenSrcFrames = null;
+  if (cell.origin && cell.origin.type === "split") cell.origin = null;
+      cell.selEdited = false; // selection edits via Apply
+}catch(_e){}
+
+// Hard clear old decoded buffers so a reload cannot keep stale audio/waveforms
+cell.left = null;
+cell.right = null;
+cell.peaks = null;
+cell.name = "";
+
+
+// Clear any cached peak maps for previous buffer
+cell._trimPeaksByW = null;
+cell._peaksByW = null;
+cell._trimPeaks = null;
+const preserveSelection = !!(opts && (
+  opts.preserveSelection === true ||
+  typeof opts.importSelStartFrames === "number" ||
+  typeof opts.importSelLenFrames === "number" ||
+  typeof opts.importTrimStartSrcFrames === "number" ||
+  typeof opts.importTrimLenSrcFrames === "number"
+));
+
+
+// Hard clear old decoded buffers so a reload cannot keep stale audio/waveforms
+cell.left = null;
+cell.right = null;
+cell.peaks = null;
+cell.name = "";
+
+    // Clear any cached peak maps for previous buffer
+    cell._trimPeaksByW = null;
+    cell._peaksByW = null;
+    cell._trimPeaks = null;
+
+    try{ inferRelPathForFile(file); }catch(_e){}
+
+    let {left, right, name} = await decodeFileToStereo48k(file);
+
+    // Random64 (and other callers) may request a hard max duration to keep Safari stable.
+    const maxSec = (opts && typeof opts.maxSec === "number") ? opts.maxSec : MAX_CELL_LOAD_SEC;
+    if (maxSec && maxSec > 0){
+      const maxFrames = Math.max(1, Math.floor(maxSec * SR));
+      if (left.length > maxFrames) left = left.slice(0, maxFrames);
+      if (right.length > maxFrames) right = right.slice(0, maxFrames);
+    }
+
+
+// Default selection after a new load: "what fits in the cell"
+// (prevents old selection leaking and keeps mini-wave overlay meaningful)
+
+    // Import selection window (if present) before defaults are applied
+    if (typeof opts.importSelStartFrames === "number" && typeof opts.importSelLenFrames === "number"){
+      cell.selStartFrames = opts.importSelStartFrames;
+      cell.selLenFrames   = opts.importSelLenFrames;
+    }
+if (!preserveSelection){
+  const cellFrames = getCellFrames(row);
+  const total = left.length;
+  cell.selStartFrames = 0;
+  cell.selLenFrames   = Math.max(1, Math.min(cellFrames, total));
+}
+
+    
+const _srcKey = getSourceKeyFromFile(file, name);
     ensureSourceInStore(_srcKey, left, right, name);
     cell.sourceKey = _srcKey;
 
@@ -5158,22 +6134,43 @@ function scheduleWaveFlush(){
     if (typeof cell.selStartFrames !== "number") cell.selStartFrames = 0;
     if (typeof cell.selLenFrames !== "number") cell.selLenFrames = Math.max(1, getCellFrames(row));
 
-    // If a selection start was imported, apply it immediately to the cell audio (so playback/export matches)
+    // If preset indicates an *applied trim* (trimStartSrcFrames/trimLenSrcFrames), reconstruct the trimmed cell buffers.
+    const _impTrimStart = (typeof opts.importTrimStartSrcFrames === "number") ? (opts.importTrimStartSrcFrames|0) : null;
+    const _impTrimLen   = (typeof opts.importTrimLenSrcFrames === "number") ? (opts.importTrimLenSrcFrames|0) : null;
+
+    if (_impTrimStart != null && _impTrimLen != null && _impTrimLen > 0){
+      const total = left.length;
+      const tLen = clamp(_impTrimLen, 1, total);
+      const tStart = clamp(_impTrimStart, 0, Math.max(0, total - tLen));
+      const tEnd = Math.min(total, tStart + tLen);
+
+      const L = left.subarray(tStart, tEnd);
+      const R = right.subarray(tStart, tEnd);
+      cell.left  = new Float32Array(L);
+      cell.right = new Float32Array(R);
+
+      cell.trimStartSrcFrames = tStart;
+      cell.trimLenSrcFrames   = (tEnd - tStart);
+
+      cell.selEdited = true;
+      cell.selStartFrames = 0;
+      cell.selLenFrames   = Math.max(1, (tEnd - tStart));
+    } else {    // If a selection window was imported, keep it NON-destructive:
+    // keep full decoded buffers so long samples retain context and selection overlay is visible.
     if (cell.selStartFrames > 0 || (cell.selLenFrames && cell.selLenFrames !== left.length)){
       const total = left.length;
       const selLen = clamp(cell.selLenFrames, 1, total);
       const start = clamp(cell.selStartFrames, 0, Math.max(0, total - selLen));
-      const end = Math.min(total, start + selLen);
-      // slice decoded full source into cell buffers
-      const L = left.subarray(start, end);
-      const R = right.subarray(start, end);
-      cell.left = new Float32Array(L);
-      cell.right = new Float32Array(R);
-      cell.name = (name || "sample") + " · sel " + fmtTime(start);
-      // ensure UI uses selection overlay
       cell.selStartFrames = start;
-      cell.selLenFrames = selLen;
+      cell.selLenFrames   = selLen;
+      // NOTE: do NOT slice left/right here.
     }
+      // Preserve selEdited flag if provided by preset (for scissors affordance), but do not invent it.
+      if (typeof opts.importSelEdited === "boolean"){
+        cell.selEdited = !!opts.importSelEdited;
+      }
+    }
+
 
     if (!cell.left){
       cell.left = left;
@@ -5194,6 +6191,39 @@ function scheduleWaveFlush(){
     cell.peaks = computePeaks(cell.left, cell.right, MINI_PEAKS_POINTS);
 
     updateCellUI(col,row);
+    // Reset Wave-editor baseline for this cell to the newly loaded sample (always-available "original" undo point).
+    try { cell._waveBaseline = _waveSnapshotCell(cell); cell._waveApplyUndo = null; } catch(_e) {}
+
+// If Wave Editor is currently open on this cell, refresh it to the newly loaded source.
+try{
+  if (waveEditor && waveEditor.open && waveEditor.col === col && waveEditor.row === row){
+    const k = cell.sourceKey || "";
+    if (k && sourceStore.has(k)){
+      waveEditor.key = k;
+      waveEditor.src = sourceStore.get(k);
+      waveEditor.undo = [];
+      try{
+        const total = waveEditor.src && waveEditor.src.L ? waveEditor.src.L.length : 0;
+        const cellFrames = getCellFrames(row);
+        waveEditor.selStart = (typeof cell.selStartFrames === "number") ? Math.round(cell.selStartFrames) : 0;
+        waveEditor.selLen = (typeof cell.selLenFrames === "number") ? Math.round(cell.selLenFrames) : Math.max(1, Math.min(cellFrames, total || cellFrames));
+        // Clamp to source length
+        try{
+          const tot = total || 0;
+          if (tot > 0){
+            waveEditor.selLen = clamp(waveEditor.selLen, 1, tot);
+            waveEditor.selStart = clamp(waveEditor.selStart, 0, Math.max(0, tot - waveEditor.selLen));
+          }
+        }catch(_e){}
+      }catch(_e){}
+      try{ _waveUndoBtnRefresh(); }catch(_e){}
+      try{ waveDraw(); }catch(_e){}
+      try{ waveMiniDraw(); }catch(_e){}
+    }
+  }
+}catch(_e){}
+
+
     updateColUI(col);
 
     if (!silent) toast(`Loaded cell: column ${col+1} / row ${row+1}`);
@@ -5402,7 +6432,19 @@ async function randomFillFromFiles(files){
   // Load sequentially (stable, avoids killing the browser)
   for (let i=0;i<cellTargets.length;i++){
     const {c,r} = cellTargets[i];
-    await loadFileIntoCell(c, r, chosen[i], { silent: true });
+    {
+      let attempt = 0;
+      while (attempt < 12){
+        const f = chosen[i] || pool[(Math.random() * pool.length) | 0];
+        try{
+          await loadFileIntoCell(c, r, f, { silent: true, maxSec: MAX_RANDOM_SEC, skipLongerThanMaxSec: true });
+          break;
+        }catch(err){
+          if (err && err.message === 'TCM_SKIP_OVER_MAXSEC'){ attempt++; continue; }
+          throw err;
+        }
+      }
+    }
     if (i === 31) toast('Random fill: halfway (32/64)...', 1300);
   }
 
@@ -5594,6 +6636,7 @@ const btns = document.createElement("div");
 
       for (let r=0;r<ROWS;r++){
         const cellEl = document.createElement("div");
+    const myCellEl = cellEl;
         cellEl.className = "cell";
         cellEl.dataset.col = String(c);
         cellEl.dataset.row = String(r);
@@ -5621,9 +6664,11 @@ const btns = document.createElement("div");
 
   <div class="cellBtns">
     <div class="left">
-      <button class="tiny secondary" data-action="clear">Clear</button>
-      <button class="tiny secondary" data-action="play">▶</button>
       <button class="tiny secondary" data-action="load">Load</button>
+      <button class="tiny secondary" data-action="clear">Clear</button>
+    </div>
+    <div class="right">
+      <button class="tiny secondary" data-action="play">▶</button>
     </div>
   </div>
 `;
@@ -5755,7 +6800,7 @@ const btns = document.createElement("div");
     }
 
     updateAllTimeLabels();
-    updateAllUIBatched(6);
+    updateAllUI();
 
     // default select 1st cell
     setSelected(0,0);
@@ -5863,7 +6908,7 @@ const btns = document.createElement("div");
       try{
         const cellFrames = getCellFrames(row);
         const key = (cell.editorKey && sourceStore && sourceStore.has(cell.editorKey)) ? cell.editorKey : (cell.sourceKey || (cell.origin && cell.origin.split && cell.origin.split.sourceKey) || "");
-        const canTrim = !!(cell.allowWaveEditor || (key && sourceStore && sourceStore.has(key) && (sourceStore.get(key).L.length > cellFrames)));
+        const canTrim = !!(cell && cell.scissors === true);
 
         const had = wave.classList.contains("scissors");
         if (canTrim && !had) wave.classList.add("scissors");
@@ -5930,31 +6975,6 @@ const btns = document.createElement("div");
     }
     updateInspector();
   }
-
-  // Batched UI refresh to avoid long main-thread stalls (Safari can crash on huge synchronous redraws)
-  function updateAllUIBatched(batchCells=6){
-    const coords = [];
-    for (let c=0;c<COLS;c++){
-      for (let r=0;r<ROWS;r++) coords.push([c,r]);
-    }
-    let i = 0;
-    function step(){
-      const end = Math.min(coords.length, i + Math.max(1, batchCells|0));
-      for (; i<end; i++){
-        const [c,r] = coords[i];
-        updateCellUI(c,r);
-      }
-      if (i < coords.length){
-        requestAnimationFrame(step);
-        return;
-      }
-      // column UI can also be heavy; do it after cells
-      for (let c=0;c<COLS;c++) updateColUI(c);
-      updateInspector();
-    }
-    requestAnimationFrame(step);
-  }
-
 
   // ====== Selection + Inspector ======
   
@@ -6204,6 +7224,19 @@ if (__inspCache.descText !== descText){
     updateCellUI(state.selected.col, state.selected.row);
   });
 
+  // Double-click sliders to reset to defaults
+  function resetRange(el, value){
+    try{
+      el.value = String(value);
+      el.dispatchEvent(new Event("input", {bubbles:true}));
+      el.dispatchEvent(new Event("change", {bubbles:true}));
+    }catch(_){}
+  }
+  volEl.addEventListener("dblclick", (e) => { e.preventDefault(); resetRange(volEl, 1); });
+  fadeInEl.addEventListener("dblclick", (e) => { e.preventDefault(); resetRange(fadeInEl, 0); });
+  fadeOutEl.addEventListener("dblclick", (e) => { e.preventDefault(); resetRange(fadeOutEl, 0); });
+
+
   fitModeEl.addEventListener("change", () => {
     const cell = getSelectedCell(); if (!cell) return;
     cell.settings.fitMode = fitModeEl.value;
@@ -6311,6 +7344,8 @@ if (__inspCache.descText !== descText){
   function clearCell(col,row){
     stopPlayback();
     state.cells[col][row] = makeEmptyCell();
+    // Reset cell display name back to default (C1..C8)
+    if (state.cellNames && state.cellNames[col]) state.cellNames[col][row] = null;
     updateCellUI(col,row);
     updateColUI(col);
     updateInspector();
@@ -6321,6 +7356,8 @@ if (__inspCache.descText !== descText){
     stopPlayback();
     for (let r=0;r<ROWS;r++){
       state.cells[col][r] = makeEmptyCell();
+      // Reset cell display name back to default (C1..C8)
+      if (state.cellNames && state.cellNames[col]) state.cellNames[col][r] = null;
       updateCellUI(col,r);
     }
     updateColUI(col);
@@ -6328,7 +7365,7 @@ if (__inspCache.descText !== descText){
   }
 
   function clearAll(){
-    hardResetEngines();
+    stopPlayback();
     for (let c=0;c<COLS;c++){
       clearColumn(c);
     }
@@ -6351,21 +7388,120 @@ if (__inspCache.descText !== descText){
     buf.copyToChannel(R, 1, 0);
     return buf;
   }
+  // ====== Playback debug + audible-length helpers ======
+  function scanAudibleFramesLR(L, R, eps=1e-5){
+    if (!L || !R) return 0;
+    const n = Math.min(L.length, R.length);
+    for (let i = n - 1; i >= 0; i--){
+      const a = L[i], b = R[i];
+      if ((a === a && Math.abs(a) > eps) || (b === b && Math.abs(b) > eps)) return i + 1;
+    }
+    return 0;
+  }
 
-  async function playCell(col,row, cellEl){
+  function ensurePlayDebugOverlay(){
+    if (window.__tcmPlayDbgEl) return window.__tcmPlayDbgEl;
+    const el = document.createElement("div");
+    el.id = "tcmPlayDbg";
+    el.style.cssText = [
+      "position:fixed",
+      "left:12px",
+      "top:120px",
+      "z-index:9999",
+      "max-width:46vw",
+      "padding:10px 12px",
+      "border-radius:12px",
+      "border:1px solid rgba(255,255,255,.18)",
+      "background:rgba(10,12,16,.78)",
+      "backdrop-filter: blur(10px)",
+      "color:#e8edf6",
+      "font:12px/1.35 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+      "white-space:pre-wrap",
+      "pointer-events:auto",
+      "display:none"
+    ].join(";");
+    el.textContent = "PLAY DEBUG (tcmDebugPlay(true))";
+    document.body.appendChild(el);
+    window.__tcmPlayDbgEl = el;
+    return el;
+  }
+
+  
+function _tcmUpdateDebugPos(){
+  try{
+    const el = document.getElementById("tcmPlayDebugOverlay");
+    if (!el) return;
+    const header = document.querySelector("header") || document.getElementById("header") || document.querySelector(".header") || null;
+    const h = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+    // Put it just below header with small margin; keep within viewport.
+    const top = Math.min(window.innerHeight - 40, Math.max(8, h + 8));
+    el.style.top = top + "px";
+  }catch(_e){}
+}
+window.addEventListener("resize", _tcmUpdateDebugPos);
+window.addEventListener("scroll", _tcmUpdateDebugPos, {passive:true});
+
+function tcmDebugPlay(on=true){
+    window.TCM_DEBUG_PLAY = !!on;
+    const el = ensurePlayDebugOverlay();
+    el.style.display = window.TCM_DEBUG_PLAY ? "block" : "none";
+  }
+  window.tcmDebugPlay = tcmDebugPlay;
+
+  function playDbg(msg){
+    if (!window.TCM_DEBUG_PLAY) return;
+    const el = ensurePlayDebugOverlay();
+    el.style.display = "block";
+    el.textContent = msg;
+  }
+
+async function playCell(col,row, cellEl){
+    // PERF/SAFETY: prevent overlapping playback if async rendering races
+    // PERF/SAFETY: prevent overlapping playback if async rendering races
     const cell = state.cells[col][row];
     if (!cell.left || !cell.right){
       toast("Cell is empty");
       return;
     }
 
+
+
+    const myCellEl = cellEl || document.querySelector(`.cell[data-c="${col}"][data-r="${row}"]`) || null;
+
+// iOS/iPadOS: WebAudio can be "playing" but silent. Use <audio> tag playback for rendered LR.
+if (isIOSLike()){
+  const targetFrames = getCellFrames(row);
+    // Use ORIGINAL source length when available (Safari pads cell buffers to cell length).
+    const _key = (cell && (cell.sourceKey || (cell.origin && cell.origin.split && cell.origin.split.sourceKey))) || "";
+    const _src0 = (_key && sourceStore && sourceStore.has(_key)) ? sourceStore.get(_key) : null;
+    const contentLenFrames = (_src0 && _src0.frames) ? _src0.frames : ((cell && cell.origin && cell.origin.split && cell.origin.split.frames) ? cell.origin.split.frames : ((cell && cell.left) ? cell.left.length : 0));
+    const {L,R} = renderCellToTarget(cell, targetFrames);
+    const audibleN = scanAudibleFramesLR(L,R);
+    const effectiveN = (audibleN && audibleN>0) ? audibleN : Math.min(targetFrames, contentLenFrames || targetFrames);
+    let L2=L, R2=R;
+    if (L2 && R2 && effectiveN>0 && effectiveN < L2.length){ L2 = L2.slice(0,effectiveN); R2 = R2.slice(0,effectiveN); }
+    playDbg(`PLAY DEBUG\nios=true\ncol=${col} row=${row}\ntargetFrames=${targetFrames}\naudibleFrames=${effectiveN}\nsec=${(effectiveN/SR).toFixed(4)}\ncontentLenFrames=${contentLenFrames}`);
+    await playIOSFromLR(L2, R2, cellEl);
+  return;
+}
+
     await ensureAudio();
     stopPlayback();
+    const myGen = state.playGen; // updated by stopPlayback()
 
     const targetFrames = getCellFrames(row);
+    // Use ORIGINAL source length when available (Safari pads cell buffers to cell length).
+    const _key = (cell && (cell.sourceKey || (cell.origin && cell.origin.split && cell.origin.split.sourceKey))) || "";
+    const _src0 = (_key && sourceStore && sourceStore.has(_key)) ? sourceStore.get(_key) : null;
+    const contentLenFrames = (_src0 && _src0.frames) ? _src0.frames : ((cell && cell.origin && cell.origin.split && cell.origin.split.frames) ? cell.origin.split.frames : ((cell && cell.left) ? cell.left.length : 0));
     const {L,R} = renderCellToTarget(cell, targetFrames);
+    const audibleN = scanAudibleFramesLR(L,R);
+    const effectiveN = (audibleN && audibleN>0) ? audibleN : targetFrames;
+    let L2=L, R2=R;
+    if (L2 && R2 && effectiveN>0 && effectiveN < L2.length){ L2 = L2.slice(0,effectiveN); R2 = R2.slice(0,effectiveN); }
+    playDbg(`PLAY DEBUG\nios=false\ncol=${col} row=${row}\ntargetFrames=${targetFrames}\naudibleFrames=${effectiveN}\nsec=${(effectiveN/SR).toFixed(4)}`);
 
-    const buf = makeAudioBufferFromLR(L,R);
+    const buf = makeAudioBufferFromLR(L2,R2);
 
     const ctx = getAudioCtx();
     const src = ctx.createBufferSource();
@@ -6377,15 +7513,22 @@ if (__inspCache.descText !== descText){
       state.currentCellEl = cellEl;
     }
 
+    // If a newer play/stop happened while we were rendering, abort.
+    if (myGen !== state.playGen){
+      try { src.disconnect(); } catch {}
+      return;
+    }
+
     state.currentSrc = src;
     src.start(0);
-
-    src.onended = () => {
-      if (state.currentCellEl){
-        state.currentCellEl.classList.remove("playing");
+src.onended = () => {
+      if (myCellEl){
+        myCellEl && myCellEl.classList.remove("playing");
       }
       state.currentCellEl = null;
       state.currentSrc = null;
+      try { src.disconnect(); } catch {}
+      try { src.buffer = null; } catch {}
     };
   }
 
@@ -6829,7 +7972,7 @@ if (!presetName){
       appBuildDate: (typeof APP_BUILD_DATE !== "undefined" ? APP_BUILD_DATE : ""),
       changelog: (typeof CHANGELOG !== "undefined" ? CHANGELOG.slice() : []),
         app: "Tempera Cell Matrix",
-        presetVersion: "v27-waveSel",
+        presetVersion: "v28-trimmeta-auto-ui",
         createdAt: new Date().toISOString(),
 sampleRootHint: computeSampleRootHintFromState(),
 topFolders: computeTopFoldersFromState(),
@@ -6855,14 +7998,63 @@ topFolders: computeTopFoldersFromState(),
           cells: Array.from({length: ROWS}, (_, r) => ({
             row: r,
             name: state.cells[c][r].name || "",
-            fileName: state.cells[c][r].origin?.fileName || state.cells[c][r].name || "",
-            relPath: state.cells[c][r].origin?.relPath || "",
-            origin: state.cells[c][r].origin || null,
+            fileName: (()=>{ const _cell=state.cells[c][r]; const _raw=(_cell.origin?.fileName || _cell.fileName || _cell.name || ""); return String(_raw).split(" · ")[0].trim(); })(),
+            relPath: (()=>{ const _cell=state.cells[c][r]; let _rel=String(_cell.origin?.relPath || _cell.relPath || ""); if (!_rel && _cell.sourceKey){ const _p=String(_cell.sourceKey).split("::")[0]; if (_p.includes("/")) _rel=_p.split("/").slice(0,-1).join("/"); } return _rel; })(),
+            origin: (()=>{ const _cell=state.cells[c][r]; if (_cell.origin) return _cell.origin; const _fn=String((_cell.fileName||_cell.name||"")).split(" · ")[0].trim(); let _rel=String(_cell.relPath||""); if (!_rel && _cell.sourceKey){ const _p=String(_cell.sourceKey).split("::")[0]; if (_p.includes("/")) _rel=_p.split("/").slice(0,-1).join("/"); } return (_fn||_rel) ? { type:"file", fileName:_fn, relPath:_rel } : null; })(),
             settings: { ...state.cells[c][r].settings },
             hasAudio: !!state.cells[c][r].left,
             sourceKey: state.cells[c][r].sourceKey || "",
-            selStartFrames: (typeof state.cells[c][r].selStartFrames === "number") ? state.cells[c][r].selStartFrames : 0,
-            selLenFrames: (typeof state.cells[c][r].selLenFrames === "number") ? state.cells[c][r].selLenFrames : getCellFrames(r),
+            selStartFrames: (typeof state.cells[c][r].selStartFrames === "number") ? state.cells[c][r].selStartFrames : 0,            selLenFrames: (typeof state.cells[c][r].selLenFrames === "number") ? state.cells[c][r].selLenFrames : getCellFrames(r),
+            trimStartSrcFrames: (()=>{ 
+              const _cell=state.cells[c][r];
+              if (typeof _cell.trimStartSrcFrames === "number") return _cell.trimStartSrcFrames;
+              // Fallback: if the cell buffer is a load-time auto-trim of a longer source, preserve that window for preset round-trips.
+              const _sk=String(_cell.sourceKey||"");
+              const _parts=_sk.split("::");
+              const _srcFrames=parseInt(_parts[2]||"",10);
+              const _bufLen=(_cell.left && typeof _cell.left.length==="number") ? _cell.left.length : (typeof _cell.selLenFrames==="number" ? _cell.selLenFrames : NaN);
+              if (Number.isFinite(_srcFrames) && Number.isFinite(_bufLen) && _srcFrames > _bufLen) return 0;
+              return null;
+            })(),
+            trimLenSrcFrames: (()=>{ 
+              const _cell=state.cells[c][r];
+              if (typeof _cell.trimLenSrcFrames === "number") return _cell.trimLenSrcFrames;
+              const _sk=String(_cell.sourceKey||"");
+              const _parts=_sk.split("::");
+              const _srcFrames=parseInt(_parts[2]||"",10);
+              const _bufLen=(_cell.left && typeof _cell.left.length==="number") ? _cell.left.length : (typeof _cell.selLenFrames==="number" ? _cell.selLenFrames : NaN);
+              if (Number.isFinite(_srcFrames) && Number.isFinite(_bufLen) && _srcFrames > _bufLen) return Math.max(1, _bufLen|0);
+              return null;
+            })(),
+                        trimIsAuto: (()=>{ 
+              const _cell=state.cells[c][r];
+              const _sk=String(_cell.sourceKey||"");
+              const _parts=_sk.split("::");
+              const _srcFrames=parseInt(_parts[2]||"",10);
+
+              // "Target" length for auto padtrim is the cell selection length (usually the row/cell frame count),
+              // NOT the current buffer length (which can be destructively shortened by user trims).
+              const _targetLen=(typeof _cell.selLenFrames==="number")
+                ? (_cell.selLenFrames|0)
+                : (getCellFrames(r)|0);
+
+              const _ts = (typeof _cell.trimStartSrcFrames === "number") ? (_cell.trimStartSrcFrames|0) : null;
+              const _tl = (typeof _cell.trimLenSrcFrames === "number") ? (_cell.trimLenSrcFrames|0) : null;
+
+              // Explicit trim metadata:
+              // treat as AUTO only if it matches the canonical auto-padtrim window: start 0, length == targetLen, source longer than targetLen.
+              if (_ts != null || _tl != null){
+                const _matchesAuto = (_ts === 0) && (_tl != null) && (_tl === _targetLen) &&
+                                     Number.isFinite(_srcFrames) && (_srcFrames > _targetLen);
+                return _matchesAuto ? true : false;
+              }
+
+              // No explicit trim metadata:
+              // infer auto-trim only when source is longer than targetLen (we keep the first targetLen frames).
+              return (Number.isFinite(_srcFrames) && Number.isFinite(_targetLen) && _srcFrames > _targetLen);
+            })(),
+            scissors: (typeof state.cells[c][r].scissors === "boolean") ? state.cells[c][r].scissors : false,
+            selEdited: !!state.cells[c][r].selEdited,
           }))
         }))
       };
@@ -7269,6 +8461,68 @@ function indexFiles(files){
     return {byRel, byName, byNorm, normKey};
   }
 
+
+
+  // Global file catalog (built from Random64 folder picks and preset relink folder picks)
+  // Used to infer relPath for single-file picks (browser does not expose full paths).
+  let _globalFileIndex = null; // {byRel,byName,byNorm,normKey}
+  let _globalSigToRel = new Map(); // "name::size::lm" -> relPath string (folder/.../file)
+  let _globalNSigToRel = new Map(); // "name::size" -> relPath string
+
+  function _nsigOfFileLike(f){
+    if (!f) return "";
+    const n = (f.name || "").toString().toLowerCase().trim();
+    const s = (typeof f.size === "number") ? f.size : 0;
+    return [n,s].join("::");
+  }
+
+
+  function _sigOfFileLike(f){
+    if (!f) return "";
+    const n = (f.name || "").toString().toLowerCase().trim();
+    const s = (typeof f.size === "number") ? f.size : 0;
+    const lm = (typeof f.lastModified === "number") ? f.lastModified : 0;
+    return [n,s,lm].join("::");
+  }
+
+  function setGlobalFileCatalog(files, idx=null){
+    try{
+      if (!files) return;
+      const arr = Array.from(files || []);
+      _globalFileIndex = idx || indexFiles(arr);
+      _globalSigToRel = new Map();
+      _globalNSigToRel = new Map();
+      for (const f of arr){
+        const rel = (f.webkitRelativePath || f._relPath || "");
+        if (!rel) continue;
+        const sig = _sigOfFileLike(f);
+        if (sig && !_globalSigToRel.has(sig)) _globalSigToRel.set(sig, rel);
+        const nsig = _nsigOfFileLike(f);
+        if (nsig && !_globalNSigToRel.has(nsig)) _globalNSigToRel.set(nsig, rel);
+      }
+    }catch(_e){}
+  }
+
+  // Try to attach a relPath to a single-file pick by matching name+size+lastModified
+  // against the last known folder catalog (Random64/import relink).
+  function inferRelPathForFile(file){
+    try{
+      if (!file) return;
+      const hasRel = !!(file.webkitRelativePath || file._relPath);
+      if (hasRel) return;
+      const sig = _sigOfFileLike(file);
+      let rel = "";
+      if (sig && _globalSigToRel && _globalSigToRel.has(sig)) rel = _globalSigToRel.get(sig) || "";
+      if (!rel){
+        const nsig = _nsigOfFileLike(file);
+        if (nsig && _globalNSigToRel && _globalNSigToRel.has(nsig)) rel = _globalNSigToRel.get(nsig) || "";
+      }
+      if (!rel) return;
+      if (!rel) return;
+      file._relPath = rel; // used by getSourceKeyFromFile() and origin.relPath
+    }catch(_e){}
+  }
+
   function resolveFile(ref, index){
     if (!ref) return null;
 
@@ -7349,6 +8603,7 @@ if (Array.isArray(preset.cellNames)){
       return;
     }
     const idx = indexFiles(files);
+    try{ setGlobalFileCatalog(files, idx); }catch(_e){}
 
     let loaded = 0, missing = 0;
 
@@ -7395,23 +8650,40 @@ if (Array.isArray(preset.cellNames)){
         const cell = state.cells[c][r];
         if (!cellP) continue;
 
-        // apply settings
-        if (cellP.settings && typeof cellP.settings === "object"){
-          cell.settings = { ...cell.settings, ...cellP.settings };
-        }
+        // desired settings from preset (apply AFTER loadFileIntoCell because load resets gain/fades by design)
+        const _impSettings = (cellP.settings && typeof cellP.settings === "object") ? { ...cellP.settings } : null;
 
-        // apply wave selection metadata (optional)
-        if (typeof cellP.selStartFrames === "number") cell.selStartFrames = cellP.selStartFrames;
-        if (typeof cellP.selLenFrames === "number") cell.selLenFrames = cellP.selLenFrames;
+        // apply wave selection/trim metadata (optional) — passed into loadFileIntoCell so it can slice consistently
+        const _impSelStart = (typeof cellP.selStartFrames === "number") ? cellP.selStartFrames : null;
+        const _impSelLen   = (typeof cellP.selLenFrames === "number") ? cellP.selLenFrames : null;
+        const _impTrimStart = (typeof cellP.trimStartSrcFrames === "number") ? cellP.trimStartSrcFrames : null;
+        const _impTrimLen   = (typeof cellP.trimLenSrcFrames === "number") ? cellP.trimLenSrcFrames : null;
+        const _impSelEdited = (typeof cellP.selEdited === "boolean") ? cellP.selEdited : null;
         // NOTE: do NOT force sourceKey from preset; it is regenerated when loading files
-
+        const _impTrimIsAuto = (typeof cellP.trimIsAuto === "boolean") ? cellP.trimIsAuto : null;
+        const _impScissors = (typeof cellP.scissors === "boolean") ? cellP.scissors : null;
         // if already loaded via splitPlan, skip file load
         if (splitPlan[c]){
+          if (_impSettings){
+            cell.settings = { ...cell.settings, ..._impSettings };
+          }
+          if (_impTrimIsAuto != null) cell.trimIsAuto = _impTrimIsAuto;
+        if (_impScissors != null) cell.scissors = _impScissors;
+        if (_impScissors != null && !_impSettings){ try{ updateCellUI(c,r); }catch(_e){} }
+
+        if (_impScissors != null) cell.scissors = _impScissors;
+          if (_impScissors != null) cell.scissors = _impScissors;
           updateCellUI(c,r);
           continue;
         }
 
-        const ref = cellP.origin || { fileName: cellP.fileName || cellP.name, relPath: cellP.relPath || "" };
+        const _baseFn = String((cellP.origin?.fileName || cellP.fileName || cellP.name || "")).split(" · ")[0].trim();
+        let _rel = String(cellP.origin?.relPath || cellP.relPath || "");
+        if (!_rel && cellP.sourceKey){
+          const _p = String(cellP.sourceKey).split("::")[0];
+          if (_p.includes("/")) _rel = _p.split("/").slice(0,-1).join("/");
+        }
+        const ref = cellP.origin || { fileName: _baseFn, relPath: _rel };
         const file = resolveFile(ref, idx);
         if (!file){
           missing++;
@@ -7421,7 +8693,29 @@ if (Array.isArray(preset.cellNames)){
           updateCellUI(c,r);
           continue;
         }
-        await loadFileIntoCell(c, r, file, { silent: true });
+        const _loadOpts = { silent: true, maxSec: MAX_CELL_LOAD_SEC, importing: true };
+        if (_impSelStart != null && _impSelLen != null){
+          _loadOpts.importSelStartFrames = _impSelStart;
+          _loadOpts.importSelLenFrames   = _impSelLen;
+          _loadOpts.preserveSelection = true;
+        }
+        if (_impTrimStart != null && _impTrimLen != null && (_impTrimIsAuto !== true || _impScissors === true)){
+          _loadOpts.importTrimStartSrcFrames = _impTrimStart;
+          _loadOpts.importTrimLenSrcFrames   = _impTrimLen;
+          _loadOpts.preserveSelection = true;
+        }
+        if (_impSelEdited != null){
+          _loadOpts.importSelEdited = _impSelEdited;
+        }
+        if (_impScissors != null) cell.scissors = _impScissors;
+        await loadFileIntoCell(c, r, file, _loadOpts);
+        if (_impTrimIsAuto != null) cell.trimIsAuto = _impTrimIsAuto;
+        if (_impScissors != null) cell.scissors = _impScissors;
+        // Re-apply preset settings after load (load resets gain/fades to defaults)
+        if (_impSettings){
+          cell.settings = { ...cell.settings, ..._impSettings };
+        }
+        try{ updateCellUI(c,r); }catch(_e){}
         loaded++;
       }
       updateColUI(c);
@@ -7487,14 +8781,15 @@ if (Array.isArray(preset.cellNames)){
   }
 
   async function randomFill64FromFiles(files){
-    // Stability: reset engines before heavy batch load
-    hardResetEngines();
     try{ updateRandom64FilterIndicator(); }catch(_){}
     files = applyRandomFilters(files);
     const all = Array.from(files || []);
+    try{ setGlobalFileCatalog(all); }catch(_e){}
     const pool = all.filter(isAudioFile);
     const nonAudio = all.length - pool.length;
-    const MAX_RANDOM_SEC = 60; // Random 64 only uses files shorter than this (seconds) // Only use files shorter than this (seconds) for Random 64
+    const MAX_RANDOM_SEC = 60; // Hard cap for Random 64 (seconds)
+    const _isSafari = /Safari\//.test(navigator.userAgent||'') && !/Chrome\//.test(navigator.userAgent||'') && !/Chromium\//.test(navigator.userAgent||'') && !/Edg\//.test(navigator.userAgent||'');
+    // Safari: avoid metadata-duration probing (can balloon memory); we trim after decode instead.
 
     if (!pool.length){
       toast(`No audio files found in that selection. (${nonAudio} non-audio items)`, 3200);
@@ -7531,15 +8826,17 @@ if (Array.isArray(preset.cellNames)){
       let attemptFile = chosen[i];
       for (let attempt=0; attempt<8; attempt++){
         // Skip very long files BEFORE decoding/loading into a cell.
-        const dur = await getFileDurationSec(attemptFile);
-        if (dur != null && dur > MAX_RANDOM_SEC){
-          // pick another random file from pool
-          attemptFile = pool[(Math.random() * pool.length) | 0];
-          continue;
+        // Non-Safari: fast metadata probe. Safari: skip probe and rely on post-decode trimming.
+        if (!_isSafari){
+          const dur = await getFileDurationSec(attemptFile);
+          if (dur != null && dur > MAX_RANDOM_SEC){
+            attemptFile = pool[(Math.random() * pool.length) | 0];
+            continue;
+          }
         }
 
         try{
-          await loadFileIntoCell(c, r, attemptFile, { silent: true });
+          await loadFileIntoCell(c, r, attemptFile, { silent: true, maxSec: MAX_RANDOM_SEC, skipLongerThanMaxSec: true });
           ok = true;
           break;
         }catch(err){
@@ -7558,13 +8855,9 @@ if (Array.isArray(preset.cellNames)){
       }
 
       if (i === 31) toast('Random fill: halfway (32/64)…', 1400);
-    
-
-      // Yield periodically to keep Safari responsive
-      if ((i % 2) === 1) await new Promise(requestAnimationFrame);
     }
 
-    updateAllUIBatched(6);
+    updateAllUI();
     if (failCount){
       toast(`Random fill complete with ${failCount} decode/load failure(s). Last: ${lastFail || "?"}`, 4200);
     } else {
@@ -7856,6 +9149,82 @@ if (e.key === "Escape"){
   setupWaveObserver();
   onTimingChanged();
 
+
+
+  /* === Safari background memory guard (canvases + wave flush) === */
+  (function(){
+    const UA = navigator.userAgent || "";
+    const isSafari = /Safari\//.test(UA) && !/Chrome\//.test(UA) && !/Chromium\//.test(UA) && !/Edg\//.test(UA);
+    if (!isSafari) return;
+
+    let wavesPaused = false;
+    let pendingWaveRaf = 0;
+
+    function cancelPendingWaveRaf(){
+      if (pendingWaveRaf){
+        try{ cancelAnimationFrame(pendingWaveRaf); }catch(e){}
+        pendingWaveRaf = 0;
+      }
+    }
+
+    function purgeMiniWaveCanvases(){
+      try{
+        const canvases = document.querySelectorAll("canvas");
+        for (const c of canvases){
+          const w = c.width || 0, h = c.height || 0;
+          if (w >= 2000 || h >= 2000) continue;
+          const cw = c.width, ch = c.height;
+          c.width = 0; c.height = 0;
+          c.width = cw; c.height = ch;
+        }
+      }catch(e){}
+    }
+
+    try{
+      if (typeof scheduleWaveFlush === "function" && !scheduleWaveFlush.__tcmSafariWrapped){
+        const _orig = scheduleWaveFlush;
+        const wrapped = function(){
+          if (wavesPaused) return;
+          if (pendingWaveRaf) return;
+          pendingWaveRaf = requestAnimationFrame(() => {
+            pendingWaveRaf = 0;
+            if (wavesPaused) return;
+            try{ _orig(); }catch(e){}
+          });
+        };
+        wrapped.__tcmSafariWrapped = true;
+        scheduleWaveFlush = wrapped;
+      }
+    }catch(e){}
+
+    try{
+      if (typeof clearAll === "function" && !clearAll.__tcmSafariWrapped){
+        const _orig = clearAll;
+        const wrapped = function(){
+          const r = _orig.apply(this, arguments);
+          cancelPendingWaveRaf();
+          purgeMiniWaveCanvases();
+          return r;
+        };
+        wrapped.__tcmSafariWrapped = true;
+        clearAll = wrapped;
+      }
+    }catch(e){}
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden){
+        wavesPaused = true;
+        cancelPendingWaveRaf();
+        purgeMiniWaveCanvases();
+      } else {
+        wavesPaused = false;
+        cancelPendingWaveRaf();
+        try{ if (typeof markAllWavesDirty === "function") markAllWavesDirty(); }catch(e){}
+        try{ if (typeof scheduleWaveFlush === "function") scheduleWaveFlush(); }catch(e){}
+      }
+    }, { passive:true });
+
+  })();
 })();
 
 // === Handle Magnifier (Phase 1) ===
@@ -7865,6 +9234,7 @@ const _mag = {
   srcTag:"",
   zoomMul: 1,
   autoNorm: false,
+  userEnabled: true,
   baseHalfWinFrames: 0
 ,
  on:false, src:null, total:0, selStart:0, selEnd:0, edge:"R", halfWinFrames:0, el:null, cv:null, ctx:null, lbl:null, _raf:0 };
@@ -7949,6 +9319,7 @@ function magSetLabelText(t){
 
 function magShow({src, total, selStart, selEnd, edge, x, y, label, centerPos, tag}){
   magInit();
+  if(_mag.userEnabled === false) return;
   _mag.on = true;
   _mag.srcTag = tag || _mag.srcTag || "";
   // Wave editor uses a smaller magnifier so it doesn't dominate the UI
@@ -8216,17 +9587,18 @@ window.addEventListener("keydown", (ev)=>{
   
 
 
-  <!-- Wave Editor Overlay (v2.5.24 foundation) -->
+  <!-- Wave Editor Overlay (v2.8.68 foundation) -->
   <div class="overlay" id="waveOverlay" aria-hidden="true" style="display:none;">
     <div class="helpPanel wavePanel">
+      <div id="waveSliceHint" class="waveSliceHint" style="display:none;">slice</div>
+
       <div class="helpHead">
         <div class="helpTitle" id="waveTitle">Wave Editor<span id="zIndWave" class="z-indicator" title="Z: Auto-Norm">Z</span></div>
         <div style="display:flex; gap:8px; align-items:center;">
           <button class="helpClose" type="button" id="wavePlaySelBtn" title="Play current selection">Play sel</button>
           <button class="helpClose" type="button" id="wavePlayFullBtn" title="Play full source">Play full</button>
-          <button class="helpClose" type="button" id="waveSnapBtn" title="Snap apply to zero-crossing">Snap: on</button>
-                    <button class="helpClose" type="button" id="waveTrimBtn" title="Trim source to selection (undo available)">Trim</button>
-          <button class="helpClose" type="button" id="waveUndoBtn" title="Undo trim (Ctrl/Cmd+Z)">Undo</button>
+          <button class="helpClose" type="button" id="waveZoomBtn" title="Toggle zoom window">Zoom: on</button>
+          <button class="helpClose" type="button" id="waveSnapBtn" title="Snap apply to zero-crossing">Snap: on</button> <button class="helpClose" type="button" id="waveUndoBtn" title="Undo trim (Ctrl/Cmd+Z)">Undo</button>
 <button class="helpClose" type="button" id="waveApplyBtn" title="Apply selection to the cell">Apply</button>
           <button class="helpClose" type="button" id="waveResetBtn" title="Reset selection to full cell length">Reset</button>
           <button class="helpClose" type="button" id="waveCloseBtn" title="Close">✕</button>
@@ -8278,6 +9650,7 @@ window.addEventListener("keydown", (ev)=>{
           <button class="helpClose" type="button" id="splitAutoBtn" title="Auto tile 8 slices across the sample">Auto</button>
           <button class="helpClose" type="button" id="splitPlaySelBtn" title="Play focused slice (Space)">Play sel</button>
           <button class="helpClose" type="button" id="splitPlayFullBtn" title="Play full sample">Play all</button>
+          <button class="helpClose" type="button" id="splitZoomBtn" title="Toggle zoom window">Zoom: on</button>
 <button class="helpClose" type="button" id="splitUndoBtn" title="Undo last split edit" disabled>Undo</button>
           <button class="helpClose" type="button" id="splitApplyBtn" title="Apply splits into the column">Apply</button>
           <button class="helpClose" type="button" id="splitCloseBtn" title="Close" style="margin-left:8px;">Close</button>

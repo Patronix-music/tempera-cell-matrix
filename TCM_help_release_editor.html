@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TCM Help + Release Notes Editor (Single-file)</title>
+  <style>
+    :root{
+      color-scheme: dark;
+      --bg:#0b0e14;
+      --panel:#111726;
+      --panel2:#0f1522;
+      --text:#e9eefc;
+      --muted:#aab3cf;
+      --line:rgba(255,255,255,.12);
+      --accent:#7aa2ff;
+      --bad:#ff6b6b;
+      --good:#51cf66;
+      --warn:#ffd43b;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:linear-gradient(180deg, #0b0e14, #070a10 65%);
+      color:var(--text);
+      font-family:var(--sans);
+    }
+    header{
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      position:sticky;
+      top:0;
+      backdrop-filter: blur(10px);
+      background:rgba(11,14,20,.82);
+      z-index:10;
+    }
+    header .row{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:space-between;
+    }
+    h1{
+      font-size:14px;
+      margin:0;
+      letter-spacing:.2px;
+      font-weight:700;
+      color:var(--text);
+    }
+    .sub{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:2px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:rgba(255,255,255,.04);
+      font-size:12px;
+      color:var(--muted);
+    }
+    .pill b{color:var(--text); font-weight:700;}
+    .btn{
+      appearance:none;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      font-size:12px;
+      cursor:pointer;
+      user-select:none;
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      transition:transform .05s ease, background .15s ease, border-color .15s ease;
+    }
+    .btn:hover{ background:rgba(255,255,255,.09); border-color:rgba(122,162,255,.45); }
+    .btn:active{ transform: translateY(1px); }
+    .btn.primary{
+      background:rgba(122,162,255,.20);
+      border-color:rgba(122,162,255,.55);
+    }
+    .btn.primary:hover{ background:rgba(122,162,255,.28); }
+    .btn:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+      transform:none;
+    }
+    .wrap{
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap:12px;
+      padding:12px;
+      max-width: 1400px;
+      margin:0 auto;
+    }
+    @media (max-width: 980px){
+      .wrap{ grid-template-columns: 1fr; }
+    }
+    .panel{
+      border:1px solid var(--line);
+      background:rgba(17,23,38,.75);
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow: 0 10px 28px rgba(0,0,0,.30);
+    }
+    .panel .head{
+      padding:12px 12px 10px;
+      border-bottom:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .panel .head h2{
+      margin:0;
+      font-size:12px;
+      letter-spacing:.25px;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:800;
+    }
+    .panel .body{ padding:12px; }
+    .row2{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width: 180px;
+      flex: 1;
+    }
+    label{
+      font-size:12px;
+      color:var(--muted);
+    }
+    input[type="text"]{
+      background:rgba(15,21,34,.95);
+      color:var(--text);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:12px;
+      outline:none;
+    }
+    input[type="text"]:focus{ border-color:rgba(122,162,255,.65); }
+    textarea{
+      width:100%;
+      min-height: 240px;
+      resize: vertical;
+      background:rgba(15,21,34,.95);
+      color:var(--text);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:12px;
+      line-height:1.35;
+      font-family:var(--mono);
+      outline:none;
+      white-space:pre;
+    }
+    textarea:focus{ border-color:rgba(122,162,255,.65); }
+    .cards{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      max-height: calc(100vh - 210px);
+      overflow:auto;
+      padding-right:2px;
+    }
+    .cardItem{
+      border:1px solid var(--line);
+      background:rgba(15,21,34,.65);
+      border-radius:14px;
+      padding:10px 10px;
+      cursor:pointer;
+      user-select:none;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .cardItem:hover{ border-color:rgba(122,162,255,.40); }
+    .cardItem.active{
+      border-color:rgba(122,162,255,.80);
+      background:rgba(122,162,255,.16);
+    }
+    .cardItem .n{
+      width:22px;height:22px;
+      border-radius:8px;
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:12px;
+      color:var(--muted);
+      flex:0 0 auto;
+      margin-top:1px;
+    }
+    .cardItem .t{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width:0;
+    }
+    .cardItem .t b{
+      font-size:13px;
+      color:var(--text);
+      font-weight:800;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .cardItem .t span{
+      font-size:11px;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .status{
+      padding:10px 12px;
+      border-top:1px solid var(--line);
+      background:rgba(255,255,255,.02);
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .status .msg{ display:flex; gap:8px; align-items:center; }
+    .dot{
+      width:9px;height:9px;border-radius:50%;
+      background:rgba(255,255,255,.25);
+      border:1px solid var(--line);
+    }
+    .dot.good{ background:rgba(81,207,102,.85); border-color:rgba(81,207,102,.25); }
+    .dot.bad{ background:rgba(255,107,107,.85); border-color:rgba(255,107,107,.25); }
+    .dot.warn{ background:rgba(255,212,59,.85); border-color:rgba(255,212,59,.25); }
+    .tiny{ font-size:11px; color:var(--muted); }
+    .kbd{
+      font-family:var(--mono);
+      font-size:11px;
+      padding:3px 6px;
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+    }
+    .split{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 980px){
+      .split{ grid-template-columns: 1fr; }
+    }
+    .mutedBox{
+      border:1px dashed rgba(255,255,255,.18);
+      background:rgba(255,255,255,.02);
+      border-radius:14px;
+      padding:10px 12px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+    }
+    .mutedBox b{ color:var(--text); }
+  
+    iframe{
+      width:100%;
+      height: 340px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:rgba(15,21,34,.95);
+    }
+
+  </style>
+</head>
+<body>
+  <header>
+    <div class="row">
+      <div>
+        <h1>TCM Help Cards + Release Notes Editor</h1>
+        <div class="sub">Load your <span class="kbd">TCM*.html</span>, edit help cards + changelog, download patched app HTML.</div>
+      </div>
+      <div class="row2">
+        <label class="btn">
+          <input id="appFile" type="file" accept=".html,text/html" hidden />
+          📄 Load TCM HTML
+        </label>
+        <button id="btnDownload" class="btn primary" disabled>⬇️ Download patched TCM HTML</button>
+        <button id="btnValidate" class="btn" disabled>🧪 Validate</button>
+        <button id="btnPatchJson" class="btn" disabled>🧾 Export patch JSON</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <!-- Left: cards list + globals -->
+    <section class="panel">
+      <div class="head">
+        <h2>Contents</h2>
+        <div class="tiny">Tip: use <span class="kbd">Ctrl/Cmd+F</span> in the right editor.</div>
+      </div>
+      <div class="body">
+        <div class="field">
+          <label>Loaded file</label>
+          <div class="pill"><b id="loadedName">none</b><span id="loadedMeta">—</span></div>
+        </div>
+
+        <div style="height:10px"></div>
+
+        <div class="split">
+          <div class="field">
+            <label>APP_VERSION (string)</label>
+            <input id="appVersion" type="text" placeholder="e.g. 2.9.8" />
+          </div>
+          <div class="field">
+            <label>Output filename</label>
+            <input id="outName" type="text" placeholder="e.g. TCM2.9.8_release.html" />
+          </div>
+        </div>
+
+        <div style="height:10px"></div>
+
+        <div class="mutedBox">
+          <b>Rules this editor follows</b><br/>
+          • Help cards are edited inside <span class="kbd">#helpOverlay</span>.<br/>
+          • Release notes are the JS array <span class="kbd">const CHANGELOG = [ ... ]</span>.<br/>
+          • Import/export logic is untouched — this tool only changes help + notes + version string (optional).
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="field">
+          <label>Help cards (click to edit)</label>
+          <div id="cards" class="cards"></div>
+        </div>
+      </div>
+
+      <div class="status">
+        <div class="msg"><span id="dot" class="dot"></span><span id="status">Load a TCM HTML file.</span></div>
+        <div class="tiny" id="counts">—</div>
+      </div>
+    </section>
+
+    <!-- Right: editors -->
+    <section class="panel">
+      <div class="head">
+        <h2>Editor</h2>
+        <div class="row2">
+          <button id="btnMoveUp" class="btn" disabled>⬆︎ Move up</button>
+          <button id="btnMoveDown" class="btn" disabled>⬇︎ Move down</button>
+          <button id="btnApplyCard" class="btn" disabled>✅ Apply card changes</button>
+          <button id="btnResetCard" class="btn" disabled>↩︎ Revert card</button>
+        </div>
+      </div>
+      <div class="body">
+        <div class="split">
+          <div>
+            <label>Selected help card title</label>
+            <input id="cardTitle" type="text" disabled />
+          </div>
+          <div>
+            <label>Note</label>
+            <input id="cardHint" type="text" value="Edit card BODY HTML only (h3 title is kept)." disabled />
+          </div>
+        </div>
+
+        <div style="height:10px"></div>
+
+        <label>Help card body HTML</label>
+        <textarea id="cardBody" placeholder="Select a help card on the left..."></textarea>
+
+        <div style="height:14px"></div>
+
+        <label>Release notes (one bullet per line)</label>
+        <textarea id="releaseNotes" placeholder="2.9.8 — Something changed&#10;2.9.7 — Something else"></textarea>
+
+        <div style="height:12px"></div>
+
+        <label>Advanced: raw help overlay HTML (read-only snapshot)</label>
+        <textarea id="rawHelpOverlay" readonly></textarea>
+
+        <div style="height:12px"></div>
+        <label>Live preview (patched help overlay)</label>
+        <iframe id="previewFrame" sandbox></iframe>
+      </div>
+
+      <div class="status">
+        <div class="msg"><span class="dot warn"></span><span class="tiny">This tool edits strings. If you paste broken HTML into a help card, it will break the overlay.</span></div>
+        <div class="tiny">No network. Runs locally in your browser.</div>
+      </div>
+    </section>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- state ----------
+  const state = {
+    fileName: "",
+    html: "",
+    appVersion: "",
+    cards: [], // {idx, title, bodyHTML, origBodyHTML, isReleaseCard, nodeRef?}
+    selectedIdx: -1,
+    changelogLines: [],
+    origChangelogRaw: "",
+    helpOverlayRange: null // {start,end} indices in source html for <div id="helpOverlay"...>...</div>
+  };
+
+  // ---------- DOM ----------
+  const el = {
+    appFile: document.getElementById("appFile"),
+    loadedName: document.getElementById("loadedName"),
+    loadedMeta: document.getElementById("loadedMeta"),
+    appVersion: document.getElementById("appVersion"),
+    outName: document.getElementById("outName"),
+    cards: document.getElementById("cards"),
+    cardTitle: document.getElementById("cardTitle"),
+    cardBody: document.getElementById("cardBody"),
+    releaseNotes: document.getElementById("releaseNotes"),
+    rawHelpOverlay: document.getElementById("rawHelpOverlay"),
+    btnMoveUp: document.getElementById("btnMoveUp"),
+    btnMoveDown: document.getElementById("btnMoveDown"),
+    btnApplyCard: document.getElementById("btnApplyCard"),
+    btnResetCard: document.getElementById("btnResetCard"),
+    btnDownload: document.getElementById("btnDownload"),
+    btnValidate: document.getElementById("btnValidate"),
+    btnPatchJson: document.getElementById("btnPatchJson"),
+    previewFrame: document.getElementById("previewFrame"),
+    dot: document.getElementById("dot"),
+    status: document.getElementById("status"),
+    counts: document.getElementById("counts"),
+  };
+
+  function setStatus(kind, msg){
+    el.status.textContent = msg;
+    el.dot.className = "dot " + (kind || "");
+  }
+
+  // ---------- parsing helpers ----------
+  function findConstString(html, name){
+    // const NAME = '...';
+    const re = new RegExp("const\\s+" + name.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&") + "\\s*=\\s*'([^']*)'\\s*;", "m");
+    const m = html.match(re);
+    return m ? m[1] : "";
+  }
+
+  function replaceConstString(html, name, value){
+    const re = new RegExp("(const\\s+" + name.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&") + "\\s*=\\s*')([^']*)('\\s*;)", "m");
+    if (!re.test(html)) return { html, ok:false };
+    return { html: html.replace(re, "$1" + escapeForSingleQuotedJS(value) + "$3"), ok:true };
+  }
+
+  function escapeForSingleQuotedJS(s){
+    return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+  }
+
+  function findChangelogArray(html){
+    // const CHANGELOG = [ ... ];
+    const re = /const\s+CHANGELOG\s*=\s*\[\s*([\s\S]*?)\s*\]\s*;\s*/m;
+    const m = html.match(re);
+    if (!m) return { raw:"", items:[] };
+    const raw = m[1];
+    // Extract quoted strings "..." and '...'
+    const items = [];
+    const reItem = /(["'])(.*?)\1\s*,?/g;
+    let mm;
+    while ((mm = reItem.exec(raw)) !== null){
+      items.push(mm[2]);
+    }
+    return { raw, items };
+  }
+
+  function replaceChangelogArray(html, lines){
+    const re = /const\s+CHANGELOG\s*=\s*\[\s*([\s\S]*?)\s*\]\s*;\s*/m;
+    if (!re.test(html)) return { html, ok:false };
+    const body = lines
+      .filter(l => String(l).trim().length)
+      .map(l => '  "' + escapeForDoubleQuotedJS(String(l).trim()) + '",')
+      .join("\n");
+    const replacement = "const CHANGELOG = [\n" + body + "\n];\n";
+    return { html: html.replace(re, replacement), ok:true };
+  }
+
+  function escapeForDoubleQuotedJS(s){
+    return String(s)
+      .replace(/\\/g,"\\\\")
+      .replace(/"/g,'\\"');
+  }
+
+  function findHelpOverlayRange(html){
+    // Find <div ... id="helpOverlay" ...> and match the closing </div> for that overlay by counting div tags.
+    const start = html.search(/<div[^>]*\bid\s*=\s*"helpOverlay"[^>]*>/i);
+    if (start < 0) return null;
+
+    const tagRe = /<div\b|<\/div\b/ig;
+    tagRe.lastIndex = start;
+    let depth = 0;
+    let m;
+    let end = -1;
+
+    // We start from the first matching <div ... id="helpOverlay"...>
+    while ((m = tagRe.exec(html)) !== null){
+      const tok = m[0].toLowerCase();
+      if (tok.startsWith("<div")){
+        depth++;
+      } else {
+        depth--;
+        if (depth === 0){
+          // end of the overlay closing div. Need the end of that tag
+          const closeTagEnd = html.indexOf(">", m.index);
+          end = closeTagEnd >= 0 ? closeTagEnd + 1 : -1;
+          break;
+        }
+      }
+    }
+    if (end < 0) return null;
+    return { start, end };
+  }
+
+  function parseHelpCardsFromHTML(html){
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    const overlay = doc.getElementById("helpOverlay");
+    if (!overlay) return { ok:false, msg:"Could not find #helpOverlay in the loaded HTML.", cards:[], overlayHTML:"" };
+
+    const cardNodes = Array.from(overlay.querySelectorAll(".helpCard"));
+    if (!cardNodes.length) return { ok:false, msg:"Found #helpOverlay, but no .helpCard elements inside.", cards:[], overlayHTML: overlay.outerHTML };
+
+    const cards = [];
+    let _idx = 0;
+    for (const node of cardNodes){
+      const isRelease = node.classList.contains("helpCardRelease") || node.querySelector("#releaseNotes");
+      const h3 = node.querySelector("h3");
+      const title = h3 ? (h3.textContent || "").trim() : "(no title)";
+      let bodyHTML = node.innerHTML;
+      // Keep the <h3> in-place; we only edit the content AFTER the first h3.
+      if (h3){
+        const h3HTML = h3.outerHTML;
+        const idx = bodyHTML.indexOf(h3HTML);
+        if (idx >= 0){
+          bodyHTML = bodyHTML.slice(idx + h3HTML.length).trim();
+        }
+      }
+      cards.push({
+        title,
+        bodyHTML,
+        origBodyHTML: bodyHTML,
+        isReleaseCard: !!isRelease,
+        origIndex: _idx++
+      });
+    }
+    return { ok:true, msg:"OK", cards, overlayHTML: overlay.outerHTML };
+  }
+
+  function updateCardsUI(){
+    el.cards.innerHTML = "";
+    state.cards.forEach((c, i) => {
+      const div = document.createElement("div");
+      div.className = "cardItem" + (i === state.selectedIdx ? " active" : "");
+      div.innerHTML = `
+        <div class="n">${i+1}</div>
+        <div class="t">
+          <b>${escapeHTML(c.title)}</b>
+          <span>${c.isReleaseCard ? "Release notes container (list is dynamic)" : "Help card"}</span>
+        </div>
+      `;
+      div.addEventListener("click", () => selectCard(i));
+      el.cards.appendChild(div);
+    });
+
+    const editedCount = state.cards.filter(c => c.bodyHTML !== c.origBodyHTML && !c.isReleaseCard).length;
+    el.counts.textContent = `${state.cards.length} cards • ${editedCount} modified • ${state.changelogLines.length} release lines`;
+  }
+
+  function escapeHTML(s){
+    return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
+  }
+
+  function selectCard(i){
+    state.selectedIdx = i;
+    updateCardsUI();
+    const c = state.cards[i];
+    el.cardTitle.value = c.title + (c.isReleaseCard ? " (release container)" : "");
+    el.cardBody.value = c.bodyHTML || "";
+    el.btnApplyCard.disabled = c.isReleaseCard;
+    el.btnResetCard.disabled = c.isReleaseCard;
+
+    const canMove = !c.isReleaseCard;
+    el.btnMoveUp.disabled = !canMove || i <= 0;
+    el.btnMoveDown.disabled = !canMove || i >= (state.cards.length - 1);
+  }
+
+  function applyCardEdit(){
+    const i = state.selectedIdx;
+    if (i < 0) return;
+    const c = state.cards[i];
+    if (c.isReleaseCard) return;
+    c.bodyHTML = el.cardBody.value;
+    updateCardsUI();
+    updatePreview();
+    setStatus("good", "Card changes applied in editor state (not written yet).");
+  }
+
+  function resetCardEdit(){
+    const i = state.selectedIdx;
+    if (i < 0) return;
+    const c = state.cards[i];
+    if (c.isReleaseCard) return;
+    c.bodyHTML = c.origBodyHTML;
+    el.cardBody.value = c.bodyHTML;
+    updateCardsUI();
+    updatePreview();
+    setStatus("warn", "Card reverted to original.");
+  }
+
+  function getPatchedHelpOverlayHTML(originalHTML){
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(originalHTML, "text/html");
+    const overlay = doc.getElementById("helpOverlay");
+    if (!overlay) throw new Error("Missing #helpOverlay");
+
+    const origNodes = Array.from(overlay.querySelectorAll(".helpCard"));
+    if (!origNodes.length) return overlay.outerHTML;
+
+    // Marker to preserve exact insertion location (keeps other overlay UI intact)
+    const parent = origNodes[0].parentNode;
+    const marker = doc.createComment("TCM_HELP_CARD_MARKER");
+    parent.insertBefore(marker, origNodes[0]);
+
+    // Remove cards
+    for (const n of origNodes) n.remove();
+
+    // Rebuild in editor order using the original node identity (origIndex)
+    for (const cfg of state.cards){
+      const node = origNodes[cfg.origIndex];
+      if (!node) continue;
+
+      const isRelease = cfg.isReleaseCard || node.classList.contains("helpCardRelease") || node.querySelector("#releaseNotes");
+      if (!isRelease){
+        const h3 = node.querySelector("h3");
+        const titleHTML = h3 ? h3.outerHTML : "";
+        node.innerHTML = (titleHTML ? (titleHTML + "\n") : "") + (cfg.bodyHTML || "");
+      }
+      parent.insertBefore(node, marker);
+    }
+
+    marker.remove();
+    return overlay.outerHTML;
+  }
+
+  function applyAllPatches(){
+    if (!state.html) return null;
+
+    let html = state.html;
+
+    // Patch APP_VERSION if user entered one and const exists
+    const v = String(el.appVersion.value || "").trim();
+    if (v){
+      const r = replaceConstString(html, "APP_VERSION", v);
+      if (r.ok){
+        html = r.html;
+      } else {
+        // Not fatal; some builds may not have APP_VERSION constant.
+        console.warn("APP_VERSION const not found; skipped.");
+      }
+    }
+
+    // Patch CHANGELOG
+    const lines = el.releaseNotes.value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+    const rr = replaceChangelogArray(html, lines);
+    if (!rr.ok) throw new Error("Could not find const CHANGELOG = [ ... ]; to patch.");
+    html = rr.html;
+
+    // Patch help overlay
+    const range = findHelpOverlayRange(html);
+    if (!range) throw new Error("Could not locate helpOverlay block in HTML (id=\"helpOverlay\").");
+
+    const newOverlay = getPatchedHelpOverlayHTML(html);
+    html = html.slice(0, range.start) + newOverlay + html.slice(range.end);
+
+    return html;
+  }
+
+  function makePatchJSON(){
+    const patch = {
+      tool: "TCM Help+Release Editor",
+      fileName: state.fileName,
+      appVersion: String(el.appVersion.value || "").trim() || null,
+      changelogLines: el.releaseNotes.value.split(/\r?\n/).map(x => x.trim()).filter(Boolean),
+      helpCards: state.cards
+        .filter(c => !c.isReleaseCard)
+        .map(c => ({ title: c.title, bodyHTML: c.bodyHTML })),
+      note: "Apply by generating patched HTML via this editor. Help overlay titles (<h3>) are preserved; only card bodyHTML is edited.",
+      createdAt: new Date().toISOString()
+    };
+    return JSON.stringify(patch, null, 2);
+  }
+
+  function downloadText(filename, content){
+    const blob = new Blob([content], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      a.remove();
+    }, 0);
+  }
+
+  function downloadJSON(filename, objText){
+    const blob = new Blob([objText], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      a.remove();
+    }, 0);
+  }
+
+  
+  function buildOverlayForPreview(baseHTML){
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(baseHTML, "text/html");
+    const overlay = doc.getElementById("helpOverlay");
+    if (!overlay) return "<div style='color:#fff;font-family:system-ui'>Missing #helpOverlay</div>";
+
+    const origNodes = Array.from(overlay.querySelectorAll(".helpCard"));
+    if (!origNodes.length) return overlay.outerHTML;
+
+    const parent = origNodes[0].parentNode;
+    const marker = doc.createComment("TCM_HELP_CARD_MARKER");
+    parent.insertBefore(marker, origNodes[0]);
+    for (const n of origNodes) n.remove();
+
+    for (const cfg of state.cards){
+      const node = origNodes[cfg.origIndex];
+      if (!node) continue;
+
+      const isRelease = cfg.isReleaseCard || node.classList.contains("helpCardRelease") || node.querySelector("#releaseNotes");
+      if (!isRelease){
+        const h3 = node.querySelector("h3");
+        const titleHTML = h3 ? h3.outerHTML : "";
+        node.innerHTML = (titleHTML ? (titleHTML + "\n") : "") + (cfg.bodyHTML || "");
+      }
+      parent.insertBefore(node, marker);
+    }
+
+    // Render release notes list into #releaseNotes if present
+    const rel = overlay.querySelector("#releaseNotes");
+    if (rel){
+      const lines = el.releaseNotes.value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+      rel.innerHTML = "<ul style='margin:8px 0 0 16px;padding:0'>" +
+        lines.map(l => "<li style='margin:4px 0'>" + escapeHTML(l) + "</li>").join("") +
+        "</ul>";
+    }
+
+    marker.remove();
+    return overlay.outerHTML;
+  }
+
+  function updatePreview(){
+    if (!state.html) return;
+    try{
+      const overlayHTML = buildOverlayForPreview(state.html);
+      const previewCSS = `
+        html,body{height:100%;margin:0}
+        body{background:#0b0e14;color:#e9eefc;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+        #helpOverlay{position:static !important; inset:auto !important; width:auto !important; height:auto !important; padding:12px}
+        .helpCard{border:1px solid rgba(255,255,255,.14); border-radius:14px; padding:12px; margin:10px 0; background:rgba(255,255,255,.04)}
+        .helpCard h3{margin:0 0 8px 0; font-size:14px}
+        .helpCard p, .helpCard li, .helpCard div{font-size:13px; line-height:1.35; color:#e9eefc}
+        a{color:#7aa2ff}
+        code,kbd,pre{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace}
+        pre{white-space:pre-wrap; word-break:break-word}
+      `;
+      el.previewFrame.srcdoc = `<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><style>${previewCSS}</style></head><body>${overlayHTML}</body></html>`;
+    }catch(e){
+      console.error(e);
+      el.previewFrame.srcdoc = `<!doctype html><html><body style="background:#0b0e14;color:#ff6b6b;font-family:system-ui;padding:12px">Preview failed: ${escapeHTML(e && e.message ? e.message : String(e))}</body></html>`;
+    }
+  }
+
+  function validatePatchedHTML(patchedHTML){
+    const issues = [];
+    if (!findHelpOverlayRange(patchedHTML)) issues.push("Missing #helpOverlay block (id=\"helpOverlay\").");
+    const cl = findChangelogArray(patchedHTML);
+    if (!cl.items.length) issues.push("CHANGELOG not found or empty.");
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(patchedHTML, "text/html");
+    const pe = doc.querySelector("parsererror");
+    if (pe) issues.push("HTML parser error detected (help card HTML may be broken).");
+
+    const overlay = doc.getElementById("helpOverlay");
+    if (overlay){
+      const count = overlay.querySelectorAll(".helpCard").length;
+      if (count !== state.cards.length) issues.push(`Help card count changed (${count} vs ${state.cards.length}).`);
+      const scripts = overlay.querySelectorAll("script").length;
+      if (scripts) issues.push(`Help overlay contains <script> tag(s): ${scripts} (not recommended).`);
+    }
+    return issues;
+  }
+
+
+
+  function moveCard(delta){
+    const i = state.selectedIdx;
+    if (i < 0) return;
+    const c = state.cards[i];
+    if (c.isReleaseCard) return;
+
+    const j = i + delta;
+    if (j < 0 || j >= state.cards.length) return;
+
+    const tmp = state.cards[i];
+    state.cards[i] = state.cards[j];
+    state.cards[j] = tmp;
+
+    state.selectedIdx = j;
+    updateCardsUI();
+    selectCard(j);
+    updatePreview();
+    setStatus("good", "Card moved " + (delta < 0 ? "up" : "down") + ".");
+  }
+
+
+// ---------- events ----------
+  el.releaseNotes.addEventListener("input", () => { if (state.html) updatePreview(); });
+
+  el.btnApplyCard.addEventListener("click", applyCardEdit);
+  el.btnResetCard.addEventListener("click", resetCardEdit);
+  el.btnMoveUp.addEventListener("click", () => moveCard(-1));
+  el.btnMoveDown.addEventListener("click", () => moveCard(1));
+
+
+  el.btnDownload.addEventListener("click", () => {
+    try{
+      const patched = applyAllPatches();
+      if (!patched) return;
+      const outName = (el.outName.value || "").trim() || inferOutName();
+      downloadText(outName, patched);
+      setStatus("good", "Downloaded patched TCM HTML.");
+    }catch(e){
+      console.error(e);
+      setStatus("bad", "Patch failed: " + (e && e.message ? e.message : String(e)));
+    }
+  });
+
+
+  el.btnValidate.addEventListener("click", () => {
+    try{
+      const patched = applyAllPatches();
+      if (!patched) return;
+      const issues = validatePatchedHTML(patched);
+      updatePreview();
+      if (!issues.length){
+        setStatus("good", "Validate OK: help overlay + CHANGELOG found. Preview updated.");
+      } else {
+        setStatus("warn", "Validate warnings: " + issues.join(" "));
+      }
+    }catch(e){
+      console.error(e);
+      setStatus("bad", "Validate failed: " + (e && e.message ? e.message : String(e)));
+    }
+  });
+
+  el.btnPatchJson.addEventListener("click", () => {
+    try{
+      const name = (state.fileName ? state.fileName.replace(/\.html$/i,"") : "TCM") + "_help_patch.json";
+      downloadJSON(name, makePatchJSON());
+      setStatus("good", "Downloaded patch JSON.");
+    }catch(e){
+      console.error(e);
+      setStatus("bad", "JSON export failed: " + (e && e.message ? e.message : String(e)));
+    }
+  });
+
+  el.appFile.addEventListener("change", async () => {
+    const file = el.appFile.files && el.appFile.files[0];
+    if (!file) return;
+
+    setStatus("", "Loading…");
+    try{
+      const html = await file.text();
+      state.fileName = file.name;
+      state.html = html;
+
+      el.loadedName.textContent = file.name;
+      el.loadedMeta.textContent = `${Math.round(file.size/1024)} KB`;
+
+      // APP_VERSION
+      const v = findConstString(html, "APP_VERSION");
+      state.appVersion = v;
+      el.appVersion.value = v || "";
+      el.outName.value = inferOutName();
+
+      // CHANGELOG
+      const cl = findChangelogArray(html);
+      state.origChangelogRaw = cl.raw;
+      state.changelogLines = cl.items;
+      el.releaseNotes.value = cl.items.join("\n");
+
+      // Help cards
+      const hc = parseHelpCardsFromHTML(html);
+      if (!hc.ok){
+        setStatus("bad", hc.msg);
+        el.previewFrame.srcdoc = "";
+        el.btnDownload.disabled = true;
+        el.btnValidate.disabled = true;
+        el.btnPatchJson.disabled = true;
+        el.btnApplyCard.disabled = true;
+        el.btnResetCard.disabled = true;
+        return;
+      }
+      state.cards = hc.cards;
+      el.rawHelpOverlay.value = hc.overlayHTML;
+
+      // Default select first non-release card
+      state.selectedIdx = Math.max(0, state.cards.findIndex(c => !c.isReleaseCard));
+      updateCardsUI();
+      selectCard(state.selectedIdx);
+
+      el.btnDownload.disabled = false;
+      el.btnValidate.disabled = false;
+      el.btnPatchJson.disabled = false;
+
+      updatePreview();
+      setStatus("good", "Loaded. Edit cards/notes, then download patched HTML.");
+    }catch(e){
+      console.error(e);
+      setStatus("bad", "Failed to load: " + (e && e.message ? e.message : String(e)));
+    }finally{
+      el.appFile.value = "";
+    }
+  });
+
+  function inferOutName(){
+    const base = state.fileName ? state.fileName.replace(/\.html$/i,"") : "TCM";
+    const v = (el.appVersion.value || state.appVersion || "").trim();
+    if (v) return base.replace(/_v?\d+\.\d+\.\d+$/i,"") + "_v" + v + ".html";
+    return base + "_patched.html";
+  }
+
+})();
+</script>
+</body>
+</html>
