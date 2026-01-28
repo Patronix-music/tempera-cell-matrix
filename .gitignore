@@ -3,4 +3,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+node_modules/node_modules/
+server.js
+package.json
+package-lock.json
 .DS_Store
