@@ -5816,6 +5816,12 @@ function encodeWav16Blob(L, R, sampleRate){
 async function playIOSFromLR(L, R, cellEl){
   // stop any existing playback first
   stopPlayback();
+  const myGen = state.playGen;
+  const myCellEl = cellEl || null;
+
+  // Visual playing state (matrix)
+  if (myCellEl) tcmPulsePlaying(myCellEl, myGen);
+
   const a = getIOSAudioEl();
 
   // Create a short-lived object URL for this render
@@ -5824,18 +5830,14 @@ async function playIOSFromLR(L, R, cellEl){
     iosAudioURL = null;
   }
   const wavBlob = encodeWav16Blob(L, R, SR);
-iosAudioURL = URL.createObjectURL(wavBlob);
+  iosAudioURL = URL.createObjectURL(wavBlob);
   a.src = iosAudioURL;
-
-  tcmPulsePlaying(cellEl, myGen)
-
-    const myCellEl = cellEl;
 
   // iOS: play() must be initiated from a user gesture; this is called from the click handler path.
   try{
     await a.play();
   }catch(e){
-    // If blocked, try to resume after a tiny delay (still within gesture window in most cases)
+    // If blocked, try once more on next tick (still often within the gesture window)
     try{
       await new Promise(r=>setTimeout(r, 0));
       await a.play();
@@ -5844,9 +5846,10 @@ iosAudioURL = URL.createObjectURL(wavBlob);
 
   a.onended = () => {
     if (myCellEl){
+      // Guard: don't clear newer play highlight
       if (typeof myGen === "number" && myCellEl.__playingGen !== myGen) { return; }
-      try{ myCellEl.classList.remove("playing"); }catch(_){ }
-      try{ state.activeCellEls && state.activeCellEls.delete(myCellEl); }catch(_){ }
+      try{ myCellEl.classList.remove("playing"); }catch(_){}
+      try{ state.activeCellEls && state.activeCellEls.delete(myCellEl); }catch(_){}
     }
     if (state.currentCellEl === myCellEl) state.currentCellEl = null;
     // Revoke the URL to avoid leaks
