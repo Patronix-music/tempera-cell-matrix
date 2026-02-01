@@ -1,6 +1,6 @@
 # Tempera Cell Matrix (TCM)
 
-![version](https://img.shields.io/badge/version-2.7.16-blue)
+![version](https://img.shields.io/badge/version-2.9.84-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![platform](https://img.shields.io/badge/platform-Web%20Audio-orange)
 
@@ -16,9 +16,10 @@ https://patronix-music.github.io/tempera-cell-matrix/
 
 ## ✨ What’s new in v2.9.84
 
-- 🔍 New: Slice zoom for large samples — + / - to zoom into a slice, TAB to jump between slices.
-- 📦 New: You can now embed samples directly into ZIP exports. Perfect for hand-picked samples and sharing presets.
-- 🖱️ New: Scrollbar On/Off toggle in the header (great for trackpads and iPad users).
+### 🔍 New: Slice zoom for large samples — + / - to zoom into a slice, TAB to jump between slices.
+
+### 📦 New: You can now embed samples directly into ZIP exports. Perfect for hand-picked samples and sharing presets.
+### 🖱️ New: Scrollbar On/Off toggle in the header (great for trackpads and iPad users).
 - 🟢 Matrix playback outline now stays nicely in sync, even with fast retriggering.
 - ⌨️ Playback is much more solid when navigating with Tab, Arrow keys and Space (matrix + editors).
 - 💬 Tooltips fully rebuilt — no more laggy or stuck browser tooltips.
@@ -26,36 +27,47 @@ https://patronix-music.github.io/tempera-cell-matrix/
 - 🧹 Header cleaned up to make room for the scrollbar control.
 - 🎛️ Wave & Slice editor UI cleaned up, with help moved to the Help page (? for help, X to close).
 
+<br>
 
 ## ✨ What’s new in v2.9
 
-### CPU and memory overload for Safari fixed. Chrome is also low on CPU.
-- NEW RELEASE and separate HELP-editor for easy writing.
-- Import Preset restores selection for long samples (mini-wave + Wave Editor).
-- Sliders are themed with double-click option for reset.
-— Reset Volume/Fade sliders on every load (Load, Load 8, Load+Slice, Random 64).
-- Green play-outline plays length of sample instead of cell.
-- Source file duration in Wave/Slice editor.
-- Slice behavior fine-tuned.
-- Scissors only visible when file is edited, also when preset is loaded.
-- IOS Audio is audible and file picker can load WAV files.
+### 🧠 Massive CPU & memory optimizations
+  - Safari is no longer choking (big win). Chrome also runs lean and stable.
 
+- 📦 Preset import fixed for long samples
+  - Selections are restored correctly in mini-wave AND Wave Editor.
+
+- 🎚️ Sliders got love
+  - Themed sliders, double-click to reset, and all volume/fade sliders now reset properly on every load
+(Load, Load 8, Load+Slice, Random64).
+
+- ▶️ Playback clarity
+  - Green play-outline now reflects actual sample length, not just cell length.
+
+- 🎛️ Wave / Slice editor improvements
+  - Source file duration shown
+  - Slice behavior fine-tuned
+  - Scissors only appear when a file is actually edited (also after preset import)
+
+- 📱 iOS finally behaves: Audio works correctly and the file picker can load WAV files.
+
+<br>
 
 ## ✨ What’s new in v2.7
 
-### Load + Slice Editor (major upgrade)
+### ✂️ Load + Slice Editor (major upgrade)
 - Visual slicing (no more blind splits)
 - Live **zoom window** that follows your selection
 - **Z** = auto zoom / auto normalize
 - **L / M / R** = left edge / move / right edge
 - Sample-accurate nudging
 
-### Wave Editor
+### 🌊 Wave Editor
 - Same zoom & shortcuts as Slice Editor
 - Clear selection handles
 - Predictable **ESC** workflow (zoom → editor)
 
-### Workflow & Export
+### ⌨️ Workflow & Export
 - **Export 8**: export all 8 cells as individual WAV files (zipped)
 - Cell names stored in presets and used in exports
 - Preset import/export preserves slices and trims
