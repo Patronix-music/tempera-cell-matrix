@@ -205,6 +205,11 @@
     }
     button.warn{ border-color: rgba(251,191,36,0.35); background: rgba(251,191,36,0.10); }
     button.danger{ border-color: rgba(251,113,133,0.35); background: rgba(251,113,133,0.10); }
+
+    /* Hover variants for colored buttons (so hover is visible even when base class overrides background/border) */
+    button.good:hover{ border-color: rgba(52,211,153,0.55); background: rgba(52,211,153,0.18); }
+    button.warn:hover{ border-color: rgba(251,191,36,0.55); background: rgba(251,191,36,0.16); }
+    button.danger:hover{ border-color: rgba(251,113,133,0.55); background: rgba(251,113,133,0.16); }
     button.tiny{
       height: 30px;
       padding: 0 8px;
@@ -1800,6 +1805,51 @@ input[type="range"]::-webkit-slider-thumb:active{
   box-shadow: 0 0 0 6px rgba(125,211,252,0.18), 0 6px 16px rgba(0,0,0,0.35);
 }
 
+
+    /* --- Touch / iPad: allow scrolling without visible scrollbars --- */
+    @media (hover: none) and (pointer: coarse){
+      body::-webkit-scrollbar{ width:0 !important; height:0 !important; }
+      .actionsWrap::-webkit-scrollbar{ width:0 !important; height:0 !important; }
+      body{ scrollbar-width: none; }
+      .actionsWrap{ scrollbar-width: none; }
+    }
+
+  
+    
+    /* Scrollbar toggle */
+    .actionsWrap.noScrollbar{ scrollbar-width:none; }
+    .actionsWrap.noScrollbar::-webkit-scrollbar{ width:0 !important; height:0 !important; }
+
+  
+    /* Global scrollbar toggle (applies to body/html and main scrollers) */
+    html.noScrollbarGlobal{ scrollbar-width:none; }
+    body.noScrollbarGlobal{ scrollbar-width:none; }
+    html.noScrollbarGlobal::-webkit-scrollbar{ width:0 !important; height:0 !important; }
+    body.noScrollbarGlobal::-webkit-scrollbar{ width:0 !important; height:0 !important; }
+
+  
+/* Temporarily disable hover to cancel pending native tooltips */
+.noHoverTmp * { pointer-events: none !important; }
+
+/* Custom tooltip (replaces native title tooltips) */
+#tcmTip{
+  position: fixed;
+  z-index: 99999;
+  max-width: 420px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.25;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.08s linear, transform 0.08s linear;
+  white-space: pre-line;
+}
+#tcmTip.show{ opacity: 1; transform: translateY(0); }
+
 </style>
 </head>
 <body>
@@ -1809,14 +1859,9 @@ input[type="range"]::-webkit-slider-thumb:active{
         <div>
           <div class="titleRow">
             <h1 id="appTitle">Tempera Cell Matrix</h1><span class="spec" id="aboutBadge" title="">v</span>
-            <div class="specInline" id="specLine"></div>
-          </div>
-          <div class="sub">
-            Click a cell to select it. <span class="kbd">Double‑click</span> or <span class="kbd">▶</span> to play.
-            Stop: <span class="kbd">Esc</span>.
-            Drag cell→cell: swap (Alt = copy).
-          </div>
-        </div>
+            </div>
+          <div class="specInline" id="specLine"></div>
+</div>
 
         <div class="actionsWrap"><div class="actions">
           <div class="btnGroupInline"><button class="pop" id="random64Btn" title="Pick a folder (recursive) and randomly fill all 64 cells. Tip: hold Shift to filter which files are used for loading samples.">Random 64 <span class="filterIcon" aria-hidden="true"></span></button>
@@ -1879,7 +1924,7 @@ input[type="range"]::-webkit-slider-thumb:active{
         </div>
 </div>
     </div>
-  <div class="copyrightTop"><span id="copyrightText"></span><div class="miniRow"><button class="good audioMini" id="enableAudioBtn" title="Required on some browsers before audio playback">Enable audio</button><button class="secondary audioMini" id="stopBtn">Stop</button><button class="danger audioMini" id="clearAllBtn">Clear all</button></div></div>
+  <div class="copyrightTop"><span id="copyrightText"></span><div class="miniRow"><button class="good audioMini" id="enableAudioBtn" title="Required on some browsers before audio playback">Enable audio</button><button class="secondary audioMini" id="scrollbarBtn" title="Toggle matrix scrollbar visibility">Scrollbar: On</button><button class="secondary audioMini" id="stopBtn">Stop</button><button class="danger audioMini" id="clearAllBtn">Clear all</button></div></div>
 </header>
 
   <main>
@@ -2027,7 +2072,17 @@ input[type="range"]::-webkit-slider-thumb:active{
       <div class="helpCard" style="margin-top:10px;">
         <label class="muted" for="presetNameInput" style="display:block;margin-bottom:6px;">Preset name</label>
         <input id="presetNameInput" class="colNameInput" type="text" autocomplete="off" spellcheck="false" />
+      
+      <div class="helpCard" style="margin-top:10px;">
+        <label class="muted" for="embedSamplesChk" style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+          <input id="embedSamplesChk" type="checkbox" />
+          <span><b>Include original samples in ZIP</b> (portable preset)</span>
+        </label>
+        <div class="muted" id="embedSamplesNote" style="margin-top:6px;font-size:12px;line-height:1.35;">
+          <!-- filled by JS -->
+        </div>
       </div>
+</div>
       <div class="overlayActions helpActions" style="margin-top:12px;">
         <button class="good" id="presetNameOkBtn">OK</button>
         <button class="secondary" id="presetNameCancelBtn">Cancel</button>
@@ -2056,67 +2111,103 @@ input[type="range"]::-webkit-slider-thumb:active{
       <div class="helpBody">
 <div class="helpGrid">
 
-          <div class="helpCard"><h3>Basics</h3>
-<p>8 columns × 8 rows. Columns are <b>Samples</b>. Rows are <b>Cells</b> (1..8).</p>
+          <div class="helpCard">
+            <h3>Wave Editor</h3>
+            <p>Click the <b>waveform</b> in a cell to open the full source waveform and choose the exact slice for that cell.</p>
+                        <ul class="helpList">
+                          <li><b>Click</b> the mini-wave in a cell to open the full source waveform.</li>
+                          <li><b>Drag</b> inside selection to move. Drag edges to resize.</li>
+                          <li><b>L / M / R</b> — choose Left edge / Move / Right edge control (also affects Zoom window and arrow nudges).</li>
+                          <li><b>Zoom window</b> appears for closeup editing the slice. <b>+</b>/<b>-</b> zooms, <b>Z</b> toggles Auto‑Norm.</li>
+                          <li><b>Esc</b>: if zoom window is visible → hide zoom. Otherwise → close editor.</li>
+                          <li><b>← / →</b> nudge selection • <b>Shift</b>=coarse • <b>Alt/Option</b>=fine.</li>
+                          <li><b>Apply</b> commits selection to the cell (used for playback + export).</li>
+                          <li><b>Undo</b> multiple times a step back when editing. Also after apply.</li>
+                          <li><b>Reset</b> for default slice cell-length and position.</li>
+                          <li><b>Zoom On/Off</b> turns the zoom window on or off in both the editors.</li>
+            </ul>
+
+          </div>
+
+          <div class="helpCard">
+            <h3>Basics</h3>
+            <p>8 columns × 8 rows. Columns are <b>Samples</b>. Rows are <b>Cells</b> (1..8).</p>
+                        <ul class="helpList">
+                          <li>Click a cell to select it, use the settings panel for name/volume/fades/fit/reverse/mute.</li>
+                          <li><b>Double‑click</b> a cell, press <b>space</b> or <b>▶</b> to play.</li>
+                          <li><b>Esc</b> stops playback. In editors: Esc hides the zoom window first, then closes the editor.</li>
+                          <li><b>Tempo mode</b> uses BPM + Beats/cell and distributes rounding across 8 slices (no drift).</li>
+                          <li>Drag cell→cell: swap. <b>Alt</b> + drag: copy.</li>
+            </ul>
+
+</div>
+
+          <div class="helpCard">
+            <h3>Loading audio</h3>
             <ul class="helpList">
-              <li>Click a cell to select it or use the arrows to navigate around. Use the settings panel below to tweak the sound.</li>
-              <li><b>Double‑click</b> a cell, press <b>▶</b> or <b>spacebar</b> to play.</li>
-              <li><b>Esc</b> stops playback. In editors: Esc hides the zoom window first, then closes the editor.</li>
-              <li><b>Tempo mode</b> uses BPM + Beats/cell and distributes rounding across 8 slices (no drift).</li>
-              <li>Drag cell→cell: swap. <b>Alt</b> + drag: copy.</li>
-            
-              <li><b>Shift + click Random 64</b> to open the filter dialog:
-                <ul>
-                  <li><b>Include</b>: only filenames containing any token (comma separated)</li>
-                  <li><b>Exclude</b>: skip filenames containing any token (comma separated)</li>
-                </ul>
-                Example: include <span class="kbd">kick,snare,hat</span> and exclude <span class="kbd">fx,loop</span>.
-              </li>
-</ul></div><div class="helpCard"><h3>Wave Editor</h3>
-<p>Click the <b>waveform</b> in a cell to open the full source waveform and choose the exact slice for that cell.</p>
+                          <li><b>Cell Load</b>: click <b>Load</b> inside a cell or drop a file onto that cell.</li>
+                          <li><b>Load+Slice</b>: pick one file → opens Slice Editor where you can drag/resize 8 blocks, then <b>Apply</b> to the column.</li>
+                          <li><b>Load 8</b>: select 8 files → fills the 8 cells top→bottom.</li>
+                          <li><b>Random 64</b>: pick a folder (subfolders included) → fills all cells randomly.</li>
+            <li><b>Shift + click Random 64</b> to open the filter dialog:
+                            <ul>
+                              <li><b>Include</b>: only filenames containing any token (comma separated)</li>
+                              <li><b>Exclude</b>: skip filenames containing any token (comma separated)</li>
+                            </ul>
+                          </li>              
+            <li><b>Drag and drop</b> samples in cells and columns</li>             
+            </ul>
+
+</div>
+
+          <div class="helpCard">
+            <h3>Editing</h3>
             <ul class="helpList">
-              <li><b>Click</b> the mini-wave in a cell to open the full source waveform.</li>
-              <li><b>Drag</b> inside selection to move. Drag edges to resize.</li>
-              <li><b>L / M / R</b> — choose Left edge / Move / Right edge control (also affects arrow nudges).</li>
-              <li><b>← / →</b> nudge selection • <b>Shift</b>=coarse • <b>Alt/Option</b>=fine.</li>
-              <li><b>Zoom window</b>: for close inspection of the trim section. Zoom can be turned off. <b>+</b>/<b>-</b> zooms, <b>Z</b> toggles Auto‑Norm.</li>
-              <li><b>Esc</b>: if zoom window is visible → hide zoom. Otherwise → close editor.</li>
-              <li><b>Apply</b> commits selection to the cell (used for playback + export).</li>
-              <li><b>Undo</b> can still restore sample state after apply.</li>
-</ul></div><div class="helpCard"><h3>Loading audio</h3>
-<ul class="helpList">
-              <li><b>Cell Load</b>: click <b>Load</b> inside a cell or drop a file onto that cell.</li>
-              <li><b>Load+Slice</b>: pick one file → opens Slice Editor where you can drag/resize 8 blocks, then <b>Apply</b> to the column.</li>
-              <li><b>Load 8</b>: select 8 files → fills the 8 cells top→bottom.</li>
-              <li><b>Random 64</b>: pick a folder (subfolders included) → fills all cells randomly. Samples longer the 60sec. are skipped.</li>
-            </ul></div><div class="helpCard"><h3>Editing</h3>
-<ul class="helpList">
-              <li>Use the <b>Cell settings</b> panel to change Gain, Mute, Reverse, Fade In/Out and Fit mode.</li>
-              <li>Fades are drawn as an <b>envelope overlay</b> on top of the oscilloscope.</li>
-              <li>Gain is shown as a small bar under the oscilloscope (no text).</li>
-<li>Use <b>Tab</b> to jump from one column title to the next for fast naming.</li>
-<li>Use <b>Enter</b> on the current cell to edit the cell name, then Enter to commit.</li>
-            </ul></div><div class="helpCard"><h3>Import / Export</h3>
-<p><b>Import Preset</b>: load the preset JSON exported by this app (e.g. <span class="kbd">zz_TCM-Preset_MyPreset_20260111.json</span>), then choose your top-level sample folder. Subfolders are included. The folder overlay shows example filenames to help you pick the right folder.</p>
-            <ul class="helpList">
-              <li><b>Export</b> in a column: exports that column to WAV.</li>
-              <li><b>Export 8</b> in a column: exports the 8 cells as separate WAV files (downloaded as one ZIP). Filenames use Sample + C#.</li>
-              <li><b>Export all (ZIP)</b>: exports up to 8 columns and downloads one ZIP file.</li>
-              <li>Empty columns are skipped.</li>
-            </ul></div><div class="helpCard helpCardRelease">
+                          <li>Use the <b>Cell settings</b> panel to change Gain, Mute, Reverse, Fade In/Out and Fit mode.</li>
+                          <li>Fades are drawn as an <b>envelope overlay</b> on top of the oscilloscope.</li>
+                          <li>Gain is shown as a small bar under the oscilloscope (no text).</li>
+                        </ul>
+
+          </div>
+
+          <div class="helpCard">
+            <h3>Import / Export</h3>
+              <p><b>Import Preset</b>: load the preset JSON exported by this app (e.g. <span class="kbd">zz_TCM-Preset_MyPreset_20260111.json</span>), then choose your top-level sample folder. Subfolders are included. The folder overlay shows example filenames to help you pick the right folder.</p>
+                          <ul class="helpList">
+                            <li><b>Export</b> in a column: exports that column to WAV.</li>
+                            <li><b>Export 8</b> in a column: exports the 8 cells as separate WAV files (downloaded as one ZIP). Filenames use Sample + C#.</li>
+                            <li><b>Export all (ZIP)</b>: exports up to 8 columns and downloads one ZIP file.</li>
+                            <li>Empty columns are skipped.</li>
+                            <li><b>Include original samples in ZIP</b> for handpicked samples in the Matrix and TCM preset sharing.</li>
+                          </ul>
+
+          </div>
+
+
+          <div class="helpCard">
+            <h3>Slice Editor</h3>
+            <p>Used by <b>Load+Slice</b>. Drag or resize the 8 slice blocks. Each slice is limited to the <b>max cell length</b>.</p>
+                        <ul class="helpList">
+                          <li><b>Click</b> a block to focus it and <b>space</b> for playback.</li>
+                          <li><b>Drag</b> inside selection to move. Drag edges to resize.</li>
+                          <li><b>L / M / R</b> — choose Left edge / Move / Right edge control (also affects Zoom window and arrow nudges).</li>
+                          <li><b>Zoom window</b> appears for closeup editing the slice. <b>+</b>/<b>-</b> zooms, <b>Z</b> toggles Auto‑Norm.</li>
+                          <li><b>Slice view zoom</b>: press <b>+</b>/<b>-</b> to zoom around the focused slice (only when the zoom window is hidden).</li>
+                          <li><b>Tab</b>/<b>Shift+Tab</b> jumps between the 8 slices for fast editing.</li>
+                          <li><b>Esc</b>: if zoom window is visible → hide zoom. Otherwise → close editor.</li>
+                          <li><b>← / →</b> nudge selection • <b>Shift</b>=coarse • <b>Alt/Option</b>=fine.</li>
+                          <li><b>Auto</b> tiles 8 slices evenly.</li>              
+                          <li><b>Apply</b> commits 8 slices to the 8 cells in 1 column (used for playback + export).</li>
+                          <li><b>Undo</b> multiple times a step back when editing. Also after apply.</li>
+                          <li><b>Zoom On/Off</b> turns the zoom window on or off in both the editors.</li>
+                        </ul>
+
+          </div>
+
+          <div class="helpCard helpCardRelease">
             <h3>Release notes</h3>
             <ul class="helpList" id="releaseNotes"></ul>
           </div>
-
-          
-
-          
-
-          
-
-          
-
-          
 
 </div>
 
@@ -2272,33 +2363,202 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.9.8';
+  const APP_VERSION = '2.9.84';
+
+  // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
+  // We keep the text in data-native-title for potential future custom tooltips.
+  function disableNativeTitleTooltips(root){
+    try{
+      const scope = root || document;
+      // include scope itself if it has a title
+      const list = [];
+      if(scope && scope.nodeType === 1 && scope.hasAttribute && scope.hasAttribute('title')) list.push(scope);
+      try{
+        scope.querySelectorAll && scope.querySelectorAll('[title]').forEach(el=>list.push(el));
+      }catch(_){}
+      list.forEach(el=>{
+        try{
+          const t = el.getAttribute('title');
+          if(t && t.trim()){
+            try{ el.dataset.nativeTitle = t; }catch(_){}
+            // Preserve accessibility
+            if(!el.getAttribute('aria-label')) el.setAttribute('aria-label', t);
+          }
+          el.removeAttribute('title');
+        }catch(_){}
+      });
+    }catch(_){}
+  }
+
+
+
+  // Custom tooltip system (replaces native title tooltips).
+  // Shows after 1s hover/focus. Does not interfere with modals.
+  function initCustomTooltips(){
+    const TIP_DELAY_MS = 1000;
+
+    let tipEl = document.getElementById('tcmTip');
+    if(!tipEl){
+      tipEl = document.createElement('div');
+      tipEl.id = 'tcmTip';
+      tipEl.setAttribute('role','tooltip');
+      document.body.appendChild(tipEl);
+    }
+
+    let timer = null;
+    let activeEl = null;
+
+    function getTipText(el){
+      if(!el) return '';
+      const t = (el.dataset && (el.dataset.nativeTitle || el.dataset.tip)) || el.getAttribute('aria-label') || '';
+      return (t || '').trim();
+    }
+
+    function positionTip(el){
+      if(!el) return;
+      const r = el.getBoundingClientRect();
+      const pad = 10;
+
+      // Default: below element, left aligned to element, clamped to viewport.
+      let x = r.left;
+      let y = r.bottom + 8;
+
+      // Measure
+      tipEl.style.left = '0px';
+      tipEl.style.top = '0px';
+      tipEl.classList.add('show');
+      const tr = tipEl.getBoundingClientRect();
+
+      // Clamp X
+      if(x + tr.width > window.innerWidth - pad) x = Math.max(pad, window.innerWidth - pad - tr.width);
+      if(x < pad) x = pad;
+
+      // If bottom would overflow, try above
+      if(y + tr.height > window.innerHeight - pad){
+        const yAbove = r.top - tr.height - 8;
+        if(yAbove >= pad) y = yAbove;
+      }
+
+      tipEl.style.left = Math.round(x) + 'px';
+      tipEl.style.top  = Math.round(y) + 'px';
+    }
+
+    function showTip(el){
+      const txt = getTipText(el);
+      if(!txt) return;
+      tipEl.textContent = txt;
+      tipEl.classList.add('show');
+      positionTip(el);
+    }
+
+    function hideTip(){
+      if(timer){ clearTimeout(timer); timer = null; }
+      activeEl = null;
+      tipEl.classList.remove('show');
+      tipEl.textContent = '';
+    }
+
+    function schedule(el){
+      const txt = getTipText(el);
+      if(!txt) return;
+      if(timer){ clearTimeout(timer); timer = null; }
+      activeEl = el;
+      timer = setTimeout(()=>{
+        timer = null;
+        // Don't show if a modal/overlay is open
+        const anyOverlay = document.querySelector('.overlay.show, .modal.show, .dlg.show, .dialog.show, .overlay.active');
+        if(anyOverlay) return;
+        showTip(el);
+      }, TIP_DELAY_MS);
+    }
+
+    // Capture phase so we can prevent stale tooltips.
+    document.addEventListener('pointerenter', (e)=>{
+      const el = e.target && e.target.closest ? e.target.closest('[data-native-title],[data-tip],[aria-label]') : null;
+      if(!el) return;
+      // Avoid showing tooltips for generic containers; prefer actionable controls.
+      const isControl = el.matches('button, input, select, textarea, a, [role="button"]');
+      if(!isControl) return;
+      schedule(el);
+    }, true);
+
+    document.addEventListener('pointerleave', (e)=>{
+      const el = e.target;
+      if(activeEl && (el === activeEl || (el && el.contains && el.contains(activeEl)))) hideTip();
+      else hideTip();
+    }, true);
+
+    document.addEventListener('pointerdown', hideTip, true);
+    document.addEventListener('click', hideTip, true);
+    window.addEventListener('scroll', hideTip, true);
+    window.addEventListener('blur', hideTip, true);
+
+    document.addEventListener('keydown', (e)=>{
+      // If user starts navigating/typing, hide tooltips.
+      hideTip();
+    }, true);
+
+    // Expose for overlay open/close hooks
+    window.__hideTCMTip = hideTip;
+  }
+
+  // Keep native tooltips disabled even for dynamically created elements (e.g. Random64 UI).
+  function installTitleStripObserver(){
+    try{
+      const root = document.body || document.documentElement;
+      if(!root || !window.MutationObserver) return;
+      const obs = new MutationObserver((mutList)=>{
+        try{
+          mutList.forEach(m=>{
+            if(m.type === 'attributes' && m.attributeName === 'title'){
+              disableNativeTitleTooltips(m.target);
+            }else if(m.type === 'childList' && m.addedNodes && m.addedNodes.length){
+              m.addedNodes.forEach(n=>{
+                if(n && n.nodeType === 1){
+                  disableNativeTitleTooltips(n);
+                }
+              });
+            }
+          });
+        }catch(_){}
+      });
+      obs.observe(root, {subtree:true, childList:true, attributes:true, attributeFilter:['title']});
+    }catch(_){}
+  }
+
 
   const APP_BUILD_DATE = "2026-01-27";
   const CHANGELOG = [
-  "2.9.8 - NEW RELEASE and separate HELP-editor for easy writing.",
-  "2.9.1 - Import Preset restores selection for long samples (mini-wave + Wave Editor).",
+  "2.9.79 - Matrix green playback outline now response correctly to fast re-triggering.",
+  "2.9.68 - Fix playback stops for the editors and matrix with tabs, arrows and space.",
+  "2.9.62 - Tool-tips rebuild, no more lagging tool-tips from browser engine.",
+  "2.9.55 - NEW: Embed samples to ZIP. For handpicked samples and sharing presets.",
+  "2.9.36 - Fix fade in/out sliders to scale with sample length.",
+  "2.9.26 - Scrollbar On/Off button in header for all (Magic) Track-pads and iPad users.",
+  "2.9.22 - Clean-up UI Header for making room for the Scrollbar button.",
+  "2.9.18 - Wave/Slice UI clean-up. Help hints to Help page with ? and X for close.",
+  "2.9.11 - NEW Slice zoom for big samples: -/+ zooms in on slice, TAB for slice jumps.",
+  "2.9.08 - NEW RELEASE and separate HELP-editor for easy writing.",
+  "2.9.01 - Import Preset restores selection for long samples (mini-wave + Wave Editor).",
   "2.8.71 - Sliders are themed with double-click option for reset.",
-  "2.8.69 — Reset Volume/Fade sliders on every load (Load, Load 8, Load+Slice, Random 64).",
+  "2.8.69 - Reset Volume/Fade sliders when loading new samples.",
   "2.8.66 - Green play-outline plays length of sample instead of cell.",
   "2.8.49 - Source file duration in Wave/Slice editor.",
-  "2.8.30 - Slice behavior fine-tuned.",
   "2.7.70 - Scissors only visible when file is edited, also when preset is loaded.",
   "2.7.53 - IOS Audio is audible and file picker can load WAV files.",
   "2.7.40 - CPU en memory overload for Safari fixed. Chrome is also low on CPU.",
-  "2.7.16 — Matrix cell labels: filename truncates with … so C1–C8 stays visible.",
-  "2.7.15 — Imported slices: mini-wave shows selection overlay + scissors correctly.",
-  "2.7.14 — Mini-wave click always opens Wave Editor (also for sliced/imported cells).",
-  "2.7.13 — Matrix labels use C1–C8 (no more ‘Cell 1…’).",
-  "2.7.12 — Fast naming: Enter focuses Cell name; Tab jumps across Sample names.",
-  "2.7.10 — Presets now store original slice windows (start/length) from Load+Slice.",
-  "2.7.9 — Preset import restores Load+Slice edits (custom slice windows, not full samples).",
-  "2.7.7 — Export 8 uses Column/Cell names for filenames.",
-  "2.7.6 — Names: editable Column/Cell names + presets save/load them.",
-  "2.7.4 — Zoom window: smaller size used in Slice Editor + Wave Editor.",
-  "2.7.0 — Load+Slice: new Slice Editor + Wave Editor with zoom, Z auto-norm, L/M/R + nudging.",
+  "2.7.16 - Matrix cell labels: filename truncates with … so C1–C8 stays visible.",
+  "2.7.15 - Imported slices: mini-wave shows selection overlay + scissors correctly.",
+  "2.7.12 - Fast naming: Enter focuses Cell name; Tab jumps across Sample names.",
+  "2.7.10 - Presets now store original slice windows (start/length) from Load+Slice.",
+  "2.7.09 - Preset import restores Load+Slice edits.",
+  "2.7.07 - Export 8 uses Column/Cell names for filenames.",
+  "2.7.06 - Names: editable Column/Cell names + presets save/load them.",
+  "2.7.00 - NEW: Load+Slice + Slice/Wave zoom window, Z auto-norm, L/M/R + nudging."
 ];
-function renderReleaseNotes(){
+
+
+  function renderReleaseNotes(){
     const ul = document.getElementById("releaseNotes");
     if (!ul) return;
     ul.innerHTML = "";
@@ -2626,6 +2886,7 @@ try{
 
   let waveOverlayEl = null;
   let waveCloseBtnEl = null;
+  let waveHelpBtnEl = null;
   let wavePlaySelBtnEl = null;
   let wavePlayFullBtnEl = null;
   let waveApplyBtnEl = null;
@@ -2700,6 +2961,7 @@ let waveUndoBtnEl = null;
     if (waveOverlayEl) return true;
     waveOverlayEl   = document.getElementById("waveOverlay");
     waveCloseBtnEl  = document.getElementById("waveCloseBtn");
+    waveHelpBtnEl   = document.getElementById("waveHelpBtn");
     wavePlaySelBtnEl = document.getElementById("wavePlaySelBtn");
     wavePlayFullBtnEl = document.getElementById("wavePlayFullBtn");
     waveSnapBtnEl    = document.getElementById("waveSnapBtn");
@@ -2955,6 +3217,7 @@ if (waveSnapBtnEl){
 
     if (waveOverlayEl){
       waveOverlayEl.style.display = "flex";
+    lockBodyScroll();
     try{ const h=document.getElementById("waveSliceHint"); if(h) h.style.display = (waveEditor._tmpIsSlice ? "block" : "none"); }catch(_e){}
 
       waveOverlayEl.classList.add("show");
@@ -2993,6 +3256,7 @@ magHide();
     if (waveOverlayEl){
       waveOverlayEl.classList.remove("show");
       waveOverlayEl.style.display = "none";
+    unlockBodyScroll(true);
     try{ const h=document.getElementById("waveSliceHint"); if(h) h.style.display="none"; }catch(_e){}
 
       waveOverlayEl.setAttribute("aria-hidden", "true");
@@ -3140,6 +3404,10 @@ async function _playLR(L, R){
     const src = ctx.createBufferSource();
     src.buffer = buf;
     src.connect(ctx.destination);
+    tcmRegisterSrc(src);
+
+    // _playLR is used by Wave/Slice editors; no matrix cell element here.
+
     state.currentSrc = src;
     src.start();
     src.onended = () => { if (state.currentSrc === src) state.currentSrc = null; };
@@ -3537,11 +3805,64 @@ if (editorIsTrimmed){
     splitTitleEl.textContent = 'Slice Editor';
   }
 
-  let splitSelStartEl=null, splitSelLenEl=null, splitSrcNameEl=null, splitNameEl=null;
-  let splitLoadBtnEl=null, splitAutoBtnEl=null, splitPlaySelBtnEl=null, splitPlayFullBtnEl=null, splitUndoBtnEl=null, splitApplyBtnEl=null, splitCloseBtnEl=null, splitHintEl=null;
+  let splitSelStartEl=null, splitSelLenEl=null, splitSrcNameEl=null, splitNameEl=null, splitViewZoomEl=null;
+  let splitLoadBtnEl=null, splitAutoBtnEl=null, splitPlaySelBtnEl=null, splitPlayFullBtnEl=null, splitUndoBtnEl=null, splitApplyBtnEl=null, splitCloseBtnEl=null, splitHelpBtnEl=null, splitHintEl=null;
   let splitCol = 0;
   let splitDragging = null;
 let splitPointerId = null; let splitActiveIdx = 0;
+  // Slice-editor view (time zoom around active slice)
+  let splitViewStartFrames = 0;
+  let splitViewLenFrames = null; // null = full source
+
+  function splitGetViewRange(srcLen){
+    srcLen = Math.max(0, srcLen|0);
+    if (!srcLen) return {vs:0, vl:0};
+    let vl = (splitViewLenFrames==null) ? srcLen : (splitViewLenFrames|0);
+    vl = Math.max(1024, Math.min(srcLen, vl));
+    let vs = (splitViewStartFrames|0);
+    vs = Math.max(0, Math.min(srcLen - vl, vs));
+    return {vs, vl};
+  }
+  function splitIsZoomed(srcLen){
+    const v = splitGetViewRange(srcLen|0);
+    return (v.vl>0 && v.vl < (srcLen|0));
+  }
+  function splitCenterOnActive(srcLen){
+    srcLen = srcLen|0;
+    const st = splitGetState(splitCol);
+    if (!st || !st.blocks) return;
+    const b = st.blocks[splitActiveIdx];
+    if (!b) return;
+    const v = splitGetViewRange(srcLen);
+    const center = (b.s + (b.l*0.5))|0;
+    let vs = Math.round(center - v.vl/2);
+    vs = Math.max(0, Math.min(srcLen - v.vl, vs));
+    splitViewStartFrames = vs;
+  }
+  function splitZoomAroundActive(srcLen, zoomIn){
+    srcLen = srcLen|0;
+    const st = splitGetState(splitCol);
+    if (!st || !st.blocks) return;
+    const b = st.blocks[splitActiveIdx];
+    if (!b) return;
+    const v = splitGetViewRange(srcLen);
+    const center = (b.s + (b.l*0.5))|0;
+
+    const minLen = Math.max(4096, Math.round((b.l||1) * 1.35));
+    const factor = zoomIn ? 0.72 : (1/0.72);
+    let newLen = Math.round(v.vl * factor);
+    newLen = Math.max(minLen, Math.min(srcLen, newLen));
+    // if we were full view and zooming in, start from a sensible window around active block
+    if (zoomIn && !splitIsZoomed(srcLen)){
+      newLen = Math.max(minLen, Math.round((b.l||1) * 4));
+      newLen = Math.min(srcLen, newLen);
+    }
+    splitViewLenFrames = newLen;
+    let vs = Math.round(center - newLen/2);
+    vs = Math.max(0, Math.min(srcLen - newLen, vs));
+    splitViewStartFrames = vs;
+  }
+
       splitUpdateTitle();
 // {i, mode, startX, origS, origL}
   let splitRAF = 0;
@@ -3558,9 +3879,11 @@ let splitPointerId = null; let splitActiveIdx = 0;
     splitUndoBtnEl = document.getElementById("splitUndoBtn");
     splitApplyBtnEl = document.getElementById("splitApplyBtn");
     splitCloseBtnEl = document.getElementById("splitCloseBtn");
+    splitHelpBtnEl = document.getElementById("splitHelpBtn");
     splitHintEl = document.getElementById("splitHint");
     splitSelStartEl = document.getElementById("splitSelStart");
     splitSelLenEl   = document.getElementById("splitSelLen");
+    splitViewZoomEl = document.getElementById("splitViewZoom");
     splitSrcNameEl  = document.getElementById("splitSrcName");
     splitNameEl     = document.getElementById("splitName");
     if (splitHintEl && !splitHintEl.innerHTML.includes("Space")){
@@ -3590,6 +3913,14 @@ let splitPointerId = null; let splitActiveIdx = 0;
     splitSelStartEl.textContent = fmtTime(b.s|0);
     splitSelLenEl.textContent   = fmtTime(b.l|0);
     splitSrcNameEl.textContent  = (src.name || "sample") + " (" + fmtDurFromFrames((src.L ? src.L.length : 0), SR) + ")";
+    if (splitViewZoomEl){
+      const srcLen = (src.L ? src.L.length : 0)|0;
+      const v = splitGetViewRange(srcLen);
+      const z = (!v.vl || !srcLen) ? 1 : (srcLen / v.vl);
+      const zTxt = "x" + (Math.round(z*10)/10).toFixed(1);
+      const winTxt = fmtDurFromFrames(v.vl, SR);
+      splitViewZoomEl.textContent = `${zTxt} (${winTxt} window)`;
+    }
 }
 
   function splitGetState(col){
@@ -3641,21 +3972,83 @@ let splitPointerId = null; let splitActiveIdx = 0;
     }
     splitScheduleDraw();
   }
+    // --- modal scroll lock (Wave/Slice editors) ---
+  let __prevBodyOverflow = null;
+  let __prevHtmlOverflow = null;
+  let __modalLockCount = 0;
+  let __lockScrollX = 0;
+  let __lockScrollY = 0;
+
+  function __restoreScrollSoon(x,y){
+    try{
+      requestAnimationFrame(()=>{ try{ window.scrollTo(x,y); }catch(_e){} });
+      setTimeout(()=>{ try{ window.scrollTo(x,y); }catch(_e){} },0);
+    }catch(_e){}
+  }
+
+  function lockBodyScroll(){
+    try{
+      __modalLockCount++;
+      if (__modalLockCount > 1) return; // already locked
+      __lockScrollX = window.scrollX || 0;
+      __lockScrollY = window.scrollY || 0;
+
+      const de = document.documentElement;
+      __prevBodyOverflow = document.body.style.overflow;
+      __prevHtmlOverflow = de.style.overflow;
+
+      // Lock scroll without losing position (some browsers jump when overflow changes)
+      document.body.style.overflow = "hidden";
+      de.style.overflow = "hidden";
+
+      __restoreScrollSoon(__lockScrollX, __lockScrollY);
+    }catch(e){}
+  }
+
+  function unlockBodyScroll(force){
+    try{
+      if (force) __modalLockCount = 1;
+      __modalLockCount = Math.max(0, __modalLockCount - 1);
+      if (__modalLockCount !== 0) return;
+
+      // Preserve current scroll position across unlocking (some browsers jump)
+      const x = window.scrollX || __lockScrollX || 0;
+      const y = window.scrollY || __lockScrollY || 0;
+
+      const de = document.documentElement;
+      if (__prevBodyOverflow !== null) document.body.style.overflow = __prevBodyOverflow;
+      if (__prevHtmlOverflow !== null) de.style.overflow = __prevHtmlOverflow;
+      __prevBodyOverflow = null; __prevHtmlOverflow = null;
+
+      __restoreScrollSoon(x, y);
+    }catch(e){}
+  }
+
+  function isAnyEditorOpen(){
+    try{
+      const w = document.getElementById("waveOverlay");
+      const sp = document.getElementById("splitOverlay");
+      const wOpen = w && w.style && w.style.display === "flex";
+      const spOpen = sp && sp.style && sp.style.display === "flex";
+      return !!(wOpen || spOpen);
+    }catch(e){ return false; }
+  }
 
   function splitOpen(col){
+    try{ if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); }catch(e){}
     splitEnsureEls();
     splitCol = col|0;
     splitUpdateTitle();
+    // reset time-zoom view on open
+    splitViewStartFrames = 0;
+    splitViewLenFrames = null;
     splitOverlayEl.style.display = "flex";
+    lockBodyScroll();
     splitOverlayEl.classList.add("show");
     splitOverlayEl.setAttribute("aria-hidden","false");
     const st = splitGetState(splitCol);
     splitUndoBtnEl.disabled = (st.undo.length===0);
-    splitHintEl.innerHTML = st.sourceKey
-      ? 'Drag or resize the 8 selection blocks (each is limited to the max cell length). '
-        + 'Click a block to focus it, then use the zoom window for precise edits. '
-        + '<br><span class="muted"><b>Auto</b> tiles 8 blocks evenly • <b>Undo</b> reverts the last edit • <b>Apply</b> writes the slices into the column.</span>'
-      : '<span class="muted">Load a sample</span><br><span class="muted"><b>Auto</b> tiles blocks across the waveform. <b>Apply</b> fills the column.</span>';
+    splitHintEl.innerHTML = '';
     splitScheduleDraw();
   }
   function splitClose(){
@@ -3668,6 +4061,7 @@ splitEnsureEls();
     }
     splitDragging=null;
     splitOverlayEl.style.display="none";
+    unlockBodyScroll(true);
     splitOverlayEl.setAttribute("aria-hidden","true");
         splitOverlayEl.classList.remove("show");
 // Reset cursor just in case
@@ -3687,6 +4081,7 @@ splitEnsureEls();
   }
 
   function splitPickSample(colOverride){
+    try{ if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); }catch(e){}
     const col = (colOverride!=null) ? (colOverride|0) : (splitCol|0);
     state.pick = { kind:"splitEditor", col, row:null };
     fileInput.value="";
@@ -3700,11 +4095,25 @@ splitEnsureEls();
     splitRAF = requestAnimationFrame(()=>{ splitRAF=0; splitDraw(); });
   }
 
-  function splitFramesToX(frames, srcLen, w){ return srcLen? (frames/srcLen)*w : 0; }
+  function splitFramesToX(frames, srcLen, w){
+    const v = splitGetViewRange(srcLen|0);
+    if (!v.vl || !w) return 0;
+    const t = (frames - v.vs) / v.vl;
+    return t*w;
+  }
+  // Length (delta) in frames -> pixels within current view (does NOT subtract view start)
+  function splitLenToX(lenFrames, srcLen, w){
+    const v = splitGetViewRange(srcLen|0);
+    if (!v.vl || !w) return 0;
+    const t = (lenFrames) / v.vl;
+    return t*w;
+  }
   function splitXToFrames(x, srcLen, w){
     if (!w) return 0;
+    const v = splitGetViewRange(srcLen|0);
+    if (!v.vl) return 0;
     const t = Math.max(0, Math.min(1, x/w));
-    return Math.round(t*srcLen);
+    return (v.vs + Math.round(t * v.vl))|0;
   }
 
   function splitClampBlock(st, i){
@@ -3764,8 +4173,7 @@ function splitPlayActiveSlice(){
     const start = Math.max(0, b.s|0);
     const end = Math.min(src.L.length, start + (b.l|0));
     if (end <= start+1) return;
-    // toggle play/stop
-    if (state.currentSrc){ stopPlayback(); return; }
+    // Always (re)play: _playLR() stops any current preview.
     const L = src.L.subarray(start, end);
     const R = src.R.subarray(start, end);
     _playLR(L, R);
@@ -3795,7 +4203,8 @@ function splitDraw(){
     const srcLen = src.L.length|0;
 
     // waveform peaks
-    const peaks = getSourcePeaks(src, w);
+    const v = splitGetViewRange(srcLen);
+    const peaks = computePeaksRange(src.L, src.R, v.vs, v.vl, w);
     const mid = (h*0.50)|0;
     ctx.strokeStyle = "rgba(230,230,230,0.78)";
     ctx.lineWidth = 1;
@@ -3818,7 +4227,7 @@ function splitDraw(){
       const y0 = padTop + i*bandH;
       const y1 = y0 + bandH - 3;
       const xs = splitFramesToX(b.s, srcLen, w);
-      const xl = splitFramesToX(b.l, srcLen, w);
+      const xl = splitLenToX(b.l, srcLen, w);
       const xr = xs + xl;
 
       // label inside block (subtle, moves with the block)
@@ -3883,7 +4292,7 @@ function splitDraw(){
     const b = st.blocks[i];
     const w = splitBigEl.width|0;
     const xs = splitFramesToX(b.s, srcLen, w);
-    const xl = splitFramesToX(b.l, srcLen, w);
+    const xl = splitLenToX(b.l, srcLen, w);
     const xr = xs + xl;
     // hit areas:
     // - big circular zones at left/right (outside the block) for resize
@@ -3933,6 +4342,7 @@ function splitDraw(){
   function splitAttachHandlers(){
     splitEnsureEls();
     splitCloseBtnEl.addEventListener("click", splitClose);
+    splitHelpBtnEl?.addEventListener("click", ()=>{ try{ openHelp(); }catch(e){} });
     splitLoadBtnEl.addEventListener("click", splitPickSample);
     splitAutoBtnEl.addEventListener("click", ()=>{ const st=splitGetState(splitCol); if(!st.sourceKey) return; splitPushUndo(); splitAutoTile(); });
 
@@ -3965,15 +4375,19 @@ function splitDraw(){
       try{ splitZoomBtnEl && (splitZoomBtnEl.textContent = on ? "Zoom: on" : "Zoom: off"); }catch(_){}
       try{ waveZoomBtnEl  && (waveZoomBtnEl.textContent  = on ? "Zoom: on" : "Zoom: off"); }catch(_){}
     }
+    splitZoomBtnEl?.addEventListener("mousedown", (e)=>{ try{ e.preventDefault(); }catch(_){ } });
     splitZoomBtnEl?.addEventListener("click", (e)=>{
       e.preventDefault();
+      try{ e.currentTarget && e.currentTarget.blur && e.currentTarget.blur(); }catch(_){ }
       _mag.userEnabled = !_mag.userEnabled;
       if(_mag.userEnabled === false){ try{ magHide(); }catch(_){ } }
       _syncZoomBtns();
       try{ toast((_mag.userEnabled!==false) ? "Zoom window on" : "Zoom window off"); }catch(_){}
     });
+    waveZoomBtnEl?.addEventListener("mousedown", (e)=>{ try{ e.preventDefault(); }catch(_){ } });
     waveZoomBtnEl?.addEventListener("click", (e)=>{
       e.preventDefault();
+      try{ e.currentTarget && e.currentTarget.blur && e.currentTarget.blur(); }catch(_){ }
       _mag.userEnabled = !_mag.userEnabled;
       if(_mag.userEnabled === false){ try{ magHide(); }catch(_){ } }
       _syncZoomBtns();
@@ -4105,6 +4519,7 @@ ev.preventDefault();
       const prevIdx = splitActiveIdx;
       if (prevIdx !== hit.i){ try{ magHide(); }catch(_){ } }
       splitActiveIdx = hit.i;
+      try{ if (src && splitIsZoomed(srcLen)) splitCenterOnActive(srcLen); }catch(_){ }
       splitDraw();
       
       // Auto magnifier on dense waveforms (click anywhere on block)
@@ -4207,6 +4622,8 @@ function waveAttachHandlers(){
 
     waveCloseBtnEl?.addEventListener("click", (e)=>{ e.preventDefault(); closeWaveEditor(); });
 
+    waveHelpBtnEl?.addEventListener("click", (e)=>{ e.preventDefault(); if (typeof openHelp==="function") openHelp(); });
+
     wavePlaySelBtnEl?.addEventListener("click", async (e)=>{ 
       e.preventDefault();
       if (!waveEditor.src) return;
@@ -4296,6 +4713,7 @@ wavePlayFullBtnEl?.addEventListener("click", async (e)=>{
     waveApplyBtnEl?.addEventListener("click", (e)=>{
       e.preventDefault();
 
+
       // Apply edits into the cell buffer (including slice-cells).
       applyWaveSelectionToCell();
 
@@ -4307,6 +4725,9 @@ wavePlayFullBtnEl?.addEventListener("click", async (e)=>{
       }catch(_e){}
 
       closeWaveEditor();
+
+      // Safety: if an undo/apply flow left scroll locked, unlock when no editor is open.
+      if (!isAnyEditorOpen()) { unlockBodyScroll(true); }
     });
 
     waveResetBtnEl?.addEventListener("click", (e)=>{
@@ -4512,6 +4933,14 @@ if (!cell || !waveEditor.undo || !waveEditor.undo.length) return;
   try { cell.peaks = computePeaks(cell.left, cell.right, MINI_PEAKS_POINTS); } catch(_e){}
   try { invalidateCellCache(waveEditor.col|0, waveEditor.row|0); } catch(_e){}
   try { hardResetMiniWavesForCol(waveEditor.col|0); } catch(_e){}
+  try{
+    const _c = waveEditor.col|0;
+    for (let _rr=0; _rr<8; _rr++){
+      try{ markWaveDirty(_c, _rr); }catch(_e){}
+    }
+    try{ scheduleWaveFlush(); }catch(_e){}
+  }catch(_e){}
+
   try { updateCellUI(waveEditor.col, waveEditor.row); } catch(_e){}
   try { markWaveDirty(waveEditor.col, waveEditor.row); scheduleWaveFlush(); } catch(_e){}
   try { if (typeof openWaveEditor === 'function') openWaveEditor(waveEditor.col|0, waveEditor.row|0); } catch(_e){}
@@ -5130,6 +5559,57 @@ function positionNameTemplateMenu(){
     el.dispatchEvent(new Event("input", {bubbles:true}));
     el.dispatchEvent(new Event("change", {bubbles:true}));
   });
+
+
+  // Slice Editor: time zoom around active slice (+ / -) and quick slice switching (Tab)
+  window.addEventListener("keydown", (e) => {
+    try{
+      const splitOpen = (splitOverlayEl && splitOverlayEl.style.display !== "none");
+      if (!splitOpen) return;
+
+      // don't steal keys from inputs
+      const tg = e.target;
+      const tag = tg && tg.tagName ? String(tg.tagName).toLowerCase() : "";
+      if (tag === "input" || tag === "textarea" || (tg && tg.isContentEditable)) return;
+
+      // If magnifier overlay is visible, let it handle +/-.
+      const magEl = document.getElementById("tcmMag");
+      const magVisible = !!(magEl && magEl.style.display !== "none");
+
+      const st = splitGetState(splitCol);
+      const src = st && st.sourceKey ? sourceStore.get(st.sourceKey) : null;
+      const srcLen = (src && src.L) ? (src.L.length|0) : 0;
+      if (!srcLen) return;
+
+      // Tab: cycle active slice (Shift+Tab backwards)
+      if (e.key === "Tab"){
+        e.preventDefault();
+        try{ stopPlayback(); }catch(_){ }
+        const dir = e.shiftKey ? -1 : 1;
+        const next = (splitActiveIdx + dir + 8) % 8;
+        splitActiveIdx = next;
+        try{ magHide(); }catch(_){}
+        // keep the view centered on active slice if zoomed
+        try{ if (splitIsZoomed(srcLen)) splitCenterOnActive(srcLen); }catch(_){}
+        splitDraw();
+        return;
+      }
+
+      // +/- : time zoom centered on active slice (only when magnifier is NOT visible)
+      if (!magVisible){
+        const k = e.key;
+        const zoomIn = (k === "+" || k === "=");
+        const zoomOut = (k === "-" || k === "_");
+        if (zoomIn || zoomOut){
+          e.preventDefault();
+          splitZoomAroundActive(srcLen, zoomIn);
+          splitDraw();
+          return;
+        }
+      }
+    }catch(_){}
+  });
+
 const exportAllBtn = document.getElementById("exportAllBtn");
   const helpBtn = document.getElementById("helpBtn");
   const stopBtn = document.getElementById("stopBtn");
@@ -5157,6 +5637,47 @@ const exportAllBtn = document.getElementById("exportAllBtn");
   const muteEl = document.getElementById("mute");
   const reverseEl = document.getElementById("reverse");
   const cellInfoEl = document.getElementById("cellInfo");
+
+  // Release focus after clicking inspector toggles (so arrow navigation keeps working)
+  function _blurIfFocused(el){
+    try{
+      if (!el) return;
+      if (document.activeElement === el) el.blur();
+    }catch(_){}
+  }
+  function _bindInspectorNoFocus(el){
+    if (!el) return;
+    // Prevent checkbox from stealing keyboard focus on mouse/touch.
+    el.addEventListener("mousedown", (e)=>{ try{ e.preventDefault(); }catch(_){} }, {passive:false});
+    el.addEventListener("pointerdown", (e)=>{ try{ e.preventDefault(); }catch(_){} }, {passive:false});
+    el.addEventListener("click", ()=>{ setTimeout(()=>_blurIfFocused(el), 0); }, {passive:true});
+    el.addEventListener("change", ()=>{ setTimeout(()=>_blurIfFocused(el), 0); }, {passive:true});
+  }
+  _bindInspectorNoFocus(muteEl);
+  _bindInspectorNoFocus(reverseEl);
+
+
+  // Also release focus after using inspector sliders/selects (vol/fades/fit mode),
+  // so arrow navigation in the matrix keeps working.
+  function _bindInspectorBlurOnUse(el){
+    if (!el) return;
+    const _blurLater = ()=>{ setTimeout(()=>_blurIfFocused(el), 0); };
+    // Select dropdowns (fit mode): only blur after a value is chosen.
+    if ((el.tagName||"").toUpperCase() === "SELECT"){
+      el.addEventListener("change", _blurLater, {passive:true});
+      return;
+    }
+    // Range sliders: blur when interaction ends so arrow navigation works.
+    el.addEventListener("pointerup", _blurLater, {passive:true});
+    el.addEventListener("mouseup", _blurLater, {passive:true});
+    el.addEventListener("touchend", _blurLater, {passive:true});
+  }
+  _bindInspectorBlurOnUse(volEl);
+  _bindInspectorBlurOnUse(fadeInEl);
+  _bindInspectorBlurOnUse(fadeOutEl);
+  _bindInspectorBlurOnUse(fitModeEl);
+
+
 
   // Perf step 3: inspector DOM diffing (avoid redundant DOM writes)
   let __inspCache = { selKey: null };
@@ -5295,6 +5816,12 @@ function encodeWav16Blob(L, R, sampleRate){
 async function playIOSFromLR(L, R, cellEl){
   // stop any existing playback first
   stopPlayback();
+  const myGen = state.playGen;
+  const myCellEl = cellEl || null;
+
+  // Visual playing state (matrix)
+  if (myCellEl) tcmPulsePlaying(myCellEl, myGen);
+
   const a = getIOSAudioEl();
 
   // Create a short-lived object URL for this render
@@ -5303,21 +5830,14 @@ async function playIOSFromLR(L, R, cellEl){
     iosAudioURL = null;
   }
   const wavBlob = encodeWav16Blob(L, R, SR);
-iosAudioURL = URL.createObjectURL(wavBlob);
+  iosAudioURL = URL.createObjectURL(wavBlob);
   a.src = iosAudioURL;
-
-  if (cellEl){
-      cellEl.classList.add("playing");
-      state.currentCellEl = cellEl;
-    }
-
-    const myCellEl = cellEl;
 
   // iOS: play() must be initiated from a user gesture; this is called from the click handler path.
   try{
     await a.play();
   }catch(e){
-    // If blocked, try to resume after a tiny delay (still within gesture window in most cases)
+    // If blocked, try once more on next tick (still often within the gesture window)
     try{
       await new Promise(r=>setTimeout(r, 0));
       await a.play();
@@ -5325,10 +5845,13 @@ iosAudioURL = URL.createObjectURL(wavBlob);
   }
 
   a.onended = () => {
-    if (state.currentCellEl){
-      state.currentCellEl.classList.remove("playing");
+    if (myCellEl){
+      // Guard: don't clear newer play highlight
+      if (typeof myGen === "number" && myCellEl.__playingGen !== myGen) { return; }
+      try{ myCellEl.classList.remove("playing"); }catch(_){}
+      try{ state.activeCellEls && state.activeCellEls.delete(myCellEl); }catch(_){}
     }
-    state.currentCellEl = null;
+    if (state.currentCellEl === myCellEl) state.currentCellEl = null;
     // Revoke the URL to avoid leaks
     if (iosAudioURL){
       try { URL.revokeObjectURL(iosAudioURL); } catch {}
@@ -5337,18 +5860,100 @@ iosAudioURL = URL.createObjectURL(wavBlob);
   };
 }
 
+function tcmRegisterSrc(src){
+    try{
+      if (!state.activeSrcs) state.activeSrcs = new Set();
+      state.activeSrcs.add(src);
+      const prev = src.onended;
+      src.onended = () => {
+        try{ state.activeSrcs && state.activeSrcs.delete(src); }catch(_){}
+        try{ prev && prev(); }catch(_){}
+      };
+    }catch(_){}
+  }
+
+
+function tcmRegisterCellEl(cellEl){
+  try{
+    if (!cellEl) return;
+    if (!state.activeCellEls) state.activeCellEls = new Set();
+    state.activeCellEls.add(cellEl);
+  }catch(_){}
+}
+
+function tcmSetPlaying(cellEl, myGen){
+  try{
+    if (!cellEl) return;
+    if (typeof myGen === 'number' && myGen !== state.playGen) return;
+    tcmRegisterCellEl(cellEl);
+    try{ cellEl.__playingGen = (typeof myGen === "number" ? myGen : state.playGen); }catch(_){}
+    cellEl.classList.add("playing");
+    state.currentCellEl = cellEl;
+  }catch(_){}
+}
+
+
+
+function tcmPulsePlaying(cellEl, myGen){
+  try{
+    if (!cellEl) return;
+    if (typeof myGen === 'number' && myGen !== state.playGen) return;
+    tcmRegisterCellEl(cellEl);
+    try{ cellEl.__playingGen = (typeof myGen === "number" ? myGen : state.playGen); }catch(_){}
+    // Force a visible retrigger even when stop/start happens in the same tick
+    try{ cellEl.classList.remove("playing"); }catch(_){}
+    try{ void cellEl.offsetWidth; }catch(_){}
+    cellEl.classList.add("playing");
+    state.currentCellEl = cellEl;
+  }catch(_){}
+}
+
+function tcmClearAllPlaying(){
+  try{
+    if (state.activeCellEls){
+      for (const el of Array.from(state.activeCellEls)){
+        try{ el.classList.remove("playing"); }catch(_){}
+        try{ state.activeCellEls.delete(el); }catch(_){}
+      }
+    }
+  }catch(_){}
+  try{
+    if (state.currentCellEl){
+      state.currentCellEl.classList.remove("playing");
+    }
+  }catch(_){}
+  state.currentCellEl = null;
+}
+
 function stopPlayback(){
     // Cancel any in-flight async render-to-play jobs
     state.playGen = (state.playGen||0) + 1;
+
+    // Stop ALL active WebAudio sources (space-spam safe)
+    try{
+      if (state.activeSrcs){
+        for (const s of Array.from(state.activeSrcs)){
+          try{ s.stop(); }catch(_){}
+          try{ s.disconnect(); }catch(_){}
+          try{ state.activeSrcs.delete(s); }catch(_){}
+        }
+      }
+    }catch(_){}
+
+    // iOS <audio> fallback
+    try{
+      if (typeof iosAudioEl !== 'undefined' && iosAudioEl){
+        try{ iosAudioEl.pause(); }catch(_){}
+        try{ iosAudioEl.currentTime = 0; }catch(_){}
+      }
+    }catch(_){}
+
     if (state.currentSrc){
       try { state.currentSrc.stop(); } catch {}
       try { state.currentSrc.disconnect(); } catch {}
       state.currentSrc = null;
     }
-    if (state.currentCellEl){
-      state.currentCellEl.classList.remove("playing");
-      state.currentCellEl = null;
-    }
+    tcmClearAllPlaying()
   }
 
   function getCellFramesArray(){
@@ -5436,7 +6041,32 @@ function stopPlayback(){
     return out;
   }
 
-  function computePeaks(left, right, points=72){
+  function computePeaksRange(left, right, startFrame, lenFrames, points=72){
+    if (!left || !right) return null;
+    const n = left.length|0;
+    if (!n) return new Float32Array(points);
+    startFrame = Math.max(0, Math.min(n, startFrame|0));
+    lenFrames = Math.max(0, Math.min(n - startFrame, lenFrames|0));
+    if (!lenFrames) return new Float32Array(points);
+
+    const peaks = new Float32Array(points);
+    const step = Math.max(1, Math.floor(lenFrames / points));
+    for (let p=0; p<points; p++){
+      const s = startFrame + p*step;
+      const e = Math.min(startFrame + lenFrames, s + step);
+      let mx = 0;
+      for (let i=s; i<e; i++){
+        const a = Math.abs(left[i]);
+        const b = Math.abs(right[i]);
+        const m = (a>b) ? a : b;
+        if (m > mx) mx = m;
+      }
+      peaks[p] = mx;
+    }
+    return peaks;
+  }
+
+function computePeaks(left, right, points=72){
     if (!left || !right) return null;
     const n = left.length;
     if (n === 0) return new Float32Array(points);
@@ -5534,12 +6164,16 @@ function stopPlayback(){
       const baseX = hasSel ? __selPx1 : 0;
       const baseW = hasSel ? selW   : w;
 
+
+      // For mini-wave visualization, fades should be relative to the *audible window* (cell/selection),
+      // not the full source length when we are drawing a selection window.
+      const visFrames = hasSel ? (Math.max(1, (selLenFrames!=null ? selLenFrames : targetFrames))) : targetFrames;
       if (fi > 0){
-        const xw = (fi / targetFrames) * baseW;
+        const xw = (fi / visFrames) * baseW;
         ctx.fillRect(baseX, 0, xw, h);
       }
       if (fo > 0){
-        const xw = (fo / targetFrames) * baseW;
+        const xw = (fo / visFrames) * baseW;
         ctx.fillRect(baseX + baseW - xw, 0, xw, h);
       }
 
@@ -5548,11 +6182,11 @@ function stopPlayback(){
       ctx.lineWidth = 1;
       ctx.beginPath();
       if (fi > 0){
-        const x = baseX + (fi / targetFrames) * baseW;
+        const x = baseX + (fi / visFrames) * baseW;
         ctx.moveTo(x+0.5, 2); ctx.lineTo(x+0.5, h-2);
       }
       if (fo > 0){
-        const x = baseX + baseW - (fo / targetFrames) * baseW;
+        const x = baseX + baseW - (fo / visFrames) * baseW;
         ctx.moveTo(x+0.5, 2); ctx.lineTo(x+0.5, h-2);
       }
       ctx.stroke();
@@ -5565,7 +6199,7 @@ function stopPlayback(){
     for (let i=0;i<n;i++){
       const p = reverse ? peaks[n-1-i] : peaks[i];
       const t = (i + 0.5) / n;            // output time (not reversed)
-      const e = (hasSel ? baseGain : envAtT(t));                // 0..2
+      const e = baseGain;                // 0..2
       const amp = Math.min(1, p * e);     // clip for display (keeps it readable)
       const x = (i + 0.5) * (w / n);
       const y = amp * usable;
@@ -7144,7 +7778,64 @@ if (__inspCache.descText !== descText){
       __inspCache.foLbl = foLbl;
     }
 
-    // Fit mode
+    // Dynamic fade range: keep faders proportional to the *effective* audible length.
+    // - fitMode "rate": audio always fills the full cell (time-stretch via resample)
+    // - fitMode "padtrim"/"loop": audio can be shorter than the cell; fades should scale to the audible portion
+    let effFramesForFade = getCellFrames(row);
+    try{
+      const fit = cell.settings.fitMode || "rate";
+      if (fit === "padtrim" || fit === "loop"){
+        let srcLen = (cell.left && cell.left.length) ? cell.left.length : 0;
+
+        // If selection metadata exists and we still have the full source, prefer the selection length.
+        const key = (cell.editorKey && sourceStore && sourceStore.has(cell.editorKey)) ? cell.editorKey : (cell.sourceKey || "");
+        const hasSel = (typeof cell.selStartFrames === "number") && (typeof cell.selLenFrames === "number");
+        if (key && hasSel && sourceStore && sourceStore.has(key)){
+          const src = sourceStore.get(key);
+          const srcN = (src && src.L) ? src.L.length : 0;
+          if (srcN > 0 && srcLen === srcN && cell.selLenFrames > 0){
+            srcLen = clamp(cell.selLenFrames|0, 1, srcN);
+          }
+        }
+
+        effFramesForFade = Math.max(1, Math.min(getCellFrames(row), srcLen|0));
+      }
+    }catch(_){}
+
+    const maxFadeMs = Math.max(0, Math.floor((effFramesForFade / SR) * 1000 / 2));
+    const maxFadeMsStr = String(maxFadeMs);
+
+    // Update slider max only when it actually changes (prevents iOS from jittering)
+    if (__inspCache.maxFadeMsStr !== maxFadeMsStr){
+      fadeInEl.max = maxFadeMsStr;
+      fadeOutEl.max = maxFadeMsStr;
+      __inspCache.maxFadeMsStr = maxFadeMsStr;
+    }
+
+    // Clamp stored values to the new max so UI + mini-wave stay consistent.
+    if (cell.settings.fadeInMs > maxFadeMs){
+      cell.settings.fadeInMs = maxFadeMs;
+      fadeInEl.value = String(maxFadeMs);
+      fadeInValEl.textContent = String(maxFadeMs);
+      markWaveDirty(col, row);
+    }
+    if (cell.settings.fadeOutMs > maxFadeMs){
+      cell.settings.fadeOutMs = maxFadeMs;
+      fadeOutEl.value = String(maxFadeMs);
+      fadeOutValEl.textContent = String(maxFadeMs);
+      markWaveDirty(col, row);
+    }
+
+    
+    // Ensure slider thumbs reflect the (possibly re-clamped) values after max changes.
+    // (Some browsers clamp the value against the previous max; reapply after updating max.)
+    try{
+      const fiNow = String(cell.settings.fadeInMs|0);
+      const foNow = String(cell.settings.fadeOutMs|0);
+      if (fadeInEl.value !== fiNow) fadeInEl.value = fiNow;
+      if (fadeOutEl.value !== foNow) fadeOutEl.value = foNow;
+    }catch(_){}
+// Fit mode
     const fit = cell.settings.fitMode;
     if (__inspCache.fit !== fit){
       fitModeEl.value = fit;
@@ -7263,7 +7954,8 @@ if (__inspCache.descText !== descText){
     if (!state.selected.has) return;
     const {col,row} = state.selected;
     const cellEl = colsEl.querySelector(`.cell[data-col="${col}"][data-row="${row}"]`);
-    playCell(col,row, cellEl);
+    try{ stopPlayback(); }catch(_){ }
+        playCell(col,row, cellEl);
   });
 
   inspLoadBtn.addEventListener("click", () => {
@@ -7507,11 +8199,7 @@ if (isIOSLike()){
     const src = ctx.createBufferSource();
     src.buffer = buf;
     src.connect(ctx.destination);
-
-    if (cellEl){
-      cellEl.classList.add("playing");
-      state.currentCellEl = cellEl;
-    }
+    tcmRegisterSrc(src);
 
     // If a newer play/stop happened while we were rendering, abort.
     if (myGen !== state.playGen){
@@ -7520,12 +8208,16 @@ if (isIOSLike()){
     }
 
     state.currentSrc = src;
+    state.currentCellEl = myCellEl;
+    tcmPulsePlaying(myCellEl, myGen);
     src.start(0);
 src.onended = () => {
       if (myCellEl){
-        myCellEl && myCellEl.classList.remove("playing");
+        if (typeof myGen === "number" && myCellEl.__playingGen !== myGen) { return; }
+        try{ myCellEl.classList.remove("playing"); }catch(_){ }
+        try{ state.activeCellEls && state.activeCellEls.delete(myCellEl); }catch(_){ }
       }
-      state.currentCellEl = null;
+      if (state.currentCellEl === myCellEl) state.currentCellEl = null;
       state.currentSrc = null;
       try { src.disconnect(); } catch {}
       try { src.buffer = null; } catch {}
@@ -7948,12 +8640,30 @@ src.onended = () => {
 
       
 // Ask for a preset name (used for ZIP + preset JSON file name)
+// Also offer embedding original samples for portable presets.
 const def = `TCM_Preset_${getDateStamp()}`;
-const presetName = await (window.openPresetNameOverlay ? window.openPresetNameOverlay(def) : openPresetNameOverlay(def));
-if (!presetName){
+const manualLoaded = (function(){
+  for (let c=0;c<COLS;c++){
+    for (let r=0;r<ROWS;r++){
+      const cell = state.cells[c][r];
+      if (!cell || !cell.left) continue;
+      const rel = (cell.relPath || cell.origin?.relPath || "");
+      // If we have no rel-path context at all, treat as "manual loaded"
+      const rp = String(cell.sourceKey || "").split("::")[0] || "";
+      if (!rel && !(rp && rp.includes("/"))){
+        return true;
+      }
+    }
+  }
+  return false;
+})();
+const presetRes = await (window.openPresetNameOverlay ? window.openPresetNameOverlay(def, {manualLoaded}) : openPresetNameOverlay(def, {manualLoaded}));
+if (!presetRes){
   toast("Export cancelled.", 1200);
   return;
 }
+const presetName = presetRes.name;
+const includeSources = !!presetRes.embedSamples;
       // Make sure the preset JSON sorts AFTER audio files when extracted to a folder
       const presetJsonName = sanitizeFilename(`zz_TCM-Preset_${presetName}`) + ".json";
 
@@ -7966,7 +8676,53 @@ if (!presetName){
         const filename = formatNameForCol(c, colFrames);
         files.push({name: filename, data: wavBytes});
       }
-      // Add preset JSON (keep it last in the ZIP for Tempera folder-load compatibility)
+      
+      // Optional: embed original source samples so the preset can be re-imported without original folders.
+      // This is especially important for samples loaded via the plain file picker (no relPath context).
+      const embeddedMap = new Map(); // legacy: sourceKey -> {zipPath,fileName}
+      const embeddedCellMap = Array.from({length: COLS}, ()=> Array(ROWS).fill(null)); // [c][r] -> {zipPath,fileName}
+      if (includeSources){
+        const usedNames = new Map(); // base -> n
+        const ensureUnique = (base) => {
+          const b = base || "sample.wav";
+          const n = usedNames.get(b) || 0;
+          usedNames.set(b, n+1);
+          if (n === 0) return b;
+          const dot = b.lastIndexOf(".");
+          if (dot > 0) return b.slice(0,dot) + `_${n+1}` + b.slice(dot);
+          return b + `_${n+1}`;
+        };
+
+        // Embed the *actual cell audio* (post-slice/trim/fade edits), so Load+Slice exports are portable too.
+        for (let c=0;c<COLS;c++){
+          for (let r=0;r<ROWS;r++){
+            const cell = state.cells[c][r];
+            if (!cell || !cell.left) continue;
+
+            // Build a nice stable name.
+            const rawBase = (() => {
+              const fromOrigin = (cell.origin && cell.origin.fileName) ? String(cell.origin.fileName) : "";
+              const fromFileName = cell.fileName ? String(cell.fileName) : "";
+              const fromName = cell.name ? String(cell.name) : "";
+              const base = (fromOrigin || fromFileName || fromName || `C${r+1}`).split(" · ")[0].trim();
+              return base || `C${r+1}`;
+            })();
+            let fn = sanitizeFilename(rawBase);
+            if (!fn) fn = "sample.wav";
+            if (!fn.toLowerCase().endsWith(".wav")) fn += ".wav";
+
+            // Prefix with cell address to avoid collisions and make it readable.
+            fn = `C${c+1}_R${r+1}_` + fn;
+            fn = ensureUnique(fn);
+
+            const zipPath = `TCM_Sources/${fn}`;
+            const wavBytes = encodeWav16StereoBytes(cell.left, cell.right);
+            files.push({name: zipPath, data: wavBytes});
+            embeddedCellMap[c][r] = {zipPath, fileName: fn};
+          }
+        }
+      }
+// Add preset JSON (keep it last in the ZIP for Tempera folder-load compatibility)
       const preset = {
       appVersion: APP_VERSION,
       appBuildDate: (typeof APP_BUILD_DATE !== "undefined" ? APP_BUILD_DATE : ""),
@@ -7998,9 +8754,9 @@ topFolders: computeTopFoldersFromState(),
           cells: Array.from({length: ROWS}, (_, r) => ({
             row: r,
             name: state.cells[c][r].name || "",
-            fileName: (()=>{ const _cell=state.cells[c][r]; const _raw=(_cell.origin?.fileName || _cell.fileName || _cell.name || ""); return String(_raw).split(" · ")[0].trim(); })(),
-            relPath: (()=>{ const _cell=state.cells[c][r]; let _rel=String(_cell.origin?.relPath || _cell.relPath || ""); if (!_rel && _cell.sourceKey){ const _p=String(_cell.sourceKey).split("::")[0]; if (_p.includes("/")) _rel=_p.split("/").slice(0,-1).join("/"); } return _rel; })(),
-            origin: (()=>{ const _cell=state.cells[c][r]; if (_cell.origin) return _cell.origin; const _fn=String((_cell.fileName||_cell.name||"")).split(" · ")[0].trim(); let _rel=String(_cell.relPath||""); if (!_rel && _cell.sourceKey){ const _p=String(_cell.sourceKey).split("::")[0]; if (_p.includes("/")) _rel=_p.split("/").slice(0,-1).join("/"); } return (_fn||_rel) ? { type:"file", fileName:_fn, relPath:_rel } : null; })(),
+            fileName: (()=>{ const _cell=state.cells[c][r]; if (!_cell.left) return ""; const _raw=(_cell.origin?.fileName || _cell.fileName || _cell.name || ""); return String(_raw).split(" · ")[0].trim(); })(),
+            relPath: (()=>{ const _cell=state.cells[c][r]; if (!_cell.left) return ""; let _rel=String(_cell.origin?.relPath || _cell.relPath || ""); if (!_rel && _cell.sourceKey){ const _p=String(_cell.sourceKey).split("::")[0]; if (_p.includes("/")) _rel=_p.split("/").slice(0,-1).join("/"); } return _rel; })(),
+            origin: (()=>{ const _cell=state.cells[c][r]; if (!_cell.left) return null; if (_cell.origin) return _cell.origin; const _fn=String((_cell.fileName||_cell.name||"")).split(" · ")[0].trim(); let _rel=String(_cell.relPath||""); if (!_rel && _cell.sourceKey){ const _p=String(_cell.sourceKey).split("::")[0]; if (_p.includes("/")) _rel=_p.split("/").slice(0,-1).join("/"); } return (_fn||_rel) ? { type:"file", fileName:_fn, relPath:_rel } : null; })(),
             settings: { ...state.cells[c][r].settings },
             hasAudio: !!state.cells[c][r].left,
             sourceKey: state.cells[c][r].sourceKey || "",
@@ -8058,6 +8814,27 @@ topFolders: computeTopFoldersFromState(),
           }))
         }))
       };
+
+      // If we embedded sources, point cells at the embedded WAVs (TCM_Sources/...) so folder-import can relink reliably.
+      if (includeSources){
+        // When embedding, point every occupied cell to the embedded WAV (portable, includes Load+Slice edits).
+        preset.embeddedSources = { folder: "TCM_Sources", mode: "cells" };
+        for (const col of (preset.columns || [])){
+          const c = Number(col.index || 0);
+          for (const cellP of (col.cells || [])){
+            if (!cellP || !cellP.hasAudio) continue;
+            const r = Number(cellP.row || 0);
+            const emb = (embeddedCellMap[c] && embeddedCellMap[c][r]) ? embeddedCellMap[c][r] : null;
+            if (!emb) continue;
+            cellP.fileName = emb.fileName;
+            cellP.relPath = emb.zipPath; // already includes folder
+            cellP.origin = { type: "embedded", fileName: emb.fileName, relPath: emb.zipPath };
+            cellP.sourceKey = ""; // avoid missing-source warnings on import
+          }
+        }
+      }
+
+
       const presetBytes = new TextEncoder().encode(JSON.stringify(preset, null, 2));
       files.push({ name: presetJsonName, data: presetBytes });
 
@@ -8098,6 +8875,12 @@ stopBtn.addEventListener("click", () => stopPlayback());
 
   function openHelp(){
     if (!helpOverlayEl) return;
+    // Always bring help in front of other overlays (Slice/Wave editors)
+    try{
+      document.body.appendChild(helpOverlayEl);
+      helpOverlayEl.dataset.prevZ = helpOverlayEl.style.zIndex || "";
+      helpOverlayEl.style.zIndex = "50000";
+    }catch{}
     helpOverlayEl.classList.add("show");
     helpOverlayEl.setAttribute("aria-hidden", "false");
   }
@@ -8105,6 +8888,10 @@ stopBtn.addEventListener("click", () => stopPlayback());
     if (!helpOverlayEl) return;
     helpOverlayEl.classList.remove("show");
     helpOverlayEl.setAttribute("aria-hidden", "true");
+    // Restore z-index (keep DOM order as-is; it's fine)
+    try{
+      helpOverlayEl.style.zIndex = helpOverlayEl.dataset.prevZ || "";
+    }catch{}
   }
 
   if (helpBtn){
@@ -8191,6 +8978,11 @@ stopBtn.addEventListener("click", () => stopPlayback());
 
   function gatherPresetFileHints(preset){
     const hints = [];
+    const looksLikeFilename = (s) => {
+      const t = (s||"").toString().trim();
+      // Require an extension (e.g. .wav/.aif) to avoid cell labels like "C1"
+      return !!t && /\.[A-Za-z0-9]{2,4}$/.test(t.split(/[\/]/).pop() || "");
+    };
     try{
       const cols = preset?.columns;
       if (Array.isArray(cols)){
@@ -8200,8 +8992,20 @@ stopBtn.addEventListener("click", () => stopPlayback());
           for (const cell of cells){
             const rel = (cell?.relPath || cell?.origin?.relPath || "").toString();
             const fn  = (cell?.fileName || cell?.origin?.fileName || "").toString();
-            const pick = rel || fn;
-            if (pick) hints.push(pick);
+            let pick = rel || fn;
+
+            // Fallback: derive from sourceKey if present (format often: "path/file.ext::...").
+            if (!pick && cell?.sourceKey){
+              const sk = String(cell.sourceKey);
+              const left = sk.split("::")[0]; // keep path/file.ext (or just file.ext)
+              if (looksLikeFilename(left)) pick = left;
+              else{
+                const base = left.split(/[\/]/).pop();
+                if (looksLikeFilename(base)) pick = base;
+              }
+            }
+
+            if (pick && looksLikeFilename(pick)) hints.push(pick);
           }
         }
       }
@@ -8244,9 +9048,15 @@ stopBtn.addEventListener("click", () => stopPlayback());
       if (rootHint) headLines.push("Root hint: " + rootHint);
       if (topTxt) headLines.push(topTxt);
 
+      const embFolder = (preset && preset.embeddedSources && preset.embeddedSources.folder) ? preset.embeddedSources.folder : "";
+      if (embFolder){
+        headLines.push("Embedded samples: " + embFolder + (preset.embeddedSources.count ? (" ("+preset.embeddedSources.count+" files)") : ""));
+        headLines.push("Recommended: choose the folder where you extracted the ZIP. TCM will relink from " + embFolder + "/.");
+      }
+
       const body = hints.length
         ? ("Looking for files like:\n- " + hints.join("\n- "))
-        : "No filenames found in preset.";
+        : (embFolder ? "This preset has embedded samples. Choose the extracted preset folder to relink." : "No filenames found in preset.");
 
       listEl.textContent = (headLines.length ? (headLines.join("\n") + "\n\n") : "") + body;
 const cleanup = () => {
@@ -8260,6 +9070,8 @@ const cleanup = () => {
       };
 
       const onKey = (e) => {
+      // When modal is open, do not let global key handlers (matrix navigation) see these keys
+      try{ e.stopPropagation(); if (e.stopImmediatePropagation) e.stopImmediatePropagation(); }catch(_){ }
         if (e.key === "Escape"){
           cleanup();
           resolve([]);
@@ -8312,6 +9124,7 @@ const cleanup = () => {
 
       const cleanup = () => {
         ov.classList.remove("show");
+      restoreNativeTooltips();
         ov.setAttribute("aria-hidden","true");
         btnSave.onclick = null;
         btnCancel.onclick = null;
@@ -8356,10 +9169,81 @@ const cleanup = () => {
   // Expose for Safari (avoids scope quirks)
   window.openRandom64FilterOverlay = openRandom64FilterOverlay;
 
-function openPresetNameOverlay(defaultName){
+
+// --- Native tooltip suppression while modal overlays are open ---
+// Some browsers keep a hovered element's native tooltip visible even after a modal opens.
+// We temporarily remove all [title] attributes while an overlay is shown, then restore them.
+let __savedNativeTitles = null;
+
+let __lastMouseX = 0, __lastMouseY = 0;
+try{ window.addEventListener('mousemove', (e)=>{ __lastMouseX = e.clientX; __lastMouseY = e.clientY; }, {passive:true}); }catch(_){ }
+function __cancelNativeTooltipNow(){
+  try{
+    // 1) Dispatch leave/out events for the element currently under the cursor (kills tooltip timers).
+    const el = document.elementFromPoint(__lastMouseX, __lastMouseY);
+    if (el){
+      ['pointerout','pointerleave','mouseout','mouseleave'].forEach((t)=>{
+        try{ el.dispatchEvent(new Event(t,{bubbles:true})); }catch(_){}
+      });
+    }
+    // 2) Briefly disable pointer events globally to reset any hover state.
+    try{
+      document.body.classList.add('noHoverTmp');
+      setTimeout(()=>{ try{ document.body.classList.remove('noHoverTmp'); }catch(_){} }, 60);
+    }catch(_){}
+    // 3) A tiny scroll nudge cancels pending native tooltips in Chrome/Safari.
+    const x = window.scrollX || 0;
+    const y = window.scrollY || 0;
+    window.scrollTo(x, y + 1);
+    window.scrollTo(x, y);
+  }catch(_){}
+}
+function disableNativeTooltips(){
+  if (__savedNativeTitles) return;
+  __savedNativeTitles = [];
+  try{
+    document.querySelectorAll('[title]').forEach((el) => {
+      if (el.hasAttribute('data-title-saved')) return;
+      const t = el.getAttribute('title');
+      if (t == null) return;
+      __savedNativeTitles.push([el, t]);
+      el.setAttribute('data-title-saved', '1');
+      el.removeAttribute('title');
+    });
+  }catch(_){}
+  // Force any pending tooltip to dismiss.
+  __cancelNativeTooltipNow();
+  // Also briefly disable pointer events on the header to force a hover reset.
+  try{
+    const hdr = document.querySelector('header') || document.getElementById('topBar') || null;
+    if (hdr){
+      const prev = hdr.style.pointerEvents;
+      hdr.style.pointerEvents = 'none';
+      setTimeout(() => { try{ hdr.style.pointerEvents = prev; }catch(_){} }, 60);
+    }
+  }catch(_){}
+}
+function restoreNativeTooltips(){
+  if (!__savedNativeTitles) return;
+  try{
+    __savedNativeTitles.forEach(([el, t]) => {
+      if (!el || !el.isConnected) return;
+      if (el.getAttribute('data-title-saved') === '1'){
+        el.setAttribute('title', t);
+        el.removeAttribute('data-title-saved');
+      }
+    });
+  }catch(_){}
+  __savedNativeTitles = null;
+}
+// --------------------------------------------------------------
+
+function openPresetNameOverlay(defaultName, opts){
   return new Promise((resolve) => {
     const ov = document.getElementById("presetNameOverlay");
     const input = document.getElementById("presetNameInput");
+    const chk = document.getElementById("embedSamplesChk");
+    const note = document.getElementById("embedSamplesNote");
     const btnOk = document.getElementById("presetNameOkBtn");
     const btnCancel = document.getElementById("presetNameCancelBtn");
     const btnClose = document.getElementById("presetNameOverlayClose");
@@ -8368,11 +9252,21 @@ function openPresetNameOverlay(defaultName){
       const raw = prompt("Preset name (used for ZIP + preset JSON):", defaultName || "");
       if (raw == null) return resolve(null);
       const s = sanitizeFilename(raw);
-      return resolve(s || sanitizeFilename(defaultName || "TCM_Preset"));
+      return resolve({ name: (s || sanitizeFilename(defaultName || "TCM_Preset")), embedSamples: false });
     }
 
     input.value = String(defaultName || "");
     input.select?.();
+
+    const manualLoaded = !!(opts && opts.manualLoaded);
+    if (note){
+      note.textContent = manualLoaded
+        ? "Some samples were loaded via the file picker (no folder path). Those cannot be relinked on import unless you include the original samples in this ZIP."
+        : "Optional: embed the original source samples in this ZIP so this preset can be imported on another machine without needing the original folders.";
+    }
+    if (chk){
+      chk.checked = manualLoaded ? true : false;
+    }
 
     const cleanup = () => {
       ov.classList.remove("show");
@@ -8394,20 +9288,21 @@ function openPresetNameOverlay(defaultName){
       if (e.key === "Enter"){
         e.preventDefault();
         const s = sanitizeFilename(input.value || "");
-        finish(s || sanitizeFilename(defaultName || "TCM_Preset"));
+        finish({ name: (s || sanitizeFilename(defaultName || "TCM_Preset")), embedSamples: !!(chk && chk.checked) });
       }
     };
 
     btnOk.onclick = () => {
       const s = sanitizeFilename(input.value || "");
-      finish(s || sanitizeFilename(defaultName || "TCM_Preset"));
+      finish({ name: (s || sanitizeFilename(defaultName || "TCM_Preset")), embedSamples: !!(chk && chk.checked) });
     };
     const cancel = () => finish(null);
     btnCancel.onclick = cancel;
     btnClose.onclick = cancel;
     ov.onclick = (e) => { if (e.target === ov) cancel(); };
 
-    ov.classList.add("show");
+    disableNativeTooltips();
+      ov.classList.add("show");
     ov.setAttribute("aria-hidden","false");
     window.addEventListener("keydown", onKey);
 
@@ -8630,7 +9525,12 @@ if (Array.isArray(preset.cellNames)){
       if (!splitPlan[c]) continue;
       const plan = splitPlan[c];
       const ref = plan.ref;
-      const file = resolveFile(ref, idx);
+      if (!ref){
+          // Empty cell (no file reference) — don't count as missing.
+          updateCellUI(c,r);
+          continue;
+        }
+        const file = resolveFile(ref, idx);
       if (!file){
         missing += ROWS;
         continue;
@@ -8677,13 +9577,36 @@ if (Array.isArray(preset.cellNames)){
           continue;
         }
 
-        const _baseFn = String((cellP.origin?.fileName || cellP.fileName || cellP.name || "")).split(" · ")[0].trim();
+        const looksLikeFilename = (s) => {
+          const t = (s||"").toString().trim();
+          return !!t && /\.[A-Za-z0-9]{2,4}$/.test((t.split(/[\/]/).pop()||""));
+        };
+
+        // Prefer explicit origin/fileName, then sourceKey-derived name.
+        let _baseFn = String((cellP.origin?.fileName || cellP.fileName || "")).split(" · ")[0].trim();
         let _rel = String(cellP.origin?.relPath || cellP.relPath || "");
-        if (!_rel && cellP.sourceKey){
-          const _p = String(cellP.sourceKey).split("::")[0];
-          if (_p.includes("/")) _rel = _p.split("/").slice(0,-1).join("/");
+
+        // Derive from sourceKey if present (format often: "path/file.ext::...").
+        if ((!_baseFn || !looksLikeFilename(_baseFn)) && cellP.sourceKey){
+          const _left = String(cellP.sourceKey).split("::")[0];
+          const _base = _left.split(/[\/]/).pop();
+          if (looksLikeFilename(_base)) _baseFn = _base;
+          if (!_rel && _left.includes("/")) _rel = _left.split("/").slice(0,-1).join("/");
         }
-        const ref = cellP.origin || { fileName: _baseFn, relPath: _rel };
+
+        // LAST resort: only accept cellP.name if it actually looks like a filename (avoid "C1").
+        if ((!_baseFn || !looksLikeFilename(_baseFn)) && looksLikeFilename(cellP.name)){
+          _baseFn = String(cellP.name).split(" · ")[0].trim();
+        }
+
+        if (_baseFn && !looksLikeFilename(_baseFn)) _baseFn = "";
+
+        const ref = cellP.origin || ((_baseFn || _rel) ? { fileName: _baseFn, relPath: _rel } : null);
+        if (!ref){
+          // Empty cell (no file reference) — don't count as missing.
+          updateCellUI(c,r);
+          continue;
+        }
         const file = resolveFile(ref, idx);
         if (!file){
           missing++;
@@ -8721,7 +9644,12 @@ if (Array.isArray(preset.cellNames)){
       updateColUI(c);
     }
 
+    // Force inspector sliders to refresh (diff-only caching can miss DOM range positions after import).
+    __inspCache = { selKey: null };
     updateInspector();
+    // One more paint on next frame to ensure range thumbs reflect max/value after dynamic range recalculation.
+    requestAnimationFrame(() => { try{ __inspCache = { selKey: null }; updateInspector(); }catch(_e){} });
+
     setStatus(`Preset loaded. ${loaded} relinked, ${missing} missing.`, missing ? "warn" : "good");
     if (missing){
       toast("Some samples could not be found. Keep the same filenames (or restore the same folder structure) to relink.", 4200);
@@ -8923,6 +9851,22 @@ if (Array.isArray(preset.cellNames)){
   clearAllBtn.addEventListener("click", () => clearAll());
 
   window.addEventListener("keydown", (e) => {
+    // If any modal overlay is open, ignore global keybindings (typing in dialogs, etc.)
+    // Exception: keep Space working in Slice Editor (play/stop focused slice).
+    try{
+      const ov = document.querySelector(".overlay.show");
+      if (ov){
+        const splitOv = document.getElementById("splitOverlay");
+        const splitVisible = !!(splitOv && splitOv.classList && splitOv.classList.contains("show") && splitOv.getAttribute("aria-hidden") !== "true" && splitOv.style.display !== "none");
+        if (e.code === "Space" && splitVisible && typeof splitPlayActiveSlice === "function"){
+          e.preventDefault();
+          splitPlayActiveSlice();
+          return;
+        }
+        return;
+      }
+    }catch(_){ }
+
     // Cmd/Ctrl+Z (undo), Cmd/Ctrl+Shift+Z / Ctrl+Y (redo)
     const isMac = navigator.platform.toUpperCase().includes("MAC");
     const mod = isMac ? e.metaKey : e.ctrlKey;
@@ -9021,6 +9965,7 @@ if (Array.isArray(preset.cellNames)){
           let r = state.selected.has ? state.selected.row : 0;
           c = (c + dc + COLS) % COLS;
           r = (r + dr + ROWS) % ROWS;
+          try{ stopPlayback(); }catch(_){ }
           setSelected(c, r);
           return;
         }
@@ -9032,12 +9977,14 @@ if (e.key === "Escape"){
       if (helpOverlayEl && helpOverlayEl.classList.contains("show")){ closeHelp(); e.preventDefault(); return; }
       stopPlayback();
     }
-    if (e.key === " "){
-      // space: play selected
+    if (e.code === "Space" || e.key === " "){
+      // space: always (re)play selected cell (never toggle-stop)
       // If a button (e.g. Load) still has focus, drop it so Space doesn't show focus ring
       try{ const ae=document.activeElement; if (ae && ae.tagName==="BUTTON") ae.blur(); }catch(_e){}
-      if (state.selected.has){
+      if (state && state.selected && state.selected.has){
         e.preventDefault();
+        // Always stop any current playback before starting the selected cell
+        try{ stopPlayback(); }catch(_){ }
         const {col,row} = state.selected;
         const cellEl = colsEl.querySelector(`.cell[data-col="${col}"][data-row="${row}"]`);
         playCell(col,row, cellEl);
@@ -9106,7 +10053,7 @@ if (e.key === "Escape"){
           splitCol = col;
           splitAutoTile();
           splitUndoBtnEl && (splitUndoBtnEl.disabled = true);
-          splitHintEl && (splitHintEl.textContent = "Drag or resize the 8 selection blocks. Each block is limited to the max cell length.");
+          splitHintEl && (splitHintEl.innerHTML = '');
           splitScheduleDraw();
           // open the split editor after loading the sample
           splitOpen(col);
@@ -9142,6 +10089,10 @@ if (e.key === "Escape"){
   build();
 
   window.addEventListener("DOMContentLoaded", () => {
+    try{ disableNativeTitleTooltips(); }catch(e){}
+    try{ initCustomTooltips(); }catch(e){}
+    try{ installTitleStripObserver(); }catch(e){}
+
     try{ waveAttachHandlers(); }catch(e){ showFatal(e); }
     try{ splitAttachHandlers(); }catch(e){ showFatal(e); }
     try{ updateRandom64FilterIndicator(); }catch(e){}
@@ -9582,6 +10533,69 @@ window.addEventListener("keydown", (ev)=>{
   }catch(_){ }
 }, {capture:true});
 
+
+// --- Scrollbar toggle (header button) ---
+(function(){
+  const btn = document.getElementById("scrollbarBtn");
+  if (!btn) return;
+
+  const key = "TCM_showScrollbar";
+  const prefersTouch = (() => {
+    try { return window.matchMedia && window.matchMedia("(hover: none) and (pointer: coarse)").matches; }
+    catch(e){ return false; }
+  })();
+
+  function getTargets(){
+    const t = [];
+    // body/html scrollbars (Safari/Chrome can show these)
+    t.push(document.documentElement);
+    t.push(document.body);
+
+    // main matrix scroller(s) - keep broad but safe
+    const candidates = [
+      ".actionsWrap",
+      "#actionsWrap",
+      ".matrixWrap",
+      "#matrixWrap",
+      ".matrixScroller",
+      "#matrixScroller",
+      ".matrixScroll",
+      "#matrixScroll"
+    ];
+    for (const sel of candidates){
+      const el = document.querySelector(sel);
+      if (el && !t.includes(el)) t.push(el);
+    }
+    return t.filter(Boolean);
+  }
+
+  function setOn(on){
+    const targets = getTargets();
+    for (const el of targets){
+      if (!el) continue;
+      if (on){
+        el.classList.remove("noScrollbar");
+        if (el === document.documentElement || el === document.body) el.classList.remove("noScrollbarGlobal");
+      }else{
+        el.classList.add("noScrollbar");
+        if (el === document.documentElement || el === document.body) el.classList.add("noScrollbarGlobal");
+      }
+    }
+    btn.textContent = on ? "Scrollbar: On" : "Scrollbar: Off";
+  }
+
+  const saved = localStorage.getItem(key);
+  const initial = (saved === null) ? (!prefersTouch) : (saved === "1");
+  setOn(initial);
+
+  btn.addEventListener("click", ()=>{
+    // derive state from html element
+    const isOff = document.documentElement.classList.contains("noScrollbarGlobal") || document.body.classList.contains("noScrollbarGlobal");
+    const nextOn = isOff; // if currently off -> turn on
+    setOn(nextOn);
+    localStorage.setItem(key, nextOn ? "1" : "0");
+  });
+})();
 </script>
 
   
@@ -9601,7 +10615,8 @@ window.addEventListener("keydown", (ev)=>{
           <button class="helpClose" type="button" id="waveSnapBtn" title="Snap apply to zero-crossing">Snap: on</button> <button class="helpClose" type="button" id="waveUndoBtn" title="Undo trim (Ctrl/Cmd+Z)">Undo</button>
 <button class="helpClose" type="button" id="waveApplyBtn" title="Apply selection to the cell">Apply</button>
           <button class="helpClose" type="button" id="waveResetBtn" title="Reset selection to full cell length">Reset</button>
-          <button class="helpClose" type="button" id="waveCloseBtn" title="Close">✕</button>
+          <button class="helpClose" type="button" id="waveHelpBtn" title="Help">?</button>
+        <button class="helpClose" type="button" id="waveCloseBtn" title="Close">✕</button>
         </div>
       </div>
       <div class="helpBody">
@@ -9615,7 +10630,7 @@ window.addEventListener("keydown", (ev)=>{
             <div class="kv"><span class="k">Length</span><span class="v" id="waveSelLen">—</span></div>
             <div class="kv"><span class="k">Source</span><span class="v" id="waveSrcName">—</span></div>
           </div>
-          <div class="waveEditorHint">
+          <div class="waveEditorHint" style="display:none">
             Drag the selection window. Click inside to move; click outside jumps (zoom closes). Apply makes this selection the cell audio (used for playback + export). If the zoom window is visible: Z toggles Auto-Norm, +/- zooms, Esc (or clicking outside selection) hides it. Click outside the selection hides the zoom window.
           </div>
 
@@ -9653,7 +10668,8 @@ window.addEventListener("keydown", (ev)=>{
           <button class="helpClose" type="button" id="splitZoomBtn" title="Toggle zoom window">Zoom: on</button>
 <button class="helpClose" type="button" id="splitUndoBtn" title="Undo last split edit" disabled>Undo</button>
           <button class="helpClose" type="button" id="splitApplyBtn" title="Apply splits into the column">Apply</button>
-          <button class="helpClose" type="button" id="splitCloseBtn" title="Close" style="margin-left:8px;">Close</button>
+          <button class="helpClose" type="button" id="splitHelpBtn" title="Help" style="margin-left:6px; width:34px; padding:0;">?</button>
+          <button class="helpClose" type="button" id="splitCloseBtn" title="Close">✕</button>
         </div>
       </div>
 
@@ -9665,17 +10681,20 @@ window.addEventListener("keydown", (ev)=>{
           <div class="kv"><span class="k">Name</span><span class="v" id="splitName">—</span></div>
           <div class="kv"><span class="k">Start</span><span class="v" id="splitSelStart">—</span></div>
           <div class="kv"><span class="k">Length</span><span class="v" id="splitSelLen">—</span></div>
+          <div class="kv"><span class="k">Slice view</span><span class="v" id="splitViewZoom">—</span></div>
           <div class="kv"><span class="k">Source</span><span class="v" id="splitSrcName">—</span></div>
         </div>
-        <div class="muted" id="splitHint" style="margin-top:8px; font-size:12px;">Load a sample, then drag/resize the 8 blocks.<br><span class="muted"><b>Space</b>/<b>Play sel</b> = play/stop focused slice • <b>Play all</b> = play/stop full sample</span></div>
+        <div class="muted" id="splitHint" style="display:none"></div>
         <div class="waveShortcuts">
           <div class="waveShortcutsTitle">Shortcuts</div>
           <ul class="waveShortcutsList">
+            <li><b>Tab</b> / <b>Shift+Tab</b> — next / previous slice</li>
             <li><b>Space</b> — play focused slice</li>
             <li><b>← / →</b> — nudge focused slice</li>
             <li><b>Shift</b> + ← / → — coarse nudge</li>
             <li><b>Alt/Option</b> + ← / → — fine nudge</li>
-            <li><b>L</b> / <b>M</b> / <b>R</b> — control Left edge / Move / Right edge (with zoom)</li>
+            <li><b>L</b> / <b>M</b> / <b>R</b> — Left edge / Move / Right edge (with zoom window)</li>
+            <li><b>+</b> / <b>-</b> — Slice view zoom (when zoom window is hidden)</li>
             <li><b>+</b> / <b>-</b> — zoom window (when visible)</li>
             <li><b>Z</b> — auto-normalize (when zoom window is visible)</li>
             <li><b>Esc</b> — hide zoom (if visible) / close editor</li>
@@ -9695,3 +10714,5 @@ window.addEventListener("keydown", (ev)=>{
 
 </body>
 </html>
+
+
