@@ -13,6 +13,20 @@ Focus: **fast, visual sample preparation** that feels like an **instrument**, no
 https://patronix-music.github.io/tempera-cell-matrix/
 
 ---
+
+## ✨ What’s new in v2.9.84
+
+###🔍 New: Slice zoom for large samples — + / - to zoom into a slice, TAB to jump between slices.
+###📦 New: You can now embed samples directly into ZIP exports. Perfect for hand-picked samples and sharing presets.
+###🖱️ New: Scrollbar On/Off toggle in the header (great for trackpads and iPad users).
+🟢 Matrix playback outline now stays nicely in sync, even with fast retriggering.
+⌨️ Playback is much more solid when navigating with Tab, Arrow keys and Space (matrix + editors).
+💬 Tooltips fully rebuilt — no more laggy or stuck browser tooltips.
+🎚️ Fade in/out sliders now scale correctly with the actual sample length.
+🧹 Header cleaned up to make room for the scrollbar control.
+🎛️ Wave & Slice editor UI cleaned up, with help moved to the Help page (? for help, X to close).
+
+
 ## ✨ What’s new in v2.9
 
 ### CPU and memory overload for Safari fixed. Chrome is also low on CPU.
