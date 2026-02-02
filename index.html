@@ -2363,7 +2363,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.9.84';
+  const APP_VERSION = '2.9.95';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -2527,8 +2527,13 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
   }
 
 
-  const APP_BUILD_DATE = "2026-01-27";
+  const APP_BUILD_DATE = "2026-02-02";
   const CHANGELOG = [
+  "2.9.92 - Fix Load+Slice: Load new + Apply use current editor column (prevents fallback to Column 1)",
+  "2.9.91 - Fix Load+Slice target column sticking to Column 1 on re-load in Slice Editor.",
+  "2.9.90 - Fix Load+Slice applies/loads to correct column when switching columns.",
+  "2.9.95 - Fix: Slice Editor Load button no longer routes to Column 1 (event object bug).",
+  "2.9.89 - Clear All / Clear Column now also clears Load+Slice buffer for that column.",
   "2.9.79 - Matrix green playback outline now response correctly to fast re-triggering.",
   "2.9.68 - Fix playback stops for the editors and matrix with tabs, arrows and space.",
   "2.9.62 - Tool-tips rebuild, no more lagging tool-tips from browser engine.",
@@ -3808,6 +3813,28 @@ if (editorIsTrimmed){
   let splitSelStartEl=null, splitSelLenEl=null, splitSrcNameEl=null, splitNameEl=null, splitViewZoomEl=null;
   let splitLoadBtnEl=null, splitAutoBtnEl=null, splitPlaySelBtnEl=null, splitPlayFullBtnEl=null, splitUndoBtnEl=null, splitApplyBtnEl=null, splitCloseBtnEl=null, splitHelpBtnEl=null, splitHintEl=null;
   let splitCol = 0;
+  let splitTargetCol = 0;
+  // Pinned column for Slice Editor: never rely on mutable globals for routing.
+  function splitPinnedCol(){
+    try{
+      if (splitOverlayEl && splitOverlayEl.dataset && splitOverlayEl.dataset.col!=null){
+        const dc = (splitOverlayEl.dataset.col+"").trim();
+        if (dc !== "") return (dc|0);
+      }
+    }catch(_e){}
+    return (splitCol|0);
+  }
+  function splitIsOpen(){
+    try{
+      if (!splitOverlayEl) return false;
+      if (splitOverlayEl.classList && splitOverlayEl.classList.contains("show")) return true;
+      // fallback to computed display (Safari can be picky about inline vs CSS)
+      const cs = window.getComputedStyle ? window.getComputedStyle(splitOverlayEl) : null;
+      return !!(cs && cs.display && cs.display !== "none");
+    }catch(_e){
+      return false;
+    }
+  }
   let splitDragging = null;
 let splitPointerId = null; let splitActiveIdx = 0;
   // Slice-editor view (time zoom around active slice)
@@ -4038,6 +4065,8 @@ let splitPointerId = null; let splitActiveIdx = 0;
     try{ if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); }catch(e){}
     splitEnsureEls();
     splitCol = col|0;
+    splitTargetCol = splitCol;
+    try{ if (splitOverlayEl) splitOverlayEl.dataset.col = String(splitCol); }catch(_){ }
     splitUpdateTitle();
     // reset time-zoom view on open
     splitViewStartFrames = 0;
@@ -4070,6 +4099,9 @@ splitEnsureEls();
 
   function openSplitEditor(col){
     const c = col|0;
+    splitEnsureEls();
+    splitTargetCol = c;
+    try{ if (splitOverlayEl) splitOverlayEl.dataset.col = String(c); }catch(_e){}
     const st = splitGetState(c);
     // Nicer flow: first pick/load a sample, then open the editor.
     if (!st.sourceKey){
@@ -4081,9 +4113,32 @@ splitEnsureEls();
   }
 
   function splitPickSample(colOverride){
+    // If called as an event handler, ignore the Event object and use the pinned column.
+    if (colOverride!=null && (typeof colOverride !== "number")) colOverride = null;
     try{ if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); }catch(e){}
-    const col = (colOverride!=null) ? (colOverride|0) : (splitCol|0);
-    state.pick = { kind:"splitEditor", col, row:null };
+    const __splitOpen = splitIsOpen();
+
+    let col = null;
+    if (colOverride!=null){
+      col = (colOverride|0);
+    } else if (__splitOpen){
+      // IMPORTANT: while editor is open, trust the overlay's col (pinned on open),
+      // not any mutable globals that other UI code may touch.
+      col = splitPinnedCol();
+    } else if ((typeof splitTargetCol==="number") && (splitTargetCol>=0)){
+      col = (splitTargetCol|0);
+    } else if (splitOverlayEl && splitOverlayEl.dataset && splitOverlayEl.dataset.col!=null){
+      col = (splitOverlayEl.dataset.col|0);
+    } else {
+      col = (splitCol|0);
+    }
+
+    // keep globals and overlay pinned
+    splitCol = (col|0);
+    splitTargetCol = (col|0);
+    try{ if (splitOverlayEl) splitOverlayEl.dataset.col = String(splitCol); }catch(_){}
+
+    state.pick = { kind:"splitEditor", col: splitCol, row:null };
     fileInput.value="";
     fileInput.multiple=false;
     fileInput.click();
@@ -4343,7 +4398,7 @@ function splitDraw(){
     splitEnsureEls();
     splitCloseBtnEl.addEventListener("click", splitClose);
     splitHelpBtnEl?.addEventListener("click", ()=>{ try{ openHelp(); }catch(e){} });
-    splitLoadBtnEl.addEventListener("click", splitPickSample);
+    splitLoadBtnEl.addEventListener("click", ()=>splitPickSample(null));
     splitAutoBtnEl.addEventListener("click", ()=>{ const st=splitGetState(splitCol); if(!st.sourceKey) return; splitPushUndo(); splitAutoTile(); });
 
     splitPlaySelBtnEl?.addEventListener("click", (e)=>{
@@ -4397,7 +4452,14 @@ function splitDraw(){
 
     splitUndoBtnEl.addEventListener("click", splitUndo);
     splitApplyBtnEl.addEventListener("click", ()=>{
-      const col = splitCol|0;
+      const __splitOpen = splitIsOpen();
+      const col = __splitOpen
+        ? (splitPinnedCol())
+        : (splitPinnedCol());
+      splitCol = (col|0);
+      splitTargetCol = (col|0);
+      try{ if (splitOverlayEl) splitOverlayEl.dataset.col = String(splitCol); }catch(_){}
+
       const st = splitGetState(col);
       if (!st.sourceKey){
         toast("Load a sample first.");
@@ -8052,6 +8114,9 @@ if (__inspCache.descText !== descText){
       if (state.cellNames && state.cellNames[col]) state.cellNames[col][r] = null;
       updateCellUI(col,r);
     }
+    // Also clear the Load+Slice (Slice Editor) buffer for this column
+    try{ if (typeof splitStateByCol !== 'undefined' && splitStateByCol) splitStateByCol.delete(col); }catch(_e){}
+
     updateColUI(col);
     toast(`Cleared column ${col+1}`);
   }
