@@ -2363,7 +2363,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.9.99';
+  const APP_VERSION = '2.9.100';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -2529,6 +2529,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
   const APP_BUILD_DATE = '2026-02-03';
   const CHANGELOG = [
+  "2.9.99 - Fix Import Preset: restore per-cell slice windows for Load+Slice columns (no more same slice in every cell).",
   "2.9.92 - Fix Load+Slice: Load new + Apply use current editor column (prevents fallback to Column 1)",
   "2.9.91 - Fix Load+Slice target column sticking to Column 1 on re-load in Slice Editor.",
   "2.9.90 - Fix Load+Slice applies/loads to correct column when switching columns.",
@@ -3764,7 +3765,11 @@ if (editorIsTrimmed){
   window.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     try{
-      const splitOpen = (splitOverlayEl && splitOverlayEl.style.display !== "none");
+      const splitOpen = !!(splitOverlayEl && (
+      (splitOverlayEl.classList && splitOverlayEl.classList.contains('show')) ||
+      (splitOverlayEl.style && splitOverlayEl.style.display && splitOverlayEl.style.display !== "none") ||
+      (window.getComputedStyle && getComputedStyle(splitOverlayEl).display !== "none")
+    ) && splitOverlayEl.getAttribute('aria-hidden') !== 'true');
       if (!splitOpen) return;
 
       const el = document.getElementById("tcmMag");
@@ -5349,7 +5354,6 @@ try{
       }
       // Nudge selection (Arrow keys). Shift = coarse, Alt/Option = fine.
       if (e.key === "ArrowLeft" || e.key === "ArrowRight"){
-        e.preventDefault();
         const dir = (e.key === "ArrowRight") ? 1 : -1;
         const fine = e.altKey ? 16 : 0;          // ~1.3ms at 48k
         const coarse = e.shiftKey ? 1024 : 0;     // ~42.7ms at 48k
@@ -5357,8 +5361,21 @@ try{
         const step = fine || coarse || base;
         // If magnifier is open on the Wave editor, use its edge (L/R/C) to decide what nudges.
         const mode = ((_mag && _mag.on && (_mag.edge==='L' || _mag.edge==='R')) ? _mag.edge : (waveEditor.nudgeEdge||'C'));
-        waveNudgeActive(dir * step, mode);
+
+        // If Slice Editor is open, nudge its active block; otherwise nudge Wave Editor selection.
+        let didSplit = false;
+        try{
+          if (splitOverlayEl){
+            const open = (splitOverlayEl.classList && splitOverlayEl.classList.contains('show')) ||
+                         (getComputedStyle(splitOverlayEl).display !== 'none');
+            if (open) didSplit = !!splitNudgeActive(dir * step, mode);
+          }
+        }catch(_){ }
+
+        e.preventDefault();
+        if (!didSplit) waveNudgeActive(dir * step, mode);
       }
+
     }, true);
   }
   const helpCloseBtnEl = document.getElementById("helpCloseBtn");  // Download modal elements are defined after this <script> block in the HTML.
@@ -5626,7 +5643,11 @@ function positionNameTemplateMenu(){
   // Slice Editor: time zoom around active slice (+ / -) and quick slice switching (Tab)
   window.addEventListener("keydown", (e) => {
     try{
-      const splitOpen = (splitOverlayEl && splitOverlayEl.style.display !== "none");
+      const splitOpen = !!(splitOverlayEl && (
+      (splitOverlayEl.classList && splitOverlayEl.classList.contains('show')) ||
+      (splitOverlayEl.style && splitOverlayEl.style.display && splitOverlayEl.style.display !== "none") ||
+      (window.getComputedStyle && getComputedStyle(splitOverlayEl).display !== "none")
+    ) && splitOverlayEl.getAttribute('aria-hidden') !== 'true');
       if (!splitOpen) return;
 
       // don't steal keys from inputs
@@ -6965,7 +6986,7 @@ try{
         relPath: (file && (file.webkitRelativePath || file._relPath)) ? (file.webkitRelativePath || file._relPath) : "",
         sliceIndex: r,
         slices: 8,
-        split: { sourceKey: _srcKey, startFrames: selStart, lenFrames: selLen, col, row: r }
+        split: { sourceKey: _srcKey, startFrames: srcSliceStart, lenFrames: srcSliceLen, col, row: r }
       };
 
       // default: since slice is exact, pad/trim doesn't matter, but keep user's choice
@@ -6994,29 +7015,34 @@ try{
       const cell = state.cells[col][r];
       const p = (Array.isArray(presetCells) && presetCells[r]) ? presetCells[r] : null;
 
-      // Selection window (on original source frames)
-      let selLen = (p && typeof p.selLenFrames === "number") ? Math.floor(p.selLenFrames) : Math.max(1, Math.floor(srcLen / ROWS));
-      selLen = clamp(selLen, 1, Math.max(1, srcLen));
+      // Slice window on original source frames (prefer origin.split / trim fields)
+      const sp = (p && p.origin && p.origin.split) ? p.origin.split : null;
 
-      let selStart = (p && typeof p.selStartFrames === "number") ? Math.floor(p.selStartFrames) : (r * selLen);
-      selStart = clamp(selStart, 0, Math.max(0, srcLen - selLen));
+      let srcSliceLen = (sp && typeof sp.lenFrames === "number") ? Math.floor(sp.lenFrames)
+                     : (p && typeof p.trimLenSrcFrames === "number") ? Math.floor(p.trimLenSrcFrames)
+                     : (p && typeof p.selLenFrames === "number") ? Math.floor(p.selLenFrames)
+                     : Math.max(1, Math.floor(srcLen / ROWS));
+      srcSliceLen = clamp(srcSliceLen, 1, Math.max(1, srcLen));
 
-      cell.sourceKey = _srcKey;
-      cell.selStartFrames = selStart;
-      cell.selLenFrames = selLen;
+      let srcSliceStart = (sp && typeof sp.startFrames === "number") ? Math.floor(sp.startFrames)
+                        : (p && typeof p.trimStartSrcFrames === "number") ? Math.floor(p.trimStartSrcFrames)
+                        : (p && typeof p.selStartFrames === "number") ? Math.floor(p.selStartFrames)
+                        : 0;
+      srcSliceStart = clamp(srcSliceStart, 0, Math.max(0, srcLen - srcSliceLen));
+
+      cell.sourceKey = null;
+      cell.selStartFrames = 0;
+      cell.selLenFrames = srcSliceLen;
 
       // Remember slice window on ORIGINAL source for Wave Editor + preset roundtrip
-      cell.trimStartSrcFrames = selStart;
-      cell.trimLenSrcFrames   = selLen;
+      cell.trimStartSrcFrames = srcSliceStart;
+      cell.trimLenSrcFrames   = srcSliceLen;
 
       // Store the slice audio in the cell (so mini-wave shows the slice, not the full source)
-      const end = Math.min(srcLen, selStart + selLen);
+      const end = Math.min(srcLen, srcSliceStart + srcSliceLen);
       cell.cache = { key:"", L:null, R:null, frames:0 };
-      cell.left  = new Float32Array(left.subarray(selStart, end));
-      cell.right = new Float32Array(right.subarray(selStart, end));
-
-      // This cell owns its slice buffers; keep full source reference in origin.split.sourceKey
-      cell.sourceKey = null;
+      cell.left  = new Float32Array(left.subarray(srcSliceStart, end));
+      cell.right = new Float32Array(right.subarray(srcSliceStart, end));
 
       cell.name = `${name} · ${getCellDisplayName(col, r)}`;
       cell.origin = {
@@ -7025,7 +7051,7 @@ try{
         relPath: (file && (file.webkitRelativePath || file._relPath)) ? (file.webkitRelativePath || file._relPath) : "",
         sliceIndex: r,
         slices: 8,
-        split: { sourceKey: _srcKey, startFrames: selStart, lenFrames: selLen, col, row: r }
+        split: { sourceKey: _srcKey, startFrames: srcSliceStart, lenFrames: srcSliceLen, col, row: r }
       };
 
       if (normalizeOnLoadEl.checked){
@@ -9928,7 +9954,8 @@ if (Array.isArray(preset.cellNames)){
           splitPlayActiveSlice();
           return;
         }
-        return;
+        // If the only open overlay is the Slice Editor, allow global handlers (arrow-key nudge, etc.)
+        if (!(splitOv && ov === splitOv)) return;
       }
     }catch(_){ }
 
@@ -9956,7 +9983,11 @@ if (Array.isArray(preset.cellNames)){
 
     
     // SPLIT_NUDGE_KEYS: when Split Editor is open, arrow keys nudge the active slice (instead of cell navigation)
-    const splitOpen = (splitOverlayEl && splitOverlayEl.style.display !== "none");
+    const splitOpen = !!(splitOverlayEl && (
+      (splitOverlayEl.classList && splitOverlayEl.classList.contains('show')) ||
+      (splitOverlayEl.style && splitOverlayEl.style.display && splitOverlayEl.style.display !== "none") ||
+      (window.getComputedStyle && getComputedStyle(splitOverlayEl).display !== "none")
+    ) && splitOverlayEl.getAttribute('aria-hidden') !== 'true');
 
     if (splitOpen && e.key === "Escape") {
       try{
