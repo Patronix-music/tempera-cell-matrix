@@ -2363,7 +2363,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-const APP_VERSION = '2.10.0';
+const APP_VERSION = '2.10.3';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -2529,6 +2529,7 @@ const APP_VERSION = '2.10.0';
 
   const APP_BUILD_DATE = '2026-02-04';
   const CHANGELOG = [
+  "2.10.1 - fix-volume: mini-wave gainlijnen blijven in het midden bij Volume=0.00 (0 is geldig, geen fallback naar 1)",
   "2.9.99 - Fix Import Preset: restore per-cell slice windows for Load+Slice columns (no more same slice in every cell).",
   "2.9.92 - Fix Load+Slice: Load new + Apply use current editor column (prevents fallback to Column 1)",
   "2.9.91 - Fix Load+Slice target column sticking to Column 1 on re-load in Slice Editor.",
@@ -4068,6 +4069,11 @@ let splitPointerId = null; let splitActiveIdx = 0;
 
   function splitOpen(col){
     try{ if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); }catch(e){}
+    // Fix: Wave Editor selection-handle state must not leak into Slice Editor.
+    // Reset shared nudge/magnifier edge so Slice Editor starts in center/move mode.
+    try{ if (waveEditor) waveEditor.nudgeEdge = 'C'; }catch(_e){}
+    try{ magHide(); }catch(_e){}
+
     splitEnsureEls();
     splitCol = col|0;
     splitTargetCol = splitCol;
@@ -4574,7 +4580,13 @@ try { cell.peaks = computePeaks(cell.left, cell.right, 900); } catch(_e){ cell.p
   ].join("\n");
 }catch(_e){}
 toast(`Applied split to column ${col+1}`);
+      const __colAfterSplitApply = (col|0);
       splitClose();
+      // UI: after Apply (Load+Slice), jump selection to top cell (C1) of the same column.
+      // Defer to allow overlay teardown/layout to settle (Safari/iPad).
+      setTimeout(()=>{
+        try{ setSelected(__colAfterSplitApply, 0); }catch(_e){}
+      }, 0);
     });
 splitBigEl.addEventListener("pointerdown", (ev)=>{
       const hit = splitHit(ev);
@@ -6214,7 +6226,7 @@ function computePeaks(left, right, points=72){
     const usable = (h/2 - 3);
 
     const n = peaks.length;
-    const g0 = settings ? Number(settings.gain || 1) : 1;
+    const g0 = settings ? Number((settings.gain == null ? 1 : settings.gain)) : 1;
     const mute = settings ? !!settings.mute : false;
     const gain = mute ? 0 : Math.max(0, Math.min(2, g0));
     const baseGain = mute ? 0 : 1;
