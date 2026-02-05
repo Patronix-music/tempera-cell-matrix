@@ -4,6 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tempera Cell Matrix</title>
+  <link rel="icon" href="favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <meta name="theme-color" content="#05070b" />
   <style>
 
     :root{
@@ -2363,7 +2369,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-const APP_VERSION = '2.10.3';
+const APP_VERSION = '2.10.4';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -2527,8 +2533,9 @@ const APP_VERSION = '2.10.3';
   }
 
 
-  const APP_BUILD_DATE = '2026-02-04';
+  const APP_BUILD_DATE = '2026-02-05';
   const CHANGELOG = [
+  "2.10.4 - Icons: add favicon/apple-touch-icon/manifest files (stops Safari/iOS 404 icon requests).",
   "2.10.1 - fix-volume: mini-wave gainlijnen blijven in het midden bij Volume=0.00 (0 is geldig, geen fallback naar 1)",
   "2.9.99 - Fix Import Preset: restore per-cell slice windows for Load+Slice columns (no more same slice in every cell).",
   "2.9.92 - Fix Load+Slice: Load new + Apply use current editor column (prevents fallback to Column 1)",
