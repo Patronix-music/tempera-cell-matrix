@@ -64,8 +64,10 @@
 
 
     header{
-      position: sticky;
+      position: fixed;
       top: 0;
+      left: 0;
+      right: 0;
       z-index: 10000;
       isolation: isolate;
       transform: translateZ(0);
@@ -261,8 +263,11 @@
     main{
       max-width: 1500px;
       margin: 0 auto;
-      padding: 14px 16px 240px;
-    }
+      padding: 14px 16px 0px;
+      padding-top: calc(var(--hdrH, 72px) + 14px);
+      /* tuned: keep last row reachable without a large visible gap */
+      padding-bottom: max(140px, calc(var(--inspH, 240px) - 60px));
+}
 
     .layout{
       display:grid;
@@ -642,8 +647,11 @@
 
     /* Inspector */
     .inspector{
-      position: sticky;
-      bottom: 12px;
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(calc(100vw - 32px), 1500px);
+      bottom: calc(12px + env(safe-area-inset-bottom));
       z-index: 15;
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -2517,6 +2525,7 @@ const APP_VERSION = '2.10.10';
 
   const APP_BUILD_DATE = '2026-02-06';
   const CHANGELOG = [
+  "2.10.10 - ui-tune: header+inspector fixed.",
   "2.10.5 - Fix: Clear All no longer blanks mini-wave placeholder (empty + center line).",
   "2.10.4 - Icons: add favicon/apple-touch-icon/manifest files.",
   "2.10.1 - fix-volume: mini-wave gain line stays in the middle at Volume=0.00.",
@@ -5578,7 +5587,22 @@ function positionNameTemplateMenu(){
     }
 
     // Reposition on resize/scroll
-    window.addEventListener("resize", () => {
+    
+  // Keep CSS vars for header/inspector heights so main padding matches.
+  function updateLayoutCSSVars(){
+    try{
+      const hdr = document.querySelector('header');
+      if (hdr) document.documentElement.style.setProperty('--hdrH', hdr.offsetHeight + 'px');
+    }catch(_e){}
+    try{
+      const insp = inspectorEl || document.getElementById('inspector');
+      if (insp) document.documentElement.style.setProperty('--inspH', insp.offsetHeight + 'px');
+    }catch(_e){}
+  }
+  updateLayoutCSSVars();
+
+window.addEventListener("resize", () => {
+    try{ updateLayoutCSSVars(); }catch(_e){}
       if (nameTemplateHistoryEl && nameTemplateHistoryEl.classList.contains("open")) positionNameTemplateMenu();
     });
     window.addEventListener("scroll", () => {
