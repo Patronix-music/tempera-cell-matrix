@@ -2117,20 +2117,7 @@ input[type="range"]::-webkit-slider-thumb:active{
       <div class="helpBody">
 <div class="helpGrid">
 
-          <div class="helpCard"><h3>Wave Editor</h3>
-<p>Click the <b>waveform</b> in a cell to open the full source waveform and choose the exact slice for that cell.</p>
-                        <ul class="helpList">
-                          <li><b>Click</b> the mini-wave in a cell to open the full source waveform.</li>
-                          <li><b>Drag</b> inside selection to move. Drag edges to resize.</li>
-                          <li><b>L / M / R</b> — choose Left edge / Move / Right edge control (also affects Zoom window and arrow nudges).</li>
-                          <li><b>Zoom window</b> appears for closeup editing the slice. <b>+</b>/<b>-</b> zooms, <b>Z</b> toggles Auto‑Norm.</li>
-                          <li><b>Esc</b>: if zoom window is visible → hide zoom. Otherwise → close editor.</li>
-                          <li><b>← / →</b> nudge selection • <b>Shift</b>=coarse • <b>Alt/Option</b>=fine.</li>
-                          <li><b>Apply</b> commits selection to the cell (used for playback + export).</li>
-                          <li><b>Undo</b> multiple times a step back when editing. Also after apply.</li>
-                          <li><b>Reset</b> for default slice cell-length and position.</li>
-                          <li><b>Zoom On/Off</b> turns the zoom window on or off in both the editors.</li>
-            </ul></div><div class="helpCard"><h3>Basics</h3>
+          <div class="helpCard"><h3>Basics</h3>
 <p>8 columns × 8 rows. Columns are <b>Samples</b>. Rows are <b>Cells</b> (1..8).</p>
                         <ul class="helpList">
                           <li>Click a cell to select it, use the settings panel for name/volume/fades/fit/reverse/mute.</li>
@@ -2138,33 +2125,12 @@ input[type="range"]::-webkit-slider-thumb:active{
                           <li><b>Esc</b> stops playback. In editors: Esc hides the zoom window first, then closes the editor.</li>
                           <li><b>Tempo mode</b> uses BPM + Beats/cell and distributes rounding across 8 slices (no drift).</li>
                           <li>Drag cell→cell: swap. <b>Alt</b> + drag: copy.</li>
-            </ul></div><div class="helpCard"><h3>Loading audio</h3>
-<ul class="helpList">
-                          <li><b>Cell Load</b>: click <b>Load</b> inside a cell or drop a file onto that cell.</li>
-                          <li><b>Load+Slice</b>: pick one file → opens Slice Editor where you can drag/resize 8 blocks, then <b>Apply</b> to the column.</li>
-                          <li><b>Load 8</b>: select 8 files → fills the 8 cells top→bottom.</li>
-                          <li><b>Random 64</b>: pick a folder (subfolders included) → fills all cells randomly.</li>
-            <li><b>Shift + click Random 64</b> to open the filter dialog:
-                            <ul>
-                              <li><b>Include</b>: only filenames containing any token (comma separated)</li>
-                              <li><b>Exclude</b>: skip filenames containing any token (comma separated)</li>
-                            </ul>
-                          </li>              
-            <li><b>Drag and drop</b> samples in cells and columns</li>             
             </ul></div><div class="helpCard"><h3>Editing</h3>
 <ul class="helpList">
                           <li>Use the <b>Cell settings</b> panel to change Gain, Mute, Reverse, Fade In/Out and Fit mode.</li>
                           <li>Fades are drawn as an <b>envelope overlay</b> on top of the oscilloscope.</li>
                           <li>Gain is shown as a small bar under the oscilloscope (no text).</li>
-                        </ul></div><div class="helpCard"><h3>Import / Export</h3>
-<p><b>Import Preset</b>: load the preset JSON exported by this app (e.g. <span class="kbd">zz_TCM-Preset_MyPreset_20260111.json</span>), then choose your top-level sample folder. Subfolders are included. The folder overlay shows example filenames to help you pick the right folder.</p>
-                          <ul class="helpList">
-                            <li><b>Export</b> in a column: exports that column to WAV.</li>
-                            <li><b>Export 8</b> in a column: exports the 8 cells as separate WAV files (downloaded as one ZIP). Filenames use Sample + C#.</li>
-                            <li><b>Export all (ZIP)</b>: exports up to 8 columns and downloads one ZIP file.</li>
-                            <li>Empty columns are skipped.</li>
-                            <li><b>Include original samples in ZIP</b> for handpicked samples in the Matrix and TCM preset sharing.</li>
-                          </ul></div><div class="helpCard"><h3>Slice Editor</h3>
+                        </ul></div><div class="helpCard"><h3>Slice Editor</h3>
 <p>Used by <b>Load+Slice</b>. Drag or resize the 8 slice blocks. Each slice is limited to the <b>max cell length</b>.</p>
                         <ul class="helpList">
                           <li><b>Click</b> a block to focus it and <b>space</b> for playback.</li>
@@ -2179,7 +2145,41 @@ input[type="range"]::-webkit-slider-thumb:active{
                           <li><b>Apply</b> commits 8 slices to the 8 cells in 1 column (used for playback + export).</li>
                           <li><b>Undo</b> multiple times a step back when editing. Also after apply.</li>
                           <li><b>Zoom On/Off</b> turns the zoom window on or off in both the editors.</li>
-                        </ul></div><div class="helpCard helpCardRelease">
+                        </ul></div><div class="helpCard"><h3>Wave Editor</h3>
+<p>Click the <b>waveform</b> in a cell to open the full source waveform and choose the exact slice for that cell.</p>
+                        <ul class="helpList">
+                          <li><b>Click</b> the mini-wave in a cell to open the full source waveform.</li>
+                          <li><b>Drag</b> inside selection to move. Drag edges to resize.</li>
+                          <li><b>L / M / R</b> — choose Left edge / Move / Right edge control (also affects Zoom window and arrow nudges).</li>
+                          <li><b>Zoom window</b> appears for closeup editing the slice. <b>+</b>/<b>-</b> zooms, <b>Z</b> toggles Auto‑Norm.</li>
+                          <li><b>Esc</b>: if zoom window is visible → hide zoom. Otherwise → close editor.</li>
+                          <li><b>← / →</b> nudge selection • <b>Shift</b>=coarse • <b>Alt/Option</b>=fine.</li>
+                          <li><b>Apply</b> commits selection to the cell (used for playback + export).</li>
+                          <li><b>Undo</b> multiple times a step back when editing. Also after apply.</li>
+                          <li><b>Reset</b> for default slice cell-length and position.</li>
+                          <li><b>Zoom On/Off</b> turns the zoom window on or off in both the editors.</li>
+            </ul></div><div class="helpCard"><h3>Loading audio</h3>
+<ul class="helpList">
+                          <li><b>Cell Load</b>: click <b>Load</b> inside a cell or drop a file onto that cell.</li>
+                          <li><b>Load+Slice</b>: pick one file → opens Slice Editor where you can drag/resize 8 blocks, then <b>Apply</b> to the column.</li>
+                          <li><b>Load 8</b>: select 8 files → fills the 8 cells top→bottom.</li>
+                          <li><b>Random 64</b>: pick a folder (subfolders included) → fills all cells randomly.</li>
+            <li><b>Shift + click Random 64</b> to open the filter dialog:
+                            <ul>
+                              <li><b>Include</b>: only filenames containing any token (comma separated)</li>
+                              <li><b>Exclude</b>: skip filenames containing any token (comma separated)</li>
+                            </ul>
+                          </li>              
+            <li><b>Drag and drop</b> samples in cells and columns</li>             
+            </ul></div><div class="helpCard"><h3>Import / Export</h3>
+<p><b>Import Preset</b>: load the preset JSON exported by this app (e.g. <span class="kbd">zz_TCM-Preset_MyPreset_20260111.json</span>), then choose your top-level sample folder. Subfolders are included. The folder overlay shows example filenames to help you pick the right folder.</p>
+                          <ul class="helpList">
+                            <li><b>Export</b> in a column: exports that column to WAV.</li>
+                            <li><b>Export 8</b> in a column: exports the 8 cells as separate WAV files (downloaded as one ZIP). Filenames use Sample + C#.</li>
+                            <li><b>Export all (ZIP)</b>: exports up to 8 columns and downloads one ZIP file.</li>
+                            <li>Empty columns are skipped.</li>
+                            <li><b>Include original samples in ZIP</b> for handpicked samples in the Matrix and TCM preset sharing.</li>
+                          </ul></div><div class="helpCard helpCardRelease">
             <h3>Release notes</h3>
             <ul class="helpList" id="releaseNotes"></ul>
           </div>
@@ -2351,7 +2351,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-const APP_VERSION = '2.10.5';
+const APP_VERSION = '2.10.6';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -2515,7 +2515,7 @@ const APP_VERSION = '2.10.5';
   }
 
 
-  const APP_BUILD_DATE = '2026-02-05';
+  const APP_BUILD_DATE = '2026-02-06';
   const CHANGELOG = [
   "2.10.5 - Fix: Clear All no longer blanks mini-wave placeholder (empty + center line).",
   "2.10.4 - Icons: add favicon/apple-touch-icon/manifest files.",
