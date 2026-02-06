@@ -14,6 +14,21 @@ https://patronix-music.github.io/tempera-cell-matrix/
 
 ---
 
+## ✨ What’s new in v2.10.10
+
+### 🧰 Mainly UI bugs fixed, and you can now open TCM as an app with the new TCM icon <img width="32" height="32" alt="favicon-32x32" src="https://github.com/user-attachments/assets/2447a974-17a8-4ed7-8fe3-5392198e49cf" />
+
+- 🔒 ui-tune: header+inspector fixed.
+- 🧽 Fix: Clear All no longer blanks mini-wave placeholder (empty + center line).
+- 🗿 Icons: add favicon/apple-touch-icon/manifest files.
+- 🎚️ fix-volume: mini-wave gain line stays in the middle at Volume=0.00.
+- 📊 Fix Import Preset: restore per-cell slice windows for Load+Slice columns.
+- 😵‍💫 Fix Load+Slice target column sticking to Column 1 on re-load in Slice Editor.
+- 🔪 Fix Load+Slice applies/loads to correct column when switching columns.
+- 🧹 Clear All / Clear Column now also clears Load+Slice buffer for that column.
+
+<br>
+
 ## ✨ What’s new in v2.9.84
 
 ### 🔍 New: Slice zoom for large samples — + / - to zoom into a slice, TAB to jump between slices.
