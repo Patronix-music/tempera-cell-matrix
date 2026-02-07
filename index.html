@@ -120,9 +120,10 @@
     }
 
     
-.donateSpec{ text-decoration:none; background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.22); vertical-align: middle; line-height: 1.1; }
-.donateSpec:hover{ color: var(--fg); background: rgba(255,255,255,0.14); }
-.donateEmoji{ font-size: 11px; line-height: 1; position: relative; top: -0.5px; }
+.donateSpec{ text-decoration:none; border-color: rgba(251,191,36,0.35); background: rgba(251,191,36,0.10); }
+.donateSpec:hover{ text-decoration:none; border-color: rgba(251,191,36,0.55); background: rgba(251,191,36,0.16); }
+.donateCup{ width:12px; height:12px; display:block; }
+.donateCupWrap{ display:inline-flex; align-items:center; height:12px; margin-left:6px; vertical-align:middle; }
 .actions{
       display:flex;
       flex-direction: row;
@@ -469,7 +470,7 @@
     .cellTop .icon{
       display:inline-flex;
       align-items:center;
-      line-height: 1;
+      
       height: 18px;
       padding-top: 0;
       padding-bottom: 0;
@@ -1096,7 +1097,7 @@ input[type="number"]::-webkit-inner-spin-button{
       color: var(--text);
       cursor: pointer;
       font-weight: 900;
-      line-height: 1;
+      
       display:flex;
       align-items:center;
       justify-content:center;
@@ -1665,7 +1666,7 @@ header{ overflow: visible; }
     height: 18px;
     font-size: 11px;
     font-weight: 700;
-    line-height: 1;
+    
     margin-left: 8px;
     vertical-align: middle;
     user-select: none;
@@ -2364,7 +2365,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-const APP_VERSION = '2.10.17';
+const APP_VERSION = '2.10.25';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -2529,7 +2530,8 @@ const APP_VERSION = '2.10.17';
 
 
   const APP_BUILD_DATE = '2026-02-07';
-  const CHANGELOG = [  "2.10.16 - meta: added Buy Me a Coffee support link (header)",
+  const CHANGELOG = [
+  "2.10.25 - meta: added Buy Me a Coffee support link (header)",
   "2.10.15 - ui-tune: removed duplicate version text from copyright in header",
   "2.10.10 - ui-tune: header+inspector fixed.",
   "2.10.5 - Fix: Clear All no longer blanks mini-wave placeholder (empty + center line).",
@@ -2562,9 +2564,6 @@ const APP_VERSION = '2.10.17';
   "2.7.12 - Fast naming: Enter focuses Cell name; Tab jumps across Sample names.",
   "2.7.10 - Presets now store original slice windows (start/length) from Load+Slice.",
   "2.7.09 - Preset import restores Load+Slice edits.",
-  "2.7.07 - Export 8 uses Column/Cell names for filenames.",
-  "2.7.06 - Names: editable Column/Cell names + presets save/load them.",
-  "2.7.00 - NEW: Load+Slice + Slice/Wave zoom window, Z auto-norm, L/M/R + nudging.",
 ];
 function renderReleaseNotes(){
     const ul = document.getElementById("releaseNotes");
@@ -10217,7 +10216,7 @@ if (e.key === "Escape"){
         d.href = "https://buymeacoffee.com/patronix.music";
         d.target = "_blank";
         d.rel = "noopener noreferrer";
-        d.innerHTML = "Buy me a coffee <span class=\"donateEmoji\">☕️</span>";
+        d.innerHTML = "Buy me a coffee <span class=\"donateCupWrap\" aria-hidden=\"true\"><img class=\"donateCup\" alt=\"\" aria-hidden=\"true\" src=\"data:image/png;base64,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\"></span>";
         d.title = "Support TCM on Buy Me a Coffee";
         aboutEl.insertAdjacentElement("afterend", d);
       }
