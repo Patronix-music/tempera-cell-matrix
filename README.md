@@ -14,10 +14,10 @@ https://patronix-music.github.io/tempera-cell-matrix/
 
 ---
 
-## ✨ What’s new in v2.10.10
+## ✨ What’s new in v2.10.25
 
 ### 🧰 Mainly UI bugs fixed, and you can now open TCM as an app with the new TCM icon <img width="32" height="32" alt="favicon-32x32" src="https://github.com/user-attachments/assets/2447a974-17a8-4ed7-8fe3-5392198e49cf" />
-
+- ☕️ meta: added Buy Me a Coffee support link (header)
 - 🔒 ui-tune: header+inspector fixed.
 - 🧽 Fix: Clear All no longer blanks mini-wave placeholder (empty + center line).
 - 🗿 Icons: add favicon/apple-touch-icon/manifest files.
