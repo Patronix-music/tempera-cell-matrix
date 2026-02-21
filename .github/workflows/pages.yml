@@ -58,12 +58,13 @@ jobs:
           path: site
 
   deploy:
-    # Deploy ONLY on push (not on PR)
-    if: github.event_name == 'push'
+    # Deploy on push + workflow_dispatch (not on PR)
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     needs: build
     environment:
       name: github-pages
     steps:
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4

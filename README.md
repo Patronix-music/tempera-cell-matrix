@@ -1,6 +1,6 @@
 # Tempera Cell Matrix (TCM)
 
-![version](https://img.shields.io/badge/version-2.9.84-blue)
+![version](https://img.shields.io/badge/version-2.10.25-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![platform](https://img.shields.io/badge/platform-Web%20Audio-orange)
 
@@ -13,6 +13,21 @@ Focus: **fast, visual sample preparation** that feels like an **instrument**, no
 https://patronix-music.github.io/tempera-cell-matrix/
 
 ---
+
+## ✨ What’s new in v2.10.25
+
+### 🧰 Mainly UI bugs fixed, and you can now open TCM as an app with the new TCM icon <img width="32" height="32" alt="favicon-32x32" src="https://github.com/user-attachments/assets/2447a974-17a8-4ed7-8fe3-5392198e49cf" />
+- ☕️ meta: added Buy Me a Coffee support link (header)
+- 🔒 ui-tune: header+inspector fixed.
+- 🧽 Fix: Clear All no longer blanks mini-wave placeholder (empty + center line).
+- 🗿 Icons: add favicon/apple-touch-icon/manifest files.
+- 🎚️ fix-volume: mini-wave gain line stays in the middle at Volume=0.00.
+- 📊 Fix Import Preset: restore per-cell slice windows for Load+Slice columns.
+- 😵‍💫 Fix Load+Slice target column sticking to Column 1 on re-load in Slice Editor.
+- 🔪 Fix Load+Slice applies/loads to correct column when switching columns.
+- 🧹 Clear All / Clear Column now also clears Load+Slice buffer for that column.
+
+<br>
 
 ## ✨ What’s new in v2.9.84
 

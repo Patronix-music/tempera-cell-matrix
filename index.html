@@ -4,6 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tempera Cell Matrix</title>
+  <link rel="icon" href="favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <meta name="theme-color" content="#05070b" />
   <style>
 
     :root{
@@ -58,8 +64,10 @@
 
 
     header{
-      position: sticky;
+      position: fixed;
       top: 0;
+      left: 0;
+      right: 0;
       z-index: 10000;
       isolation: isolate;
       transform: translateZ(0);
@@ -111,7 +119,12 @@
       margin-top: 6px;
     }
 
-    .actions{
+    
+.donateSpec{ text-decoration:none; border-color: rgba(251,191,36,0.35); background: rgba(251,191,36,0.10); }
+.donateSpec:hover{ text-decoration:none; border-color: rgba(251,191,36,0.55); background: rgba(251,191,36,0.16); }
+.donateCup{ width:12px; height:12px; display:block; }
+.donateCupWrap{ display:inline-flex; align-items:center; height:12px; margin-left:6px; vertical-align:middle; }
+.actions{
       display:flex;
       flex-direction: row;
       flex-wrap: wrap;
@@ -255,8 +268,11 @@
     main{
       max-width: 1500px;
       margin: 0 auto;
-      padding: 14px 16px 240px;
-    }
+      padding: 14px 16px 0px;
+      padding-top: calc(var(--hdrH, 72px) + 14px);
+      /* tuned: keep last row reachable without a large visible gap */
+      padding-bottom: max(140px, calc(var(--inspH, 240px) - 60px));
+}
 
     .layout{
       display:grid;
@@ -454,7 +470,7 @@
     .cellTop .icon{
       display:inline-flex;
       align-items:center;
-      line-height: 1;
+      
       height: 18px;
       padding-top: 0;
       padding-bottom: 0;
@@ -636,8 +652,11 @@
 
     /* Inspector */
     .inspector{
-      position: sticky;
-      bottom: 12px;
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(calc(100vw - 32px), 1500px);
+      bottom: calc(12px + env(safe-area-inset-bottom));
       z-index: 15;
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -1078,7 +1097,7 @@ input[type="number"]::-webkit-inner-spin-button{
       color: var(--text);
       cursor: pointer;
       font-weight: 900;
-      line-height: 1;
+      
       display:flex;
       align-items:center;
       justify-content:center;
@@ -1647,7 +1666,7 @@ header{ overflow: visible; }
     height: 18px;
     font-size: 11px;
     font-weight: 700;
-    line-height: 1;
+    
     margin-left: 8px;
     vertical-align: middle;
     user-select: none;
@@ -1849,6 +1868,7 @@ input[type="range"]::-webkit-slider-thumb:active{
   white-space: pre-line;
 }
 #tcmTip.show{ opacity: 1; transform: translateY(0); }
+
 
 </style>
 </head>
@@ -2111,82 +2131,21 @@ input[type="range"]::-webkit-slider-thumb:active{
       <div class="helpBody">
 <div class="helpGrid">
 
-          <div class="helpCard">
-            <h3>Wave Editor</h3>
-            <p>Click the <b>waveform</b> in a cell to open the full source waveform and choose the exact slice for that cell.</p>
-                        <ul class="helpList">
-                          <li><b>Click</b> the mini-wave in a cell to open the full source waveform.</li>
-                          <li><b>Drag</b> inside selection to move. Drag edges to resize.</li>
-                          <li><b>L / M / R</b> — choose Left edge / Move / Right edge control (also affects Zoom window and arrow nudges).</li>
-                          <li><b>Zoom window</b> appears for closeup editing the slice. <b>+</b>/<b>-</b> zooms, <b>Z</b> toggles Auto‑Norm.</li>
-                          <li><b>Esc</b>: if zoom window is visible → hide zoom. Otherwise → close editor.</li>
-                          <li><b>← / →</b> nudge selection • <b>Shift</b>=coarse • <b>Alt/Option</b>=fine.</li>
-                          <li><b>Apply</b> commits selection to the cell (used for playback + export).</li>
-                          <li><b>Undo</b> multiple times a step back when editing. Also after apply.</li>
-                          <li><b>Reset</b> for default slice cell-length and position.</li>
-                          <li><b>Zoom On/Off</b> turns the zoom window on or off in both the editors.</li>
-            </ul>
-
-          </div>
-
-          <div class="helpCard">
-            <h3>Basics</h3>
-            <p>8 columns × 8 rows. Columns are <b>Samples</b>. Rows are <b>Cells</b> (1..8).</p>
+          <div class="helpCard"><h3>Basics</h3>
+<p>8 columns × 8 rows. Columns are <b>Samples</b>. Rows are <b>Cells</b> (1..8).</p>
                         <ul class="helpList">
                           <li>Click a cell to select it, use the settings panel for name/volume/fades/fit/reverse/mute.</li>
                           <li><b>Double‑click</b> a cell, press <b>space</b> or <b>▶</b> to play.</li>
                           <li><b>Esc</b> stops playback. In editors: Esc hides the zoom window first, then closes the editor.</li>
                           <li><b>Tempo mode</b> uses BPM + Beats/cell and distributes rounding across 8 slices (no drift).</li>
                           <li>Drag cell→cell: swap. <b>Alt</b> + drag: copy.</li>
-            </ul>
-
-</div>
-
-          <div class="helpCard">
-            <h3>Loading audio</h3>
-            <ul class="helpList">
-                          <li><b>Cell Load</b>: click <b>Load</b> inside a cell or drop a file onto that cell.</li>
-                          <li><b>Load+Slice</b>: pick one file → opens Slice Editor where you can drag/resize 8 blocks, then <b>Apply</b> to the column.</li>
-                          <li><b>Load 8</b>: select 8 files → fills the 8 cells top→bottom.</li>
-                          <li><b>Random 64</b>: pick a folder (subfolders included) → fills all cells randomly.</li>
-            <li><b>Shift + click Random 64</b> to open the filter dialog:
-                            <ul>
-                              <li><b>Include</b>: only filenames containing any token (comma separated)</li>
-                              <li><b>Exclude</b>: skip filenames containing any token (comma separated)</li>
-                            </ul>
-                          </li>              
-            <li><b>Drag and drop</b> samples in cells and columns</li>             
-            </ul>
-
-</div>
-
-          <div class="helpCard">
-            <h3>Editing</h3>
-            <ul class="helpList">
+            </ul></div><div class="helpCard"><h3>Editing</h3>
+<ul class="helpList">
                           <li>Use the <b>Cell settings</b> panel to change Gain, Mute, Reverse, Fade In/Out and Fit mode.</li>
                           <li>Fades are drawn as an <b>envelope overlay</b> on top of the oscilloscope.</li>
                           <li>Gain is shown as a small bar under the oscilloscope (no text).</li>
-                        </ul>
-
-          </div>
-
-          <div class="helpCard">
-            <h3>Import / Export</h3>
-              <p><b>Import Preset</b>: load the preset JSON exported by this app (e.g. <span class="kbd">zz_TCM-Preset_MyPreset_20260111.json</span>), then choose your top-level sample folder. Subfolders are included. The folder overlay shows example filenames to help you pick the right folder.</p>
-                          <ul class="helpList">
-                            <li><b>Export</b> in a column: exports that column to WAV.</li>
-                            <li><b>Export 8</b> in a column: exports the 8 cells as separate WAV files (downloaded as one ZIP). Filenames use Sample + C#.</li>
-                            <li><b>Export all (ZIP)</b>: exports up to 8 columns and downloads one ZIP file.</li>
-                            <li>Empty columns are skipped.</li>
-                            <li><b>Include original samples in ZIP</b> for handpicked samples in the Matrix and TCM preset sharing.</li>
-                          </ul>
-
-          </div>
-
-
-          <div class="helpCard">
-            <h3>Slice Editor</h3>
-            <p>Used by <b>Load+Slice</b>. Drag or resize the 8 slice blocks. Each slice is limited to the <b>max cell length</b>.</p>
+                        </ul></div><div class="helpCard"><h3>Slice Editor</h3>
+<p>Used by <b>Load+Slice</b>. Drag or resize the 8 slice blocks. Each slice is limited to the <b>max cell length</b>.</p>
                         <ul class="helpList">
                           <li><b>Click</b> a block to focus it and <b>space</b> for playback.</li>
                           <li><b>Drag</b> inside selection to move. Drag edges to resize.</li>
@@ -2200,14 +2159,57 @@ input[type="range"]::-webkit-slider-thumb:active{
                           <li><b>Apply</b> commits 8 slices to the 8 cells in 1 column (used for playback + export).</li>
                           <li><b>Undo</b> multiple times a step back when editing. Also after apply.</li>
                           <li><b>Zoom On/Off</b> turns the zoom window on or off in both the editors.</li>
-                        </ul>
-
-          </div>
-
-          <div class="helpCard helpCardRelease">
+                        </ul></div><div class="helpCard"><h3>Wave Editor</h3>
+<p>Click the <b>waveform</b> in a cell to open the full source waveform and choose the exact slice for that cell.</p>
+                        <ul class="helpList">
+                          <li><b>Click</b> the mini-wave in a cell to open the full source waveform.</li>
+                          <li><b>Drag</b> inside selection to move. Drag edges to resize.</li>
+                          <li><b>L / M / R</b> — choose Left edge / Move / Right edge control (also affects Zoom window and arrow nudges).</li>
+                          <li><b>Zoom window</b> appears for closeup editing the slice. <b>+</b>/<b>-</b> zooms, <b>Z</b> toggles Auto‑Norm.</li>
+                          <li><b>Esc</b>: if zoom window is visible → hide zoom. Otherwise → close editor.</li>
+                          <li><b>← / →</b> nudge selection • <b>Shift</b>=coarse • <b>Alt/Option</b>=fine.</li>
+                          <li><b>Apply</b> commits selection to the cell (used for playback + export).</li>
+                          <li><b>Undo</b> multiple times a step back when editing. Also after apply.</li>
+                          <li><b>Reset</b> for default slice cell-length and position.</li>
+                          <li><b>Zoom On/Off</b> turns the zoom window on or off in both the editors.</li>
+            </ul></div><div class="helpCard"><h3>Loading audio</h3>
+<ul class="helpList">
+                          <li><b>Cell Load</b>: click <b>Load</b> inside a cell or drop a file onto that cell.</li>
+                          <li><b>Load+Slice</b>: pick one file → opens Slice Editor where you can drag/resize 8 blocks, then <b>Apply</b> to the column.</li>
+                          <li><b>Load 8</b>: select 8 files → fills the 8 cells top→bottom.</li>
+                          <li><b>Random 64</b>: pick a folder (subfolders included) → fills all cells randomly.</li>
+            <li><b>Shift + click Random 64</b> to open the filter dialog:
+                            <ul>
+                              <li><b>Include</b>: only filenames containing any token (comma separated)</li>
+                              <li><b>Exclude</b>: skip filenames containing any token (comma separated)</li>
+                            </ul>
+                          </li>              
+            <li><b>Drag and drop</b> samples in cells and columns</li>             
+            </ul></div><div class="helpCard"><h3>Import / Export</h3>
+<p><b>Import Preset</b>: load the preset JSON exported by this app (e.g. <span class="kbd">zz_TCM-Preset_MyPreset_20260111.json</span>), then choose your top-level sample folder. Subfolders are included. The folder overlay shows example filenames to help you pick the right folder.</p>
+                          <ul class="helpList">
+                            <li><b>Export</b> in a column: exports that column to WAV.</li>
+                            <li><b>Export 8</b> in a column: exports the 8 cells as separate WAV files (downloaded as one ZIP). Filenames use Sample + C#.</li>
+                            <li><b>Export all (ZIP)</b>: exports up to 8 columns and downloads one ZIP file.</li>
+                            <li>Empty columns are skipped.</li>
+                            <li><b>Include original samples in ZIP</b> for handpicked samples in the Matrix and TCM preset sharing.</li>
+                          </ul></div><div class="helpCard helpCardRelease">
             <h3>Release notes</h3>
             <ul class="helpList" id="releaseNotes"></ul>
           </div>
+
+          
+
+          
+
+          
+
+          
+
+
+          
+
+          
 
 </div>
 
@@ -2363,7 +2365,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.10.48';
+const APP_VERSION = '2.10.25';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -2533,6 +2535,17 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
   "2.9.91 - Fix Load+Slice target column sticking to Column 1 on re-load in Slice Editor.",
   "2.9.90 - Fix Load+Slice applies/loads to correct column when switching columns.",
   "2.9.95 - Fix: Slice Editor Load button no longer routes to Column 1 (event object bug).",
+  const APP_BUILD_DATE = '2026-02-07';
+  const CHANGELOG = [
+  "2.10.25 - meta: added Buy Me a Coffee support link (header)",
+  "2.10.15 - ui-tune: removed duplicate version text from copyright in header",
+  "2.10.10 - ui-tune: header+inspector fixed.",
+  "2.10.5 - Fix: Clear All no longer blanks mini-wave placeholder (empty + center line).",
+  "2.10.4 - Icons: add favicon/apple-touch-icon/manifest files.",
+  "2.10.1 - fix-volume: mini-wave gain line stays in the middle at Volume=0.00.",
+  "2.9.99 - Fix Import Preset: restore per-cell slice windows for Load+Slice columns.",
+  "2.9.91 - Fix Load+Slice target column sticking to Column 1 on re-load in Slice Editor.",
+  "2.9.90 - Fix Load+Slice applies/loads to correct column when switching columns.",
   "2.9.89 - Clear All / Clear Column now also clears Load+Slice buffer for that column.",
   "2.9.79 - Matrix green playback outline now response correctly to fast re-triggering.",
   "2.9.68 - Fix playback stops for the editors and matrix with tabs, arrows and space.",
@@ -2557,13 +2570,8 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
   "2.7.12 - Fast naming: Enter focuses Cell name; Tab jumps across Sample names.",
   "2.7.10 - Presets now store original slice windows (start/length) from Load+Slice.",
   "2.7.09 - Preset import restores Load+Slice edits.",
-  "2.7.07 - Export 8 uses Column/Cell names for filenames.",
-  "2.7.06 - Names: editable Column/Cell names + presets save/load them.",
-  "2.7.00 - NEW: Load+Slice + Slice/Wave zoom window, Z auto-norm, L/M/R + nudging."
 ];
-
-
-  function renderReleaseNotes(){
+function renderReleaseNotes(){
     const ul = document.getElementById("releaseNotes");
     if (!ul) return;
     ul.innerHTML = "";
@@ -3764,7 +3772,11 @@ if (editorIsTrimmed){
   window.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     try{
-      const splitOpen = (splitOverlayEl && splitOverlayEl.style.display !== "none");
+      const splitOpen = !!(splitOverlayEl && (
+      (splitOverlayEl.classList && splitOverlayEl.classList.contains('show')) ||
+      (splitOverlayEl.style && splitOverlayEl.style.display && splitOverlayEl.style.display !== "none") ||
+      (window.getComputedStyle && getComputedStyle(splitOverlayEl).display !== "none")
+    ) && splitOverlayEl.getAttribute('aria-hidden') !== 'true');
       if (!splitOpen) return;
 
       const el = document.getElementById("tcmMag");
@@ -4063,6 +4075,11 @@ let splitPointerId = null; let splitActiveIdx = 0;
 
   function splitOpen(col){
     try{ if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); }catch(e){}
+    // Fix: Wave Editor selection-handle state must not leak into Slice Editor.
+    // Reset shared nudge/magnifier edge so Slice Editor starts in center/move mode.
+    try{ if (waveEditor) waveEditor.nudgeEdge = 'C'; }catch(_e){}
+    try{ magHide(); }catch(_e){}
+
     splitEnsureEls();
     splitCol = col|0;
     splitTargetCol = splitCol;
@@ -4569,7 +4586,13 @@ try { cell.peaks = computePeaks(cell.left, cell.right, 900); } catch(_e){ cell.p
   ].join("\n");
 }catch(_e){}
 toast(`Applied split to column ${col+1}`);
+      const __colAfterSplitApply = (col|0);
       splitClose();
+      // UI: after Apply (Load+Slice), jump selection to top cell (C1) of the same column.
+      // Defer to allow overlay teardown/layout to settle (Safari/iPad).
+      setTimeout(()=>{
+        try{ setSelected(__colAfterSplitApply, 0); }catch(_e){}
+      }, 0);
     });
 splitBigEl.addEventListener("pointerdown", (ev)=>{
       const hit = splitHit(ev);
@@ -5349,7 +5372,6 @@ try{
       }
       // Nudge selection (Arrow keys). Shift = coarse, Alt/Option = fine.
       if (e.key === "ArrowLeft" || e.key === "ArrowRight"){
-        e.preventDefault();
         const dir = (e.key === "ArrowRight") ? 1 : -1;
         const fine = e.altKey ? 16 : 0;          // ~1.3ms at 48k
         const coarse = e.shiftKey ? 1024 : 0;     // ~42.7ms at 48k
@@ -5357,8 +5379,21 @@ try{
         const step = fine || coarse || base;
         // If magnifier is open on the Wave editor, use its edge (L/R/C) to decide what nudges.
         const mode = ((_mag && _mag.on && (_mag.edge==='L' || _mag.edge==='R')) ? _mag.edge : (waveEditor.nudgeEdge||'C'));
-        waveNudgeActive(dir * step, mode);
+
+        // If Slice Editor is open, nudge its active block; otherwise nudge Wave Editor selection.
+        let didSplit = false;
+        try{
+          if (splitOverlayEl){
+            const open = (splitOverlayEl.classList && splitOverlayEl.classList.contains('show')) ||
+                         (getComputedStyle(splitOverlayEl).display !== 'none');
+            if (open) didSplit = !!splitNudgeActive(dir * step, mode);
+          }
+        }catch(_){ }
+
+        e.preventDefault();
+        if (!didSplit) waveNudgeActive(dir * step, mode);
       }
+
     }, true);
   }
   const helpCloseBtnEl = document.getElementById("helpCloseBtn");  // Download modal elements are defined after this <script> block in the HTML.
@@ -5563,7 +5598,22 @@ function positionNameTemplateMenu(){
     }
 
     // Reposition on resize/scroll
-    window.addEventListener("resize", () => {
+    
+  // Keep CSS vars for header/inspector heights so main padding matches.
+  function updateLayoutCSSVars(){
+    try{
+      const hdr = document.querySelector('header');
+      if (hdr) document.documentElement.style.setProperty('--hdrH', hdr.offsetHeight + 'px');
+    }catch(_e){}
+    try{
+      const insp = inspectorEl || document.getElementById('inspector');
+      if (insp) document.documentElement.style.setProperty('--inspH', insp.offsetHeight + 'px');
+    }catch(_e){}
+  }
+  updateLayoutCSSVars();
+
+window.addEventListener("resize", () => {
+    try{ updateLayoutCSSVars(); }catch(_e){}
       if (nameTemplateHistoryEl && nameTemplateHistoryEl.classList.contains("open")) positionNameTemplateMenu();
     });
     window.addEventListener("scroll", () => {
@@ -5626,7 +5676,11 @@ function positionNameTemplateMenu(){
   // Slice Editor: time zoom around active slice (+ / -) and quick slice switching (Tab)
   window.addEventListener("keydown", (e) => {
     try{
-      const splitOpen = (splitOverlayEl && splitOverlayEl.style.display !== "none");
+      const splitOpen = !!(splitOverlayEl && (
+      (splitOverlayEl.classList && splitOverlayEl.classList.contains('show')) ||
+      (splitOverlayEl.style && splitOverlayEl.style.display && splitOverlayEl.style.display !== "none") ||
+      (window.getComputedStyle && getComputedStyle(splitOverlayEl).display !== "none")
+    ) && splitOverlayEl.getAttribute('aria-hidden') !== 'true');
       if (!splitOpen) return;
 
       // don't steal keys from inputs
@@ -6193,7 +6247,7 @@ function computePeaks(left, right, points=72){
     const usable = (h/2 - 3);
 
     const n = peaks.length;
-    const g0 = settings ? Number(settings.gain || 1) : 1;
+    const g0 = settings ? Number((settings.gain == null ? 1 : settings.gain)) : 1;
     const mute = settings ? !!settings.mute : false;
     const gain = mute ? 0 : Math.max(0, Math.min(2, g0));
     const baseGain = mute ? 0 : 1;
@@ -6965,7 +7019,7 @@ try{
         relPath: (file && (file.webkitRelativePath || file._relPath)) ? (file.webkitRelativePath || file._relPath) : "",
         sliceIndex: r,
         slices: 8,
-        split: { sourceKey: _srcKey, startFrames: selStart, lenFrames: selLen, col, row: r }
+        split: { sourceKey: _srcKey, startFrames: srcSliceStart, lenFrames: srcSliceLen, col, row: r }
       };
 
       // default: since slice is exact, pad/trim doesn't matter, but keep user's choice
@@ -6994,29 +7048,34 @@ try{
       const cell = state.cells[col][r];
       const p = (Array.isArray(presetCells) && presetCells[r]) ? presetCells[r] : null;
 
-      // Selection window (on original source frames)
-      let selLen = (p && typeof p.selLenFrames === "number") ? Math.floor(p.selLenFrames) : Math.max(1, Math.floor(srcLen / ROWS));
-      selLen = clamp(selLen, 1, Math.max(1, srcLen));
+      // Slice window on original source frames (prefer origin.split / trim fields)
+      const sp = (p && p.origin && p.origin.split) ? p.origin.split : null;
 
-      let selStart = (p && typeof p.selStartFrames === "number") ? Math.floor(p.selStartFrames) : (r * selLen);
-      selStart = clamp(selStart, 0, Math.max(0, srcLen - selLen));
+      let srcSliceLen = (sp && typeof sp.lenFrames === "number") ? Math.floor(sp.lenFrames)
+                     : (p && typeof p.trimLenSrcFrames === "number") ? Math.floor(p.trimLenSrcFrames)
+                     : (p && typeof p.selLenFrames === "number") ? Math.floor(p.selLenFrames)
+                     : Math.max(1, Math.floor(srcLen / ROWS));
+      srcSliceLen = clamp(srcSliceLen, 1, Math.max(1, srcLen));
 
-      cell.sourceKey = _srcKey;
-      cell.selStartFrames = selStart;
-      cell.selLenFrames = selLen;
+      let srcSliceStart = (sp && typeof sp.startFrames === "number") ? Math.floor(sp.startFrames)
+                        : (p && typeof p.trimStartSrcFrames === "number") ? Math.floor(p.trimStartSrcFrames)
+                        : (p && typeof p.selStartFrames === "number") ? Math.floor(p.selStartFrames)
+                        : 0;
+      srcSliceStart = clamp(srcSliceStart, 0, Math.max(0, srcLen - srcSliceLen));
+
+      cell.sourceKey = null;
+      cell.selStartFrames = 0;
+      cell.selLenFrames = srcSliceLen;
 
       // Remember slice window on ORIGINAL source for Wave Editor + preset roundtrip
-      cell.trimStartSrcFrames = selStart;
-      cell.trimLenSrcFrames   = selLen;
+      cell.trimStartSrcFrames = srcSliceStart;
+      cell.trimLenSrcFrames   = srcSliceLen;
 
       // Store the slice audio in the cell (so mini-wave shows the slice, not the full source)
-      const end = Math.min(srcLen, selStart + selLen);
+      const end = Math.min(srcLen, srcSliceStart + srcSliceLen);
       cell.cache = { key:"", L:null, R:null, frames:0 };
-      cell.left  = new Float32Array(left.subarray(selStart, end));
-      cell.right = new Float32Array(right.subarray(selStart, end));
-
-      // This cell owns its slice buffers; keep full source reference in origin.split.sourceKey
-      cell.sourceKey = null;
+      cell.left  = new Float32Array(left.subarray(srcSliceStart, end));
+      cell.right = new Float32Array(right.subarray(srcSliceStart, end));
 
       cell.name = `${name} · ${getCellDisplayName(col, r)}`;
       cell.origin = {
@@ -7025,7 +7084,7 @@ try{
         relPath: (file && (file.webkitRelativePath || file._relPath)) ? (file.webkitRelativePath || file._relPath) : "",
         sliceIndex: r,
         slices: 8,
-        split: { sourceKey: _srcKey, startFrames: selStart, lenFrames: selLen, col, row: r }
+        split: { sourceKey: _srcKey, startFrames: srcSliceStart, lenFrames: srcSliceLen, col, row: r }
       };
 
       if (normalizeOnLoadEl.checked){
@@ -8133,6 +8192,10 @@ if (__inspCache.descText !== descText){
       const el = document.getElementById(`colName-${c}`);
       if (el) el.value = state.colNames[c];
     }
+
+    // Ensure mini-wave placeholders remain visible after Clear All (some browsers can leave canvases blank)
+    try{ for (let c=0;c<COLS;c++){ hardResetMiniWavesForCol(c); } }catch(_e){}
+    try{ markAllWavesDirty(); scheduleWaveFlush(); requestAnimationFrame(()=>{ try{ scheduleWaveFlush(); }catch(_e){} }); }catch(_e){}
 
     toast("Cleared everything");
   }
@@ -9928,7 +9991,8 @@ if (Array.isArray(preset.cellNames)){
           splitPlayActiveSlice();
           return;
         }
-        return;
+        // If the only open overlay is the Slice Editor, allow global handlers (arrow-key nudge, etc.)
+        if (!(splitOv && ov === splitOv)) return;
       }
     }catch(_){ }
 
@@ -9956,7 +10020,11 @@ if (Array.isArray(preset.cellNames)){
 
     
     // SPLIT_NUDGE_KEYS: when Split Editor is open, arrow keys nudge the active slice (instead of cell navigation)
-    const splitOpen = (splitOverlayEl && splitOverlayEl.style.display !== "none");
+    const splitOpen = !!(splitOverlayEl && (
+      (splitOverlayEl.classList && splitOverlayEl.classList.contains('show')) ||
+      (splitOverlayEl.style && splitOverlayEl.style.display && splitOverlayEl.style.display !== "none") ||
+      (window.getComputedStyle && getComputedStyle(splitOverlayEl).display !== "none")
+    ) && splitOverlayEl.getAttribute('aria-hidden') !== 'true');
 
     if (splitOpen && e.key === "Escape") {
       try{
@@ -10139,11 +10207,27 @@ if (e.key === "Escape"){
   renderReleaseNotes();
   // Fill version text (avoids manual sync in multiple places)
   const cEl = document.getElementById("copyrightText");
-  if (cEl) cEl.textContent = `© 2026 Patronix · v${APP_VERSION}`;
+  if (cEl) cEl.textContent = `© 2026 Patronix`;
   const aboutEl = document.getElementById("aboutBadge");
   if (aboutEl){
     aboutEl.textContent = `v${APP_VERSION}`;
-    const bd = (typeof APP_BUILD_DATE !== "undefined" && APP_BUILD_DATE) ? APP_BUILD_DATE : "";
+    
+    // Minimal support link next to version badge
+    try{
+      let d = document.getElementById("donateBadge");
+      if (!d){
+        d = document.createElement("a");
+        d.id = "donateBadge";
+        d.className = "spec donateSpec";
+        d.href = "https://buymeacoffee.com/patronix.music";
+        d.target = "_blank";
+        d.rel = "noopener noreferrer";
+        d.innerHTML = "Buy me a coffee <span class=\"donateCupWrap\" aria-hidden=\"true\"><img class=\"donateCup\" alt=\"\" aria-hidden=\"true\" src=\"data:image/png;base64,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\"></span>";
+        d.title = "Support TCM on Buy Me a Coffee";
+        aboutEl.insertAdjacentElement("afterend", d);
+      }
+    }catch(_e){}
+const bd = (typeof APP_BUILD_DATE !== "undefined" && APP_BUILD_DATE) ? APP_BUILD_DATE : "";
     aboutEl.title = bd ? (`Version ${APP_VERSION} · Build ${bd}`) : (`Version ${APP_VERSION}`);
     aboutEl.addEventListener("click", (e)=>{ e.preventDefault(); try{ document.getElementById("helpBtn")?.click(); }catch(_){} });
     aboutEl.style.cursor = "pointer";
