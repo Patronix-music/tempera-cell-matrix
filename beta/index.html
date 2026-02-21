@@ -4,6 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tempera Cell Matrix</title>
+  <link rel="icon" href="favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <meta name="theme-color" content="#05070b" />
   <style>
 
     :root{
@@ -58,8 +64,10 @@
 
 
     header{
-      position: sticky;
+      position: fixed;
       top: 0;
+      left: 0;
+      right: 0;
       z-index: 10000;
       isolation: isolate;
       transform: translateZ(0);
@@ -111,7 +119,12 @@
       margin-top: 6px;
     }
 
-    .actions{
+    
+.donateSpec{ text-decoration:none; border-color: rgba(251,191,36,0.35); background: rgba(251,191,36,0.10); }
+.donateSpec:hover{ text-decoration:none; border-color: rgba(251,191,36,0.55); background: rgba(251,191,36,0.16); }
+.donateCup{ width:12px; height:12px; display:block; }
+.donateCupWrap{ display:inline-flex; align-items:center; height:12px; margin-left:6px; vertical-align:middle; }
+.actions{
       display:flex;
       flex-direction: row;
       flex-wrap: wrap;
@@ -119,11 +132,6 @@
       align-items: flex-end;
       justify-content: space-between;
     }
-    @media (min-width: 1320px){
-      .actions{ flex-wrap: nowrap; }
-    }
-
-
     /* Inline button group so buttons stay adjacent (e.g., Random 64 + Export/Import/Help) */
     .btnGroupInline{
       display:flex;
@@ -131,6 +139,13 @@
       gap: 10px 12px;
       align-items: center;
     }
+
+    @media (min-width: 1221px){
+      .actions{ flex-wrap: nowrap; }
+      .btnGroupInline{ flex-wrap: nowrap; }
+      .field.nameTpl{ flex: 0 1 240px; min-width: 180px; max-width: 240px; }
+    }
+
 
     /* Mini row under copyright: Enable audio + Stop/Clear */
     .copyrightTop .miniRow{
@@ -255,8 +270,11 @@
     main{
       max-width: 1500px;
       margin: 0 auto;
-      padding: 14px 16px 240px;
-    }
+      padding: 14px 16px 0px;
+      padding-top: calc(var(--hdrH, 72px) + 14px);
+      /* tuned: keep last row reachable without a large visible gap */
+      padding-bottom: max(140px, calc(var(--inspH, 240px) - 60px));
+}
 
     .layout{
       display:grid;
@@ -454,7 +472,7 @@
     .cellTop .icon{
       display:inline-flex;
       align-items:center;
-      line-height: 1;
+      
       height: 18px;
       padding-top: 0;
       padding-bottom: 0;
@@ -636,8 +654,11 @@
 
     /* Inspector */
     .inspector{
-      position: sticky;
-      bottom: 12px;
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(calc(100vw - 32px), 1500px);
+      bottom: calc(12px + env(safe-area-inset-bottom));
       z-index: 15;
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -1020,7 +1041,7 @@
         .copyrightTop{
       position: absolute;
       top: 10px;
-      right: 14px;
+      right: max(16px, calc((100vw - 1500px)/2 + 16px));
       font-size: 11px;
       color: var(--muted);
       opacity: 0.95;
@@ -1078,7 +1099,7 @@ input[type="number"]::-webkit-inner-spin-button{
       color: var(--text);
       cursor: pointer;
       font-weight: 900;
-      line-height: 1;
+      
       display:flex;
       align-items:center;
       justify-content:center;
@@ -1364,11 +1385,13 @@ input[type="number"]::-webkit-inner-spin-button{
 
 /* v2.8.68: merged Name input + history dropdown button (no typeahead) */
 .field.nameTpl{ position: relative; }
-.field.nameTpl .tplWrap{ display:flex; align-items:stretch; gap:0; margin-top: 6px; }
+.field.nameTpl .tplWrap{ display:flex; align-items:center; gap:0; margin-top: 0; min-width: 0; }
 .field.nameTpl .tplWrap > *{ height: calc(var(--ctrlH) - 8px); }
 .field.nameTpl #nameTemplate{
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .field.nameTpl .tplDropBtn{
   display:flex; align-items:center; justify-content:center;
@@ -1389,7 +1412,7 @@ input[type="number"]::-webkit-inner-spin-button{
 
 .field.nameTpl .tplDropMenu{
   position:fixed;
-    width: min(520px, 92vw);
+    width: min(360px, 86vw);
   max-height: 240px;
   overflow:auto;
   background: rgba(18,22,34,.98);
@@ -1398,7 +1421,7 @@ input[type="number"]::-webkit-inner-spin-button{
   box-shadow: 0 18px 45px rgba(0,0,0,.55);
   padding: 6px;
   display:none;
-  z-index: 9999;
+  z-index: 20000;
 }
 .field.nameTpl .tplDropMenu.open{ display:block; }
 .field.nameTpl .tplItem{
@@ -1428,7 +1451,7 @@ input[type="number"]::-webkit-inner-spin-button{
 #nameTemplateHistory{
   width: clamp(120px, 14vw, 219px);
   max-width: 100%;
-  height: calc(var(--ctrlH) - 8px);
+  height: var(--ctrlH);
 }
 /* v2.8.68: editable column names */
 .colName{ display:flex; flex-direction:column; gap:6px; min-width: 0; }
@@ -1647,7 +1670,7 @@ header{ overflow: visible; }
     height: 18px;
     font-size: 11px;
     font-weight: 700;
-    line-height: 1;
+    
     margin-left: 8px;
     vertical-align: middle;
     user-select: none;
@@ -1850,6 +1873,7 @@ input[type="range"]::-webkit-slider-thumb:active{
 }
 #tcmTip.show{ opacity: 1; transform: translateY(0); }
 
+
 </style>
 </head>
 <body>
@@ -1866,6 +1890,7 @@ input[type="range"]::-webkit-slider-thumb:active{
         <div class="actionsWrap"><div class="actions">
           <div class="btnGroupInline"><button class="pop" id="random64Btn" title="Pick a folder (recursive) and randomly fill all 64 cells. Tip: hold Shift to filter which files are used for loading samples.">Random 64 <span class="filterIcon" aria-hidden="true"></span></button>
           <button class="warn" id="exportAllBtn">Export all (ZIP)</button>
+          <button class="warn" id="exportCanvasBtn" title="Export Tempera .canvas">Export .canvas</button>
           <button class="secondary" id="importPresetBtn" title="Load preset JSON exported by this app, then relink samples from a folder">Import Preset</button>
           <button class="secondary" id="helpBtn" title="Show help / shortcuts">Help</button></div>
 
@@ -2092,6 +2117,29 @@ input[type="range"]::-webkit-slider-thumb:active{
 </div>
 <!-- /Preset Name Overlay -->
 
+<!-- Canvas Name Overlay (Export .canvas) -->
+<div class="overlay" id="canvasNameOverlay" aria-hidden="true">
+  <div class="helpPanel folderPanel" role="dialog" aria-modal="true" aria-label="Canvas name">
+    <div class="helpHead">
+      <div class="helpTitle">Export .canvas</div>
+      <button class="helpClose" id="canvasNameOverlayClose" title="Close">✕</button>
+    </div>
+    <div class="helpBody">
+      <p class="muted">Exports a .canvas that can be loaded directly in Tempera.</p>
+      <div class="helpCard" style="margin-top:10px;">
+        <label class="muted" for="canvasNameInput" style="display:block;margin-bottom:6px;">Canvas name</label>
+        <input id="canvasNameInput" type="text" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="overlayActions helpActions" style="margin-top:12px;">
+        <button class="good" id="canvasNameOkBtn">OK</button>
+        <button class="secondary" id="canvasNameCancelBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /Canvas Name Overlay -->
+
+
 
 <div class="toast" id="toast"></div>
 
@@ -2111,82 +2159,21 @@ input[type="range"]::-webkit-slider-thumb:active{
       <div class="helpBody">
 <div class="helpGrid">
 
-          <div class="helpCard">
-            <h3>Wave Editor</h3>
-            <p>Click the <b>waveform</b> in a cell to open the full source waveform and choose the exact slice for that cell.</p>
-                        <ul class="helpList">
-                          <li><b>Click</b> the mini-wave in a cell to open the full source waveform.</li>
-                          <li><b>Drag</b> inside selection to move. Drag edges to resize.</li>
-                          <li><b>L / M / R</b> — choose Left edge / Move / Right edge control (also affects Zoom window and arrow nudges).</li>
-                          <li><b>Zoom window</b> appears for closeup editing the slice. <b>+</b>/<b>-</b> zooms, <b>Z</b> toggles Auto‑Norm.</li>
-                          <li><b>Esc</b>: if zoom window is visible → hide zoom. Otherwise → close editor.</li>
-                          <li><b>← / →</b> nudge selection • <b>Shift</b>=coarse • <b>Alt/Option</b>=fine.</li>
-                          <li><b>Apply</b> commits selection to the cell (used for playback + export).</li>
-                          <li><b>Undo</b> multiple times a step back when editing. Also after apply.</li>
-                          <li><b>Reset</b> for default slice cell-length and position.</li>
-                          <li><b>Zoom On/Off</b> turns the zoom window on or off in both the editors.</li>
-            </ul>
-
-          </div>
-
-          <div class="helpCard">
-            <h3>Basics</h3>
-            <p>8 columns × 8 rows. Columns are <b>Samples</b>. Rows are <b>Cells</b> (1..8).</p>
+          <div class="helpCard"><h3>Basics</h3>
+<p>8 columns × 8 rows. Columns are <b>Samples</b>. Rows are <b>Cells</b> (1..8).</p>
                         <ul class="helpList">
                           <li>Click a cell to select it, use the settings panel for name/volume/fades/fit/reverse/mute.</li>
                           <li><b>Double‑click</b> a cell, press <b>space</b> or <b>▶</b> to play.</li>
                           <li><b>Esc</b> stops playback. In editors: Esc hides the zoom window first, then closes the editor.</li>
                           <li><b>Tempo mode</b> uses BPM + Beats/cell and distributes rounding across 8 slices (no drift).</li>
                           <li>Drag cell→cell: swap. <b>Alt</b> + drag: copy.</li>
-            </ul>
-
-</div>
-
-          <div class="helpCard">
-            <h3>Loading audio</h3>
-            <ul class="helpList">
-                          <li><b>Cell Load</b>: click <b>Load</b> inside a cell or drop a file onto that cell.</li>
-                          <li><b>Load+Slice</b>: pick one file → opens Slice Editor where you can drag/resize 8 blocks, then <b>Apply</b> to the column.</li>
-                          <li><b>Load 8</b>: select 8 files → fills the 8 cells top→bottom.</li>
-                          <li><b>Random 64</b>: pick a folder (subfolders included) → fills all cells randomly.</li>
-            <li><b>Shift + click Random 64</b> to open the filter dialog:
-                            <ul>
-                              <li><b>Include</b>: only filenames containing any token (comma separated)</li>
-                              <li><b>Exclude</b>: skip filenames containing any token (comma separated)</li>
-                            </ul>
-                          </li>              
-            <li><b>Drag and drop</b> samples in cells and columns</li>             
-            </ul>
-
-</div>
-
-          <div class="helpCard">
-            <h3>Editing</h3>
-            <ul class="helpList">
+            </ul></div><div class="helpCard"><h3>Editing</h3>
+<ul class="helpList">
                           <li>Use the <b>Cell settings</b> panel to change Gain, Mute, Reverse, Fade In/Out and Fit mode.</li>
                           <li>Fades are drawn as an <b>envelope overlay</b> on top of the oscilloscope.</li>
                           <li>Gain is shown as a small bar under the oscilloscope (no text).</li>
-                        </ul>
-
-          </div>
-
-          <div class="helpCard">
-            <h3>Import / Export</h3>
-              <p><b>Import Preset</b>: load the preset JSON exported by this app (e.g. <span class="kbd">zz_TCM-Preset_MyPreset_20260111.json</span>), then choose your top-level sample folder. Subfolders are included. The folder overlay shows example filenames to help you pick the right folder.</p>
-                          <ul class="helpList">
-                            <li><b>Export</b> in a column: exports that column to WAV.</li>
-                            <li><b>Export 8</b> in a column: exports the 8 cells as separate WAV files (downloaded as one ZIP). Filenames use Sample + C#.</li>
-                            <li><b>Export all (ZIP)</b>: exports up to 8 columns and downloads one ZIP file.</li>
-                            <li>Empty columns are skipped.</li>
-                            <li><b>Include original samples in ZIP</b> for handpicked samples in the Matrix and TCM preset sharing.</li>
-                          </ul>
-
-          </div>
-
-
-          <div class="helpCard">
-            <h3>Slice Editor</h3>
-            <p>Used by <b>Load+Slice</b>. Drag or resize the 8 slice blocks. Each slice is limited to the <b>max cell length</b>.</p>
+                        </ul></div><div class="helpCard"><h3>Slice Editor</h3>
+<p>Used by <b>Load+Slice</b>. Drag or resize the 8 slice blocks. Each slice is limited to the <b>max cell length</b>.</p>
                         <ul class="helpList">
                           <li><b>Click</b> a block to focus it and <b>space</b> for playback.</li>
                           <li><b>Drag</b> inside selection to move. Drag edges to resize.</li>
@@ -2200,14 +2187,57 @@ input[type="range"]::-webkit-slider-thumb:active{
                           <li><b>Apply</b> commits 8 slices to the 8 cells in 1 column (used for playback + export).</li>
                           <li><b>Undo</b> multiple times a step back when editing. Also after apply.</li>
                           <li><b>Zoom On/Off</b> turns the zoom window on or off in both the editors.</li>
-                        </ul>
-
-          </div>
-
-          <div class="helpCard helpCardRelease">
+                        </ul></div><div class="helpCard"><h3>Wave Editor</h3>
+<p>Click the <b>waveform</b> in a cell to open the full source waveform and choose the exact slice for that cell.</p>
+                        <ul class="helpList">
+                          <li><b>Click</b> the mini-wave in a cell to open the full source waveform.</li>
+                          <li><b>Drag</b> inside selection to move. Drag edges to resize.</li>
+                          <li><b>L / M / R</b> — choose Left edge / Move / Right edge control (also affects Zoom window and arrow nudges).</li>
+                          <li><b>Zoom window</b> appears for closeup editing the slice. <b>+</b>/<b>-</b> zooms, <b>Z</b> toggles Auto‑Norm.</li>
+                          <li><b>Esc</b>: if zoom window is visible → hide zoom. Otherwise → close editor.</li>
+                          <li><b>← / →</b> nudge selection • <b>Shift</b>=coarse • <b>Alt/Option</b>=fine.</li>
+                          <li><b>Apply</b> commits selection to the cell (used for playback + export).</li>
+                          <li><b>Undo</b> multiple times a step back when editing. Also after apply.</li>
+                          <li><b>Reset</b> for default slice cell-length and position.</li>
+                          <li><b>Zoom On/Off</b> turns the zoom window on or off in both the editors.</li>
+            </ul></div><div class="helpCard"><h3>Loading audio</h3>
+<ul class="helpList">
+                          <li><b>Cell Load</b>: click <b>Load</b> inside a cell or drop a file onto that cell.</li>
+                          <li><b>Load+Slice</b>: pick one file → opens Slice Editor where you can drag/resize 8 blocks, then <b>Apply</b> to the column.</li>
+                          <li><b>Load 8</b>: select 8 files → fills the 8 cells top→bottom.</li>
+                          <li><b>Random 64</b>: pick a folder (subfolders included) → fills all cells randomly.</li>
+            <li><b>Shift + click Random 64</b> to open the filter dialog:
+                            <ul>
+                              <li><b>Include</b>: only filenames containing any token (comma separated)</li>
+                              <li><b>Exclude</b>: skip filenames containing any token (comma separated)</li>
+                            </ul>
+                          </li>              
+            <li><b>Drag and drop</b> samples in cells and columns</li>             
+            </ul></div><div class="helpCard"><h3>Import / Export</h3>
+<p><b>Import Preset</b>: load the preset JSON exported by this app (e.g. <span class="kbd">zz_TCM-Preset_MyPreset_20260111.json</span>), then choose your top-level sample folder. Subfolders are included. The folder overlay shows example filenames to help you pick the right folder.</p>
+                          <ul class="helpList">
+                            <li><b>Export</b> in a column: exports that column to WAV.</li>
+                            <li><b>Export 8</b> in a column: exports the 8 cells as separate WAV files (downloaded as one ZIP). Filenames use Sample + C#.</li>
+                            <li><b>Export all (ZIP)</b>: exports up to 8 columns and downloads one ZIP file.</li>
+                            <li>Empty columns are skipped.</li>
+                            <li><b>Include original samples in ZIP</b> for handpicked samples in the Matrix and TCM preset sharing.</li>
+                          </ul></div><div class="helpCard helpCardRelease">
             <h3>Release notes</h3>
             <ul class="helpList" id="releaseNotes"></ul>
           </div>
+
+          
+
+          
+
+          
+
+          
+
+
+          
+
+          
 
 </div>
 
@@ -2363,7 +2393,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-  const APP_VERSION = '2.10.48';
+const APP_VERSION = '2.10.48';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -2529,10 +2559,21 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
   const APP_BUILD_DATE = '2026-02-21';
   const CHANGELOG = [
-  "2.9.92 - Fix Load+Slice: Load new + Apply use current editor column (prevents fallback to Column 1)",
+  "2.10.48 - UI: .canvas export dialog actions padded like Export preset dialog.",
+  "2.10.47 - UI: .canvas dialog copy/OK styling; export filenames now match the name field exactly (no date suffix).",
+  "2.10.46 - Fix: .canvas export dialog opens (separate from ZIP export).",
+  "2.10.43 - UI: Top-right copyright/mini-controls aligned with Name field.",
+  "2.10.42 - UI: Name template dropdown fits on one line and stays reachable (desktop/iPad).",
+  "2.10.36 - Added: Tempera .canvas export (optional).",
+  "2.10.25 - meta: added Buy Me a Coffee support link (header)",
+  "2.10.15 - ui-tune: removed duplicate version text from copyright in header",
+  "2.10.10 - ui-tune: header+inspector fixed.",
+  "2.10.5 - Fix: Clear All no longer blanks mini-wave placeholder (empty + center line).",
+  "2.10.4 - Icons: add favicon/apple-touch-icon/manifest files.",
+  "2.10.1 - fix-volume: mini-wave gain line stays in the middle at Volume=0.00.",
+  "2.9.99 - Fix Import Preset: restore per-cell slice windows for Load+Slice columns.",
   "2.9.91 - Fix Load+Slice target column sticking to Column 1 on re-load in Slice Editor.",
   "2.9.90 - Fix Load+Slice applies/loads to correct column when switching columns.",
-  "2.9.95 - Fix: Slice Editor Load button no longer routes to Column 1 (event object bug).",
   "2.9.89 - Clear All / Clear Column now also clears Load+Slice buffer for that column.",
   "2.9.79 - Matrix green playback outline now response correctly to fast re-triggering.",
   "2.9.68 - Fix playback stops for the editors and matrix with tabs, arrows and space.",
@@ -2557,13 +2598,8 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
   "2.7.12 - Fast naming: Enter focuses Cell name; Tab jumps across Sample names.",
   "2.7.10 - Presets now store original slice windows (start/length) from Load+Slice.",
   "2.7.09 - Preset import restores Load+Slice edits.",
-  "2.7.07 - Export 8 uses Column/Cell names for filenames.",
-  "2.7.06 - Names: editable Column/Cell names + presets save/load them.",
-  "2.7.00 - NEW: Load+Slice + Slice/Wave zoom window, Z auto-norm, L/M/R + nudging."
 ];
-
-
-  function renderReleaseNotes(){
+function renderReleaseNotes(){
     const ul = document.getElementById("releaseNotes");
     if (!ul) return;
     ul.innerHTML = "";
@@ -3764,7 +3800,11 @@ if (editorIsTrimmed){
   window.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     try{
-      const splitOpen = (splitOverlayEl && splitOverlayEl.style.display !== "none");
+      const splitOpen = !!(splitOverlayEl && (
+      (splitOverlayEl.classList && splitOverlayEl.classList.contains('show')) ||
+      (splitOverlayEl.style && splitOverlayEl.style.display && splitOverlayEl.style.display !== "none") ||
+      (window.getComputedStyle && getComputedStyle(splitOverlayEl).display !== "none")
+    ) && splitOverlayEl.getAttribute('aria-hidden') !== 'true');
       if (!splitOpen) return;
 
       const el = document.getElementById("tcmMag");
@@ -4063,6 +4103,11 @@ let splitPointerId = null; let splitActiveIdx = 0;
 
   function splitOpen(col){
     try{ if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); }catch(e){}
+    // Fix: Wave Editor selection-handle state must not leak into Slice Editor.
+    // Reset shared nudge/magnifier edge so Slice Editor starts in center/move mode.
+    try{ if (waveEditor) waveEditor.nudgeEdge = 'C'; }catch(_e){}
+    try{ magHide(); }catch(_e){}
+
     splitEnsureEls();
     splitCol = col|0;
     splitTargetCol = splitCol;
@@ -4569,7 +4614,13 @@ try { cell.peaks = computePeaks(cell.left, cell.right, 900); } catch(_e){ cell.p
   ].join("\n");
 }catch(_e){}
 toast(`Applied split to column ${col+1}`);
+      const __colAfterSplitApply = (col|0);
       splitClose();
+      // UI: after Apply (Load+Slice), jump selection to top cell (C1) of the same column.
+      // Defer to allow overlay teardown/layout to settle (Safari/iPad).
+      setTimeout(()=>{
+        try{ setSelected(__colAfterSplitApply, 0); }catch(_e){}
+      }, 0);
     });
 splitBigEl.addEventListener("pointerdown", (ev)=>{
       const hit = splitHit(ev);
@@ -5349,7 +5400,6 @@ try{
       }
       // Nudge selection (Arrow keys). Shift = coarse, Alt/Option = fine.
       if (e.key === "ArrowLeft" || e.key === "ArrowRight"){
-        e.preventDefault();
         const dir = (e.key === "ArrowRight") ? 1 : -1;
         const fine = e.altKey ? 16 : 0;          // ~1.3ms at 48k
         const coarse = e.shiftKey ? 1024 : 0;     // ~42.7ms at 48k
@@ -5357,8 +5407,21 @@ try{
         const step = fine || coarse || base;
         // If magnifier is open on the Wave editor, use its edge (L/R/C) to decide what nudges.
         const mode = ((_mag && _mag.on && (_mag.edge==='L' || _mag.edge==='R')) ? _mag.edge : (waveEditor.nudgeEdge||'C'));
-        waveNudgeActive(dir * step, mode);
+
+        // If Slice Editor is open, nudge its active block; otherwise nudge Wave Editor selection.
+        let didSplit = false;
+        try{
+          if (splitOverlayEl){
+            const open = (splitOverlayEl.classList && splitOverlayEl.classList.contains('show')) ||
+                         (getComputedStyle(splitOverlayEl).display !== 'none');
+            if (open) didSplit = !!splitNudgeActive(dir * step, mode);
+          }
+        }catch(_){ }
+
+        e.preventDefault();
+        if (!didSplit) waveNudgeActive(dir * step, mode);
       }
+
     }, true);
   }
   const helpCloseBtnEl = document.getElementById("helpCloseBtn");  // Download modal elements are defined after this <script> block in the HTML.
@@ -5451,38 +5514,31 @@ function positionNameTemplateMenu(){
     if (!nameTemplateHistoryEl) return;
     const field = document.querySelector(".field.nameTpl");
     if (!field) return;
-    const wrap = field.querySelector(".tplWrap") || field;
-    const r = wrap.getBoundingClientRect();
 
-    // menu width uses CSS width; compute actual after render
-    // place below input, align right edge to input+button
+    // Anchor: dropdown button if present, otherwise input+button wrap.
+    const anchorEl = nameTemplateDropBtn || (field.querySelector(".tplWrap") || field);
+    const ar = anchorEl.getBoundingClientRect();
+
     const margin = 6;
-    const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-    const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+    const vv = window.visualViewport;
+    const vw = vv ? vv.width : Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+    const vh = vv ? vv.height : Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+    const offX = vv ? vv.offsetLeft : 0;
+    const offY = vv ? vv.offsetTop : 0;
 
-    // temporarily show for measurement
-    const wasOpen = nameTemplateHistoryEl.classList.contains("open");
-    if (!wasOpen){
-      nameTemplateHistoryEl.style.visibility = "hidden";
-      nameTemplateHistoryEl.classList.add("open");
-      positionNameTemplateMenu();
-    }
+    // Measure after layout: offsetWidth/Height are more reliable than rect in some browsers.
+    const mw = nameTemplateHistoryEl.offsetWidth || 320;
+    const mh = nameTemplateHistoryEl.offsetHeight || 240;
 
-    const mr = nameTemplateHistoryEl.getBoundingClientRect();
-    const mw = mr.width || 320;
+    // Prefer left-align to the anchor; flip to right-align if it would overflow.
+    let left = offX + ar.left;
+    if (left + mw > offX + vw - 8) left = offX + ar.right - mw;
+    left = Math.max(offX + 8, Math.min(left, offX + vw - mw - 8));
 
-    if (!wasOpen){
-      nameTemplateHistoryEl.classList.remove("open");
-      nameTemplateHistoryEl.style.visibility = "";
-    }
-
-    let left = r.right - mw;
-    left = Math.max(8, Math.min(left, vw - mw - 8));
-    let top = r.bottom + margin;
-    // keep within viewport
-    if (top + mr.height > vh - 8){
-      top = Math.max(8, r.top - mr.height - margin);
-    }
+    // Prefer below; if it doesn't fit, place above.
+    let top = offY + ar.bottom + margin;
+    if (top + mh > offY + vh - 8) top = offY + ar.top - mh - margin;
+    top = Math.max(offY + 8, Math.min(top, offY + vh - mh - 8));
 
     nameTemplateHistoryEl.style.left = left + "px";
     nameTemplateHistoryEl.style.top = top + "px";
@@ -5500,8 +5556,13 @@ function positionNameTemplateMenu(){
     const open = !nameTemplateHistoryEl.classList.contains("open");
     if (open){
       renderNameTemplateHistory(loadNameTemplateHistory());
-      positionNameTemplateMenu();
       nameTemplateHistoryEl.classList.add("open");
+      // Place off-screen first; then position after layout.
+      nameTemplateHistoryEl.style.left = "0px";
+      nameTemplateHistoryEl.style.top = "-9999px";
+      requestAnimationFrame(() => {
+        if (nameTemplateHistoryEl && nameTemplateHistoryEl.classList.contains("open")) positionNameTemplateMenu();
+      });
       if (nameTemplateDropBtn) nameTemplateDropBtn.setAttribute("aria-expanded","true");
     } else {
       closeNameTemplateMenu();
@@ -5563,7 +5624,31 @@ function positionNameTemplateMenu(){
     }
 
     // Reposition on resize/scroll
-    window.addEventListener("resize", () => {
+    
+  // Keep CSS vars for header/inspector heights so main padding matches.
+  function updateLayoutCSSVars(){
+    try{
+      const hdr = document.querySelector('header');
+      if (hdr) document.documentElement.style.setProperty('--hdrH', hdr.offsetHeight + 'px');
+    }catch(_e){}
+    try{
+      const insp = inspectorEl || document.getElementById('inspector');
+      if (insp) document.documentElement.style.setProperty('--inspH', insp.offsetHeight + 'px');
+    }catch(_e){}
+  }
+  updateLayoutCSSVars();
+
+  if (window.visualViewport){
+    window.visualViewport.addEventListener("resize", () => {
+      if (nameTemplateHistoryEl && nameTemplateHistoryEl.classList.contains("open")) positionNameTemplateMenu();
+    });
+    window.visualViewport.addEventListener("scroll", () => {
+      if (nameTemplateHistoryEl && nameTemplateHistoryEl.classList.contains("open")) positionNameTemplateMenu();
+    });
+  }
+
+window.addEventListener("resize", () => {
+    try{ updateLayoutCSSVars(); }catch(_e){}
       if (nameTemplateHistoryEl && nameTemplateHistoryEl.classList.contains("open")) positionNameTemplateMenu();
     });
     window.addEventListener("scroll", () => {
@@ -5626,7 +5711,11 @@ function positionNameTemplateMenu(){
   // Slice Editor: time zoom around active slice (+ / -) and quick slice switching (Tab)
   window.addEventListener("keydown", (e) => {
     try{
-      const splitOpen = (splitOverlayEl && splitOverlayEl.style.display !== "none");
+      const splitOpen = !!(splitOverlayEl && (
+      (splitOverlayEl.classList && splitOverlayEl.classList.contains('show')) ||
+      (splitOverlayEl.style && splitOverlayEl.style.display && splitOverlayEl.style.display !== "none") ||
+      (window.getComputedStyle && getComputedStyle(splitOverlayEl).display !== "none")
+    ) && splitOverlayEl.getAttribute('aria-hidden') !== 'true');
       if (!splitOpen) return;
 
       // don't steal keys from inputs
@@ -5673,6 +5762,7 @@ function positionNameTemplateMenu(){
   });
 
 const exportAllBtn = document.getElementById("exportAllBtn");
+  const exportCanvasBtn = document.getElementById("exportCanvasBtn");
   const helpBtn = document.getElementById("helpBtn");
   const stopBtn = document.getElementById("stopBtn");
   const clearAllBtn = document.getElementById("clearAllBtn");
@@ -6083,6 +6173,56 @@ function stopPlayback(){
     return out;
   }
 
+
+  async function downsampleLR_Offline(prevL, prevR, outLen){
+    try{
+      const prevLen = prevL.length|0;
+      const ratio = prevLen / outLen;
+
+      const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+      if (!OAC) throw new Error("OfflineAudioContext not supported");
+
+      const oac = new OAC(2, outLen, SR);
+
+      const buf = oac.createBuffer(2, prevLen, SR);
+      buf.copyToChannel(prevL, 0);
+      buf.copyToChannel(prevR, 1);
+
+      const src = oac.createBufferSource();
+      src.buffer = buf;
+      src.playbackRate.value = ratio;
+
+      const lp = oac.createBiquadFilter();
+      lp.type = "lowpass";
+      lp.frequency.value = Math.min((SR*0.5)/ratio*0.98, (SR*0.5)-1);
+      lp.Q.value = 0.707;
+
+      src.connect(lp);
+      lp.connect(oac.destination);
+
+      src.start(0);
+
+      const rendered = await oac.startRendering();
+      const outL = rendered.getChannelData(0);
+      const outR = rendered.getChannelData(1);
+
+      return {L: new Float32Array(outL), R: new Float32Array(outR)};
+    }catch(e){
+      console.warn("Offline mip downsample failed; falling back to linear resample.", e);
+      return {L: resampleToLength(prevL, outLen), R: resampleToLength(prevR, outLen)};
+    }
+  }
+
+  async function buildTemperaMipChain(baseLR){
+    const mips = new Array(8);
+    mips[0] = baseLR;
+    for (let m=1;m<8;m++){
+      const target = TEMPERA_CANVAS_MIP_SAMPLES[m];
+      mips[m] = await downsampleLR_Offline(mips[m-1].L, mips[m-1].R, target);
+    }
+    return mips;
+  }
+
   function resampleRate(src, srcRate, dstRate){
     if (srcRate === dstRate) return new Float32Array(src); // copy
     const ratio = dstRate / srcRate;
@@ -6193,7 +6333,7 @@ function computePeaks(left, right, points=72){
     const usable = (h/2 - 3);
 
     const n = peaks.length;
-    const g0 = settings ? Number(settings.gain || 1) : 1;
+    const g0 = settings ? Number((settings.gain == null ? 1 : settings.gain)) : 1;
     const mute = settings ? !!settings.mute : false;
     const gain = mute ? 0 : Math.max(0, Math.min(2, g0));
     const baseGain = mute ? 0 : 1;
@@ -6965,7 +7105,7 @@ try{
         relPath: (file && (file.webkitRelativePath || file._relPath)) ? (file.webkitRelativePath || file._relPath) : "",
         sliceIndex: r,
         slices: 8,
-        split: { sourceKey: _srcKey, startFrames: selStart, lenFrames: selLen, col, row: r }
+        split: { sourceKey: _srcKey, startFrames: srcSliceStart, lenFrames: srcSliceLen, col, row: r }
       };
 
       // default: since slice is exact, pad/trim doesn't matter, but keep user's choice
@@ -6994,29 +7134,34 @@ try{
       const cell = state.cells[col][r];
       const p = (Array.isArray(presetCells) && presetCells[r]) ? presetCells[r] : null;
 
-      // Selection window (on original source frames)
-      let selLen = (p && typeof p.selLenFrames === "number") ? Math.floor(p.selLenFrames) : Math.max(1, Math.floor(srcLen / ROWS));
-      selLen = clamp(selLen, 1, Math.max(1, srcLen));
+      // Slice window on original source frames (prefer origin.split / trim fields)
+      const sp = (p && p.origin && p.origin.split) ? p.origin.split : null;
 
-      let selStart = (p && typeof p.selStartFrames === "number") ? Math.floor(p.selStartFrames) : (r * selLen);
-      selStart = clamp(selStart, 0, Math.max(0, srcLen - selLen));
+      let srcSliceLen = (sp && typeof sp.lenFrames === "number") ? Math.floor(sp.lenFrames)
+                     : (p && typeof p.trimLenSrcFrames === "number") ? Math.floor(p.trimLenSrcFrames)
+                     : (p && typeof p.selLenFrames === "number") ? Math.floor(p.selLenFrames)
+                     : Math.max(1, Math.floor(srcLen / ROWS));
+      srcSliceLen = clamp(srcSliceLen, 1, Math.max(1, srcLen));
 
-      cell.sourceKey = _srcKey;
-      cell.selStartFrames = selStart;
-      cell.selLenFrames = selLen;
+      let srcSliceStart = (sp && typeof sp.startFrames === "number") ? Math.floor(sp.startFrames)
+                        : (p && typeof p.trimStartSrcFrames === "number") ? Math.floor(p.trimStartSrcFrames)
+                        : (p && typeof p.selStartFrames === "number") ? Math.floor(p.selStartFrames)
+                        : 0;
+      srcSliceStart = clamp(srcSliceStart, 0, Math.max(0, srcLen - srcSliceLen));
+
+      cell.sourceKey = null;
+      cell.selStartFrames = 0;
+      cell.selLenFrames = srcSliceLen;
 
       // Remember slice window on ORIGINAL source for Wave Editor + preset roundtrip
-      cell.trimStartSrcFrames = selStart;
-      cell.trimLenSrcFrames   = selLen;
+      cell.trimStartSrcFrames = srcSliceStart;
+      cell.trimLenSrcFrames   = srcSliceLen;
 
       // Store the slice audio in the cell (so mini-wave shows the slice, not the full source)
-      const end = Math.min(srcLen, selStart + selLen);
+      const end = Math.min(srcLen, srcSliceStart + srcSliceLen);
       cell.cache = { key:"", L:null, R:null, frames:0 };
-      cell.left  = new Float32Array(left.subarray(selStart, end));
-      cell.right = new Float32Array(right.subarray(selStart, end));
-
-      // This cell owns its slice buffers; keep full source reference in origin.split.sourceKey
-      cell.sourceKey = null;
+      cell.left  = new Float32Array(left.subarray(srcSliceStart, end));
+      cell.right = new Float32Array(right.subarray(srcSliceStart, end));
 
       cell.name = `${name} · ${getCellDisplayName(col, r)}`;
       cell.origin = {
@@ -7025,7 +7170,7 @@ try{
         relPath: (file && (file.webkitRelativePath || file._relPath)) ? (file.webkitRelativePath || file._relPath) : "",
         sliceIndex: r,
         slices: 8,
-        split: { sourceKey: _srcKey, startFrames: selStart, lenFrames: selLen, col, row: r }
+        split: { sourceKey: _srcKey, startFrames: srcSliceStart, lenFrames: srcSliceLen, col, row: r }
       };
 
       if (normalizeOnLoadEl.checked){
@@ -8134,6 +8279,10 @@ if (__inspCache.descText !== descText){
       if (el) el.value = state.colNames[c];
     }
 
+    // Ensure mini-wave placeholders remain visible after Clear All (some browsers can leave canvases blank)
+    try{ for (let c=0;c<COLS;c++){ hardResetMiniWavesForCol(c); } }catch(_e){}
+    try{ markAllWavesDirty(); scheduleWaveFlush(); requestAnimationFrame(()=>{ try{ scheduleWaveFlush(); }catch(_e){} }); }catch(_e){}
+
     toast("Cleared everything");
   }
 
@@ -8912,9 +9061,11 @@ topFolders: computeTopFoldersFromState(),
       toast(`Building ZIP (${files.length} file(s))...`, 1800);
 
       const zipBlob = zipStore(files);
-      const url = URL.createObjectURL(zipBlob);
+      // iPad/Safari may append .zip based on MIME type. Use a generic type so the filename stays .canvas.
+      const outBlob = new Blob([zipBlob], {type:"application/octet-stream"});
+      const url = URL.createObjectURL(outBlob);
 
-      const zipName = sanitizeFilename(`${presetName}_${getDateStamp()}`) + ".zip";
+      const zipName = sanitizeFilename(`${presetName}`) + ".zip";
       clickDownload(url, zipName);
 
       setTimeout(() => URL.revokeObjectURL(url), 8000);
@@ -8934,7 +9085,1018 @@ topFolders: computeTopFoldersFromState(),
       toast("Could not start audio");
     }
   });
+  // ====== Tempera .canvas export (POC3; FLAC + Empty template) ======
+  // Local-only: adds an export route without refactors. Uses Empty.zip parameters as clean template.
+  // Audio is written as FLAC frames (silence=CONSTANT, audio=VERBATIM). ZIP container is STORE/no compression (.canvas extension).
+  const TEMPERA_CANVAS_MIP_SAMPLES = [524288,403298,310229,238637,183567,141205,108619,83553];
+  const TEMPERA_PARAMS_TEMPLATE = `MI0:0
+MI1:0
+MI2:0
+MI3:0
+MI4:0
+MI5:0
+MI6:0
+MI7:0
+ML0:0
+ML1:0
+ML2:0
+ML3:0
+ML4:0
+ML5:0
+ML6:0
+ML7:0
+activeEmittor:0
+ampAttack:0.02
+ampDecay:0.05
+ampRelease:0.1
+ampSustain:0.8
+canvasVersion:15
+cellEmitter0:-1
+cellEmitter1:-1
+cellEmitter10:-1
+cellEmitter11:-1
+cellEmitter12:-1
+cellEmitter13:-1
+cellEmitter14:-1
+cellEmitter15:-1
+cellEmitter16:-1
+cellEmitter17:-1
+cellEmitter18:-1
+cellEmitter19:-1
+cellEmitter2:-1
+cellEmitter20:-1
+cellEmitter21:-1
+cellEmitter22:-1
+cellEmitter23:-1
+cellEmitter24:-1
+cellEmitter25:-1
+cellEmitter26:-1
+cellEmitter27:-1
+cellEmitter28:-1
+cellEmitter29:-1
+cellEmitter3:-1
+cellEmitter30:-1
+cellEmitter31:-1
+cellEmitter32:-1
+cellEmitter33:-1
+cellEmitter34:-1
+cellEmitter35:-1
+cellEmitter36:-1
+cellEmitter37:-1
+cellEmitter38:-1
+cellEmitter39:-1
+cellEmitter4:-1
+cellEmitter40:-1
+cellEmitter41:-1
+cellEmitter42:-1
+cellEmitter43:-1
+cellEmitter44:-1
+cellEmitter45:-1
+cellEmitter46:-1
+cellEmitter47:-1
+cellEmitter48:-1
+cellEmitter49:-1
+cellEmitter5:-1
+cellEmitter50:-1
+cellEmitter51:-1
+cellEmitter52:-1
+cellEmitter53:-1
+cellEmitter54:-1
+cellEmitter55:-1
+cellEmitter56:-1
+cellEmitter57:-1
+cellEmitter58:-1
+cellEmitter59:-1
+cellEmitter6:-1
+cellEmitter60:-1
+cellEmitter61:-1
+cellEmitter62:-1
+cellEmitter63:-1
+cellEmitter7:-1
+cellEmitter8:-1
+cellEmitter9:-1
+chorusDepth:0.1
+chorusFlange:0.1
+chorusMix:0
+chorusSpeed:0.25
+defaultPlayMode:0
+degradeAge:0
+degradeCompress:0
+degradeMix:0
+degradeSlip:0
+delayColor:0.5025
+delayColorActive:1
+delayDot:1
+delayFeedback:0.75
+delayMix:0
+delayPingPong:0
+delaySync:1
+delayTime:0.39625
+effectsChannelSend:1
+emittor0Direction:0
+emittor0EffectsSend:1
+emittor0EuclidRotate:0
+emittor0EuclidX:1
+emittor0EuclidY:1
+emittor0FadeIn:0
+emittor0FadeOut:0
+emittor0Filter:1
+emittor0GrainAlign:0
+emittor0GrainAlignX:1
+emittor0GrainDensity:1
+emittor0GrainDensityJitter:0
+emittor0GrainEnvelopeAttack:0
+emittor0GrainFade:0.5
+emittor0GrainPan:0.5
+emittor0GrainPanJitter:0
+emittor0GrainPanMidSide:0
+emittor0GrainSize:1
+emittor0GrainSizeJitter:0
+emittor0GrainSizeMode:0
+emittor0GrainSizeTime:7
+emittor0Lock:0
+emittor0MidiChannel:0
+emittor0Mute:0
+emittor0Name:Emitter 1
+emittor0Octave:3
+emittor0PlacementMode:0
+emittor0QuantizeAmount:0
+emittor0QuantizeNote:7
+emittor0RelX:0
+emittor0RelY:0
+emittor0SprayX:0
+emittor0SprayY:0
+emittor0TiltFilterCentre:0.5
+emittor0TiltFilterWidth:0.5
+emittor0TuneSpread:0
+emittor0TuneSpreadFifthSnap:0
+emittor0TuneSpreadOctaveSnap:0
+emittor0TwoLane:0
+emittor0Volume:0.5
+emittor1Direction:0
+emittor1EffectsSend:1
+emittor1EuclidRotate:0
+emittor1EuclidX:1
+emittor1EuclidY:1
+emittor1FadeIn:0
+emittor1FadeOut:0
+emittor1Filter:1
+emittor1GrainAlign:0
+emittor1GrainAlignX:0
+emittor1GrainDensity:1
+emittor1GrainDensityJitter:0
+emittor1GrainEnvelopeAttack:0
+emittor1GrainFade:0.5
+emittor1GrainPan:0.5
+emittor1GrainPanJitter:0
+emittor1GrainPanMidSide:0
+emittor1GrainSize:1
+emittor1GrainSizeJitter:0
+emittor1GrainSizeMode:0
+emittor1GrainSizeTime:7
+emittor1Lock:0
+emittor1MidiChannel:0
+emittor1Mute:0
+emittor1Name:Emitter 2
+emittor1Octave:3
+emittor1PlacementMode:0
+emittor1QuantizeAmount:0
+emittor1QuantizeNote:6
+emittor1RelX:0
+emittor1RelY:0
+emittor1SprayX:0
+emittor1SprayY:0
+emittor1TiltFilterCentre:0.5
+emittor1TiltFilterWidth:0.5
+emittor1TuneSpread:0
+emittor1TuneSpreadFifthSnap:0
+emittor1TuneSpreadOctaveSnap:0
+emittor1TwoLane:0
+emittor1Volume:0.5
+emittor2Direction:0
+emittor2EffectsSend:1
+emittor2EuclidRotate:0
+emittor2EuclidX:1
+emittor2EuclidY:1
+emittor2FadeIn:0
+emittor2FadeOut:0
+emittor2Filter:1
+emittor2GrainAlign:0
+emittor2GrainAlignX:1
+emittor2GrainDensity:1
+emittor2GrainDensityJitter:0
+emittor2GrainEnvelopeAttack:0
+emittor2GrainFade:0.5
+emittor2GrainPan:0.5
+emittor2GrainPanJitter:0
+emittor2GrainPanMidSide:0
+emittor2GrainSize:1
+emittor2GrainSizeJitter:0
+emittor2GrainSizeMode:0
+emittor2GrainSizeTime:7
+emittor2Lock:0
+emittor2MidiChannel:0
+emittor2Mute:0
+emittor2Name:Emitter 3
+emittor2Octave:3
+emittor2PlacementMode:0
+emittor2QuantizeAmount:0
+emittor2QuantizeNote:6
+emittor2RelX:0
+emittor2RelY:0
+emittor2SprayX:0
+emittor2SprayY:0
+emittor2TiltFilterCentre:0.5
+emittor2TiltFilterWidth:0.5
+emittor2TuneSpread:0
+emittor2TuneSpreadFifthSnap:0
+emittor2TuneSpreadOctaveSnap:0
+emittor2TwoLane:0
+emittor2Volume:0.5
+emittor3Direction:0
+emittor3EffectsSend:1
+emittor3EuclidRotate:0
+emittor3EuclidX:1
+emittor3EuclidY:1
+emittor3FadeIn:0
+emittor3FadeOut:0
+emittor3Filter:1
+emittor3GrainAlign:0
+emittor3GrainAlignX:1
+emittor3GrainDensity:1
+emittor3GrainDensityJitter:0
+emittor3GrainEnvelopeAttack:0
+emittor3GrainFade:0.5
+emittor3GrainPan:0.5
+emittor3GrainPanJitter:0
+emittor3GrainPanMidSide:0
+emittor3GrainSize:1
+emittor3GrainSizeJitter:0
+emittor3GrainSizeMode:0
+emittor3GrainSizeTime:7
+emittor3Lock:0
+emittor3MidiChannel:0
+emittor3Mute:0
+emittor3Name:Emitter 4
+emittor3Octave:3
+emittor3PlacementMode:0
+emittor3QuantizeAmount:0
+emittor3QuantizeNote:6
+emittor3RelX:0
+emittor3RelY:0
+emittor3SprayX:0
+emittor3SprayY:0
+emittor3TiltFilterCentre:0.5
+emittor3TiltFilterWidth:0.5
+emittor3TuneSpread:0
+emittor3TuneSpreadFifthSnap:0
+emittor3TuneSpreadOctaveSnap:0
+emittor3TwoLane:0
+emittor3Volume:0.5
+emittorPlayMode:0
+filterCutoff:1
+filterKeytrack:0
+filterResonance:0.494975
+filterType:0
+keyboardEmitterTarget:15
+keyboardHold:0
+manualControl0:0.5
+manualControl1:0.5
+manualControl2:0.5
+manualControl3:0.5
+masterVolume:0.617188
+modulator0Amount:0
+modulator0Destination:0
+modulator0Free:0
+modulator0P1:0.377974
+modulator0P2:0
+modulator0Polarity:1
+modulator0Retrigger:0
+modulator0Step0:0.5
+modulator0Step1:0.5
+modulator0Step10:0.5
+modulator0Step11:0.5
+modulator0Step12:0.5
+modulator0Step13:0.5
+modulator0Step14:0.5
+modulator0Step15:0.5
+modulator0Step2:0.5
+modulator0Step3:0.5
+modulator0Step4:0.5
+modulator0Step5:0.5
+modulator0Step6:0.5
+modulator0Step7:0.5
+modulator0Step8:0.5
+modulator0Step9:0.5
+modulator0StepCount:8
+modulator0Sync:1
+modulator0Type:2
+modulator1Amount:0
+modulator1Destination:0
+modulator1Free:0
+modulator1P1:0.371603
+modulator1P2:0
+modulator1Polarity:1
+modulator1Retrigger:0
+modulator1Step0:0.5
+modulator1Step1:0.5
+modulator1Step10:0.5
+modulator1Step11:0.5
+modulator1Step12:0.5
+modulator1Step13:0.5
+modulator1Step14:0.5
+modulator1Step15:0.5
+modulator1Step2:0.5
+modulator1Step3:0.5
+modulator1Step4:0.5
+modulator1Step5:0.5
+modulator1Step6:0.5
+modulator1Step7:0.5
+modulator1Step8:0.5
+modulator1Step9:0.5
+modulator1StepCount:8
+modulator1Sync:1
+modulator1Type:2
+modulator2Amount:0
+modulator2Destination:0
+modulator2Free:1
+modulator2P1:0.37875
+modulator2P2:0
+modulator2Polarity:1
+modulator2Retrigger:1
+modulator2Step0:0.5
+modulator2Step1:0.5
+modulator2Step10:0.5
+modulator2Step11:0.5
+modulator2Step12:0.5
+modulator2Step13:0.5
+modulator2Step14:0.5
+modulator2Step15:0.5
+modulator2Step2:0.5
+modulator2Step3:0.5
+modulator2Step4:0.5
+modulator2Step5:0.5
+modulator2Step6:0.5
+modulator2Step7:0.5
+modulator2Step8:0.5
+modulator2Step9:0.5
+modulator2StepCount:8
+modulator2Sync:1
+modulator2Type:2
+modulator3Amount:0
+modulator3Destination:0
+modulator3Free:0
+modulator3P1:0.39075
+modulator3P2:0
+modulator3Polarity:1
+modulator3Retrigger:1
+modulator3Step0:0.5
+modulator3Step1:0.5
+modulator3Step10:0.5
+modulator3Step11:0.5
+modulator3Step12:0.5
+modulator3Step13:0.5
+modulator3Step14:0.5
+modulator3Step15:0.5
+modulator3Step2:0.5
+modulator3Step3:0.5
+modulator3Step4:0.5
+modulator3Step5:0.5
+modulator3Step6:0.5
+modulator3Step7:0.5
+modulator3Step8:0.5
+modulator3Step9:0.5
+modulator3StepCount:8
+modulator3Sync:1
+modulator3Type:2
+modulator4Amount:0
+modulator4Destination:0
+modulator4Free:0
+modulator4P1:0.37325
+modulator4P2:0
+modulator4Polarity:1
+modulator4Retrigger:0
+modulator4Step0:0.5
+modulator4Step1:0.5
+modulator4Step10:0.5
+modulator4Step11:0.5
+modulator4Step12:0.5
+modulator4Step13:0.5
+modulator4Step14:0.5
+modulator4Step15:0.5
+modulator4Step2:0.5
+modulator4Step3:0.5
+modulator4Step4:0.5
+modulator4Step5:0.5
+modulator4Step6:0.5
+modulator4Step7:0.5
+modulator4Step8:0.5
+modulator4Step9:0.5
+modulator4StepCount:8
+modulator4Sync:1
+modulator4Type:2
+modulator5Amount:0
+modulator5Destination:0
+modulator5Free:0
+modulator5P1:0
+modulator5P2:0
+modulator5Polarity:0
+modulator5Retrigger:0
+modulator5Step0:0.5
+modulator5Step1:0.5
+modulator5Step10:0.5
+modulator5Step11:0.5
+modulator5Step12:0.5
+modulator5Step13:0.5
+modulator5Step14:0.5
+modulator5Step15:0.5
+modulator5Step2:0.5
+modulator5Step3:0.5
+modulator5Step4:0.5
+modulator5Step5:0.5
+modulator5Step6:0.5
+modulator5Step7:0.5
+modulator5Step8:0.5
+modulator5Step9:0.5
+modulator5StepCount:8
+modulator5Sync:0
+modulator5Type:2
+modulator6Amount:0
+modulator6Destination:0
+modulator6Free:0
+modulator6P1:0
+modulator6P2:0
+modulator6Polarity:0
+modulator6Retrigger:0
+modulator6Step0:0.5
+modulator6Step1:0.5
+modulator6Step10:0.5
+modulator6Step11:0.5
+modulator6Step12:0.5
+modulator6Step13:0.5
+modulator6Step14:0.5
+modulator6Step15:0.5
+modulator6Step2:0.5
+modulator6Step3:0.5
+modulator6Step4:0.5
+modulator6Step5:0.5
+modulator6Step6:0.5
+modulator6Step7:0.5
+modulator6Step8:0.5
+modulator6Step9:0.5
+modulator6StepCount:8
+modulator6Sync:0
+modulator6Type:2
+modulator7Amount:0
+modulator7Destination:0
+modulator7Free:0
+modulator7P1:0
+modulator7P2:0
+modulator7Polarity:0
+modulator7Retrigger:0
+modulator7Step0:0.5
+modulator7Step1:0.5
+modulator7Step10:0.5
+modulator7Step11:0.5
+modulator7Step12:0.5
+modulator7Step13:0.5
+modulator7Step14:0.5
+modulator7Step15:0.5
+modulator7Step2:0.5
+modulator7Step3:0.5
+modulator7Step4:0.5
+modulator7Step5:0.5
+modulator7Step6:0.5
+modulator7Step7:0.5
+modulator7Step8:0.5
+modulator7Step9:0.5
+modulator7StepCount:8
+modulator7Sync:0
+modulator7Type:2
+modulator8Amount:0
+modulator8Destination:0
+modulator8Free:0
+modulator8P1:0
+modulator8P2:0
+modulator8Polarity:0
+modulator8Retrigger:0
+modulator8Step0:0.5
+modulator8Step1:0.5
+modulator8Step10:0.5
+modulator8Step11:0.5
+modulator8Step12:0.5
+modulator8Step13:0.5
+modulator8Step14:0.5
+modulator8Step15:0.5
+modulator8Step2:0.5
+modulator8Step3:0.5
+modulator8Step4:0.5
+modulator8Step5:0.5
+modulator8Step6:0.5
+modulator8Step7:0.5
+modulator8Step8:0.5
+modulator8Step9:0.5
+modulator8StepCount:8
+modulator8Sync:0
+modulator8Type:2
+modulator9Amount:0
+modulator9Destination:0
+modulator9Free:0
+modulator9P1:0
+modulator9P2:0
+modulator9Polarity:0
+modulator9Retrigger:0
+modulator9Step0:0.5
+modulator9Step1:0.5
+modulator9Step10:0.5
+modulator9Step11:0.5
+modulator9Step12:0.5
+modulator9Step13:0.5
+modulator9Step14:0.5
+modulator9Step15:0.5
+modulator9Step2:0.5
+modulator9Step3:0.5
+modulator9Step4:0.5
+modulator9Step5:0.5
+modulator9Step6:0.5
+modulator9Step7:0.5
+modulator9Step8:0.5
+modulator9Step9:0.5
+modulator9StepCount:8
+modulator9Sync:0
+modulator9Type:2
+modulatorSizeTarget:1
+modulatorSizeTarget0:0
+modulatorSizeTarget1:0
+modulatorSizeTarget2:0
+modulatorSizeTarget3:0
+modulatorSizeTarget4:1
+modulatorSizeTarget5:1
+modulatorSizeTarget6:1
+modulatorSizeTarget7:1
+modulatorSizeTarget8:1
+modulatorSizeTarget9:1
+overlayKeyboardHidden:0
+reverbColor:0.695588
+reverbDamp:0.495
+reverbMix:0
+reverbSize:0.799274
+tempoClockBPMCanvas:0
+touchgridKeyboardChannel:0
+touchgridLayout:3
+touchgridOverlayMode:5
+touchgridPlayMode:1
+touchgridTranspose:0
+track0Amp:0.750061
+track1Amp:0.75
+track2Amp:0.75
+track3Amp:0.75
+track4Amp:0.75
+track5Amp:0.75
+track6Amp:0.75
+track7Amp:0.75
+track0Tuning:440
+track1Tuning:440
+track2Tuning:440
+track3Tuning:440
+track4Tuning:440
+track5Tuning:440
+track6Tuning:440
+track7Tuning:440
+track0Name:Track 1
+track1Name:Track 2
+track2Name:Track 3
+track3Name:Track 4
+track4Name:Track 5
+track5Name:Track 6
+track6Name:Track 7
+track7Name:Track 8
+track0From:0
+track1From:0
+track2From:0
+track3From:0
+track4From:0
+track5From:0
+track6From:0
+track7From:0
+track0To:1048575
+track1To:1048575
+track2To:1048575
+track3To:1048575
+track4To:1048575
+track5To:1048575
+track6To:1048575
+track7To:1048575
+track0TuningMode:0
+track1TuningMode:0
+track2TuningMode:0
+track3TuningMode:0
+track4TuningMode:0
+track5TuningMode:0
+track6TuningMode:0
+track7TuningMode:0`;
+
+  function temperaSanitizeTrackName(v, fallback){
+    let s = (v == null) ? "" : String(v);
+    s = s.replace(/[\r\n]+/g, " ").replace(/:/g, "_").trim();
+    if (!s) s = fallback;
+    if (s.length > 80) s = s.slice(0, 80);
+    return s;
+  }
+
+  function temperaBuildParametersFromTemplate(){
+    let txt = TEMPERA_PARAMS_TEMPLATE;
+    for (let t=0;t<8;t++){
+      const nm = temperaSanitizeTrackName(getColDisplayName(t), `Track ${t+1}`);
+      const re = new RegExp(`^track${t}Name:.*$`, "m");
+      txt = txt.replace(re, `track${t}Name:${nm}`);
+    }
+    return txt;
+  }
+
+  function temperaColumnHasAudio(col){
+    for (let r=0;r<ROWS;r++){
+      const cell = state.cells[col][r];
+      if (!cell) continue;
+      if (cell.left && cell.left.length) return true;
+      if (cell.right && cell.right.length) return true;
+    }
+    return false;
+  }
+
+const _flacCrc8Table = (() => {
+    const t = new Uint8Array(256);
+    for (let i=0;i<256;i++) {
+      let c = i;
+      for (let k=0;k<8;k++) {
+        c = (c & 0x80) ? (((c << 1) ^ 0x07) & 0xFF) : ((c << 1) & 0xFF);
+      }
+      t[i] = c & 0xFF;
+    }
+    return t;
+  })();
+
+  function flacCrc8(bytes, off, len) {
+    let c = 0;
+    for (let i=0;i<len;i++) {
+      c = _flacCrc8Table[(c ^ bytes[off+i]) & 0xFF];
+    }
+    return c & 0xFF;
+  }
+
+  const _flacCrc16Table = (() => {
+    const t = new Uint16Array(256);
+    for (let i=0;i<256;i++) {
+      let c = i << 8;
+      for (let k=0;k<8;k++) {
+        c = (c & 0x8000) ? (((c << 1) ^ 0x8005) & 0xFFFF) : ((c << 1) & 0xFFFF);
+      }
+      t[i] = c;
+    }
+    return t;
+  })();
+
+  function flacCrc16Update(crc, b) {
+    const idx = ((crc >>> 8) ^ (b & 0xFF)) & 0xFF;
+    return (((crc << 8) & 0xFFFF) ^ _flacCrc16Table[idx]) & 0xFFFF;
+  }
+
+  function flacUtf8Len(n) {
+    if (n < 0x80) return 1;
+    if (n < 0x800) return 2;
+    if (n < 0x10000) return 3;
+    if (n < 0x200000) return 4;
+    if (n < 0x4000000) return 5;
+    return 6;
+  }
+
+  function flacUtf8Write(dst, off, n) {
+    if (n < 0x80) {
+      dst[off++] = n & 0x7F;
+      return off;
+    }
+    if (n < 0x800) {
+      dst[off++] = 0xC0 | ((n >> 6) & 0x1F);
+      dst[off++] = 0x80 | (n & 0x3F);
+      return off;
+    }
+    if (n < 0x10000) {
+      dst[off++] = 0xE0 | ((n >> 12) & 0x0F);
+      dst[off++] = 0x80 | ((n >> 6) & 0x3F);
+      dst[off++] = 0x80 | (n & 0x3F);
+      return off;
+    }
+    if (n < 0x200000) {
+      dst[off++] = 0xF0 | ((n >> 18) & 0x07);
+      dst[off++] = 0x80 | ((n >> 12) & 0x3F);
+      dst[off++] = 0x80 | ((n >> 6) & 0x3F);
+      dst[off++] = 0x80 | (n & 0x3F);
+      return off;
+    }
+    if (n < 0x4000000) {
+      dst[off++] = 0xF8 | ((n >> 24) & 0x03);
+      dst[off++] = 0x80 | ((n >> 18) & 0x3F);
+      dst[off++] = 0x80 | ((n >> 12) & 0x3F);
+      dst[off++] = 0x80 | ((n >> 6) & 0x3F);
+      dst[off++] = 0x80 | (n & 0x3F);
+      return off;
+    }
+    dst[off++] = 0xFC | ((n >> 30) & 0x01);
+    dst[off++] = 0x80 | ((n >> 24) & 0x3F);
+    dst[off++] = 0x80 | ((n >> 18) & 0x3F);
+    dst[off++] = 0x80 | ((n >> 12) & 0x3F);
+    dst[off++] = 0x80 | ((n >> 6) & 0x3F);
+    dst[off++] = 0x80 | (n & 0x3F);
+    return off;
+  }
+
+  function writeU16BE(dst, off, v) {
+    dst[off++] = (v >>> 8) & 0xFF;
+    dst[off++] = v & 0xFF;
+    return off;
+  }
+  function writeU24BE(dst, off, v) {
+    dst[off++] = (v >>> 16) & 0xFF;
+    dst[off++] = (v >>> 8) & 0xFF;
+    dst[off++] = v & 0xFF;
+    return off;
+  }
+  function writeU32LE(dst, off, v) {
+    dst[off++] = v & 0xFF;
+    dst[off++] = (v >>> 8) & 0xFF;
+    dst[off++] = (v >>> 16) & 0xFF;
+    dst[off++] = (v >>> 24) & 0xFF;
+    return off;
+  }
+
+  const TEMPERA_VORBIS_VENDOR = "reference libFLAC 1.4.3 20230623";
+
+  function buildFlacMetadata(totalSamples) {
+    // Fixed: SR=48000, stereo, 16-bit. STREAMINFO + VORBIS_COMMENT. MD5 left as zeros.
+    const header = new Uint8Array(86);
+    let o = 0;
+
+    // 'fLaC'
+    header[o++] = 0x66; header[o++] = 0x4C; header[o++] = 0x61; header[o++] = 0x43;
+
+    // METADATA_BLOCK_HEADER: last=0, type=0 (STREAMINFO), length=34
+    header[o++] = 0x00;
+    header[o++] = 0x00; header[o++] = 0x00; header[o++] = 34;
+
+    // STREAMINFO (34 bytes)
+    o = writeU16BE(header, o, 1152); // min block size
+    o = writeU16BE(header, o, 1152); // max block size
+    o = writeU24BE(header, o, 0);    // min frame size (unknown)
+    o = writeU24BE(header, o, 0);    // max frame size (unknown)
+
+    // sample rate (20) | channels-1 (3) | bps-1 (5) | total samples (36)
+    const sr = 48000;
+    const chMinus1 = 1;   // stereo
+    const bpsMinus1 = 15; // 16-bit
+    let x = (BigInt(sr) << BigInt(3+5+36)) |
+            (BigInt(chMinus1) << BigInt(5+36)) |
+            (BigInt(bpsMinus1) << BigInt(36)) |
+            BigInt(totalSamples >>> 0);
+    // write 8 bytes big-endian
+    for (let i=7;i>=0;i--) {
+      header[o+i] = Number(x & 0xFFn);
+      x >>= 8n;
+    }
+    o += 8;
+
+    // MD5 (16 bytes) left as zeros
+    o += 16;
+
+    // METADATA_BLOCK_HEADER: last=1, type=4 (VORBIS_COMMENT), length=40
+    header[o++] = 0x84;
+    header[o++] = 0x00; header[o++] = 0x00; header[o++] = 40;
+
+    // VORBIS_COMMENT payload (40 bytes): vendor length + vendor string + user comment count (0)
+    o = writeU32LE(header, o, 32);
+    for (let i=0;i<TEMPERA_VORBIS_VENDOR.length;i++) {
+      header[o++] = TEMPERA_VORBIS_VENDOR.charCodeAt(i) & 0xFF;
+    }
+    o = writeU32LE(header, o, 0);
+
+    return header;
+  }
+
+  function calcFlacFrameHeaderLen(frameNum, blockCode) {
+    let len = 4 + flacUtf8Len(frameNum);
+    if (blockCode === 6) len += 1;
+    else if (blockCode === 7) len += 2;
+    len += 1; // crc8
+    return len;
+  }
+
+  function writeFlacFrameHeader(dst, off, frameNum, blockSize) {
+    const isFull = (blockSize === 1152);
+    const blockCode = isFull ? 3 : (blockSize <= 256 ? 6 : 7);
+
+    dst[off+0] = 0xFF;
+    dst[off+1] = 0xF8; // sync + reserved(0) + blocking(0)
+    dst[off+2] = ((blockCode & 0x0F) << 4) | 10; // 10 = 48kHz
+    dst[off+3] = (1 << 4) | (4 << 1); // stereo + 16-bit
+
+    let p = off + 4;
+    p = flacUtf8Write(dst, p, frameNum);
+
+    if (blockCode === 6) {
+      dst[p++] = (blockSize - 1) & 0xFF;
+    } else if (blockCode === 7) {
+      const v = (blockSize - 1) & 0xFFFF;
+      dst[p++] = (v >>> 8) & 0xFF;
+      dst[p++] = v & 0xFF;
+    }
+
+    const crc = flacCrc8(dst, off, p - off);
+    dst[p++] = crc;
+
+    return p;
+  }
+
+  function buildFlacSilence(totalSamples) {
+    const meta = buildFlacMetadata(totalSamples);
+
+    const full = Math.floor(totalSamples / 1152);
+    const rem = totalSamples - full * 1152;
+    const frames = full + (rem ? 1 : 0);
+
+    let totalLen = meta.length;
+    for (let i=0;i<frames;i++) {
+      const bs = (i < full) ? 1152 : rem;
+      const blockCode = (bs === 1152) ? 3 : (bs <= 256 ? 6 : 7);
+      const hlen = calcFlacFrameHeaderLen(i, blockCode);
+      totalLen += hlen + 8; // 2*CONSTANT(3) + CRC16(2)
+    }
+
+    const out = new Uint8Array(totalLen);
+    out.set(meta, 0);
+    let o = meta.length;
+
+    for (let i=0;i<frames;i++) {
+      const bs = (i < full) ? 1152 : rem;
+      const frameStart = o;
+
+      o = writeFlacFrameHeader(out, o, i, bs);
+
+      let crc16 = 0;
+      for (let k=frameStart;k<o;k++) crc16 = flacCrc16Update(crc16, out[k]);
+
+      // ch0 constant 0
+      out[o++] = 0x00; crc16 = flacCrc16Update(crc16, 0x00);
+      out[o++] = 0x00; crc16 = flacCrc16Update(crc16, 0x00);
+      out[o++] = 0x00; crc16 = flacCrc16Update(crc16, 0x00);
+      // ch1 constant 0
+      out[o++] = 0x00; crc16 = flacCrc16Update(crc16, 0x00);
+      out[o++] = 0x00; crc16 = flacCrc16Update(crc16, 0x00);
+      out[o++] = 0x00; crc16 = flacCrc16Update(crc16, 0x00);
+
+      out[o++] = (crc16 >>> 8) & 0xFF;
+      out[o++] = crc16 & 0xFF;
+    }
+
+    return out;
+  }
+
+  function buildFlacVerbatimFromFloatLR(L, R) {
+    const totalSamples = L.length;
+    const meta = buildFlacMetadata(totalSamples);
+
+    const full = Math.floor(totalSamples / 1152);
+    const rem = totalSamples - full * 1152;
+    const frames = full + (rem ? 1 : 0);
+
+    let totalLen = meta.length;
+    for (let i=0;i<frames;i++) {
+      const bs = (i < full) ? 1152 : rem;
+      const blockCode = (bs === 1152) ? 3 : (bs <= 256 ? 6 : 7);
+      const hlen = calcFlacFrameHeaderLen(i, blockCode);
+      totalLen += hlen + (bs * 4) + 4; // 2 subframe headers + audio + CRC16
+    }
+
+    const out = new Uint8Array(totalLen);
+    out.set(meta, 0);
+    let o = meta.length;
+
+    let srcOff = 0;
+    for (let i=0;i<frames;i++) {
+      const bs = (i < full) ? 1152 : rem;
+      const frameStart = o;
+
+      o = writeFlacFrameHeader(out, o, i, bs);
+
+      let crc16 = 0;
+      for (let k=frameStart;k<o;k++) crc16 = flacCrc16Update(crc16, out[k]);
+
+      // ch0 verbatim
+      out[o++] = 0x02; crc16 = flacCrc16Update(crc16, 0x02);
+      for (let s=0;s<bs;s++) {
+        const v = floatToInt16(L[srcOff + s]);
+        const u = v & 0xFFFF;
+        const hi = (u >>> 8) & 0xFF;
+        const lo = u & 0xFF;
+        out[o++] = hi; crc16 = flacCrc16Update(crc16, hi);
+        out[o++] = lo; crc16 = flacCrc16Update(crc16, lo);
+      }
+
+      // ch1 verbatim
+      out[o++] = 0x02; crc16 = flacCrc16Update(crc16, 0x02);
+      for (let s=0;s<bs;s++) {
+        const v = floatToInt16(R[srcOff + s]);
+        const u = v & 0xFFFF;
+        const hi = (u >>> 8) & 0xFF;
+        const lo = u & 0xFF;
+        out[o++] = hi; crc16 = flacCrc16Update(crc16, hi);
+        out[o++] = lo; crc16 = flacCrc16Update(crc16, lo);
+      }
+
+      out[o++] = (crc16 >>> 8) & 0xFF;
+      out[o++] = crc16 & 0xFF;
+
+      srcOff += bs;
+    }
+
+    return out;
+  }
+
+  function exportColumnFloatLR(col) {
+    const rowFrames = getCellFramesArray();
+    const colFrames = getColFrames();
+
+    const outL = new Float32Array(colFrames);
+    const outR = new Float32Array(colFrames);
+
+    let off = 0;
+    for (let r=0;r<ROWS;r++) {
+      const cell = state.cells[col][r];
+      const frames = rowFrames[r];
+      const out = renderCellToTarget(cell, frames);
+      outL.set(out.L, off);
+      outR.set(out.R, off);
+      off += frames;
+    }
+    return {L: outL, R: outR};
+  }
+
+  async function exportCanvasPOC3(){
+    try{
+      const def = `TCM_Canvas_${getDateStamp()}`;
+      const res = await window.openCanvasNameOverlay(def);
+      if (!res) {
+        toast("Export cancelled.", 1200);
+        return;
+      }
+      const canvasName = res.name || def;
+
+      const enc = new TextEncoder();
+      const files = [];
+      files.push({name:"parameters.txt", data: enc.encode(temperaBuildParametersFromTemplate())});
+
+      for (let t=0;t<8;t++) {
+        const has = temperaColumnHasAudio(t);
+        toast(`Rendering track ${t+1}...`, 900);
+
+        let mips = null;
+        if (has) {
+          const base = exportColumnFloatLR(t); // L/R Float32 @ 48kHz, length 524288
+          toast(`Building mipmaps for track ${t+1}...`, 900);
+          mips = await buildTemperaMipChain(base);
+        }
+
+        for (let m=0;m<8;m++) {
+          const target = TEMPERA_CANVAS_MIP_SAMPLES[m];
+          let flac;
+          if (!has) {
+            flac = buildFlacSilence(target);
+          } else {
+            const lr = mips[m];
+            flac = buildFlacVerbatimFromFloatLR(lr.L, lr.R);
+          }
+          files.push({name:`${t}_${m}.flac`, data: flac});
+        }
+        await new Promise(r=>setTimeout(r,0));
+      }
+
+      toast(`Building .canvas (${files.length} file(s))...`, 1800);
+      const zipBlob = zipStore(files);
+      // iPad/Safari may append .zip based on MIME type. Use a generic type so the filename stays .canvas.
+      const outBlob = new Blob([zipBlob], {type:"application/octet-stream"});
+      const url = URL.createObjectURL(outBlob);
+
+      const outName = sanitizeFilename(`${canvasName}`) + ".canvas";
+      clickDownload(url, outName);
+
+      setTimeout(() => URL.revokeObjectURL(url), 8000);
+      toast(`Exported .canvas: ${files.length} file(s)`, 2000);
+    }catch(e){
+      console.error(e);
+      toast("Canvas export failed (see console)", 2400);
+    }
+  }
+
   exportAllBtn.addEventListener("click", () => { exportAllColumnsZip(); });
+  exportCanvasBtn && exportCanvasBtn.addEventListener("click", () => { exportCanvasPOC3(); });
 stopBtn.addEventListener("click", () => stopPlayback());
 
 
@@ -9302,6 +10464,55 @@ function restoreNativeTooltips(){
   __savedNativeTitles = null;
 }
 // --------------------------------------------------------------
+
+
+function openCanvasNameOverlay(defaultName){
+  return new Promise((resolve) => {
+    const ov = document.getElementById("canvasNameOverlay");
+    const input = document.getElementById("canvasNameInput");
+    const btnOk = document.getElementById("canvasNameOkBtn");
+    const btnCancel = document.getElementById("canvasNameCancelBtn");
+    const btnClose = document.getElementById("canvasNameOverlayClose");
+    if (!ov || !input || !btnOk || !btnCancel || !btnClose){
+      const raw = prompt("Canvas name (used for .canvas filename):", defaultName || "");
+      if (raw == null) return resolve(null);
+      const s = sanitizeFilename(raw);
+      return resolve({ name: (s || sanitizeFilename(defaultName || "TCM_Canvas")) });
+    }
+
+    input.value = String(defaultName || "");
+    input.select?.();
+
+    function close(val){
+      ov.classList.remove("show");
+      ov.setAttribute("aria-hidden","true");
+      btnOk.onclick = null;
+      btnCancel.onclick = null;
+      btnClose.onclick = null;
+      document.removeEventListener("keydown", onKey, true);
+      resolve(val);
+    }
+    function onKey(e){
+      if (e.key === "Escape"){ e.preventDefault(); close(null); }
+      if (e.key === "Enter"){ e.preventDefault(); btnOk.click(); }
+    }
+
+    btnOk.onclick = () => {
+      const s = sanitizeFilename(String(input.value || ""));
+      close({ name: (s || sanitizeFilename(defaultName || "TCM_Canvas")) });
+    };
+    btnCancel.onclick = () => close(null);
+    btnClose.onclick = () => close(null);
+
+    ov.classList.add("show");
+    ov.setAttribute("aria-hidden","false");
+    setTimeout(()=>{ try{ input.focus(); input.select?.(); }catch(_){} }, 0);
+    document.addEventListener("keydown", onKey, true);
+  });
+}
+// expose for module/handler access
+try{ window.openCanvasNameOverlay = openCanvasNameOverlay; }catch(_){}
+
 
 function openPresetNameOverlay(defaultName, opts){
   return new Promise((resolve) => {
@@ -9928,7 +11139,8 @@ if (Array.isArray(preset.cellNames)){
           splitPlayActiveSlice();
           return;
         }
-        return;
+        // If the only open overlay is the Slice Editor, allow global handlers (arrow-key nudge, etc.)
+        if (!(splitOv && ov === splitOv)) return;
       }
     }catch(_){ }
 
@@ -9956,7 +11168,11 @@ if (Array.isArray(preset.cellNames)){
 
     
     // SPLIT_NUDGE_KEYS: when Split Editor is open, arrow keys nudge the active slice (instead of cell navigation)
-    const splitOpen = (splitOverlayEl && splitOverlayEl.style.display !== "none");
+    const splitOpen = !!(splitOverlayEl && (
+      (splitOverlayEl.classList && splitOverlayEl.classList.contains('show')) ||
+      (splitOverlayEl.style && splitOverlayEl.style.display && splitOverlayEl.style.display !== "none") ||
+      (window.getComputedStyle && getComputedStyle(splitOverlayEl).display !== "none")
+    ) && splitOverlayEl.getAttribute('aria-hidden') !== 'true');
 
     if (splitOpen && e.key === "Escape") {
       try{
@@ -10139,11 +11355,27 @@ if (e.key === "Escape"){
   renderReleaseNotes();
   // Fill version text (avoids manual sync in multiple places)
   const cEl = document.getElementById("copyrightText");
-  if (cEl) cEl.textContent = `© 2026 Patronix · v${APP_VERSION}`;
+  if (cEl) cEl.textContent = `© 2026 Patronix`;
   const aboutEl = document.getElementById("aboutBadge");
   if (aboutEl){
     aboutEl.textContent = `v${APP_VERSION}`;
-    const bd = (typeof APP_BUILD_DATE !== "undefined" && APP_BUILD_DATE) ? APP_BUILD_DATE : "";
+    
+    // Minimal support link next to version badge
+    try{
+      let d = document.getElementById("donateBadge");
+      if (!d){
+        d = document.createElement("a");
+        d.id = "donateBadge";
+        d.className = "spec donateSpec";
+        d.href = "https://buymeacoffee.com/patronix.music";
+        d.target = "_blank";
+        d.rel = "noopener noreferrer";
+        d.innerHTML = "Buy me a coffee <span class=\"donateCupWrap\" aria-hidden=\"true\"><img class=\"donateCup\" alt=\"\" aria-hidden=\"true\" src=\"data:image/png;base64,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\"></span>";
+        d.title = "Support TCM on Buy Me a Coffee";
+        aboutEl.insertAdjacentElement("afterend", d);
+      }
+    }catch(_e){}
+const bd = (typeof APP_BUILD_DATE !== "undefined" && APP_BUILD_DATE) ? APP_BUILD_DATE : "";
     aboutEl.title = bd ? (`Version ${APP_VERSION} · Build ${bd}`) : (`Version ${APP_VERSION}`);
     aboutEl.addEventListener("click", (e)=>{ e.preventDefault(); try{ document.getElementById("helpBtn")?.click(); }catch(_){} });
     aboutEl.style.cursor = "pointer";
