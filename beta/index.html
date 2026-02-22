@@ -2393,7 +2393,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-const APP_VERSION = '2.10.48';
+const APP_VERSION = '2.10.55';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -2559,11 +2559,12 @@ const APP_VERSION = '2.10.48';
 
   const APP_BUILD_DATE = '2026-02-21';
   const CHANGELOG = [
-  "2.10.48 - UI: .canvas export dialog actions padded like Export preset dialog.",
-  "2.10.47 - UI: .canvas dialog copy/OK styling; export filenames now match the name field exactly (no date suffix).",
+  "2.10.55 - Fit/Rate: after Wave Editor Apply, switches back to Pad/Trim.",
+  "2.10.54 - Fit/Rate: long samples now time-fit the full source, hide selection in Rate.",
+  "2.10.47 - UI: .canvas dialog copy/OK styling; export filenames now match name field.",
   "2.10.46 - Fix: .canvas export dialog opens (separate from ZIP export).",
   "2.10.43 - UI: Top-right copyright/mini-controls aligned with Name field.",
-  "2.10.42 - UI: Name template dropdown fits on one line and stays reachable (desktop/iPad).",
+  "2.10.42 - UI: Name template dropdown fits on one line and stays reachable.",
   "2.10.36 - Added: Tempera .canvas export (optional).",
   "2.10.25 - meta: added Buy Me a Coffee support link (header)",
   "2.10.15 - ui-tune: removed duplicate version text from copyright in header",
@@ -3733,6 +3734,15 @@ if (editorIsTrimmed){
 }
 // Reset derived caches
     cell.cache = { key:"", L:null, R:null, frames:0 };
+
+    // After editing + Apply in the Wave Editor, keep result "as-is".
+    // Staying in fitMode "rate" would immediately re-time-fit (pitch) the audio, which is confusing.
+    // Minimal/local: only flip rate -> padtrim on successful Apply (not on no-op Apply).
+    try{
+      if (cell && cell.settings && cell.settings.fitMode === "rate"){
+        cell.settings.fitMode = "padtrim";
+      }
+    }catch(_e){}
 
     updateCellUI(waveEditor.col, waveEditor.row);
     markWaveDirty(waveEditor.col, waveEditor.row);
@@ -6577,7 +6587,7 @@ function computePeaks(left, right, points=72){
                 const edited0 = (cell.selEdited === true);
                 const selStart0 = (cell.selStartFrames != null) ? Math.round(cell.selStartFrames) : 0;
                 const selLen0 = (cell.selLenFrames != null) ? Math.round(cell.selLenFrames) : (cellFrames0|0);
-                const showSel0 = edited0 || true; // long sample => always show a window
+                const showSel0 = edited0 || ((cell.settings && cell.settings.fitMode) !== "rate"); // show window unless rate-fit is active
                 const drawSelStart0 = showSel0 ? (edited0 ? selStart0 : 0) : null;
                 const drawSelLen0   = showSel0 ? (edited0 ? selLen0   : (cellFrames0|0)) : null;
                 drawWave(cv, peaks0, cell.settings, src0.L.length, !!cell.settings.reverse, drawSelStart0, drawSelLen0, src0.L.length);
@@ -6626,7 +6636,7 @@ function computePeaks(left, right, points=72){
           const srcFrames = (cell.origin && cell.origin.split && cell.origin.split.frames) ? cell.origin.split.frames : total;
           const totalFramesForSel = edited ? srcFrames : total;
 
-          const showSel = edited || isLong;
+          const showSel = edited || (isLong && ((cell.settings && cell.settings.fitMode) !== "rate"));
           const drawSelStart = showSel ? (edited ? selStart : 0) : null;
           const drawSelLen   = showSel ? (edited ? selLen   : cellFrames) : null;
 
@@ -6647,7 +6657,7 @@ function computePeaks(left, right, points=72){
             const cellFrames = getCellFrames(meta.row);
 const isLong = (src.L.length > cellFrames);
 const edited = (cell.selEdited === true);
-const showSel = edited || isLong;
+const showSel = edited || (isLong && ((cell.settings && cell.settings.fitMode) !== "rate"));
 const drawSelStart = showSel ? (edited ? selStart : 0) : null;
 const drawSelLen   = showSel ? (edited ? selLen   : cellFrames) : null;
 drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSelStart, drawSelLen, src.L.length);
@@ -6785,7 +6795,13 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     try{
       const key = (cell.editorKey && sourceStore.has(cell.editorKey)) ? cell.editorKey : (cell.sourceKey || "");
       const hasSel = (typeof cell.selStartFrames === "number") && (typeof cell.selLenFrames === "number");
-      if (key && hasSel && sourceStore && sourceStore.has(key)){
+
+      // For long samples we show a default selection window (one cell). In fitMode "rate" the user typically
+      // expects the *full* sample to be time-fit into the cell. So: if selection is still default (not edited),
+      // ignore the default window and resample the full source.
+      const useSelection = !(s.fitMode === "rate" && cell.selEdited !== true);
+
+      if (useSelection && key && hasSel && sourceStore && sourceStore.has(key)){
         const src = sourceStore.get(key);
         const srcLen = src && src.L ? src.L.length : 0;
         if (srcLen > 0 && Lin.length === srcLen && cell.selLenFrames > 0 && srcLen > cell.selLenFrames){
@@ -6796,6 +6812,7 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
         }
       }
     }catch(_){}
+
 
     if (s.fitMode === "padtrim"){
       const n = Math.min(targetFrames, Lin.length);
@@ -8139,6 +8156,37 @@ if (__inspCache.descText !== descText){
     const cell = getSelectedCell(); if (!cell) return;
     cell.settings.fitMode = fitModeEl.value;
     fitValEl.textContent = cell.settings.fitMode;
+
+    // For long samples we show a default one-cell selection window so the UI stays manageable.
+    // In fitMode "rate" the user generally expects the FULL sample to be time-fit into the cell.
+    // Minimal behavior:
+    // - If selection was not edited by the user (selEdited !== true), toggle the auto selection window:
+    //   - rate  => selection becomes the full source (so it doesn't restrict playback/rendering and disappears visually)
+    //   - other => selection returns to one-cell window (so long samples still show a manageable window)
+    try{
+      if (cell.left && cell.right){
+        const r = (state.selected && typeof state.selected.row === "number") ? (state.selected.row|0) : 0;
+        const cf = (typeof getCellFrames === "function") ? (getCellFrames(r)|0) : 0;
+        const cellFrames = (cf && cf > 0) ? cf : (cell.left.length|0);
+        const total = (cell.left.length|0);
+        const long = (total > cellFrames);
+        const selStart = (typeof cell.selStartFrames === "number") ? (cell.selStartFrames|0) : 0;
+        const selLen   = (typeof cell.selLenFrames === "number")   ? (cell.selLenFrames|0)   : 0;
+
+        if (long && cell.selEdited !== true && selStart === 0){
+          const autoSel = (selLen === cellFrames) || (selLen === total) || (selLen === 0);
+          if (autoSel){
+            cell.selStartFrames = 0;
+            cell.selLenFrames = (cell.settings.fitMode === "rate")
+              ? total
+              : clamp(cellFrames, 1, total);
+            // keep caches coherent
+            cell.cache = { key:"", L:null, R:null, frames:0 };
+          }
+        }
+      }
+    }catch(_e){}
+
     invalidateCellCache(state.selected.col, state.selected.row);
     updateCellUI(state.selected.col, state.selected.row);
   });
@@ -9242,7 +9290,7 @@ emittor1FadeIn:0
 emittor1FadeOut:0
 emittor1Filter:1
 emittor1GrainAlign:0
-emittor1GrainAlignX:0
+emittor1GrainAlignX:1
 emittor1GrainDensity:1
 emittor1GrainDensityJitter:0
 emittor1GrainEnvelopeAttack:0
@@ -9364,7 +9412,7 @@ manualControl0:0.5
 manualControl1:0.5
 manualControl2:0.5
 manualControl3:0.5
-masterVolume:0.617188
+masterVolume:0.429688
 modulator0Amount:0
 modulator0Destination:0
 modulator0Free:0
@@ -9423,7 +9471,7 @@ modulator2Free:1
 modulator2P1:0.37875
 modulator2P2:0
 modulator2Polarity:1
-modulator2Retrigger:1
+modulator2Retrigger:0
 modulator2Step0:0.5
 modulator2Step1:0.5
 modulator2Step10:0.5
@@ -9626,13 +9674,13 @@ modulator9StepCount:8
 modulator9Sync:0
 modulator9Type:2
 modulatorSizeTarget:1
-modulatorSizeTarget0:0
-modulatorSizeTarget1:0
-modulatorSizeTarget2:0
-modulatorSizeTarget3:0
-modulatorSizeTarget4:1
-modulatorSizeTarget5:1
-modulatorSizeTarget6:1
+modulatorSizeTarget0:1
+modulatorSizeTarget1:1
+modulatorSizeTarget2:1
+modulatorSizeTarget3:1
+modulatorSizeTarget4:0
+modulatorSizeTarget5:0
+modulatorSizeTarget6:0
 modulatorSizeTarget7:1
 modulatorSizeTarget8:1
 modulatorSizeTarget9:1
@@ -10021,20 +10069,45 @@ const _flacCrc8Table = (() => {
   }
 
   function exportColumnFloatLR(col) {
-    const rowFrames = getCellFramesArray();
-    const colFrames = getColFrames();
-
+    // .canvas base track must be fixed-size (524288 frames).
+    const colFrames = TEMPERA_CANVAS_MIP_SAMPLES[0]; // 524288
     const outL = new Float32Array(colFrames);
     const outR = new Float32Array(colFrames);
+
+    // Fixed per-row split (independent of Tempo mode)
+    const base = Math.floor(colFrames / ROWS);
+    const rowFrames = new Array(ROWS);
+    let sum = 0;
+    for (let r=0;r<ROWS;r++) {
+      const frames = (r === ROWS-1) ? (colFrames - sum) : base;
+      rowFrames[r] = frames;
+      sum += frames;
+    }
+
+    // If Tempo mode is ON, "bake" tempo timing into the *content* per cell
+    // while preserving the fixed Tempera cell boundaries (65536 per row).
+    // When tempo makes a cell shorter, we render at the tempo target length (pitch up)
+    // and place it at the start of the fixed slot (remaining frames stay silent).
+    // If tempo would require a longer cell than the fixed slot, we fall back to slot length.
+    let tempoRowFrames = null;
+    try{
+      if (tempoModeEl && tempoModeEl.checked) tempoRowFrames = getCellFramesArray();
+    }catch(_){}
 
     let off = 0;
     for (let r=0;r<ROWS;r++) {
       const cell = state.cells[col][r];
-      const frames = rowFrames[r];
-      const out = renderCellToTarget(cell, frames);
+      const slotFrames = rowFrames[r];
+
+      let renderFrames = slotFrames;
+      if (tempoRowFrames && tempoRowFrames[r] && tempoRowFrames[r] > 0 && tempoRowFrames[r] < slotFrames){
+        renderFrames = tempoRowFrames[r];
+      }
+
+      const out = renderCellToTarget(cell, renderFrames);
       outL.set(out.L, off);
       outR.set(out.R, off);
-      off += frames;
+      off += slotFrames;
     }
     return {L: outL, R: outR};
   }
