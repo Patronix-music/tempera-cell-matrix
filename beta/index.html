@@ -1874,6 +1874,78 @@ input[type="range"]::-webkit-slider-thumb:active{
 #tcmTip.show{ opacity: 1; transform: translateY(0); }
 
 
+
+/* Long sample load choice */
+.cellLoadPanel{ width: min(620px, calc(100vw - 24px)); }
+.cellLoadPanel input[type="radio"]{
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  flex: 0 0 auto;
+}
+.cellLoadPanel input[type="radio"]:focus,
+.cellLoadPanel input[type="radio"]:focus-visible,
+.cellLoadPanel button:focus,
+.cellLoadPanel button:focus-visible,
+.cellLoadPanel select:focus,
+.cellLoadPanel select:focus-visible{
+  outline: none !important;
+  box-shadow: none !important;
+}
+.cell:focus,
+.cell:focus-visible{
+  outline: none !important;
+}
+.cellLoadOverflowRow{
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.10);
+}
+.cellLoadOverflowRow label{
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+.cellLoadOverflowRow select{
+  width: 68px;
+  min-width: 68px;
+  max-width: 68px;
+  flex: 0 0 68px;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 8px 24px 8px 8px;
+  outline: none;
+  font-size: 12px;
+  text-align: center;
+  text-align-last: center;
+}
+.cellLoadOverflowRow.isDisabled{
+  opacity: 0.45;
+  pointer-events: none;
+}
+#cellLoadModeText strong{ color: var(--text); }
+#cellLoadOverflowHint{
+  flex: 0 0 100%;
+  width: 100%;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--muted);
+}
+@media (max-width: 760px){
+  .cellLoadPanel{ width: min(560px, calc(100vw - 24px)); }
+}
+
+
 </style>
 </head>
 <body>
@@ -2141,6 +2213,44 @@ input[type="range"]::-webkit-slider-thumb:active{
 
 
 
+
+
+<div class="overlay" id="cellLoadModeOverlay" aria-hidden="true">
+  <div class="helpPanel cellLoadPanel" role="dialog" aria-modal="true" aria-label="Long sample options">
+    <div class="helpHead">
+      <div class="helpTitle">Long sample</div>
+      <button class="helpClose" id="cellLoadModeCloseBtn" title="Close">✕</button>
+    </div>
+    <div class="helpBody" style="font-size:13px;">
+      <p class="muted" id="cellLoadModeText">This sample is longer than one cell.</p>
+
+      <div class="helpCard" style="margin-top:10px;">
+        <label class="chk" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+          <input type="radio" name="cellLoadMode" value="trim" checked>
+          <span><b>Trim in current cell</b><br><span class="muted">Current behavior. The sample stays in this cell and you can still trim it later in the Wave Editor.</span></span>
+        </label>
+      </div>
+
+      <div class="helpCard" style="margin-top:10px;">
+        <label class="chk" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+          <input type="radio" name="cellLoadMode" value="overflow">
+          <span><b>Overflow into cells below</b><br><span class="muted">The sample is split seamlessly across the cells below this one.</span></span>
+        </label>
+        <div class="cellLoadOverflowRow" id="cellLoadOverflowRow">
+          <label class="muted" for="cellLoadOverflowCount">Underlying cells</label>
+          <select id="cellLoadOverflowCount"></select>
+          <div class="muted" id="cellLoadOverflowHint"></div>
+        </div>
+      </div>
+
+      <div class="overlayActions helpActions" style="margin-top:12px;">
+        <button class="secondary" id="cellLoadModeCancelBtn">Cancel</button>
+        <button class="good" id="cellLoadModeOkBtn">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
   <!-- One hidden input for all loads -->
@@ -2203,6 +2313,7 @@ input[type="range"]::-webkit-slider-thumb:active{
             </ul></div><div class="helpCard"><h3>Loading audio</h3>
 <ul class="helpList">
                           <li><b>Cell Load</b>: click <b>Load</b> inside a cell or drop a file onto that cell.</li>
+                          <li>Long samples can now either stay in the current cell (<b>trim</b>) or <b>overflow</b> into the cells below.</li>
                           <li><b>Load+Slice</b>: pick one file → opens Slice Editor where you can drag/resize 8 blocks, then <b>Apply</b> to the column.</li>
                           <li><b>Load 8</b>: select 8 files → fills the 8 cells top→bottom.</li>
                           <li><b>Random 64</b>: pick a folder (subfolders included) → fills all cells randomly.</li>
@@ -2393,7 +2504,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-const APP_VERSION = '2.10.55';
+const APP_VERSION = '2.10.61';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -2559,6 +2670,12 @@ const APP_VERSION = '2.10.55';
 
   const APP_BUILD_DATE = '2026-02-21';
   const CHANGELOG = [
+  "2.10.61 - Long-sample popup: Enter now confirms again after changing the overflow cell count.",
+  "2.10.60 - UI polish: overflow count field made slightly wider so the number is fully visible.",
+  "2.10.59 - UI polish: long-sample popup narrower; overflow count field fixed in place and made more compact.",
+  "2.10.58 - UI polish: removed white focus rings on long-sample choices and selected cell; tightened overflow count layout.",
+  "2.10.57 - Focus fix: long-sample dialog now takes keyboard focus and returns focus to the selected cell.",
+  "2.10.56 - Added long-sample Load choice: trim current cell or overflow into cells below.",
   "2.10.55 - Fit/Rate: after Wave Editor Apply, switches back to Pad/Trim.",
   "2.10.54 - Fit/Rate: long samples now time-fit the full source, hide selection in Rate.",
   "2.10.47 - UI: .canvas dialog copy/OK styling; export filenames now match name field.",
@@ -5465,6 +5582,19 @@ const fileInput = document.getElementById("fileInput");
 
   // ====== Name template history (last 5) ======
   const nameTemplateHistoryEl = document.getElementById("nameTemplateDropMenu");
+
+  const cellLoadModeOverlayEl = document.getElementById("cellLoadModeOverlay");
+  const cellLoadModePanelEl = cellLoadModeOverlayEl ? cellLoadModeOverlayEl.querySelector(".cellLoadPanel") : null;
+  const cellLoadModeTextEl = document.getElementById("cellLoadModeText");
+  const cellLoadOverflowRowEl = document.getElementById("cellLoadOverflowRow");
+  const cellLoadOverflowCountEl = document.getElementById("cellLoadOverflowCount");
+  const cellLoadOverflowHintEl = document.getElementById("cellLoadOverflowHint");
+  const cellLoadModeOkBtnEl = document.getElementById("cellLoadModeOkBtn");
+  const cellLoadModeCancelBtnEl = document.getElementById("cellLoadModeCancelBtn");
+  const cellLoadModeCloseBtnEl = document.getElementById("cellLoadModeCloseBtn");
+  let cellLoadModeResolve = null;
+  let cellLoadModeContext = null;
+  let cellLoadModeLastFocusEl = null;
   const nameTemplateDropBtn = document.getElementById("nameTemplateDropBtn");
   const NAME_TEMPLATE_HISTORY_KEY = "tcm_name_template_history_v1";
   const NAME_TEMPLATE_HISTORY_MAX = 5;
@@ -6883,6 +7013,346 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     return { left: L, right: R, name: file.name || "" };
   }
 
+
+  function getCellOverflowCapacityFrames(startRow, underCells){
+    let total = 0;
+    const maxRow = Math.min(ROWS - 1, (startRow|0) + Math.max(0, underCells|0));
+    for (let r=(startRow|0); r<=maxRow; r++) total += getCellFrames(r);
+    return total;
+  }
+
+  function formatLoadChoiceSeconds(sec){
+    const n = Math.max(0, Number(sec || 0));
+    return n.toFixed(3).replace(/0+$/,'').replace(/\.$/, '');
+  }
+
+  function getCellEl(col, row){
+    try{
+      return (__cellDom && __cellDom[col] && __cellDom[col][row] && __cellDom[col][row].cellEl)
+        || colsEl.querySelector(`.cell[data-col="${col}"][data-row="${row}"]`)
+        || null;
+    }catch(_){
+      return null;
+    }
+  }
+
+  function focusCellEl(col, row){
+    const cellEl = getCellEl(col, row);
+    if (!cellEl) return;
+    try{ cellEl.focus({ preventScroll:true }); }
+    catch(_){ try{ cellEl.focus(); }catch(__){} }
+  }
+
+  function restoreCellLoadModeFocus(){
+    try{
+      if (state && state.selected && state.selected.has){
+        focusCellEl(state.selected.col, state.selected.row);
+        return;
+      }
+      if (cellLoadModeLastFocusEl && typeof cellLoadModeLastFocusEl.focus === 'function'){
+        try{ cellLoadModeLastFocusEl.focus({ preventScroll:true }); }
+        catch(_){ try{ cellLoadModeLastFocusEl.focus(); }catch(__){} }
+      }
+    }catch(_){ }
+  }
+
+  function getCellLoadModeFocusableEls(){
+    if (!cellLoadModeOverlayEl) return [];
+    const nodes = Array.from(cellLoadModeOverlayEl.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+    return nodes.filter(el => !!(el && el.offsetParent !== null));
+  }
+
+  function focusCellLoadModeOverlayStart(){
+    if (!cellLoadModeOverlayEl) return;
+    const checked = cellLoadModeOverlayEl.querySelector('input[name="cellLoadMode"]:checked');
+    const first = checked || getCellLoadModeFocusableEls()[0] || cellLoadModePanelEl;
+    if (!first || typeof first.focus !== 'function') return;
+    try{ first.focus({ preventScroll:true }); }
+    catch(_){ try{ first.focus(); }catch(__){} }
+  }
+
+  function closeCellLoadModeOverlay(result){
+    if (!cellLoadModeOverlayEl) return;
+    const resolve = cellLoadModeResolve;
+    cellLoadModeResolve = null;
+    cellLoadModeContext = null;
+    cellLoadModeOverlayEl.classList.remove("show");
+    cellLoadModeOverlayEl.style.display = "none";
+    cellLoadModeOverlayEl.setAttribute("aria-hidden", "true");
+    unlockBodyScroll(true);
+    if (typeof window.__hideTCMTip === "function") window.__hideTCMTip();
+    requestAnimationFrame(() => {
+      restoreCellLoadModeFocus();
+      cellLoadModeLastFocusEl = null;
+    });
+    if (resolve) resolve(result || null);
+  }
+
+  function updateCellLoadModeOverflowHint(){
+    if (!cellLoadModeContext || !cellLoadOverflowHintEl || !cellLoadOverflowCountEl) return;
+    const row = cellLoadModeContext.row|0;
+    const underCells = Math.max(1, Number(cellLoadOverflowCountEl.value || 1)|0);
+    const totalCells = underCells + 1;
+    const capFrames = getCellOverflowCapacityFrames(row, underCells);
+    const capSec = formatLoadChoiceSeconds(capFrames / SR);
+    const restTrimmed = (cellLoadModeContext.totalFrames|0) > capFrames;
+    cellLoadOverflowHintEl.textContent = `Uses ${totalCells} cell${totalCells===1?'':'s'} total and gives ${capSec}s space.${restTrimmed ? ' Any remaining audio is trimmed.' : ''}`;
+  }
+
+  function updateCellLoadModeControls(){
+    if (!cellLoadModeOverlayEl) return;
+    const modeEl = cellLoadModeOverlayEl.querySelector('input[name="cellLoadMode"]:checked');
+    const isOverflow = !!(modeEl && modeEl.value === 'overflow');
+    if (cellLoadOverflowRowEl) cellLoadOverflowRowEl.classList.toggle('isDisabled', !isOverflow);
+    if (cellLoadOverflowCountEl) cellLoadOverflowCountEl.disabled = !isOverflow;
+    updateCellLoadModeOverflowHint();
+  }
+
+  function suggestOverflowUnderCells(row, totalFrames){
+    let usedBelow = 0;
+    let cap = getCellFrames(row|0);
+    while (cap < (totalFrames|0) && ((row|0) + usedBelow + 1) < ROWS){
+      usedBelow++;
+      cap += getCellFrames((row|0) + usedBelow);
+    }
+    return Math.max(1, usedBelow);
+  }
+
+  function askCellLoadMode(info){
+    if (!cellLoadModeOverlayEl || !cellLoadModeTextEl || !cellLoadOverflowCountEl) return Promise.resolve({ mode:'trim', underCells:0 });
+
+    const row = info.row|0;
+    const maxBelow = Math.max(0, ROWS - row - 1);
+    const cellSec = getCellFrames(row) / SR;
+    const totalSec = (info.totalFrames|0) / SR;
+    const currentCellLabel = getCellDisplayName(info.col|0, row);
+    const lastCellLabel = getCellDisplayName(info.col|0, ROWS - 1);
+
+    cellLoadModeContext = {
+      col: info.col|0,
+      row,
+      totalFrames: info.totalFrames|0,
+      fileName: String(info.fileName || 'sample')
+    };
+
+    cellLoadModeTextEl.innerHTML = `<strong>${cellLoadModeContext.fileName}</strong> is ${formatLoadChoiceSeconds(totalSec)}s long. One cell here is ${formatLoadChoiceSeconds(cellSec)}s. From <strong>${currentCellLabel}</strong> down to <strong>${lastCellLabel}</strong> you can use up to ${maxBelow} underlying cell${maxBelow===1?'':'s'}.`;
+
+    cellLoadOverflowCountEl.innerHTML = '';
+    for (let i=1; i<=maxBelow; i++){
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = String(i);
+      cellLoadOverflowCountEl.appendChild(opt);
+    }
+    const suggested = Math.min(maxBelow, suggestOverflowUnderCells(row, info.totalFrames|0));
+    cellLoadOverflowCountEl.value = String(Math.max(1, suggested || 1));
+
+    const trimRadio = cellLoadModeOverlayEl.querySelector('input[name="cellLoadMode"][value="trim"]');
+    const overflowRadio = cellLoadModeOverlayEl.querySelector('input[name="cellLoadMode"][value="overflow"]');
+    if (trimRadio) trimRadio.checked = true;
+    if (overflowRadio) overflowRadio.checked = false;
+
+    updateCellLoadModeControls();
+
+    try{
+      cellLoadModeLastFocusEl = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
+    }catch(_){
+      cellLoadModeLastFocusEl = null;
+    }
+
+    cellLoadModeOverlayEl.style.display = 'flex';
+    cellLoadModeOverlayEl.classList.add('show');
+    cellLoadModeOverlayEl.setAttribute('aria-hidden', 'false');
+    lockBodyScroll();
+    requestAnimationFrame(() => {
+      focusCellLoadModeOverlayStart();
+    });
+
+    return new Promise(resolve => {
+      cellLoadModeResolve = resolve;
+    });
+  }
+
+  function initCellLoadModeOverlay(){
+    if (!cellLoadModeOverlayEl) return;
+    if (cellLoadModeOverlayEl.dataset.bound === '1') return;
+    cellLoadModeOverlayEl.dataset.bound = '1';
+
+    cellLoadModeOverlayEl.addEventListener('click', (e) => {
+      if (e.target === cellLoadModeOverlayEl) closeCellLoadModeOverlay(null);
+    });
+
+    cellLoadModeOverlayEl.querySelectorAll('input[name="cellLoadMode"]').forEach(el => {
+      el.addEventListener('change', updateCellLoadModeControls);
+    });
+
+    if (cellLoadOverflowCountEl){
+      cellLoadOverflowCountEl.addEventListener('change', updateCellLoadModeOverflowHint);
+      cellLoadOverflowCountEl.addEventListener('input', updateCellLoadModeOverflowHint);
+    }
+
+    const onCancel = (e) => {
+      if (e) e.preventDefault();
+      closeCellLoadModeOverlay(null);
+    };
+
+    const onConfirm = (e) => {
+      if (e) e.preventDefault();
+      const modeEl = cellLoadModeOverlayEl.querySelector('input[name="cellLoadMode"]:checked');
+      const mode = modeEl ? modeEl.value : 'trim';
+      const underCells = (mode === 'overflow') ? Math.max(1, Number(cellLoadOverflowCountEl?.value || 1)|0) : 0;
+      closeCellLoadModeOverlay({ mode, underCells });
+    };
+
+    cellLoadModeCancelBtnEl && cellLoadModeCancelBtnEl.addEventListener('click', onCancel);
+    cellLoadModeCloseBtnEl && cellLoadModeCloseBtnEl.addEventListener('click', onCancel);
+    cellLoadModeOkBtnEl && cellLoadModeOkBtnEl.addEventListener('click', onConfirm);
+
+    document.addEventListener('keydown', (e) => {
+      if (!cellLoadModeOverlayEl.classList.contains('show')) return;
+      if (e.key === 'Tab'){
+        const focusables = getCellLoadModeFocusableEls();
+        if (!focusables.length){
+          e.preventDefault();
+          e.stopPropagation();
+          if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+          return;
+        }
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement;
+        const inside = !!(active && cellLoadModeOverlayEl.contains(active));
+        if (e.shiftKey){
+          if (!inside || active === first){
+            e.preventDefault();
+            e.stopPropagation();
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+            try{ last.focus(); }catch(_){ }
+          }
+        }else if (!inside || active === last){
+          e.preventDefault();
+          e.stopPropagation();
+          if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+          try{ first.focus(); }catch(_){ }
+        }
+      }else if (e.key === 'Escape'){
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+        closeCellLoadModeOverlay(null);
+      }else if (e.key === 'Enter'){
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+        onConfirm();
+      }
+    }, true);
+  }
+
+  function resetCellForOverflowLoad(cell){
+    cell.scissors = false;
+    cell.selEdited = false;
+    cell.trimStartSrcFrames = null;
+    cell.trimLenSrcFrames = null;
+    cell._forceCellWave = false;
+    cell.cache = { key:'', L:null, R:null, frames:0 };
+    cell.fullSourceKey = null;
+    cell.editorKey = null;
+    cell.editorUndo = null;
+    cell.editorSelStart = null;
+    cell.editorSelLen = null;
+    cell.left = null;
+    cell.right = null;
+    cell.peaks = null;
+    cell.name = '';
+    cell._trimPeaksByW = null;
+    cell._peaksByW = null;
+    cell._trimPeaks = null;
+    cell.settings = {
+      gain: 1.0,
+      mute: false,
+      reverse: false,
+      fadeInMs: 0,
+      fadeOutMs: 0,
+      fitMode: 'padtrim',
+    };
+  }
+
+  async function loadDecodedOverflowIntoCells(col, startRow, file, decoded, opts={}){
+    let left = decoded.left;
+    let right = decoded.right;
+    const name = decoded.name || ((file && file.name) ? file.name : 'sample');
+    const maxSec = (opts && typeof opts.maxSec === 'number') ? opts.maxSec : MAX_CELL_LOAD_SEC;
+    if (maxSec && maxSec > 0){
+      const maxFrames = Math.max(1, Math.floor(maxSec * SR));
+      if (left.length > maxFrames) left = left.slice(0, maxFrames);
+      if (right.length > maxFrames) right = right.slice(0, maxFrames);
+    }
+
+    try{ inferRelPathForFile(file); }catch(_e){}
+    const srcKey = getSourceKeyFromFile(file, name);
+    ensureSourceInStore(srcKey, left, right, name);
+    const relPath = (file && (file.webkitRelativePath || file._relPath)) ? (file.webkitRelativePath || file._relPath) : '';
+
+    const maxBelow = Math.max(0, ROWS - (startRow|0) - 1);
+    const underCells = clamp((opts && typeof opts.underCells === 'number') ? opts.underCells : 1, 1, Math.max(1, maxBelow));
+    const maxParts = 1 + underCells;
+
+    let cursor = 0;
+    let usedParts = 0;
+    for (let off=0; off<maxParts && ((startRow|0) + off) < ROWS && cursor < left.length; off++){
+      const row = (startRow|0) + off;
+      const cell = state.cells[col][row];
+      const targetFrames = getCellFrames(row);
+      const end = Math.min(left.length, cursor + targetFrames);
+      const partLen = Math.max(0, end - cursor);
+      if (partLen <= 0) break;
+
+      resetCellForOverflowLoad(cell);
+      cell.sourceKey = null;
+      cell.left = new Float32Array(left.subarray(cursor, end));
+      cell.right = new Float32Array(right.subarray(cursor, end));
+      cell.name = `${name} · ${getCellDisplayName(col, row)}`;
+      cell.origin = {
+        type: 'file',
+        fileName: (file && file.name) ? file.name : name,
+        relPath,
+        overflow: {
+          sourceKey: srcKey,
+          startFrames: cursor,
+          lenFrames: partLen,
+          startRow: startRow|0,
+          partIndex: off,
+          maxParts,
+        }
+      };
+      cell.trimStartSrcFrames = cursor;
+      cell.trimLenSrcFrames = partLen;
+      cell.selStartFrames = 0;
+      cell.selLenFrames = partLen;
+      cell.sr = SR;
+      if (normalizeOnLoadEl.checked) normalizeCellGain(cell);
+      cell.peaks = computePeaks(cell.left, cell.right, MINI_PEAKS_POINTS);
+      try { cell._waveBaseline = _waveSnapshotCell(cell); cell._waveApplyUndo = null; } catch(_e){}
+      updateCellUI(col, row);
+      markWaveDirty(col, row);
+      cursor = end;
+      usedParts++;
+    }
+
+    updateColUI(col);
+    try{ hardResetMiniWavesForCol(col); }catch(_e){}
+    try{ markAllWavesDirty(); scheduleWaveFlush(); }catch(_e){}
+    if (state.selected.has && state.selected.col === col) updateInspector();
+
+    if (!opts.silent){
+      const trimmed = cursor < left.length;
+      toast(trimmed
+        ? `Loaded with overflow into ${usedParts} cells. Remaining audio trimmed.`
+        : `Loaded with overflow into ${usedParts} cells.`);
+    }
+  }
+
   async function loadFileIntoCell(col, row, file, opts={}){
     const silent = !!opts.silent;
     const cell = state.cells[col][row];
@@ -6952,7 +7422,7 @@ cell.name = "";
 
     try{ inferRelPathForFile(file); }catch(_e){}
 
-    let {left, right, name} = await decodeFileToStereo48k(file);
+    let {left, right, name} = (opts && opts.decoded) ? opts.decoded : await decodeFileToStereo48k(file);
 
     // Random64 (and other callers) may request a hard max duration to keep Safari stable.
     const maxSec = (opts && typeof opts.maxSec === "number") ? opts.maxSec : MAX_CELL_LOAD_SEC;
@@ -7499,6 +7969,7 @@ const btns = document.createElement("div");
         cellEl.dataset.col = String(c);
         cellEl.dataset.row = String(r);
         cellEl.draggable = true;
+        cellEl.tabIndex = -1;
 
         cellEl.innerHTML = `
   <div class="cellTop">
@@ -7878,7 +8349,9 @@ function setSelected(col,row){
       for (let r=0;r<ROWS;r++){
         const cellEl = colsEl.querySelector(`.cell[data-col="${c}"][data-row="${r}"]`);
         if (cellEl){
-          cellEl.classList.toggle("selected", c===col && r===row);
+          const isSel = c===col && r===row;
+          cellEl.classList.toggle("selected", isSel);
+          cellEl.tabIndex = isSel ? 0 : -1;
         }
       }
     }
@@ -11386,7 +11859,22 @@ if (e.key === "Escape"){
         toast("Loading…");
         const file = files[0];
         if (p.kind === "cell"){
-          await loadFileIntoCell(p.col, p.row, file);
+          const decoded = await decodeFileToStereo48k(file);
+          const cellFrames = getCellFrames(p.row);
+          const hasBelowCells = p.row < (ROWS - 1);
+          if ((decoded.left.length > cellFrames) && hasBelowCells){
+            const choice = await askCellLoadMode({
+              col: p.col,
+              row: p.row,
+              fileName: decoded.name || file.name || 'sample',
+              totalFrames: decoded.left.length,
+            });
+            if (!choice) return;
+            if (choice.mode === 'overflow') await loadDecodedOverflowIntoCells(p.col, p.row, file, decoded, { underCells: choice.underCells });
+            else await loadFileIntoCell(p.col, p.row, file, { decoded });
+          } else {
+            await loadFileIntoCell(p.col, p.row, file, { decoded });
+          }
         } else if (p.kind === "split"){
           await loadFileSplitIntoColumn(p.col, file);
         } else if (p.kind === "splitEditor"){
@@ -11465,6 +11953,7 @@ const bd = (typeof APP_BUILD_DATE !== "undefined" && APP_BUILD_DATE) ? APP_BUILD
 
     try{ waveAttachHandlers(); }catch(e){ showFatal(e); }
     try{ splitAttachHandlers(); }catch(e){ showFatal(e); }
+    try{ initCellLoadModeOverlay(); }catch(e){ showFatal(e); }
     try{ updateRandom64FilterIndicator(); }catch(e){}
   });
   setupWaveObserver();
