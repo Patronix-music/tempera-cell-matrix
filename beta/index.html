@@ -411,6 +411,12 @@
       border-color: rgba(167,139,250,0.55);
       box-shadow: inset 0 0 0 2px rgba(167,139,250,0.55), 0 16px 40px rgba(0,0,0,0.55);
     }
+    .cell.multiSelected{
+      border-color: rgba(167,139,250,0.55);
+      background: rgba(167,139,250,0.10);
+      box-shadow: inset 0 0 0 2px rgba(167,139,250,0.46), 0 16px 40px rgba(0,0,0,0.55);
+    }
+    .cell.multiSelected::before{ opacity: 0; }
 
     
     /* Selected cell: hide left color stripe when inner purple highlight is active */
@@ -1963,7 +1969,7 @@ input[type="range"]::-webkit-slider-thumb:active{
           <div class="btnGroupInline"><button class="pop" id="random64Btn" title="Pick a folder (recursive) and randomly fill all 64 cells. Tip: hold Shift to filter which files are used for loading samples.">Random 64 <span class="filterIcon" aria-hidden="true"></span></button>
           <button class="warn" id="exportAllBtn">Export all (ZIP)</button>
           <button class="warn" id="exportCanvasBtn" title="Export Tempera .canvas">Export .canvas</button>
-          <button class="secondary" id="importPresetBtn" title="Load preset JSON exported by this app, then relink samples from a folder">Import Preset</button>
+          <button class="secondary" id="importPresetBtn" title="Load preset JSON or exported ZIP. ZIP imports can auto-use embedded TCM_Sources.">Import Preset</button>
           <button class="secondary" id="helpBtn" title="Show help / shortcuts">Help</button></div>
 
           <span class="sep" aria-hidden="true"></span>
@@ -2314,8 +2320,9 @@ input[type="range"]::-webkit-slider-thumb:active{
 <ul class="helpList">
                           <li><b>Cell Load</b>: click <b>Load</b> inside a cell or drop a file onto that cell.</li>
                           <li>Long samples can now either stay in the current cell (<b>trim</b>) or <b>overflow</b> into the cells below.</li>
+                          <li>When one long sample is loaded with <b>overflow</b>, the column name at the top is auto-filled from that sample name.</li>
                           <li><b>Load+Slice</b>: pick one file → opens Slice Editor where you can drag/resize 8 blocks, then <b>Apply</b> to the column.</li>
-                          <li><b>Load 8</b>: select 8 files → fills the 8 cells top→bottom.</li>
+                          <li><b>Load 8</b>: select up to 8 files → fills the 8 cells top→bottom. If you select more than 8, it randomly picks 8 for the current column.</li>
                           <li><b>Random 64</b>: pick a folder (subfolders included) → fills all cells randomly.</li>
             <li><b>Shift + click Random 64</b> to open the filter dialog:
                             <ul>
@@ -2325,7 +2332,7 @@ input[type="range"]::-webkit-slider-thumb:active{
                           </li>              
             <li><b>Drag and drop</b> samples in cells and columns</li>             
             </ul></div><div class="helpCard"><h3>Import / Export</h3>
-<p><b>Import Preset</b>: load the preset JSON exported by this app (e.g. <span class="kbd">zz_TCM-Preset_MyPreset_20260111.json</span>), then choose your top-level sample folder. Subfolders are included. The folder overlay shows example filenames to help you pick the right folder.</p>
+<p><b>Import Preset</b>: load the preset JSON exported by this app (e.g. <span class="kbd">zz_TCM-Preset_MyPreset_20260111.json</span>), or load the exported ZIP directly for automatic embedded-sample relinking. JSON import still asks for your top-level sample folder. Subfolders are included. The folder overlay shows example filenames to help you pick the right folder.</p>
                           <ul class="helpList">
                             <li><b>Export</b> in a column: exports that column to WAV.</li>
                             <li><b>Export 8</b> in a column: exports the 8 cells as separate WAV files (downloaded as one ZIP). Filenames use Sample + C#.</li>
@@ -2504,7 +2511,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-const APP_VERSION = '2.10.61';
+const APP_VERSION = '2.10.72';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -2668,8 +2675,18 @@ const APP_VERSION = '2.10.61';
   }
 
 
-  const APP_BUILD_DATE = '2026-02-21';
+  const APP_BUILD_DATE = '2026-04-09';
   const CHANGELOG = [
+  "2.10.71 - NEW: multi-select V1 (Shift range / Cmd-Ctrl toggle) for bulk lower inspector settings.",
+  "2.10.70 - Import: exported ZIP can now be imported directly and auto-uses embedded TCM_Sources.",
+  "2.10.69 - Import Preset folder picker reopens in the last used relink folder where supported.",
+  "2.10.68 - Wave Editor: handle grab tuned to 5px inside / 25px outside; outside that the selection jumps again.",
+  "2.10.67 - Wave Editor: larger outer handle grab zone, no selection jump on outside mis-click.",
+  "2.10.66 - Added Zoom Auto Hide toggle in Wave/Slice editors: zoom window can hide on mouse release.",
+  "2.10.65 - Short pad/trim cells now get an automatic micro-fade at the internal sample edge to reduce clicks.",
+  "2.10.64 - Overflow load: auto-names the column from the loaded sample when one long sample is spread over cells.",
+  "2.10.63 - Load 8: selecting more than 8 samples now randomizes which 8 are loaded into the column.",
+  "2.10.62 - Fades: fade in/out can now run across the full audible sample length (no 50% cap).",
   "2.10.61 - Long-sample popup: Enter now confirms again after changing the overflow cell count.",
   "2.10.60 - UI polish: overflow count field made slightly wider so the number is fully visible.",
   "2.10.59 - UI polish: long-sample popup narrower; overflow count field fixed in place and made more compact.",
@@ -2846,6 +2863,8 @@ function computeRootHintFromPreset(preset){
 
 
     selected: { col: 0, row: 0, has: false },
+    multiSelected: new Set(),
+    selectionAnchor: { col: 0, row: 0, has: false },
 
     // pending picker action
     pick: { kind: null, col: null, row: null }, // kind: 'cell'|'split'|'colmulti'
@@ -2966,37 +2985,50 @@ function computeRootHintFromPreset(preset){
   function cloneSettings(s){
     return JSON.parse(JSON.stringify(s));
   }
+  function resetCellEditorMetaForSettings(cell, row){
+    try{
+      cell.origin = null;
+      cell.fullSourceKey = null;
+      cell.editorKey = null;
+      cell.editorUndo = null;
+      cell.editorSelStart = null;
+      cell.editorSelLen = null;
+      cell.trimStartSrcFrames = null;
+      cell.trimLenSrcFrames = null;
+      cell.selStartFrames = 0;
+      cell.selLenFrames   = Math.max(1, getCellFrames(row));
+    }catch(_e){}
+  }
   function captureSettingsUndo(){
     if (!state.selected.has) return;
-    const {col,row} = state.selected;
-    const cell = state.cells[col][row];
-// Reset any prior editor/trim metadata for this cell (prevents stale wave-editor source after reloading)
-try{
-      // Clear any prior origin/split linkage so Wave Editor won't prefer an old split source
-      cell.origin = null;
-  cell.fullSourceKey = null;
-  cell.editorKey = null;
-  cell.editorUndo = null;
-  cell.editorSelStart = null;
-  cell.editorSelLen = null;
-  cell.trimStartSrcFrames = null;
-  cell.trimLenSrcFrames = null;
-  // Also reset visible selection to default cell length (will be re-applied below if imported)
-  cell.selStartFrames = 0;
-  cell.selLenFrames   = Math.max(1, getCellFrames(row));
-}catch(_e){}
-
-    pendingSettingsUndo = { col, row, before: cloneSettings(cell.settings) };
+    const targets = getSelectedCoords();
+    if (!targets.length) return;
+    pendingSettingsUndo = {
+      targets: targets.map(({col,row}) => {
+        const cell = state.cells[col][row];
+        resetCellEditorMetaForSettings(cell, row);
+        return { col, row, before: cloneSettings(cell.settings) };
+      })
+    };
   }
   function commitSettingsUndo(){
-    if (!pendingSettingsUndo) return;
-    const {col,row,before} = pendingSettingsUndo;
-    const cell = state.cells[col][row];
-    const after = cloneSettings(cell.settings);
+    if (!pendingSettingsUndo || !pendingSettingsUndo.targets || !pendingSettingsUndo.targets.length) return;
+    const changes = [];
+    for (const t of pendingSettingsUndo.targets){
+      const cell = state.cells[t.col][t.row];
+      const after = cloneSettings(cell.settings);
+      if (JSON.stringify(t.before) !== JSON.stringify(after)){
+        changes.push({ col:t.col, row:t.row, before:t.before, after });
+      }
+    }
     pendingSettingsUndo = null;
-
-    if (JSON.stringify(before) === JSON.stringify(after)) return;
-    undoStack.push({ type:"settings", col, row, before, after });
+    if (!changes.length) return;
+    if (changes.length === 1){
+      const a = changes[0];
+      undoStack.push({ type:"settings", col:a.col, row:a.row, before:a.before, after:a.after });
+    }else{
+      undoStack.push({ type:"settingsMulti", targets: changes });
+    }
     if (undoStack.length > 60) undoStack.shift();
     redoStack.length = 0;
   }
@@ -3009,18 +3041,28 @@ try{
       updateInspector();
     }
   }
+  function applySettingsAction(a, which){
+    if (a && Array.isArray(a.targets)){
+      for (const t of a.targets){
+        applySettingsSnapshot(t.col, t.row, which === "before" ? t.before : t.after);
+      }
+      updateInspector();
+      return;
+    }
+    applySettingsSnapshot(a.col, a.row, which === "before" ? a.before : a.after);
+  }
   function doUndo(){
     const a = undoStack.pop();
     if (!a) { toast("Nothing to undo", 1200); return; }
     redoStack.push(a);
-    applySettingsSnapshot(a.col, a.row, a.before);
+    applySettingsAction(a, "before");
     toast("Undo", 900);
   }
   function doRedo(){
     const a = redoStack.pop();
     if (!a) { toast("Nothing to redo", 1200); return; }
     undoStack.push(a);
-    applySettingsSnapshot(a.col, a.row, a.after);
+    applySettingsAction(a, "after");
     toast("Redo", 900);
   }
 
@@ -4597,10 +4639,15 @@ function splitDraw(){
     // Zoom window toggle (magnifier) for Slice Editor
     const splitZoomBtnEl = document.getElementById("splitZoomBtn");
     const waveZoomBtnEl  = document.getElementById("waveZoomBtn");
+    const splitZoomAutoHideBtnEl = document.getElementById("splitZoomAutoHideBtn");
+    const waveZoomAutoHideBtnEl  = document.getElementById("waveZoomAutoHideBtn");
     function _syncZoomBtns(){
       const on = (_mag.userEnabled !== false);
+      const autoHideOn = (_mag.autoHide === true);
       try{ splitZoomBtnEl && (splitZoomBtnEl.textContent = on ? "Zoom: on" : "Zoom: off"); }catch(_){}
       try{ waveZoomBtnEl  && (waveZoomBtnEl.textContent  = on ? "Zoom: on" : "Zoom: off"); }catch(_){}
+      try{ splitZoomAutoHideBtnEl && (splitZoomAutoHideBtnEl.textContent = autoHideOn ? "Zoom: Auto Hide on" : "Zoom: Auto Hide off"); }catch(_){}
+      try{ waveZoomAutoHideBtnEl  && (waveZoomAutoHideBtnEl.textContent  = autoHideOn ? "Zoom: Auto Hide on" : "Zoom: Auto Hide off"); }catch(_){}
     }
     splitZoomBtnEl?.addEventListener("mousedown", (e)=>{ try{ e.preventDefault(); }catch(_){ } });
     splitZoomBtnEl?.addEventListener("click", (e)=>{
@@ -4619,6 +4666,22 @@ function splitDraw(){
       if(_mag.userEnabled === false){ try{ magHide(); }catch(_){ } }
       _syncZoomBtns();
       try{ toast((_mag.userEnabled!==false) ? "Zoom window on" : "Zoom window off"); }catch(_){}
+    });
+    splitZoomAutoHideBtnEl?.addEventListener("mousedown", (e)=>{ try{ e.preventDefault(); }catch(_){ } });
+    splitZoomAutoHideBtnEl?.addEventListener("click", (e)=>{
+      e.preventDefault();
+      try{ e.currentTarget && e.currentTarget.blur && e.currentTarget.blur(); }catch(_){ }
+      _mag.autoHide = !_mag.autoHide;
+      _syncZoomBtns();
+      try{ toast((_mag.autoHide===true) ? "Zoom auto hide on" : "Zoom auto hide off"); }catch(_){}
+    });
+    waveZoomAutoHideBtnEl?.addEventListener("mousedown", (e)=>{ try{ e.preventDefault(); }catch(_){ } });
+    waveZoomAutoHideBtnEl?.addEventListener("click", (e)=>{
+      e.preventDefault();
+      try{ e.currentTarget && e.currentTarget.blur && e.currentTarget.blur(); }catch(_){ }
+      _mag.autoHide = !_mag.autoHide;
+      _syncZoomBtns();
+      try{ toast((_mag.autoHide===true) ? "Zoom auto hide on" : "Zoom auto hide off"); }catch(_){}
     });
     _syncZoomBtns();
 
@@ -4852,8 +4915,8 @@ if (_mag.on && (splitDragging.mode==="left" || splitDragging.mode==="right")){
       }
 });
     splitBigEl.addEventListener("pointerup", (ev)=>{ 
-if(!splitDragging) return; splitDragging=null; try{ splitBigEl.releasePointerCapture(ev.pointerId);}catch(e){} splitPointerId=null; });
-    splitBigEl.addEventListener("pointercancel", ()=>{ splitDragging=null; splitPointerId=null; try{splitBigEl.releasePointerCapture(splitPointerId);}catch(e){} });
+if(!splitDragging) return; splitDragging=null; try{ splitBigEl.releasePointerCapture(ev.pointerId);}catch(e){} splitPointerId=null; if(_mag.autoHide===true && _mag.on && (_mag.srcTag==="split")){ try{ magHide(); }catch(_){ } } });
+    splitBigEl.addEventListener("pointercancel", ()=>{ splitDragging=null; splitPointerId=null; try{splitBigEl.releasePointerCapture(splitPointerId);}catch(e){} if(_mag.autoHide===true && _mag.on && (_mag.srcTag==="split")){ try{ magHide(); }catch(_){ } } });
   }
 
 function waveAttachHandlers(){
@@ -5238,29 +5301,19 @@ waveOverlayEl.addEventListener("click", (e)=>{ if (e.target === waveOverlayEl) c
 
       const px = clamp(e.clientX - rect.left, 0, W);
 
-      // If user clicks outside the current selection, hide magnifier (it would feel "stuck on")
-      // Selection may still jump/move, but magnifier should close until user interacts inside selection/handles again.
-
       // Resize hit zones:
-      // Wave editor must feel the same as the Slice editor:
-      // - only resize when you're truly near an edge
-      // - the "move" area should NOT become a tiny strip
-      const HANDLE_PX = 12; // how close (in pixels) to the selection edge counts as grabbing the edge
-      const nearL = (Math.abs(px - x1) <= HANDLE_PX);
-      const nearR = (Math.abs(px - x2) <= HANDLE_PX);
+      // - keep the inner edge zone precise
+      // - allow more forgiveness only outside the selection near the handles
+      // - outside those outer zones, keep the old quick-jump behavior
+      const INNER_HANDLE_PX = 5;
+      const OUTER_HANDLE_PX = 25;
       const clickInSel = (px >= x1 && px <= x2);
-      // If zoom window is currently visible, a click outside the selection should ONLY close zoom.
-      // Do not let that same click reposition/jump the selection. (Second click can act normally.)
-      const magVisible = !!(_mag && _mag.el && _mag.el.style.display !== 'none' && (_mag.srcTag === 'wave'));
-      if (!clickInSel && !nearL && !nearR){
-        if (magVisible){
-          try{ magHide(); }catch(_){ }
-          waveEditor.dragging = false;
-          try{ waveBigEl.releasePointerCapture(e.pointerId); }catch(_){ }
-          return;
-        }
-        try{ magHide(); }catch(_){ }
-      }
+      const nearLInner = (clickInSel && ((px - x1) <= INNER_HANDLE_PX));
+      const nearRInner = (clickInSel && ((x2 - px) <= INNER_HANDLE_PX));
+      const nearLOuter = (!clickInSel && px < x1 && ((x1 - px) <= OUTER_HANDLE_PX));
+      const nearROuter = (!clickInSel && px > x2 && ((px - x2) <= OUTER_HANDLE_PX));
+      const nearL = (nearLInner || nearLOuter);
+      const nearR = (nearRInner || nearROuter);
 
       const hitSel = (px >= x1 && px <= x2);
       // IMPORTANT:
@@ -5274,7 +5327,7 @@ waveOverlayEl.addEventListener("click", (e)=>{ if (e.target === waveOverlayEl) c
       const selWpx = Math.max(0, x2 - x1);
       if (hitSel && !(nearL || nearR)) {
         // If selection is very small, don't try to do L/R by region; only true edge grabs resize.
-        if (selWpx < (HANDLE_PX * 2 + 10)) {
+        if (selWpx < (INNER_HANDLE_PX * 2 + 10)) {
           clickEdge = "C";
         } else {
           const leftCut  = x1 + selWpx / 3;
@@ -5435,6 +5488,12 @@ waveEditor._px0 = px;
 if (!waveEditor.open) return;
       waveEditor.dragging = false;
       try{ waveBigEl.releasePointerCapture(e.pointerId); }catch(_){}
+      if(_mag.autoHide===true && _mag.on && (_mag.srcTag==="wave")){ try{ magHide(); }catch(_){ } }
+    });
+    waveBigEl.addEventListener("pointercancel", ()=>{
+      if (!waveEditor.open) return;
+      waveEditor.dragging = false;
+      if(_mag.autoHide===true && _mag.on && (_mag.srcTag==="wave")){ try{ magHide(); }catch(_){ } }
     });
 
     window.addEventListener("keydown", (e)=>{
@@ -6478,14 +6537,13 @@ function computePeaks(left, right, points=72){
     const gain = mute ? 0 : Math.max(0, Math.min(2, g0));
     const baseGain = mute ? 0 : 1;
 
-    // fade frames (cap at half length so in/out can't overlap weirdly)
+    // fade frames (allow full audible length, like a DAW/Audition style envelope)
     let fi = 0, fo = 0;
     if (settings && targetFrames > 0){
       fi = Math.round((Number(settings.fadeInMs || 0)/1000) * SR);
       fo = Math.round((Number(settings.fadeOutMs || 0)/1000) * SR);
-      const half = Math.floor(targetFrames / 2);
-      fi = Math.max(0, Math.min(fi, half));
-      fo = Math.max(0, Math.min(fo, half));
+      fi = Math.max(0, Math.min(fi, targetFrames));
+      fo = Math.max(0, Math.min(fo, targetFrames));
     }
 
     // helper: envelope at normalized time t (0..1)
@@ -6844,7 +6902,7 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     }
   }
 
-  function applyFadesAndGain(L, R, settings, targetFrames){
+  function applyFadesAndGain(L, R, settings, targetFrames, autoFadeRegion=null){
     const gain = settings.gain;
     const mute = settings.mute;
 
@@ -6856,10 +6914,9 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     let fi = Math.round((settings.fadeInMs/1000) * SR);
     let fo = Math.round((settings.fadeOutMs/1000) * SR);
 
-    // clamp to half length
-    const half = Math.floor(targetFrames/2);
-    fi = clamp(fi, 0, half);
-    fo = clamp(fo, 0, half);
+    // allow full audible length per fade (start/end can overlap, like a DAW envelope)
+    fi = clamp(fi, 0, targetFrames);
+    fo = clamp(fo, 0, targetFrames);
 
     // apply envelope + gain
     for (let i=0; i<targetFrames; i++){
@@ -6875,6 +6932,33 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
       const g = env * gain;
       L[i] *= g;
       R[i] *= g;
+    }
+
+    // Technical anti-click fade for short pad/trim cells.
+    // This is intentionally separate from the visible fade sliders.
+    if (autoFadeRegion && Number.isFinite(autoFadeRegion.start) && Number.isFinite(autoFadeRegion.end)){
+      const start = clamp(autoFadeRegion.start|0, 0, targetFrames);
+      const end = clamp(autoFadeRegion.end|0, 0, targetFrames);
+      const audibleLen = Math.max(0, end - start);
+      const autoFrames = Math.min(Math.floor(SR * 0.0015), Math.floor(audibleLen / 2)); // 1.5ms
+      if (autoFrames > 0){
+        if (start > 0){
+          for (let i=0; i<autoFrames; i++){
+            const idx = start + i;
+            if (idx >= end) break;
+            const g = i / autoFrames;
+            L[idx] *= g; R[idx] *= g;
+          }
+        }
+        if (end < targetFrames){
+          for (let i=0; i<autoFrames; i++){
+            const idx = end - 1 - i;
+            if (idx < start) break;
+            const g = 1 - (i / autoFrames);
+            L[idx] *= g; R[idx] *= g;
+          }
+        }
+      }
     }
   
     // Always apply a tiny safety fade to avoid clicks (in addition to user fades)
@@ -6919,6 +7003,7 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
 
     let Lin = cell.left;
     let Rin = cell.right;
+    let autoFadeRegion = null;
 
     // If selection metadata exists and the cell buffers still hold the full source,
     // render/preview/export from the selection window so fades happen at the selection edges.
@@ -6948,10 +7033,16 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
       const n = Math.min(targetFrames, Lin.length);
       Lout.set(Lin.subarray(0,n), 0);
       Rout.set(Rin.subarray(0,n), 0);
+      if (n > 0 && n < targetFrames){
+        autoFadeRegion = s.reverse ? { start: targetFrames - n, end: targetFrames } : { start: 0, end: n };
+      }
     } else if (s.fitMode === "loop"){ // legacy: treat old "loop" as pad/trim
       const n = Math.min(targetFrames, Lin.length);
       Lout.set(Lin.subarray(0,n), 0);
       Rout.set(Rin.subarray(0,n), 0);
+      if (n > 0 && n < targetFrames){
+        autoFadeRegion = s.reverse ? { start: targetFrames - n, end: targetFrames } : { start: 0, end: n };
+      }
     } else { // "rate"
       // time-fit by resampling to exact targetFrames (pitch changes)
       const Lr = resampleToLength(Lin, targetFrames);
@@ -6965,7 +7056,7 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
       reverseInPlace(Rout);
     }
 
-    applyFadesAndGain(Lout, Rout, s, targetFrames);
+    applyFadesAndGain(Lout, Rout, s, targetFrames, autoFadeRegion);
 
     cell.cache = { key: cacheKey, L: Lout, R: Rout, frames: targetFrames };
     return { L: Lout, R: Rout };
@@ -7024,6 +7115,19 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
   function formatLoadChoiceSeconds(sec){
     const n = Math.max(0, Number(sec || 0));
     return n.toFixed(3).replace(/0+$/,'').replace(/\.$/, '');
+  }
+
+  function getAutoColumnNameFromFileName(rawName){
+    const base = String(rawName || '').split(/[\\/]/).pop() || '';
+    const stem = base.replace(/\.[^.]+$/, '').trim();
+    return stem || base.trim() || 'sample';
+  }
+
+  function applyAutoColumnName(col, rawName){
+    const nextName = getAutoColumnNameFromFileName(rawName);
+    state.colNames[col] = nextName || `Sample ${col+1}`;
+    const input = document.getElementById(`colName-${col}`);
+    if (input) input.value = state.colNames[col];
   }
 
   function getCellEl(col, row){
@@ -7293,6 +7397,7 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     const srcKey = getSourceKeyFromFile(file, name);
     ensureSourceInStore(srcKey, left, right, name);
     const relPath = (file && (file.webkitRelativePath || file._relPath)) ? (file.webkitRelativePath || file._relPath) : '';
+    applyAutoColumnName(col, (file && file.name) ? file.name : name);
 
     const maxBelow = Math.max(0, ROWS - (startRow|0) - 1);
     const underCells = clamp((opts && typeof opts.underCells === 'number') ? opts.underCells : 1, 1, Math.max(1, maxBelow));
@@ -7783,12 +7888,14 @@ async function loadFilesIntoColumnCells(col, files){
   const list = Array.from(files || []).filter(Boolean);
   if (!list.length) return;
 
-  const max = Math.min(ROWS, list.length);
+  const randomized = list.length > ROWS;
+  const chosen = randomized ? shuffleInPlace(list.slice()).slice(0, ROWS) : list;
+  const max = Math.min(ROWS, chosen.length);
 
   toast(`Loading ${max} sample(s) → column ${col+1}...`, 1400);
 
   for (let r=0; r<max; r++){
-    await loadFileIntoCell(col, r, list[r], { silent: true });
+    await loadFileIntoCell(col, r, chosen[r], { silent: true });
   }
 
   updateColUI(col);
@@ -7796,8 +7903,8 @@ async function loadFilesIntoColumnCells(col, files){
     updateInspector();
   }
 
-  if (list.length > ROWS){
-    toast(`Column ${col+1}: loaded first ${ROWS} (ignored extra ${list.length-ROWS})`, 2600);
+  if (randomized){
+    toast(`Column ${col+1}: randomized ${ROWS} from ${list.length} selected`, 2600);
   } else if (list.length < ROWS){
     toast(`Column ${col+1}: loaded ${list.length} (kept the rest as-is)`, 2400);
   } else {
@@ -7929,7 +8036,7 @@ const btns = document.createElement("div");
         fileInput.value = "";
         fileInput.multiple = true;
         fileInput.click();
-      }, "Load 8 files at once into this column (top → bottom). ");
+      }, "Load up to 8 files into this column (top → bottom). If you select more than 8, it randomly picks 8 for this column.");
 
       const playBtn = mkBtn("▶", "tiny secondary", async () => {
         await playColumn(c);
@@ -8018,9 +8125,16 @@ const btns = document.createElement("div");
         // Click to select
         cellEl.addEventListener("click", (e) => {
           const actBtn = e.target.closest("button");
-          // Click on waveform opens Wave Editor (foundation)
           const waveHit = e.target.closest("canvas.wave");
+          const toggleSel = !!(e.metaKey || e.ctrlKey);
+          const rangeSel = !!e.shiftKey && !toggleSel;
+          const selMode = toggleSel ? "toggle" : (rangeSel ? "range" : "single");
+
           if (waveHit && !actBtn){
+            if (toggleSel || rangeSel){
+              setSelected(c, r, { mode: selMode });
+              return;
+            }
             setSelected(c, r);
             openWaveEditor(c, r);
             return;
@@ -8041,8 +8155,7 @@ const btns = document.createElement("div");
             }
             return;
           }
-          // select
-          setSelected(c,r);
+          setSelected(c,r,{ mode: selMode });
         });
 
         // double click => play
@@ -8282,7 +8395,11 @@ const btns = document.createElement("div");
     // selected highlight
     const cellEl = dom ? dom.cellEl : colsEl.querySelector(`.cell[data-col="${col}"][data-row="${row}"]`);
     if (cellEl){
-      cellEl.classList.toggle("selected", state.selected.has && state.selected.col===col && state.selected.row===row);
+      const key = cellKey(col,row);
+      const isPrimary = state.selected.has && state.selected.col===col && state.selected.row===row;
+      const isMulti = !!(state.multiSelected && state.multiSelected.has && state.multiSelected.has(key) && !isPrimary);
+      cellEl.classList.toggle("selected", isPrimary);
+      cellEl.classList.toggle("multiSelected", isMulti);
     }
   }
 
@@ -8342,23 +8459,81 @@ const btns = document.createElement("div");
     }
   }
 
-function setSelected(col,row){
-    state.selected = { col, row, has: true };
-    // update cell highlight quickly
+function cellKey(col,row){ return `${col}:${row}`; }
+  function parseCellKey(key){
+    const m = String(key||"").match(/^(\d+):(\d+)$/);
+    return m ? { col:(m[1]|0), row:(m[2]|0) } : null;
+  }
+  function cellLinearIndex(col,row){ return ((col|0) * ROWS) + (row|0); }
+  function getSelectedCoords(){
+    const keys = new Set();
+    if (state.selected && state.selected.has) keys.add(cellKey(state.selected.col, state.selected.row));
+    if (state.multiSelected && state.multiSelected.forEach) state.multiSelected.forEach(k => keys.add(k));
+    return Array.from(keys).map(parseCellKey).filter(Boolean).sort((a,b) => cellLinearIndex(a.col,a.row) - cellLinearIndex(b.col,b.row));
+  }
+  function refreshSelectionUI(){
+    const selectedKeys = new Set();
+    if (state.selected && state.selected.has) selectedKeys.add(cellKey(state.selected.col, state.selected.row));
+    if (state.multiSelected && state.multiSelected.forEach) state.multiSelected.forEach(k => selectedKeys.add(k));
     for (let c=0;c<COLS;c++){
       for (let r=0;r<ROWS;r++){
-        const cellEl = colsEl.querySelector(`.cell[data-col="${c}"][data-row="${r}"]`);
-        if (cellEl){
-          const isSel = c===col && r===row;
-          cellEl.classList.toggle("selected", isSel);
-          cellEl.tabIndex = isSel ? 0 : -1;
-        }
+        const cellEl = getCellEl(c, r);
+        if (!cellEl) continue;
+        const key = cellKey(c,r);
+        const isPrimary = state.selected.has && state.selected.col===c && state.selected.row===r;
+        const isMulti = selectedKeys.has(key) && !isPrimary;
+        cellEl.classList.toggle("selected", isPrimary);
+        cellEl.classList.toggle("multiSelected", isMulti);
+        cellEl.tabIndex = isPrimary ? 0 : -1;
       }
     }
+  }
+  function setSelected(col,row,opts){
+    opts = opts || {};
+    const mode = opts.mode || "single";
+    const key = cellKey(col,row);
+
+    if (mode === "single") {
+      state.selected = { col, row, has: true };
+      state.multiSelected = new Set([key]);
+      state.selectionAnchor = { col, row, has: true };
+    } else if (mode === "toggle") {
+      const set = new Set(state.multiSelected || []);
+      if (set.has(key)) set.delete(key);
+      else set.add(key);
+      state.multiSelected = set;
+      if (set.has(key) || !state.selected.has){
+        state.selected = { col, row, has: true };
+      } else if (state.selected.has && !set.has(cellKey(state.selected.col, state.selected.row))) {
+        const first = Array.from(set).map(parseCellKey).filter(Boolean).sort((a,b)=>cellLinearIndex(a.col,a.row)-cellLinearIndex(b.col,b.row))[0] || null;
+        state.selected = first ? { col:first.col, row:first.row, has:true } : { col:0, row:0, has:false };
+      }
+      if (state.selected.has) state.selectionAnchor = { col: state.selected.col, row: state.selected.row, has: true };
+      else state.selectionAnchor = { col:0, row:0, has:false };
+    } else if (mode === "range") {
+      const anchor = (state.selectionAnchor && state.selectionAnchor.has)
+        ? state.selectionAnchor
+        : (state.selected && state.selected.has ? state.selected : { col, row, has:true });
+      const a = cellLinearIndex(anchor.col, anchor.row);
+      const b = cellLinearIndex(col, row);
+      const lo = Math.min(a,b), hi = Math.max(a,b);
+      const set = new Set();
+      for (let idx=lo; idx<=hi; idx++){
+        const cc = Math.floor(idx / ROWS);
+        const rr = idx % ROWS;
+        set.add(cellKey(cc, rr));
+      }
+      state.multiSelected = set;
+      state.selected = { col, row, has: true };
+      if (!state.selectionAnchor || !state.selectionAnchor.has){
+        state.selectionAnchor = { col: anchor.col, row: anchor.row, has: true };
+      }
+    }
+
+    refreshSelectionUI();
     updateInspector();
-    // Keep selection visible when navigating with keyboard
     try{
-      const selEl = colsEl.querySelector(`.cell[data-col="${col}"][data-row="${row}"]`);
+      const selEl = getCellEl(state.selected.col, state.selected.row);
       if (selEl) scrollCellIntoSafeCenter(selEl);
     }catch(_){ }
   }
@@ -8416,7 +8591,10 @@ function setSelected(col,row){
       __inspCache.infoText = infoText;
     }
 
-    const titleText = `${getColDisplayName(col)} — ${getCellDisplayName(col, row)}`;
+    const selCount = getSelectedCoords().length;
+    const titleText = (selCount > 1)
+      ? `${selCount} cells selected — ${getColDisplayName(col)} — ${getCellDisplayName(col, row)}`
+      : `${getColDisplayName(col)} — ${getCellDisplayName(col, row)}`;
     if (__inspCache.titleText !== titleText){
       inspTitleEl.textContent = titleText;
       __inspCache.titleText = titleText;
@@ -8435,9 +8613,10 @@ function setSelected(col,row){
     }
     
       if (cellNameEl){ const v = getCellDisplayName(col, row); if (cellNameEl.value !== v) cellNameEl.value = v; }
-if (__inspCache.descText !== descText){
-      inspDescEl.textContent = descText;
-      __inspCache.descText = descText;
+const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
+    if (__inspCache.descText !== descOut){
+      inspDescEl.textContent = descOut;
+      __inspCache.descText = descOut;
     }
 
     // Volume
@@ -8499,7 +8678,7 @@ if (__inspCache.descText !== descText){
       }
     }catch(_){}
 
-    const maxFadeMs = Math.max(0, Math.floor((effFramesForFade / SR) * 1000 / 2));
+    const maxFadeMs = Math.max(0, Math.floor((effFramesForFade / SR) * 1000));
     const maxFadeMsStr = String(maxFadeMs);
 
     // Update slider max only when it actually changes (prevents iOS from jittering)
@@ -8579,6 +8758,18 @@ if (__inspCache.descText !== descText){
     toCell.cache = { key:"", L:null, R:null, frames:0 };
   }
 
+  function applySettingsToSelectedCells(mutator){
+    const coords = getSelectedCoords();
+    if (!coords.length) return;
+    for (const {col,row} of coords){
+      const cell = state.cells[col][row];
+      mutator(cell, col, row);
+      invalidateCellCache(col, row);
+      updateCellUI(col, row);
+    }
+    updateInspector();
+  }
+
   // Inspector events
 
   // Undo capture/commit for inspector controls
@@ -8590,26 +8781,29 @@ if (__inspCache.descText !== descText){
   });
   volEl.addEventListener("input", () => {
     const cell = getSelectedCell(); if (!cell) return;
-    cell.settings.gain = Number(volEl.value);
-    volValEl.textContent = `${cell.settings.gain.toFixed(2)}×`;
-    invalidateCellCache(state.selected.col, state.selected.row);
-    updateCellUI(state.selected.col, state.selected.row);
+    const value = Number(volEl.value);
+    volValEl.textContent = `${value.toFixed(2)}×`;
+    applySettingsToSelectedCells((target) => {
+      target.settings.gain = value;
+    });
   });
 
   fadeInEl.addEventListener("input", () => {
     const cell = getSelectedCell(); if (!cell) return;
-    cell.settings.fadeInMs = Number(fadeInEl.value);
-    fadeInValEl.textContent = String(Math.round(cell.settings.fadeInMs));
-    invalidateCellCache(state.selected.col, state.selected.row);
-    updateCellUI(state.selected.col, state.selected.row);
+    const value = Number(fadeInEl.value);
+    fadeInValEl.textContent = String(Math.round(value));
+    applySettingsToSelectedCells((target) => {
+      target.settings.fadeInMs = value;
+    });
   });
 
   fadeOutEl.addEventListener("input", () => {
     const cell = getSelectedCell(); if (!cell) return;
-    cell.settings.fadeOutMs = Number(fadeOutEl.value);
-    fadeOutValEl.textContent = String(Math.round(cell.settings.fadeOutMs));
-    invalidateCellCache(state.selected.col, state.selected.row);
-    updateCellUI(state.selected.col, state.selected.row);
+    const value = Number(fadeOutEl.value);
+    fadeOutValEl.textContent = String(Math.round(value));
+    applySettingsToSelectedCells((target) => {
+      target.settings.fadeOutMs = value;
+    });
   });
 
   // Double-click sliders to reset to defaults
@@ -8627,55 +8821,48 @@ if (__inspCache.descText !== descText){
 
   fitModeEl.addEventListener("change", () => {
     const cell = getSelectedCell(); if (!cell) return;
-    cell.settings.fitMode = fitModeEl.value;
-    fitValEl.textContent = cell.settings.fitMode;
+    const fitValue = fitModeEl.value;
+    fitValEl.textContent = fitValue;
+    applySettingsToSelectedCells((target, col, row) => {
+      target.settings.fitMode = fitValue;
+      try{
+        if (target.left && target.right){
+          const cf = (typeof getCellFrames === "function") ? (getCellFrames(row)|0) : 0;
+          const cellFrames = (cf && cf > 0) ? cf : (target.left.length|0);
+          const total = (target.left.length|0);
+          const long = (total > cellFrames);
+          const selStart = (typeof target.selStartFrames === "number") ? (target.selStartFrames|0) : 0;
+          const selLen   = (typeof target.selLenFrames === "number")   ? (target.selLenFrames|0)   : 0;
 
-    // For long samples we show a default one-cell selection window so the UI stays manageable.
-    // In fitMode "rate" the user generally expects the FULL sample to be time-fit into the cell.
-    // Minimal behavior:
-    // - If selection was not edited by the user (selEdited !== true), toggle the auto selection window:
-    //   - rate  => selection becomes the full source (so it doesn't restrict playback/rendering and disappears visually)
-    //   - other => selection returns to one-cell window (so long samples still show a manageable window)
-    try{
-      if (cell.left && cell.right){
-        const r = (state.selected && typeof state.selected.row === "number") ? (state.selected.row|0) : 0;
-        const cf = (typeof getCellFrames === "function") ? (getCellFrames(r)|0) : 0;
-        const cellFrames = (cf && cf > 0) ? cf : (cell.left.length|0);
-        const total = (cell.left.length|0);
-        const long = (total > cellFrames);
-        const selStart = (typeof cell.selStartFrames === "number") ? (cell.selStartFrames|0) : 0;
-        const selLen   = (typeof cell.selLenFrames === "number")   ? (cell.selLenFrames|0)   : 0;
-
-        if (long && cell.selEdited !== true && selStart === 0){
-          const autoSel = (selLen === cellFrames) || (selLen === total) || (selLen === 0);
-          if (autoSel){
-            cell.selStartFrames = 0;
-            cell.selLenFrames = (cell.settings.fitMode === "rate")
-              ? total
-              : clamp(cellFrames, 1, total);
-            // keep caches coherent
-            cell.cache = { key:"", L:null, R:null, frames:0 };
+          if (long && target.selEdited !== true && selStart === 0){
+            const autoSel = (selLen === cellFrames) || (selLen === total) || (selLen === 0);
+            if (autoSel){
+              target.selStartFrames = 0;
+              target.selLenFrames = (target.settings.fitMode === "rate")
+                ? total
+                : clamp(cellFrames, 1, total);
+              target.cache = { key:"", L:null, R:null, frames:0 };
+            }
           }
         }
-      }
-    }catch(_e){}
-
-    invalidateCellCache(state.selected.col, state.selected.row);
-    updateCellUI(state.selected.col, state.selected.row);
+      }catch(_e){}
+    });
   });
 
   muteEl.addEventListener("change", () => {
     const cell = getSelectedCell(); if (!cell) return;
-    cell.settings.mute = !!muteEl.checked;
-    invalidateCellCache(state.selected.col, state.selected.row);
-    updateCellUI(state.selected.col, state.selected.row);
+    const value = !!muteEl.checked;
+    applySettingsToSelectedCells((target) => {
+      target.settings.mute = value;
+    });
   });
 
   reverseEl.addEventListener("change", () => {
     const cell = getSelectedCell(); if (!cell) return;
-    cell.settings.reverse = !!reverseEl.checked;
-    invalidateCellCache(state.selected.col, state.selected.row);
-    updateCellUI(state.selected.col, state.selected.row);
+    const value = !!reverseEl.checked;
+    applySettingsToSelectedCells((target) => {
+      target.settings.reverse = value;
+    });
   });
 
   inspPlayBtn.addEventListener("click", () => {
@@ -9148,6 +9335,95 @@ src.onended = () => {
     b[0] = n & 0xFF;
     b[1] = (n >>> 8) & 0xFF;
     return b;
+  }
+
+  function unzipStoreOnly(u8){
+    const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+    const dec = new TextDecoder();
+    const entries = [];
+    let off = 0;
+
+    while (off + 4 <= u8.length){
+      const sig = dv.getUint32(off, true);
+      if (sig === 0x02014b50 || sig === 0x06054b50) break;
+      if (sig !== 0x04034b50) throw new Error("Unsupported ZIP structure");
+      if (off + 30 > u8.length) throw new Error("Corrupt ZIP header");
+
+      const flags = dv.getUint16(off + 6, true);
+      const method = dv.getUint16(off + 8, true);
+      const compSize = dv.getUint32(off + 18, true);
+      const uncompSize = dv.getUint32(off + 22, true);
+      const nameLen = dv.getUint16(off + 26, true);
+      const extraLen = dv.getUint16(off + 28, true);
+      const nameStart = off + 30;
+      const dataStart = nameStart + nameLen + extraLen;
+      const dataEnd = dataStart + compSize;
+
+      if (flags !== 0) throw new Error("Unsupported ZIP flags");
+      if (method !== 0) throw new Error("Only uncompressed ZIP imports are supported");
+      if (dataEnd > u8.length) throw new Error("Corrupt ZIP payload");
+
+      const name = dec.decode(u8.subarray(nameStart, nameStart + nameLen));
+      const data = u8.slice(dataStart, dataEnd);
+      entries.push({ name, data, size: uncompSize });
+      off = dataEnd;
+    }
+
+    return entries;
+  }
+
+  function mimeFromName(name){
+    const ext = String(name || '').split('.').pop().toLowerCase();
+    const map = {
+      wav: 'audio/wav',
+      mp3: 'audio/mpeg',
+      ogg: 'audio/ogg',
+      flac: 'audio/flac',
+      aif: 'audio/aiff',
+      aiff: 'audio/aiff',
+      m4a: 'audio/mp4',
+      aac: 'audio/aac',
+      opus: 'audio/ogg',
+      json: 'application/json'
+    };
+    return map[ext] || 'application/octet-stream';
+  }
+
+  function zipEntriesToFiles(entries, prefix){
+    const root = String(prefix || '').replace(/^\/+|\/+$/g, '');
+    const want = root ? (root + '/') : '';
+    const out = [];
+    for (const e of (entries || [])) {
+      const name = String(e && e.name || '');
+      if (!name || name.endsWith('/')) continue;
+      if (want && !name.startsWith(want)) continue;
+      const base = name.split('/').pop() || name;
+      const file = new File([e.data], base, { type: mimeFromName(base) });
+      try{ file._relPath = name; }catch(_e){}
+      out.push(file);
+    }
+    return out;
+  }
+
+  async function importPresetFromZip(file){
+    const u8 = new Uint8Array(await file.arrayBuffer());
+    const entries = unzipStoreOnly(u8);
+    if (!entries.length) throw new Error('ZIP is empty');
+
+    let presetEntry = entries.find(e => /(^|\/)zz_TCM-Preset_.*\.json$/i.test(e.name));
+    if (!presetEntry) presetEntry = entries.find(e => /\.json$/i.test(e.name));
+    if (!presetEntry) throw new Error('No preset JSON found in ZIP');
+
+    let preset;
+    try{
+      preset = JSON.parse(new TextDecoder().decode(presetEntry.data));
+    }catch(_e){
+      throw new Error('Preset JSON inside ZIP is invalid');
+    }
+
+    const embFolder = (preset && preset.embeddedSources && preset.embeddedSources.folder) ? preset.embeddedSources.folder : '';
+    const embeddedFiles = embFolder ? zipEntriesToFiles(entries, embFolder) : [];
+    return { preset, embeddedFiles, zipEntries: entries };
   }
 
   function zipStore(files){
@@ -10677,7 +10953,7 @@ stopBtn.addEventListener("click", () => stopPlayback());
     if (el) return el;
     const i = document.createElement("input");
     i.type = "file";
-    i.accept = "application/json,.json";
+    i.accept = "application/json,.json,application/zip,.zip";
     i.id = "presetFileInput";
     i.style.position = "fixed";
     i.style.left = "-10000px";
@@ -10705,26 +10981,60 @@ stopBtn.addEventListener("click", () => stopPlayback());
     return i;
   })();
 
+  let lastPresetImportDirHandle = null;
+
+  function pickFolderFilesFallback(){
+    return new Promise((resolve) => {
+      presetFolderInput.value = "";
+      presetFolderInput.onchange = () => resolve(Array.from(presetFolderInput.files || []));
+      presetFolderInput.click();
+    });
+  }
+
   async function pickFolderFiles(){
     // Preferred: File System Access API (Chromium). Fallback: webkitdirectory input (Safari/Firefox).
     if (window.showDirectoryPicker){
       let dir;
+      const baseOpts = { mode: "read", id: "preset-import-folder" };
+      const tryPick = async (withStartIn) => {
+        const opts = { ...baseOpts };
+        if (withStartIn && lastPresetImportDirHandle) opts.startIn = lastPresetImportDirHandle;
+        return await window.showDirectoryPicker(opts);
+      };
       try{
-        dir = await window.showDirectoryPicker({ mode: "read" });
+        dir = await tryPick(true);
       }catch(err){
         // User cancelled the picker – treat as a normal cancel, not an error.
         if (err && (err.name === "AbortError" || err.code === 20)) return [];
-        // In some contexts (notably file://), showDirectoryPicker may exist but still be blocked.
-        // Fall back to the directory <input> route for these cases.
-        if (err && (err.name === "SecurityError" || err.name === "NotAllowedError" || err.name === "TypeError")){
-          return await new Promise((resolve) => {
-            presetFolderInput.value = "";
-            presetFolderInput.onchange = () => resolve(Array.from(presetFolderInput.files || []));
-            presetFolderInput.click();
-          });
+
+        // If the remembered handle is stale/unsupported, retry once without startIn.
+        if (lastPresetImportDirHandle && err && (
+          err.name === "TypeError" ||
+          err.name === "NotFoundError" ||
+          err.name === "DataError" ||
+          err.name === "InvalidStateError"
+        )){
+          try{
+            dir = await tryPick(false);
+          }catch(err2){
+            if (err2 && (err2.name === "AbortError" || err2.code === 20)) return [];
+            // In some contexts (notably file://), showDirectoryPicker may exist but still be blocked.
+            // Fall back to the directory <input> route for these cases.
+            if (err2 && (err2.name === "SecurityError" || err2.name === "NotAllowedError" || err2.name === "TypeError")){
+              return await pickFolderFilesFallback();
+            }
+            throw err2;
+          }
+        } else {
+          // In some contexts (notably file://), showDirectoryPicker may exist but still be blocked.
+          // Fall back to the directory <input> route for these cases.
+          if (err && (err.name === "SecurityError" || err.name === "NotAllowedError" || err.name === "TypeError")){
+            return await pickFolderFilesFallback();
+          }
+          throw err;
         }
-        throw err;
       }
+      lastPresetImportDirHandle = dir || lastPresetImportDirHandle;
       const files = [];
       async function walk(handle, rel=""){
         for await (const [name, h] of handle.entries()){
@@ -10741,11 +11051,7 @@ stopBtn.addEventListener("click", () => stopPlayback());
       return files;
     } else {
       // Safari / Firefox: prompt user with directory input
-      return await new Promise((resolve) => {
-        presetFolderInput.value = "";
-        presetFolderInput.onchange = () => resolve(Array.from(presetFolderInput.files || []));
-        presetFolderInput.click();
-      });
+      return await pickFolderFilesFallback();
     }
   }
 
@@ -11259,7 +11565,8 @@ function indexFiles(files){
     return null;
   }
 
-  async function importPresetFlow(preset){
+  async function importPresetFlow(preset, opts){
+    opts = opts || {};
     if (!preset || typeof preset !== "object") throw new Error("Invalid preset JSON");
 
     // Apply global timing controls if present
@@ -11314,7 +11621,9 @@ if (Array.isArray(preset.cellNames)){
 }
 
 
-    const files = await requestSampleFolder(preset);
+    const files = (Array.isArray(opts.filesOverride) && opts.filesOverride.length)
+      ? opts.filesOverride
+      : await requestSampleFolder(preset);
     if (!files || !files.length){
       setStatus("No files received from the folder picker. If you are running via file://, try opening the app via http://localhost (or another local web server) and retry.", "bad");
       return;
@@ -11472,9 +11781,12 @@ if (Array.isArray(preset.cellNames)){
     // One more paint on next frame to ensure range thumbs reflect max/value after dynamic range recalculation.
     requestAnimationFrame(() => { try{ __inspCache = { selKey: null }; updateInspector(); }catch(_e){} });
 
+    const usedEmbeddedZip = !!(opts && opts.usedEmbeddedZip);
     setStatus(`Preset loaded. ${loaded} relinked, ${missing} missing.`, missing ? "warn" : "good");
     if (missing){
       toast("Some samples could not be found. Keep the same filenames (or restore the same folder structure) to relink.", 4200);
+    } else if (usedEmbeddedZip){
+      toast("Preset ZIP imported with embedded TCM_Sources.", 2600);
     }
   }
 
@@ -11484,6 +11796,17 @@ if (Array.isArray(preset.cellNames)){
       const f = presetFileInput.files && presetFileInput.files[0];
       if (!f) return;
       try{
+        const isZip = /\.zip$/i.test(String(f.name || ''));
+        if (isZip){
+          const parsed = await importPresetFromZip(f);
+          const autoFiles = Array.isArray(parsed.embeddedFiles) ? parsed.embeddedFiles.filter(isAudioFile) : [];
+          await importPresetFlow(parsed.preset, {
+            filesOverride: autoFiles.length ? autoFiles : null,
+            usedEmbeddedZip: autoFiles.length > 0
+          });
+          return;
+        }
+
         const txt = await f.text();
         const preset = JSON.parse(txt);
         await importPresetFlow(preset);
@@ -12045,6 +12368,7 @@ const _mag = {
   zoomMul: 1,
   autoNorm: false,
   userEnabled: true,
+  autoHide: false,
   baseHalfWinFrames: 0
 ,
  on:false, src:null, total:0, selStart:0, selEnd:0, edge:"R", halfWinFrames:0, el:null, cv:null, ctx:null, lbl:null, _raf:0 };
@@ -12471,6 +12795,7 @@ window.addEventListener("keydown", (ev)=>{
           <button class="helpClose" type="button" id="wavePlaySelBtn" title="Play current selection">Play sel</button>
           <button class="helpClose" type="button" id="wavePlayFullBtn" title="Play full source">Play full</button>
           <button class="helpClose" type="button" id="waveZoomBtn" title="Toggle zoom window">Zoom: on</button>
+          <button class="helpClose" type="button" id="waveZoomAutoHideBtn" title="Hide zoom window automatically when mouse is released">Zoom: Auto Hide off</button>
           <button class="helpClose" type="button" id="waveSnapBtn" title="Snap apply to zero-crossing">Snap: on</button> <button class="helpClose" type="button" id="waveUndoBtn" title="Undo trim (Ctrl/Cmd+Z)">Undo</button>
 <button class="helpClose" type="button" id="waveApplyBtn" title="Apply selection to the cell">Apply</button>
           <button class="helpClose" type="button" id="waveResetBtn" title="Reset selection to full cell length">Reset</button>
@@ -12490,7 +12815,7 @@ window.addEventListener("keydown", (ev)=>{
             <div class="kv"><span class="k">Source</span><span class="v" id="waveSrcName">—</span></div>
           </div>
           <div class="waveEditorHint" style="display:none">
-            Drag the selection window. Click inside to move; click outside jumps (zoom closes). Apply makes this selection the cell audio (used for playback + export). If the zoom window is visible: Z toggles Auto-Norm, +/- zooms, Esc (or clicking outside selection) hides it. Click outside the selection hides the zoom window.
+            Drag the selection window. Click inside to move; click near the left/right edge to resize. Clicking outside the selection no longer jumps it; it only hides the zoom window. Apply makes this selection the cell audio (used for playback + export). If the zoom window is visible: Z toggles Auto-Norm, +/- zooms, Esc (or clicking outside selection) hides it.
           </div>
 
           <div class="waveShortcuts">
@@ -12505,7 +12830,7 @@ window.addEventListener("keydown", (ev)=>{
               <li><b>Z</b> — auto-normalize (when zoom window is visible)</li>
               <li><b>Esc</b> — hide zoom (if visible) / close editor</li>
             </ul>
-            <div class="waveShortcutsNote">Tip: <b>Snap</b> affects <b>Apply</b> (zero-crossing start).</div>
+            <div class="waveShortcutsNote">Tip: <b>Snap</b> affects <b>Apply</b> (zero-crossing start). <b>Zoom: Auto Hide</b> closes the zoom window on mouse release.</div>
           </div>
 
         </div>
@@ -12525,6 +12850,7 @@ window.addEventListener("keydown", (ev)=>{
           <button class="helpClose" type="button" id="splitPlaySelBtn" title="Play focused slice (Space)">Play sel</button>
           <button class="helpClose" type="button" id="splitPlayFullBtn" title="Play full sample">Play all</button>
           <button class="helpClose" type="button" id="splitZoomBtn" title="Toggle zoom window">Zoom: on</button>
+          <button class="helpClose" type="button" id="splitZoomAutoHideBtn" title="Hide zoom window automatically when mouse is released">Zoom: Auto Hide off</button>
 <button class="helpClose" type="button" id="splitUndoBtn" title="Undo last split edit" disabled>Undo</button>
           <button class="helpClose" type="button" id="splitApplyBtn" title="Apply splits into the column">Apply</button>
           <button class="helpClose" type="button" id="splitHelpBtn" title="Help" style="margin-left:6px; width:34px; padding:0;">?</button>
@@ -12558,7 +12884,7 @@ window.addEventListener("keydown", (ev)=>{
             <li><b>Z</b> — auto-normalize (when zoom window is visible)</li>
             <li><b>Esc</b> — hide zoom (if visible) / close editor</li>
           </ul>
-          <div class="waveShortcutsNote">Tip: <b>Auto</b> spreads all 8 slices evenly across the whole sample.</div>
+          <div class="waveShortcutsNote">Tip: <b>Auto</b> spreads all 8 slices evenly across the whole sample. <b>Zoom: Auto Hide</b> closes the zoom window on mouse release.</div>
         </div>
 
       </div>
