@@ -1780,6 +1780,61 @@ input, textarea, [contenteditable="true"], [contenteditable=""] {
   -webkit-touch-callout: default;
 }
 
+/* Themed focus: remove default white browser ring and use app-colored focus instead */
+button:focus,
+button:focus-visible,
+.helpClose:focus,
+.helpClose:focus-visible,
+.helpPanel input[type="text"]:focus,
+.helpPanel input[type="text"]:focus-visible,
+.helpPanel input[type="checkbox"]:focus,
+.helpPanel input[type="checkbox"]:focus-visible,
+.helpPanel select:focus,
+.helpPanel select:focus-visible{
+  outline: none !important;
+}
+.helpPanel button:focus,
+.helpPanel button:focus-visible,
+.helpClose:focus,
+.helpClose:focus-visible{
+  border-color: rgba(125,211,252,0.45);
+  box-shadow: 0 0 0 2px rgba(125,211,252,0.18), 0 8px 20px rgba(0,0,0,0.25);
+}
+.helpPanel input[type="text"]:focus,
+.helpPanel input[type="text"]:focus-visible,
+.helpPanel select:focus,
+.helpPanel select:focus-visible{
+  border-color: rgba(125,211,252,0.45) !important;
+  box-shadow: 0 0 0 3px rgba(125,211,252,0.14) !important;
+}
+.helpPanel input[type="checkbox"]:focus,
+.helpPanel input[type="checkbox"]:focus-visible{
+  box-shadow: 0 0 0 3px rgba(125,211,252,0.14) !important;
+  border-radius: 4px;
+}
+
+/* Preset export dialog polish */
+#presetNameOverlay .helpCard{
+  transition: opacity 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+#presetNameOverlay .helpCard.isActive{
+  border-color: rgba(125,211,252,0.28);
+  background: rgba(125,211,252,0.06);
+}
+#presetNameOverlay .helpCard.isDisabled{
+  opacity: 0.58;
+  border-color: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.025);
+}
+#presetNameOverlay .helpCard.isDisabled label{
+  cursor: not-allowed !important;
+}
+#presetNameOverlay #templateOnlyNote,
+#presetNameOverlay #embedSamplesNote{
+  display: block;
+  min-height: 48px;
+}
+
 
 /* Themed sliders (Volume / Fade) */
 input[type="range"]{
@@ -2176,7 +2231,17 @@ input[type="range"]::-webkit-slider-thumb:active{
         <label class="muted" for="presetNameInput" style="display:block;margin-bottom:6px;">Preset name</label>
         <input id="presetNameInput" class="colNameInput" type="text" autocomplete="off" spellcheck="false" />
       
-      <div class="helpCard" style="margin-top:10px;">
+      <div class="helpCard" id="presetTemplateCard" style="margin-top:10px;">
+        <label class="muted" for="templateOnlyChk" style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+          <input id="templateOnlyChk" type="checkbox" />
+          <span><b>Template only</b> (settings + layout, no audio files)</span>
+        </label>
+        <div class="muted" id="templateOnlyNote" style="margin-top:6px;font-size:12px;line-height:1.35;">
+          Exports only the preset JSON inside the ZIP. Import loads this as an empty matrix with the saved settings and layout, without a missing-files prompt.
+        </div>
+      </div>
+
+      <div class="helpCard" id="presetEmbedCard" style="margin-top:10px;">
         <label class="muted" for="embedSamplesChk" style="display:flex;align-items:center;gap:10px;cursor:pointer;">
           <input id="embedSamplesChk" type="checkbox" />
           <span><b>Include original samples in ZIP</b> (portable preset)</span>
@@ -2207,6 +2272,18 @@ input[type="range"]::-webkit-slider-thumb:active{
       <div class="helpCard" style="margin-top:10px;">
         <label class="muted" for="canvasNameInput" style="display:block;margin-bottom:6px;">Canvas name</label>
         <input id="canvasNameInput" type="text" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="helpCard" style="margin-top:10px;">
+        <label class="muted" for="canvasUseBaseChk" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+          <input id="canvasUseBaseChk" type="checkbox" />
+          <span><b>Use existing Tempera .canvas as settings template</b><br><span class="muted">Keeps the selected Tempera canvas settings. TCM replaces the track audio and only merges track names.</span></span>
+        </label>
+        <div id="canvasBaseWrap" style="display:none;margin-top:10px;">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <button class="secondary" id="canvasBasePickBtn" type="button">Choose .canvas…</button>
+            <div class="muted" id="canvasBaseChosen" style="flex:1 1 260px;min-width:0;overflow-wrap:anywhere;">No base canvas selected.</div>
+          </div>
+        </div>
       </div>
       <div class="overlayActions helpActions" style="margin-top:12px;">
         <button class="good" id="canvasNameOkBtn">OK</button>
@@ -2262,6 +2339,7 @@ input[type="range"]::-webkit-slider-thumb:active{
   <!-- One hidden input for all loads -->
   <input id="fileInput" type="file" accept="audio/*" hidden />
   <input id="folderInput" type="file" accept="audio/*" webkitdirectory multiple hidden />
+  <input id="baseCanvasInput" type="file" accept=".canvas,application/zip,application/octet-stream" hidden />
 
 
   <!-- Help Overlay -->
@@ -2338,7 +2416,9 @@ input[type="range"]::-webkit-slider-thumb:active{
                             <li><b>Export 8</b> in a column: exports the 8 cells as separate WAV files (downloaded as one ZIP). Filenames use Sample + C#.</li>
                             <li><b>Export all (ZIP)</b>: exports up to 8 columns and downloads one ZIP file.</li>
                             <li>Empty columns are skipped.</li>
+                            <li><b>Template only</b>: export settings + layout only, with no audio files in the ZIP. Good for reusing a canvas setup and swapping samples later.</li>
                             <li><b>Include original samples in ZIP</b> for handpicked samples in the Matrix and TCM preset sharing.</li>
+                            <li><b>Export .canvas</b>: optionally use an existing Tempera .canvas as a settings template; TCM preserves its settings and replaces the track audio.</li>
                           </ul></div><div class="helpCard helpCardRelease">
             <h3>Release notes</h3>
             <ul class="helpList" id="releaseNotes"></ul>
@@ -2511,7 +2591,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-const APP_VERSION = '2.10.72';
+const APP_VERSION = '2.10.77';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -2675,8 +2755,13 @@ const APP_VERSION = '2.10.72';
   }
 
 
-  const APP_BUILD_DATE = '2026-04-09';
+  const APP_BUILD_DATE = '2026-04-11';
   const CHANGELOG = [
+  "2.10.73 - NEW: .canvas export can use an existing Tempera canvas as settings template; preserves settings, replaces track audio, merges only track names.",
+  "2.10.76 - Fix: template preset fade settings are preserved on empty imported cells until audio is loaded.",
+  "2.10.75 - Import: template presets now load directly as an empty matrix with per-cell settings, no missing-files prompt.",
+  "2.10.74 - NEW: Export preset can now be Template only (settings + layout, no audio files).",
+  "2.10.77 - UI polish: preset export dialog focus trap + themed focus ring; Template only now disables Include with stable note height.",
   "2.10.71 - NEW: multi-select V1 (Shift range / Cmd-Ctrl toggle) for bulk lower inspector settings.",
   "2.10.70 - Import: exported ZIP can now be imported directly and auto-uses embedded TCM_Sources.",
   "2.10.69 - Import Preset folder picker reopens in the last used relink folder where supported.",
@@ -6023,6 +6108,15 @@ const exportAllBtn = document.getElementById("exportAllBtn");
     el.addEventListener("mouseup", _blurLater, {passive:true});
     el.addEventListener("touchend", _blurLater, {passive:true});
   }
+  function _bindNoFocusPointerButton(el){
+    if (!el) return;
+    el.addEventListener("mousedown", (e)=>{ try{ e.preventDefault(); }catch(_){} }, {passive:false});
+    el.addEventListener("pointerdown", (e)=>{ try{ e.preventDefault(); }catch(_){} }, {passive:false});
+    el.addEventListener("click", ()=>{ setTimeout(()=>_blurIfFocused(el), 0); }, {passive:true});
+  }
+  try{
+    document.querySelectorAll('header button, .copyrightTop button').forEach(_bindNoFocusPointerButton);
+  }catch(_){ }
   _bindInspectorBlurOnUse(volEl);
   _bindInspectorBlurOnUse(fadeInEl);
   _bindInspectorBlurOnUse(fadeOutEl);
@@ -7462,6 +7556,7 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     const silent = !!opts.silent;
     const cell = state.cells[col][row];
     const _isImport = !!(opts && (opts.importing || typeof opts.importSelEdited === 'boolean' || (opts.importTrimStart != null) || (opts.importTrimLen != null) || (opts.importSelStart != null) || (opts.importSelLen != null)));
+    const _preserveTemplateSettings = !!(!_isImport && cell && cell.templateSettingsOnly === true);
     if (!_isImport){
       cell.scissors = false;
       cell.selEdited = false;
@@ -7471,9 +7566,9 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     }
     cell.cache = { key:"", L:null, R:null, frames:0 };
 
-    // Reset per-cell gain/fades on every load (prevents previous sample settings carrying over)
+    // Reset per-cell gain/fades on every load unless this cell came from a template preset.
     try{
-      if (cell && cell.settings){
+      if (!_preserveTemplateSettings && cell && cell.settings){
         cell.settings.gain = 1;
         cell.settings.fadeInMs = 0;
         cell.settings.fadeOutMs = 0;
@@ -7612,8 +7707,12 @@ const _srcKey = getSourceKeyFromFile(file, name);
       relPath: (file && (file.webkitRelativePath || file._relPath)) ? (file.webkitRelativePath || file._relPath) : "",
     };
 
-    if (normalizeOnLoadEl.checked){
+    if (normalizeOnLoadEl.checked && !_preserveTemplateSettings){
       normalizeCellGain(cell);
+    }
+
+    if (_preserveTemplateSettings){
+      cell.templateImported = false;
     }
 
     cell.peaks = computePeaks(cell.left, cell.right, MINI_PEAKS_POINTS);
@@ -8657,6 +8756,7 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
     // Dynamic fade range: keep faders proportional to the *effective* audible length.
     // - fitMode "rate": audio always fills the full cell (time-stretch via resample)
     // - fitMode "padtrim"/"loop": audio can be shorter than the cell; fades should scale to the audible portion
+    // - template-only empty cells must keep imported fade values until a sample is loaded
     let effFramesForFade = getCellFrames(row);
     try{
       const fit = cell.settings.fitMode || "rate";
@@ -8674,7 +8774,11 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
           }
         }
 
-        effFramesForFade = Math.max(1, Math.min(getCellFrames(row), srcLen|0));
+        if (srcLen > 0){
+          effFramesForFade = Math.max(1, Math.min(getCellFrames(row), srcLen|0));
+        }else{
+          effFramesForFade = Math.max(1, getCellFrames(row)|0);
+        }
       }
     }catch(_){}
 
@@ -9674,18 +9778,21 @@ if (!presetRes){
   return;
 }
 const presetName = presetRes.name;
-const includeSources = !!presetRes.embedSamples;
+const templateOnly = !!presetRes.templateOnly;
+const includeSources = templateOnly ? false : !!presetRes.embedSamples;
       // Make sure the preset JSON sorts AFTER audio files when extracted to a folder
       const presetJsonName = sanitizeFilename(`zz_TCM-Preset_${presetName}`) + ".json";
 
 
-      for (let c=0; c<COLS; c++){
-        const any = state.cells[c].some(cell => cell.left);
-        if (!any) continue;
+      if (!templateOnly){
+        for (let c=0; c<COLS; c++){
+          const any = state.cells[c].some(cell => cell.left);
+          if (!any) continue;
 
-        const wavBytes = exportColumnBytes(c);
-        const filename = formatNameForCol(c, colFrames);
-        files.push({name: filename, data: wavBytes});
+          const wavBytes = exportColumnBytes(c);
+          const filename = formatNameForCol(c, colFrames);
+          files.push({name: filename, data: wavBytes});
+        }
       }
       
       // Optional: embed original source samples so the preset can be re-imported without original folders.
@@ -9758,6 +9865,9 @@ topFolders: computeTopFoldersFromState(),
           normalizeOnLoad: !!(normalizeOnLoadEl && normalizeOnLoadEl.checked),
           nameTemplate: String(nameTemplateEl?.value || ""),
         },
+        exportMode: templateOnly ? "template_only" : (includeSources ? "portable_preset" : "preset_with_audio"),
+        templateOnly: !!templateOnly,
+        template: !!templateOnly,
         columns: Array.from({length: COLS}, (_, c) => ({
           index: c,
           name: state.colNames[c] || `Sample ${c+1}`,
@@ -9855,7 +9965,7 @@ topFolders: computeTopFoldersFromState(),
         return;
       }
 
-      toast(`Building ZIP (${files.length} file(s))...`, 1800);
+      toast(templateOnly ? `Building template ZIP (${files.length} file(s))...` : `Building ZIP (${files.length} file(s))...`, 1800);
 
       const zipBlob = zipStore(files);
       // iPad/Safari may append .zip based on MIME type. Use a generic type so the filename stays .canvas.
@@ -10511,6 +10621,96 @@ track7TuningMode:0`;
     return txt;
   }
 
+  function temperaMergeTrackNamesIntoParameters(baseText){
+    const raw = String(baseText == null ? "" : baseText);
+    const lineEnding = /\r\n/.test(raw) ? "\r\n" : "\n";
+    let txt = raw.replace(/\r\n/g, "\n");
+    for (let t=0;t<8;t++){
+      const nm = temperaSanitizeTrackName(getColDisplayName(t), `Track ${t+1}`);
+      const line = `track${t}Name:${nm}`;
+      const re = new RegExp(`^track${t}Name:.*$`, "m");
+      if (re.test(txt)) txt = txt.replace(re, line);
+      else txt += (txt.endsWith("\n") ? "" : "\n") + line;
+    }
+    return txt.replace(/\n/g, lineEnding);
+  }
+
+  function temperaIsTrackFlacEntry(name){
+    return /(^|\/)[0-7]_[0-7]\.flac$/i.test(String(name || ''));
+  }
+
+  function temperaIsParametersEntry(name){
+    return /(^|\/)parameters\.txt$/i.test(String(name || ''));
+  }
+
+  function temperaCollectBaseCanvasExtras(entries){
+    const out = [];
+    const seen = new Set();
+    for (const entry of (entries || [])){
+      const name = String(entry && entry.name || '');
+      if (!name || name.endsWith('/')) continue;
+      if (temperaIsParametersEntry(name)) continue;
+      if (temperaIsTrackFlacEntry(name)) continue;
+      if (seen.has(name)) continue;
+      seen.add(name);
+      out.push({ name, data: entry.data });
+    }
+    return out;
+  }
+
+  async function temperaReadBaseCanvas(file){
+    if (!file) return null;
+    const u8 = new Uint8Array(await file.arrayBuffer());
+    const entries = unzipStoreOnly(u8);
+    if (!entries.length) throw new Error("Base .canvas is empty");
+    const paramsEntry = entries.find(e => temperaIsParametersEntry(e && e.name));
+    if (!paramsEntry) throw new Error("Base .canvas has no parameters.txt");
+    return { entries, paramsEntry };
+  }
+
+  async function temperaBuildCanvasFiles(baseCanvasFile){
+    const enc = new TextEncoder();
+    const dec = new TextDecoder();
+    const files = [];
+
+    if (baseCanvasFile){
+      const base = await temperaReadBaseCanvas(baseCanvasFile);
+      const mergedParams = temperaMergeTrackNamesIntoParameters(dec.decode(base.paramsEntry.data));
+      files.push({ name:"parameters.txt", data: enc.encode(mergedParams) });
+      const extras = temperaCollectBaseCanvasExtras(base.entries);
+      for (const extra of extras) files.push(extra);
+    } else {
+      files.push({ name:"parameters.txt", data: enc.encode(temperaBuildParametersFromTemplate()) });
+    }
+
+    for (let t=0;t<8;t++) {
+      const has = temperaColumnHasAudio(t);
+      toast(`Rendering track ${t+1}...`, 900);
+
+      let mips = null;
+      if (has) {
+        const base = exportColumnFloatLR(t); // L/R Float32 @ 48kHz, length 524288
+        toast(`Building mipmaps for track ${t+1}...`, 900);
+        mips = await buildTemperaMipChain(base);
+      }
+
+      for (let m=0;m<8;m++) {
+        const target = TEMPERA_CANVAS_MIP_SAMPLES[m];
+        let flac;
+        if (!has) {
+          flac = buildFlacSilence(target);
+        } else {
+          const lr = mips[m];
+          flac = buildFlacVerbatimFromFloatLR(lr.L, lr.R);
+        }
+        files.push({name:`${t}_${m}.flac`, data: flac});
+      }
+      await new Promise(r=>setTimeout(r,0));
+    }
+
+    return files;
+  }
+
   function temperaColumnHasAudio(col){
     for (let r=0;r<ROWS;r++){
       const cell = state.cells[col][r];
@@ -10870,35 +11070,10 @@ const _flacCrc8Table = (() => {
         return;
       }
       const canvasName = res.name || def;
+      const baseCanvasFile = res.baseCanvasFile || null;
 
-      const enc = new TextEncoder();
-      const files = [];
-      files.push({name:"parameters.txt", data: enc.encode(temperaBuildParametersFromTemplate())});
-
-      for (let t=0;t<8;t++) {
-        const has = temperaColumnHasAudio(t);
-        toast(`Rendering track ${t+1}...`, 900);
-
-        let mips = null;
-        if (has) {
-          const base = exportColumnFloatLR(t); // L/R Float32 @ 48kHz, length 524288
-          toast(`Building mipmaps for track ${t+1}...`, 900);
-          mips = await buildTemperaMipChain(base);
-        }
-
-        for (let m=0;m<8;m++) {
-          const target = TEMPERA_CANVAS_MIP_SAMPLES[m];
-          let flac;
-          if (!has) {
-            flac = buildFlacSilence(target);
-          } else {
-            const lr = mips[m];
-            flac = buildFlacVerbatimFromFloatLR(lr.L, lr.R);
-          }
-          files.push({name:`${t}_${m}.flac`, data: flac});
-        }
-        await new Promise(r=>setTimeout(r,0));
-      }
+      if (baseCanvasFile) toast(`Using base canvas: ${baseCanvasFile.name}`, 1400);
+      const files = await temperaBuildCanvasFiles(baseCanvasFile);
 
       toast(`Building .canvas (${files.length} file(s))...`, 1800);
       const zipBlob = zipStore(files);
@@ -10913,7 +11088,7 @@ const _flacCrc8Table = (() => {
       toast(`Exported .canvas: ${files.length} file(s)`, 2000);
     }catch(e){
       console.error(e);
-      toast("Canvas export failed (see console)", 2400);
+      toast(`Canvas export failed: ${e?.message || e}`, 3200);
     }
   }
 
@@ -11325,15 +11500,35 @@ function openCanvasNameOverlay(defaultName){
     const btnOk = document.getElementById("canvasNameOkBtn");
     const btnCancel = document.getElementById("canvasNameCancelBtn");
     const btnClose = document.getElementById("canvasNameOverlayClose");
+    const useBaseChk = document.getElementById("canvasUseBaseChk");
+    const baseWrap = document.getElementById("canvasBaseWrap");
+    const basePickBtn = document.getElementById("canvasBasePickBtn");
+    const baseChosen = document.getElementById("canvasBaseChosen");
+    const baseInput = document.getElementById("baseCanvasInput");
     if (!ov || !input || !btnOk || !btnCancel || !btnClose){
       const raw = prompt("Canvas name (used for .canvas filename):", defaultName || "");
       if (raw == null) return resolve(null);
       const s = sanitizeFilename(raw);
-      return resolve({ name: (s || sanitizeFilename(defaultName || "TCM_Canvas")) });
+      return resolve({ name: (s || sanitizeFilename(defaultName || "TCM_Canvas")), baseCanvasFile: null });
+    }
+
+    let selectedBaseCanvasFile = null;
+
+    function refreshBaseUi(){
+      const enabled = !!(useBaseChk && useBaseChk.checked);
+      if (baseWrap) baseWrap.style.display = enabled ? "block" : "none";
+      if (basePickBtn) basePickBtn.disabled = !enabled;
+      if (baseChosen){
+        if (!enabled) baseChosen.textContent = "No base canvas selected.";
+        else baseChosen.textContent = selectedBaseCanvasFile ? selectedBaseCanvasFile.name : "No base canvas selected.";
+      }
     }
 
     input.value = String(defaultName || "");
     input.select?.();
+    if (useBaseChk) useBaseChk.checked = false;
+    if (baseInput) baseInput.value = "";
+    refreshBaseUi();
 
     function close(val){
       ov.classList.remove("show");
@@ -11341,6 +11536,9 @@ function openCanvasNameOverlay(defaultName){
       btnOk.onclick = null;
       btnCancel.onclick = null;
       btnClose.onclick = null;
+      if (useBaseChk) useBaseChk.onchange = null;
+      if (basePickBtn) basePickBtn.onclick = null;
+      if (baseInput) baseInput.onchange = null;
       document.removeEventListener("keydown", onKey, true);
       resolve(val);
     }
@@ -11349,9 +11547,37 @@ function openCanvasNameOverlay(defaultName){
       if (e.key === "Enter"){ e.preventDefault(); btnOk.click(); }
     }
 
+    if (useBaseChk){
+      useBaseChk.onchange = () => {
+        if (!useBaseChk.checked){
+          selectedBaseCanvasFile = null;
+          if (baseInput) baseInput.value = "";
+        }
+        refreshBaseUi();
+      };
+    }
+    if (basePickBtn && baseInput){
+      basePickBtn.onclick = () => {
+        try{ baseInput.value = ""; }catch(_e){}
+        baseInput.click();
+      };
+      baseInput.onchange = () => {
+        const f = (baseInput.files && baseInput.files[0]) ? baseInput.files[0] : null;
+        selectedBaseCanvasFile = f || null;
+        refreshBaseUi();
+      };
+    }
+
     btnOk.onclick = () => {
+      if (useBaseChk && useBaseChk.checked && !selectedBaseCanvasFile){
+        toast("Choose a base Tempera .canvas first", 2200);
+        return;
+      }
       const s = sanitizeFilename(String(input.value || ""));
-      close({ name: (s || sanitizeFilename(defaultName || "TCM_Canvas")) });
+      close({
+        name: (s || sanitizeFilename(defaultName || "TCM_Canvas")),
+        baseCanvasFile: (useBaseChk && useBaseChk.checked) ? selectedBaseCanvasFile : null
+      });
     };
     btnCancel.onclick = () => close(null);
     btnClose.onclick = () => close(null);
@@ -11371,7 +11597,11 @@ function openPresetNameOverlay(defaultName, opts){
     const ov = document.getElementById("presetNameOverlay");
     const input = document.getElementById("presetNameInput");
     const chk = document.getElementById("embedSamplesChk");
+    const templateChk = document.getElementById("templateOnlyChk");
     const note = document.getElementById("embedSamplesNote");
+    const templateNote = document.getElementById("templateOnlyNote");
+    const templateCard = document.getElementById("presetTemplateCard");
+    const embedCard = document.getElementById("presetEmbedCard");
     const btnOk = document.getElementById("presetNameOkBtn");
     const btnCancel = document.getElementById("presetNameCancelBtn");
     const btnClose = document.getElementById("presetNameOverlayClose");
@@ -11380,21 +11610,78 @@ function openPresetNameOverlay(defaultName, opts){
       const raw = prompt("Preset name (used for ZIP + preset JSON):", defaultName || "");
       if (raw == null) return resolve(null);
       const s = sanitizeFilename(raw);
-      return resolve({ name: (s || sanitizeFilename(defaultName || "TCM_Preset")), embedSamples: false });
+      return resolve({ name: (s || sanitizeFilename(defaultName || "TCM_Preset")), embedSamples: false, templateOnly: false });
     }
 
     input.value = String(defaultName || "");
     input.select?.();
 
     const manualLoaded = !!(opts && opts.manualLoaded);
-    if (note){
-      note.textContent = manualLoaded
-        ? "Some samples were loaded via the file picker (no folder path). Those cannot be relinked on import unless you include the original samples in this ZIP."
-        : "Optional: embed the original source samples in this ZIP so this preset can be imported on another machine without needing the original folders.";
-    }
+    const blurActiveForOverlay = () => {
+      try{
+        const ae = document.activeElement;
+        if (ae && ae !== document.body && !ov.contains(ae) && typeof ae.blur === "function") ae.blur();
+      }catch(_){ }
+    };
+    const getOverlayFocusables = () => {
+      try{
+        return Array.from(ov.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'))
+          .filter(el => !!(el && el.offsetParent !== null));
+      }catch(_){ return []; }
+    };
+    const moveOverlayFocus = (dir) => {
+      const items = getOverlayFocusables();
+      if (!items.length) return;
+      const active = document.activeElement;
+      let idx = items.indexOf(active);
+      if (idx < 0) idx = 0;
+      idx = (idx + dir + items.length) % items.length;
+      const next = items[idx];
+      try{ next.focus({ preventScroll:true }); }catch(_){ try{ next.focus(); }catch(__){} }
+      if (next && next.select) { try{ next.select(); }catch(_){ } }
+    };
+    const restoreMatrixFocus = () => {
+      try{
+        if (state && state.selected && state.selected.has && typeof focusCellEl === "function"){
+          focusCellEl(state.selected.col, state.selected.row);
+          return;
+        }
+        const ae = document.activeElement;
+        if (ae && ae !== document.body && typeof ae.blur === "function") ae.blur();
+      }catch(_){ }
+    };
+    const updateTemplateModeUi = () => {
+      const templateOnly = !!(templateChk && templateChk.checked);
+      if (templateNote){
+        templateNote.textContent = templateOnly
+          ? "Template only exports just the preset JSON inside the ZIP. No column audio and no embedded source samples are written."
+          : "Exports the preset JSON plus the normal ZIP contents for the current preset export mode.";
+      }
+      if (note){
+        note.textContent = templateOnly
+          ? "Disabled while Template only is active. Include original samples cannot be used in this mode, because the ZIP stays metadata-only so you can relink or replace samples later."
+          : (manualLoaded
+              ? "Some samples were loaded via the file picker (no folder path). Those cannot be relinked on import unless you include the original samples in this ZIP."
+              : "Optional: embed the original source samples in this ZIP so this preset can be imported on another machine without needing the original folders.");
+      }
+      if (templateCard) templateCard.classList.toggle("isActive", templateOnly);
+      if (embedCard) {
+        embedCard.classList.toggle("isDisabled", templateOnly);
+        embedCard.setAttribute("aria-disabled", templateOnly ? "true" : "false");
+      }
+      if (chk){
+        chk.disabled = templateOnly;
+        if (templateOnly) chk.checked = false;
+      }
+    };
     if (chk){
       chk.checked = manualLoaded ? true : false;
     }
+    if (templateChk){
+      templateChk.checked = false;
+      templateChk.onchange = updateTemplateModeUi;
+    }
+    updateTemplateModeUi();
 
     const cleanup = () => {
       ov.classList.remove("show");
@@ -11404,6 +11691,8 @@ function openPresetNameOverlay(defaultName, opts){
       btnCancel.onclick = null;
       btnClose.onclick = null;
       ov.onclick = null;
+      if (templateChk) templateChk.onchange = null;
+      setTimeout(restoreMatrixFocus, 0);
     };
 
     const finish = (val) => {
@@ -11412,17 +11701,47 @@ function openPresetNameOverlay(defaultName, opts){
     };
 
     const onKey = (e) => {
-      if (e.key === "Escape"){ e.preventDefault(); finish(null); }
+      if (e.key === "Tab"){
+        const items = getOverlayFocusables();
+        if (items.length){
+          const first = items[0], last = items[items.length - 1];
+          const active = document.activeElement;
+          if (e.shiftKey && (active === first || !ov.contains(active))){
+            e.preventDefault();
+            try{ last.focus({ preventScroll:true }); }catch(_){ try{ last.focus(); }catch(__){} }
+            return;
+          }
+          if (!e.shiftKey && (active === last || !ov.contains(active))){
+            e.preventDefault();
+            try{ first.focus({ preventScroll:true }); }catch(_){ try{ first.focus(); }catch(__){} }
+            return;
+          }
+        }
+      }
+      if (e.key === "ArrowDown" || e.key === "ArrowUp"){
+        const ae = document.activeElement;
+        const isTextArea = !!(ae && (ae.tagName||"").toUpperCase() === "TEXTAREA");
+        if (!isTextArea){
+          e.preventDefault();
+          moveOverlayFocus(e.key === "ArrowDown" ? 1 : -1);
+          return;
+        }
+      }
+      if (e.key === "Escape"){ e.preventDefault(); finish(null); return; }
       if (e.key === "Enter"){
+        const ae = document.activeElement;
+        const tag = ae ? (ae.tagName||"").toUpperCase() : "";
+        const type = ae && ae.type ? String(ae.type).toLowerCase() : "";
+        if (tag === "TEXTAREA" || type === "checkbox") return;
         e.preventDefault();
         const s = sanitizeFilename(input.value || "");
-        finish({ name: (s || sanitizeFilename(defaultName || "TCM_Preset")), embedSamples: !!(chk && chk.checked) });
+        finish({ name: (s || sanitizeFilename(defaultName || "TCM_Preset")), embedSamples: !!(chk && chk.checked), templateOnly: !!(templateChk && templateChk.checked) });
       }
     };
 
     btnOk.onclick = () => {
       const s = sanitizeFilename(input.value || "");
-      finish({ name: (s || sanitizeFilename(defaultName || "TCM_Preset")), embedSamples: !!(chk && chk.checked) });
+      finish({ name: (s || sanitizeFilename(defaultName || "TCM_Preset")), embedSamples: !!(chk && chk.checked), templateOnly: !!(templateChk && templateChk.checked) });
     };
     const cancel = () => finish(null);
     btnCancel.onclick = cancel;
@@ -11430,11 +11749,15 @@ function openPresetNameOverlay(defaultName, opts){
     ov.onclick = (e) => { if (e.target === ov) cancel(); };
 
     disableNativeTooltips();
-      ov.classList.add("show");
+    blurActiveForOverlay();
+    ov.classList.add("show");
     ov.setAttribute("aria-hidden","false");
     window.addEventListener("keydown", onKey);
 
-    setTimeout(() => input.focus(), 0);
+    setTimeout(() => {
+      try{ input.focus({ preventScroll:true }); }catch(_){ try{ input.focus(); }catch(__){} }
+      try{ input.select?.(); }catch(_){ }
+    }, 0);
   });
 }
 
@@ -11565,9 +11888,36 @@ function indexFiles(files){
     return null;
   }
 
+  function isTemplatePreset(preset){
+    return !!(preset && (
+      preset.template === true ||
+      preset.templateOnly === true ||
+      preset.exportMode === "template_only"
+    ));
+  }
+
+  function resetMatrixForTemplateImport(){
+    stopPlayback();
+    try{ if (typeof splitStateByCol !== 'undefined' && splitStateByCol && splitStateByCol.clear) splitStateByCol.clear(); }catch(_e){}
+    for (let c=0;c<COLS;c++){
+      for (let r=0;r<ROWS;r++){
+        state.cells[c][r] = makeEmptyCell();
+        if (state.cellNames && state.cellNames[c]) state.cellNames[c][r] = null;
+      }
+      state.colNames[c] = `Sample ${c+1}`;
+    }
+    try{ state.multiSelected && state.multiSelected.clear && state.multiSelected.clear(); }catch(_e){}
+    if (state.selectionAnchor) state.selectionAnchor.has = false;
+    try{ markAllWavesDirty(); scheduleWaveFlush(); }catch(_e){}
+  }
+
   async function importPresetFlow(preset, opts){
     opts = opts || {};
     if (!preset || typeof preset !== "object") throw new Error("Invalid preset JSON");
+    const templatePreset = isTemplatePreset(preset);
+    if (templatePreset){
+      resetMatrixForTemplateImport();
+    }
 
     // Apply global timing controls if present
     if (preset.tempo && typeof preset.tempo === "object"){
@@ -11620,6 +11970,40 @@ if (Array.isArray(preset.cellNames)){
   }
 }
 
+
+    if (templatePreset){
+      if (Array.isArray(preset.columns)){
+        for (let c=0;c<COLS;c++){
+          const col = preset.columns[c];
+          const cells = col?.cells;
+          if (!Array.isArray(cells)) {
+            updateColUI(c);
+            continue;
+          }
+          for (let r=0;r<ROWS;r++){
+            const cellP = cells[r];
+            const cell = state.cells[c][r];
+            if (!cellP || !cell) {
+              updateCellUI(c,r);
+              continue;
+            }
+            if (cellP.settings && typeof cellP.settings === "object"){
+              cell.settings = { ...cell.settings, ...cellP.settings };
+            }
+            cell.templateSettingsOnly = true;
+            cell.templateImported = true;
+            updateCellUI(c,r);
+          }
+          updateColUI(c);
+        }
+      }
+      __inspCache = { selKey: null };
+      updateInspector();
+      requestAnimationFrame(() => { try{ __inspCache = { selKey: null }; updateInspector(); }catch(_e){} });
+      setStatus("Template preset loaded. Empty matrix with imported settings/layout.", "good");
+      toast("Template preset loaded without relinking samples.", 2600);
+      return;
+    }
 
     const files = (Array.isArray(opts.filesOverride) && opts.filesOverride.length)
       ? opts.filesOverride
