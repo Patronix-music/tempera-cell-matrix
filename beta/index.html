@@ -418,14 +418,60 @@
     }
     .cell.multiSelected::before{ opacity: 0; }
 
-    
+    .cell.locked{
+      border-color: rgba(167,139,250,0.34);
+      background: rgba(255,255,255,0.022);
+      box-shadow: inset 0 0 0 1px rgba(167,139,250,0.26), 0 10px 26px rgba(0,0,0,0.35);
+    }
+    .cell.locked::before{ opacity: 0.40; }
+    .cell.locked::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius: 14px;
+      background: rgba(0,0,0,0.18);
+      pointer-events:none;
+    }
+    .cell.locked .cellTop,
+    .cell.locked .cellFile,
+    .cell.locked .cellTime,
+    .cell.locked .waveWrap,
+    .cell.locked .gainBar,
+    .cell.locked .cellBtns{
+      opacity: 0.72;
+    }
+    .cell.locked .cellBtns button{
+      opacity: 0.72;
+    }
+    .cell.locked.selected,
+    .cell.locked.multiSelected{
+      border-color: rgba(167,139,250,0.55);
+      box-shadow: inset 0 0 0 2px rgba(167,139,250,0.55), 0 16px 40px rgba(0,0,0,0.55);
+    }
+    .cell.locked.playing{
+      border-color: rgba(52,211,153,0.70);
+      box-shadow: inset 0 0 0 2px rgba(52,211,153,0.70), 0 16px 40px rgba(0,0,0,0.60);
+    }
+    .cell.locked.selected::after,
+    .cell.locked.multiSelected::after,
+    .cell.locked.playing::after{
+      background: rgba(0,0,0,0.10);
+    }
+
     /* Selected cell: hide left color stripe when inner purple highlight is active */
-    .cell.selected::before{ opacity: 0; }
+    .cell.selected::before,
+    .cell.playing::before{ opacity: 0; }
 .cell.playing{
       border-color: rgba(52,211,153,0.65);
       /* match selected (purple) thickness: 2px inset highlight */
       box-shadow: inset 0 0 0 2px rgba(52,211,153,0.65), 0 16px 40px rgba(0,0,0,0.60);
     }
+
+    .cell.duplicateLoaded:not(.selected):not(.playing){
+      border-color: rgba(251,113,133,0.62);
+      box-shadow: inset 0 0 0 2px rgba(251,113,133,0.46), 0 16px 40px rgba(0,0,0,0.55);
+    }
+    .cell.duplicateLoaded::before{ opacity: 0; }
 
     .cell.dragSrc{
       opacity: .65;
@@ -463,6 +509,13 @@
       letter-spacing: -0.15px;
       flex: 0 1 auto;
       min-width: 0;
+      justify-content: center;
+      text-align: center;
+    }
+    .cellTop .tag.cellId{
+      min-width: 24px;
+      justify-content: center;
+      text-align: center;
     }
     .cellTop .tag.mode{
       letter-spacing: -0.1px;
@@ -505,9 +558,11 @@
   white-space: nowrap;
 }
 .cellFile .cellCname{
-  flex: 0 0 auto;
+  flex: 0 0 24px;
+  min-width: 24px;
   white-space: nowrap;
   opacity: .95;
+  text-align: center;
 }
 .cellTime{
   font-size: 10px;
@@ -758,6 +813,15 @@
       gap: 6px;
       flex-wrap: wrap;
       align-items:center;
+    }
+
+    .inspHead .ctrlRow .lockBulkBtn{
+      min-width: 92px;
+      justify-content: center;
+    }
+    .inspHead .ctrlRow #inspLockCellBtn{
+      min-width: 106px;
+      justify-content: center;
     }
 
     .chk{
@@ -1184,6 +1248,77 @@ input[type="number"]::-webkit-inner-spin-button{
       margin-top: 8px;
     }
 
+
+    /* Random 64 Sources overlay */
+    .randomSourcesPanel{ width: min(920px, calc(100vw - 24px)); }
+    .randomSourcesList{
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .randomSourcesItem{
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      border-radius: 14px;
+      padding: 10px 12px;
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+    }
+    .randomSourcesTop{
+      display:flex;
+      align-items:flex-start;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+    .randomSourcesLabel{
+      flex: 1 1 240px;
+      min-width: 180px;
+      height: calc(var(--ctrlH) - 10px);
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 0 10px;
+      outline:none;
+      font-size: 11px;
+    }
+    .randomSourcesMeta{
+      font-size: 12px;
+      line-height: 1.35;
+      color: var(--muted);
+      overflow-wrap:anywhere;
+    }
+    .randomSourcesMeta strong{ color: var(--text); }
+    .randomSourcesEmpty{
+      border: 1px dashed rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.03);
+      border-radius: 14px;
+      padding: 14px 16px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      margin-top: 10px;
+    }
+    .randomSourcesStatus{
+      display:inline-flex;
+      align-items:center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .randomSourcesStatusDot{
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.30);
+      flex: 0 0 8px;
+    }
+    .randomSourcesStatus.isLive .randomSourcesStatusDot{ background: rgba(52,211,153,0.95); }
+    .randomSourcesStatus.isGhost .randomSourcesStatusDot{ background: rgba(251,191,36,0.90); }
+
   
     /* Header grouping + compact layout */
     .actionsRow1{
@@ -1449,6 +1584,24 @@ input[type="number"]::-webkit-inner-spin-button{
   white-space: nowrap;
 }
 .field.nameTpl .tplHint{ opacity:.65; font-size: 11px; }
+
+/* Header Name field: let the right header area grow, then let Name fill the remaining width */
+.actionsWrap{
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.actions{
+  width: 100%;
+  justify-content: flex-start;
+}
+.actions > .field.nameTpl{
+  flex: 1 1 auto !important;
+  min-width: 260px;
+  max-width: none !important;
+  margin-left: 0;
+}
+.actions > .field.nameTpl .tplWrap{ width: 100%; }
+.actions > .field.nameTpl #nameTemplate{ width: 100% !important; }
 
 @media (max-width: 900px){
   #nameTemplate{ width: clamp(110px, 36vw, 150px); }
@@ -2002,6 +2155,19 @@ input[type="range"]::-webkit-slider-thumb:active{
   line-height: 1.3;
   color: var(--muted);
 }
+.cellLoadModeGroup{
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+}
+.cellLoadModeDivider{
+  height: 1px;
+  background: rgba(255,255,255,0.10);
+  margin: 0;
+}
+.cellLoadModeGroup .chk{
+  width: 100%;
+}
 @media (max-width: 760px){
   .cellLoadPanel{ width: min(560px, calc(100vw - 24px)); }
 }
@@ -2021,7 +2187,7 @@ input[type="range"]::-webkit-slider-thumb:active{
 </div>
 
         <div class="actionsWrap"><div class="actions">
-          <div class="btnGroupInline"><button class="pop" id="random64Btn" title="Pick a folder (recursive) and randomly fill all 64 cells. Tip: hold Shift to filter which files are used for loading samples.">Random 64 <span class="filterIcon" aria-hidden="true"></span></button>
+          <div class="btnGroupInline"><button class="pop" id="random64Btn" title="Randomly fill all 64 cells. If a Sources list is active, Random 64 uses that live folder pool. Tip: hold Shift to filter which files are used for loading samples.">Random 64 <span class="filterIcon" aria-hidden="true"></span></button><button class="secondary" id="random64SourcesBtn" title="Manage a reusable live folder list for Random 64 / Random 8">Sources</button>
           <button class="warn" id="exportAllBtn">Export all (ZIP)</button>
           <button class="warn" id="exportCanvasBtn" title="Export Tempera .canvas">Export .canvas</button>
           <button class="secondary" id="importPresetBtn" title="Load preset JSON or exported ZIP. ZIP imports can auto-use embedded TCM_Sources.">Import Preset</button>
@@ -2054,18 +2220,6 @@ input[type="range"]::-webkit-slider-thumb:active{
 
           <span class="sep" aria-hidden="true"></span>
 
-          <label class="tog" title="For Load+Slice: time-fit (pitch changes) so the full sample exactly fills the column.">
-            <input type="checkbox" id="splitFit">
-            Split fit (pitch)
-          </label>
-
-          <label class="tog" title="Normalize on load (per cell) by setting gain based on peak level.">
-            <input type="checkbox" id="normalizeOnLoad">
-            Normalize load
-          </label>
-
-          <span class="sep" aria-hidden="true"></span>
-
           <div class="field nameTpl" title="Filename template. Placeholders: {col} {colname} {mode} {bpm} {sr} {frames} {date}">
             <label for="nameTemplate">Name</label>
             <div class="tplWrap">
@@ -2082,7 +2236,7 @@ input[type="range"]::-webkit-slider-thumb:active{
         </div>
 </div>
     </div>
-  <div class="copyrightTop"><span id="copyrightText"></span><div class="miniRow"><button class="good audioMini" id="enableAudioBtn" title="Required on some browsers before audio playback">Enable audio</button><button class="secondary audioMini" id="scrollbarBtn" title="Toggle matrix scrollbar visibility">Scrollbar: On</button><button class="secondary audioMini" id="stopBtn">Stop</button><button class="danger audioMini" id="clearAllBtn">Clear all</button></div></div>
+  <div class="copyrightTop"><span id="copyrightText"></span><div class="miniRow"><button class="secondary audioMini" id="autoPreviewBtn" title="Automatically preview the selected cell while navigating the matrix with arrow keys">Auto preview: Off</button><button class="secondary audioMini" id="scrollbarBtn" title="Toggle matrix scrollbar visibility">Scrollbar: On</button><button class="good audioMini" id="enableAudioBtn" title="Required on some browsers before audio playback">Enable audio</button><button class="secondary audioMini" id="stopBtn">Stop</button><button class="danger audioMini" id="clearAllBtn">Clear all</button></div></div>
 </header>
 
   <main>
@@ -2096,10 +2250,10 @@ input[type="range"]::-webkit-slider-thumb:active{
             <div class="d" id="inspDesc">Select a cell.</div>
           </div>
           <div class="ctrlRow">
-            <button class="tiny secondary" id="inspClearBtn">Clear</button>
-            <button class="tiny secondary" id="inspPlayBtn">▶ Play</button>
-            <button class="tiny secondary" id="inspLoadBtn">Load</button>
             <button class="tiny good" id="inspNormalizeBtn">Normalize</button>
+            <button class="tiny secondary" id="inspLockCellBtn" type="button" title="Lock or unlock the selected cell or current multi-selection">Lock Cell</button>
+            <button class="tiny secondary lockBulkBtn" id="inspLockColBtn" title="Lock or unlock all 8 cells in this column">Lock Col</button>
+            <button class="tiny secondary lockBulkBtn" id="inspLockRowBtn" title="Lock or unlock this row across all 8 columns">Lock Row</button>
             <button class="tiny secondary" id="inspCopyToColBtn" title="Copy settings to all 8 cells in this column">Copy→Col</button>
             <button class="tiny secondary" id="inspCopyToAllBtn" title="Copy settings to all 64 cells">Copy→All</button>
           </div>
@@ -2141,6 +2295,7 @@ input[type="range"]::-webkit-slider-thumb:active{
             <div class="ctrlRow" style="gap:14px;">
               <label class="chk"><input id="mute" type="checkbox"> Mute</label>
               <label class="chk"><input id="reverse" type="checkbox"> Reverse</label>
+              <label class="chk"><input id="lockCell" type="checkbox"> Lock</label>
 </div>
           </div>
         </div>
@@ -2192,6 +2347,41 @@ input[type="range"]::-webkit-slider-thumb:active{
     </div>
   </div>
   <!-- /Random 64 Filter Overlay -->
+
+
+  <!-- Random 64 Sources Overlay -->
+  <div class="overlay" id="random64SourcesOverlay" aria-hidden="true">
+    <div class="helpPanel randomSourcesPanel" role="dialog" aria-modal="true" aria-label="Random sources">
+      <div class="helpHead">
+        <div class="helpTitle">Random sources</div>
+        <button class="helpClose" id="random64SourcesClose" title="Close">✕</button>
+      </div>
+      <div class="helpBody" style="font-size:13px;">
+        <p class="muted" style="margin-top:0;">
+          Build a reusable live folder list for <b>Random 64</b> and the column <b>Load 8 / Random 8</b> action. Add multiple folders, rename entries if needed, and both random workflows will use the combined live pool while this list is active.
+        </p>
+        <div class="helpCard" style="margin-top:10px;">
+          <div class="helpCardTitle">Current list</div>
+          <div class="muted" id="random64SourcesSummary" style="margin-top:4px; font-size:12px; line-height:1.35;">No source folders added yet.</div>
+          <div class="randomSourcesList" id="random64SourcesList"></div>
+          <div class="randomSourcesEmpty" id="random64SourcesEmpty">No source folders yet. Click <b>Add folder…</b> to build a reusable pool for Random 64 and the column Load 8 / Random 8 action.</div>
+        </div>
+        <div class="helpCard" style="margin-top:10px;">
+          <div class="helpCardTitle">Notes</div>
+          <p class="muted" style="margin:0;">
+            Filters still apply to the combined file pool. Presets only remember the source list metadata, not live folder access, so imported presets will still need folders to be added again.
+          </p>
+        </div>
+        <div class="overlayActions helpActions" style="margin-top:12px;">
+          <button class="secondary" id="random64SourcesClearBtn">Clear list</button>
+          <button class="secondary" id="random64SourcesAddBtn">Add folder…</button>
+          <button class="good" id="random64SourcesRunBtn">Random 64 now</button>
+          <button class="secondary" id="random64SourcesDoneBtn">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /Random 64 Sources Overlay -->
 
 <!-- Folder Picker Overlay (Preset Import) -->
   <div class="overlay" id="folderOverlay" aria-hidden="true">
@@ -2315,10 +2505,19 @@ input[type="range"]::-webkit-slider-thumb:active{
       </div>
 
       <div class="helpCard" style="margin-top:10px;">
-        <label class="chk" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
-          <input type="radio" name="cellLoadMode" value="overflow">
-          <span><b>Overflow into cells below</b><br><span class="muted">The sample is split seamlessly across the cells below this one.</span></span>
-        </label>
+        <div class="cellLoadModeGroup">
+          <label class="chk" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+            <input type="radio" name="cellLoadMode" value="overflow">
+            <span><b>Overflow into cells below</b><br><span class="muted">The sample is split seamlessly across the cells below this one. If it is longer than the chosen cells can hold, the end is trimmed.</span></span>
+          </label>
+
+          <div class="cellLoadModeDivider" aria-hidden="true"></div>
+
+          <label class="chk" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+            <input type="radio" name="cellLoadMode" value="overflow_fit">
+            <span><b>Overflow + Fit (pitch)</b><br><span class="muted">Fits the whole sample exactly into the chosen cells by changing speed and pitch first, then spreads it across them.</span></span>
+          </label>
+        </div>
         <div class="cellLoadOverflowRow" id="cellLoadOverflowRow">
           <label class="muted" for="cellLoadOverflowCount">Underlying cells</label>
           <select id="cellLoadOverflowCount"></select>
@@ -2356,14 +2555,18 @@ input[type="range"]::-webkit-slider-thumb:active{
           <div class="helpCard"><h3>Basics</h3>
 <p>8 columns × 8 rows. Columns are <b>Samples</b>. Rows are <b>Cells</b> (1..8).</p>
                         <ul class="helpList">
-                          <li>Click a cell to select it, use the settings panel for name/volume/fades/fit/reverse/mute.</li>
+                          <li>Click a cell to select it, use the settings panel for name/volume/fades/fit/reverse/mute/lock.</li>
                           <li><b>Double‑click</b> a cell, press <b>space</b> or <b>▶</b> to play.</li>
+                          <li><b>Arrow keys</b> move through the matrix. With <b>Auto preview</b> on, the newly selected cell plays automatically.</li>
+                          <li><b>Matrix shortcuts</b>: <b>N</b>=Normalize, <b>T</b>=Trim/Fit toggle, <b>R</b>=Reverse, <b>M</b>=Mute, <b>L</b>=Lock, <b>Enter</b>=Load, <b>Delete/Backspace</b>=Clear.</li>
                           <li><b>Esc</b> stops playback. In editors: Esc hides the zoom window first, then closes the editor.</li>
                           <li><b>Tempo mode</b> uses BPM + Beats/cell and distributes rounding across 8 slices (no drift).</li>
                           <li>Drag cell→cell: swap. <b>Alt</b> + drag: copy.</li>
             </ul></div><div class="helpCard"><h3>Editing</h3>
 <ul class="helpList">
-                          <li>Use the <b>Cell settings</b> panel to change Gain, Mute, Reverse, Fade In/Out and Fit mode.</li>
+                          <li>Use the <b>Cell settings</b> panel to change Gain, Mute, Reverse, Fade In/Out, Fit mode and Lock state.</li>
+                          <li><b>Normalize</b> peak-normalizes the current audible cell/selection audio and also works on multi-selected cells. <b>Cmd/Ctrl+Z</b> restores Normalize and selected-cell Clear actions.</li>
+                          <li><b>Lock Col</b> and <b>Lock Row</b> bulk-toggle the existing cell locks in the current column or row.</li>
                           <li>Fades are drawn as an <b>envelope overlay</b> on top of the oscilloscope.</li>
                           <li>Gain is shown as a small bar under the oscilloscope (no text).</li>
                         </ul></div><div class="helpCard"><h3>Slice Editor</h3>
@@ -2397,12 +2600,13 @@ input[type="range"]::-webkit-slider-thumb:active{
             </ul></div><div class="helpCard"><h3>Loading audio</h3>
 <ul class="helpList">
                           <li><b>Cell Load</b>: click <b>Load</b> inside a cell or drop a file onto that cell.</li>
-                          <li>Long samples can now either stay in the current cell (<b>trim</b>) or <b>overflow</b> into the cells below.</li>
+                          <li>Long samples can now either stay in the current cell (<b>trim</b>), <b>overflow</b> into the cells below, or use <b>Overflow + Fit</b> to pitch-fit across the chosen cells.</li>
                           <li>When one long sample is loaded with <b>overflow</b>, the column name at the top is auto-filled from that sample name.</li>
                           <li><b>Load+Slice</b>: pick one file → opens Slice Editor where you can drag/resize 8 blocks, then <b>Apply</b> to the column.</li>
-                          <li><b>Load 8</b>: select up to 8 files → fills the 8 cells top→bottom. If you select more than 8, it randomly picks 8 for the current column.</li>
-                          <li><b>Random 64</b>: pick a folder (subfolders included) → fills all cells randomly.</li>
-            <li><b>Shift + click Random 64</b> to open the filter dialog:
+                          <li><b>Load 8</b>: select up to 8 files → fills the 8 cells top→bottom. Duplicate selections are skipped. If you select more than 8 unique files, it randomly picks 8 for the current column. When a live <b>Sources</b> list is active, this same button changes to <b>Random 8</b> and fills the unlocked cells in that column from the shared pool instead.</li>
+                          <li><b>Locked cells</b> are retained during <b>Load 8</b>, <b>Random 8</b> and <b>Random 64</b>. If a random fill must reuse a file, duplicate-loaded cells get a red border.</li>
+                          <li><b>Random 64</b>: if a live <b>Sources</b> list exists, it uses that combined folder pool. Otherwise it still lets you pick one folder (subfolders included) and fills all unlocked cells randomly.</li>
+            <li><b>Sources</b> next to Random 64 opens a reusable multi-folder source list shared by <b>Random 64</b> and the column <b>Load 8 / Random 8</b> action. <b>Shift + click Random 64</b> still opens the filter dialog:
                             <ul>
                               <li><b>Include</b>: only filenames containing any token (comma separated)</li>
                               <li><b>Exclude</b>: skip filenames containing any token (comma separated)</li>
@@ -2591,7 +2795,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-const APP_VERSION = '2.10.77';
+const APP_VERSION = '2.11.22';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -2755,13 +2959,53 @@ const APP_VERSION = '2.10.77';
   }
 
 
-  const APP_BUILD_DATE = '2026-04-11';
+  const APP_BUILD_DATE = '2026-04-15';
   const CHANGELOG = [
+  "2.11.22 - UI: duplicate-marked cells now also hide the left accent stripe so the red state reads cleanly like selected/playing cells.",
+  "2.11.21 - UI/Fix: duplicate info now stays visible in the inspector, and hand-loaded single cells also reuse the duplicate marker when they match already loaded files.",
+  "2.11.20 - Fix: duplicate highlighting now marks only the extra repeated cells red; the first loaded/original cell stays normal so Random 64 / Random 8 duplicate reuse is easier to read.",
+  "2.11.19 - Fix: Random 64 / Random 8 now pre-skip long files, spread repeats more evenly, and avoid reusing failing files so duplicate-heavy loads and unexpected empty cells are reduced.",
+  "2.11.18 - Loaders/UI: single-load now warns about already loaded files, Load 8 skips duplicate selections, and Random 64 / Random 8 prefer unique files with duplicate cells marked red when repeats are unavoidable.",
+  "2.11.17 - UI: removed the extra Random 8 button; the existing Load 8 button now switches to Random 8 only while a live Sources list is active.",
+  "2.11.16 - NEW: added per-column Random 8 using the same live Sources pool as Random 64; manual Load 8 stays unchanged and locked cells are still respected.",
+  "2.11.15 - UI: removed non-helpful Random 64 source path/folder hint fields from relink/manage cards when browsers only expose the picked root folder.",
+  "2.11.14 - Import: skipped Random 64 source folders now intentionally leave dependent preset cells empty, skip the base-folder fallback, and show richer relative folder hints during relink.",
+  "2.11.13 - Import: after Random 64 source relink, preset import now skips the normal sample-folder popup when those live source folders already cover all preset audio refs.",
+  "2.11.12 - Fix: Random 64 source relink no longer throws renderRandom64SourcesOverlay ReferenceError during folder reattach.",
+  "2.11.11 - Import: presets with remembered Random 64 source folders now open a source relink dialog so you can reattach multiple folders during import.",
+  "2.11.10 - Fix: Random 64 Sources Add folder no longer throws addRandom64SourceFolder ReferenceError; helper is now exposed reliably for folder-pick callbacks.",
+  "2.11.09 - NEW: Random 64 Sources overlay can keep a live multi-folder list for Random 64; presets store source-list metadata only (re-add folders after import).",
+  "2.11.07 - UI polish: grouped the two overflow modes and shared underlying-cell selector into one clearer card; Name template now fills the header to the right edge.",
+  "2.11.06 - Long sample load now offers Overflow + Fit (pitch) in the popup; removed header Split fit and Normalize load toggles.",
+  "2.11.05 - Preset/template: chosen .canvas export template metadata is now remembered in presets and prefilled in the Export .canvas dialog.",
+  "2.11.04 - Fix: mini-wave now keeps showing the updated Wave Editor selection for short samples after closing without Apply.",
+  "2.11.03 - UI: opening Wave/Slice and long-sample overlays no longer fixes the body in place, preventing the large dark background block behind popups.",
+  "2.10.99 - Shortcuts/undo: added T for fit/trim toggle, and Cmd/Ctrl+Z now restores Normalize and selected-cell Clear/Delete actions.",
+  "2.10.98 - UI: inspector path now reuses the existing subtitle line under the selected cell title; removed duplicate path row.",
+  "2.11.01 - UI: fixed inspector Lock Cell button width so it no longer jumps when toggling between Lock Cell and Unlock Cell.",
+  "2.11.00 - UI: removed Copy path from the inspector and added a Lock Cell button for easier touch locking on iPad and other touch devices.",
+  "2.10.96 - Fix: multi-select Normalize no longer blanks other mini-waves in the same column; full column redraw after refresh.",
+  "2.10.95 - Help/release updated for auto preview, locks, and matrix shortcuts; inspector Normalize now works across multi-selected cells.",
+  "2.10.94 - UI polish: Lock Col/Row inspector buttons now keep a fixed width; removed inspector Load/Clear/Play buttons.",
+  "2.10.93 - NEW: inspector Lock Row button toggles the 8 existing cell locks across the selected row (behind Lock Col).",
+  "2.10.92 - NEW: inspector Lock Col button toggles all 8 cell locks in the selected column (behind Normalize).",
+  "2.10.91 - UI: locked cells now also dim their Load/Clear/Play buttons for clearer lock visibility.",
+  "2.10.90 - Loader locks: Random 64 and Load 8 now skip locked cells and keep them unchanged.",
+  "2.10.89 - UI polish: centered cell labels, shortened padtrim badge to trim, reordered inspector buttons, and Scrollbar button turns green when On.",
+  "2.10.88 - UI/editor: locked cells are now visibly dimmed, active selection/play outlines stay readable, and Clear all refreshes the Lock checkbox.",
+  "2.10.87 - NEW: Cell lock foundation added: L shortcut, inspector Lock toggle, and locked cell styling (no loader skip yet).",
+  "2.10.86 - NEW: Auto preview toggle in header auto-plays selected cells during arrow-key matrix navigation.",
+  "2.10.80 - Fix: Reverse and other inspector setting changes no longer clear a moved Wave Editor selection when closed without Apply.",
+  "2.10.79 - Export: standalone cell tails now get optional zero-crossing assisted micro-fade on WAV/ZIP export; overflow cells are skipped.",
+  "2.10.85 - Shortcuts: matrix keys N=Normalize, R=Reverse, M=Mute, Enter=Load selected cell (disabled inside editors/overlays).",
+  "2.10.84 - Fix: inspector Normalize now clears mini-wave/source waveform caches so normalized audio redraws immediately in the matrix.",
+  "2.10.83 - Fix: inspector Normalize now peak-normalizes the current audible cell/selection audio and refreshes the mini-wave without changing the Volume slider.",
   "2.10.73 - NEW: .canvas export can use an existing Tempera canvas as settings template; preserves settings, replaces track audio, merges only track names.",
   "2.10.76 - Fix: template preset fade settings are preserved on empty imported cells until audio is loaded.",
   "2.10.75 - Import: template presets now load directly as an empty matrix with per-cell settings, no missing-files prompt.",
   "2.10.74 - NEW: Export preset can now be Template only (settings + layout, no audio files).",
   "2.10.77 - UI polish: preset export dialog focus trap + themed focus ring; Template only now disables Include with stable note height.",
+  "2.10.78 - Fix: anti-click fade-out now reaches absolute zero at cell ends, reducing clicks in WAV/ZIP exports.",
   "2.10.71 - NEW: multi-select V1 (Shift range / Cmd-Ctrl toggle) for bulk lower inspector settings.",
   "2.10.70 - Import: exported ZIP can now be imported directly and auto-uses embedded TCM_Sources.",
   "2.10.69 - Import Preset folder picker reopens in the last used relink folder where supported.",
@@ -2950,6 +3194,19 @@ function computeRootHintFromPreset(preset){
     selected: { col: 0, row: 0, has: false },
     multiSelected: new Set(),
     selectionAnchor: { col: 0, row: 0, has: false },
+    autoPreview: false,
+
+    random64Sources: [],
+    random64FolderPickMode: "oneshot",
+    random64SourceReplaceIndex: -1,
+    randomSourceTargetCol: -1,
+
+    canvasBaseTemplate: {
+      enabled: false,
+      fileName: "",
+      relPathHint: "",
+      file: null,
+    },
 
     // pending picker action
     pick: { kind: null, col: null, row: null }, // kind: 'cell'|'split'|'colmulti'
@@ -2963,6 +3220,195 @@ function computeRootHintFromPreset(preset){
   function getCellDisplayName(c, r){
     const v = (state.cellNames && state.cellNames[c] && state.cellNames[c][r] != null) ? String(state.cellNames[c][r]).trim() : "";
     return v ? v : `C${r+1}`;
+  }
+
+  function getCanvasTemplateRelPathHint(file){
+    try{
+      if (!file) return "";
+      const raw = String(file.webkitRelativePath || file._relPath || "").trim();
+      if (!raw) return "";
+      const norm = raw.replace(/\\/g, "/").replace(/^\/+/, "");
+      const parts = norm.split("/").filter(Boolean);
+      if (parts.length <= 1) return "";
+      return parts.slice(0, -1).join("/");
+    }catch(_e){
+      return "";
+    }
+  }
+  function getCanvasTemplateDisplay(meta, file){
+    const liveFile = file || null;
+    const fileName = liveFile?.name ? String(liveFile.name) : String(meta?.fileName || "").trim();
+    const relPath = liveFile ? getCanvasTemplateRelPathHint(liveFile) : String(meta?.relPathHint || "").trim();
+    if (relPath && fileName) return `${relPath}/${fileName}`;
+    return fileName || "";
+  }
+  function rememberCanvasBaseTemplate(opts){
+    opts = opts || {};
+    const prev = (state && state.canvasBaseTemplate) ? state.canvasBaseTemplate : {};
+    const file = (opts.file !== undefined) ? opts.file : (prev.file || null);
+    const fileName = String((opts.fileName !== undefined ? opts.fileName : (file?.name || prev.fileName || "")) || "").trim();
+    const relPathHint = String((opts.relPathHint !== undefined ? opts.relPathHint : (file ? getCanvasTemplateRelPathHint(file) : (prev.relPathHint || ""))) || "").trim();
+    state.canvasBaseTemplate = {
+      enabled: !!opts.enabled,
+      fileName,
+      relPathHint,
+      file: file || null,
+    };
+  }
+
+
+  function random64SourceId(){
+    return "r64src_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8);
+  }
+  function normalizeRandom64RelPath(rel){
+    return String(rel || "").replace(/\\/g, "/").replace(/^\/+/, "").trim();
+  }
+  function getRandom64SourceRelPaths(files){
+    return Array.from(files || [])
+      .map(f => normalizeRandom64RelPath(f && (f.webkitRelativePath || f._relPath || "")))
+      .filter(Boolean);
+  }
+  function getRandom64SourceFolderName(files){
+    try{
+      const arr = Array.from(files || []);
+      const withRel = arr.find(f => f && (f.webkitRelativePath || f._relPath));
+      if (withRel){
+        const rel = normalizeRandom64RelPath(withRel.webkitRelativePath || withRel._relPath || "");
+        const top = rel.split("/").filter(Boolean)[0] || "";
+        if (top) return top;
+      }
+      const first = arr[0];
+      if (first && first.name) return String(first.name).split(".")[0] || String(first.name);
+    }catch(_e){}
+    return "Folder";
+  }
+  function getRandom64SourceRelPrefix(paths, folderName){
+    const prefix = computeCommonFolderPrefix(Array.isArray(paths) ? paths : []);
+    if (prefix) return normalizeRandom64RelPath(prefix).replace(/\/?$/, "/");
+    const folder = String(folderName || "").trim();
+    return folder ? (normalizeRandom64RelPath(folder).replace(/\/?$/, "/")) : "";
+  }
+  function getRandom64SourcePathHint(prefix, folderName){
+    const clean = normalizeRandom64RelPath(prefix || folderName || "").replace(/\/+$/, "");
+    if (!clean) return "";
+    const parts = clean.split("/").filter(Boolean);
+    if (parts.length <= 4) return clean;
+    return "…/" + parts.slice(-4).join("/");
+  }
+  function getRandom64SourceExamplePaths(paths, prefix){
+    const pref = normalizeRandom64RelPath(prefix || "").replace(/\/?$/, "/");
+    const out = [];
+    for (const raw of (Array.isArray(paths) ? paths : [])){
+      const rel = normalizeRandom64RelPath(raw);
+      if (!rel) continue;
+      let shortRel = rel;
+      if (pref && rel.startsWith(pref)) shortRel = rel.slice(pref.length);
+      out.push(shortRel || rel);
+      if (out.length >= 3) break;
+    }
+    return out;
+  }
+  function getRandom64SourceRefRelPath(ref){
+    if (!ref) return "";
+    const fromRef = normalizeRandom64RelPath(ref.relPath || ref.path || ref.origin?.relPath || "");
+    if (fromRef) return fromRef;
+    const sourceKey = String(ref.sourceKey || "");
+    if (sourceKey){
+      const left = sourceKey.split("::")[0] || "";
+      if (left.includes("/")) return normalizeRandom64RelPath(left);
+    }
+    return "";
+  }
+  function random64SourceEntryMatchesRef(entry, ref){
+    if (!entry || !ref) return false;
+    const rel = getRandom64SourceRefRelPath(ref);
+    if (!rel) return false;
+    const prefix = normalizeRandom64RelPath(entry.relPrefix || entry.pathPrefix || "").replace(/\/?$/, "/");
+    if (prefix && rel.startsWith(prefix)) return true;
+    const folder = String(entry.folderName || "").trim();
+    if (folder){
+      const top = rel.split("/").filter(Boolean)[0] || "";
+      if (top && top === folder) return true;
+    }
+    return false;
+  }
+  function isRefSkippedByRandom64Sources(ref){
+    return (state.random64Sources || []).some(entry => entry && entry.skipped && random64SourceEntryMatchesRef(entry, ref));
+  }
+  function makeRandom64SourceEntry(files, meta){
+    const arr = Array.from(files || []);
+    const fileCount = arr.length;
+    const audioCount = arr.filter(isAudioFile).length;
+    const folderName = String((meta && meta.folderName) || getRandom64SourceFolderName(arr) || "Folder").trim() || "Folder";
+    const label = String((meta && meta.label) || folderName || "Folder").trim() || folderName || "Folder";
+    const relPaths = (meta && Array.isArray(meta.examplePaths) && meta.examplePaths.length && !arr.length)
+      ? meta.examplePaths.map(p => normalizeRandom64RelPath(p)).filter(Boolean)
+      : getRandom64SourceRelPaths(arr);
+    const relPrefix = String((meta && (meta.relPrefix || meta.pathPrefix)) || getRandom64SourceRelPrefix(relPaths, folderName) || "").trim();
+    const pathHint = String((meta && meta.pathHint) || getRandom64SourcePathHint(relPrefix, folderName) || "").trim();
+    const examplePaths = (meta && Array.isArray(meta.examplePaths) && meta.examplePaths.length)
+      ? meta.examplePaths.map(p => String(p || "").trim()).filter(Boolean).slice(0,3)
+      : getRandom64SourceExamplePaths(relPaths, relPrefix);
+    return {
+      id: String((meta && meta.id) || random64SourceId()),
+      label,
+      folderName,
+      relPrefix,
+      pathHint,
+      examplePaths,
+      skipped: !!(meta && meta.skipped),
+      files: arr,
+      live: !!arr.length,
+      fileCount: Number((meta && meta.fileCount) || fileCount || 0),
+      audioCount: Number((meta && meta.audioCount) || audioCount || 0),
+    };
+  }
+  function getRandom64LiveSourceEntries(){
+    return (state.random64Sources || []).filter(entry => entry && !entry.skipped && entry.live && Array.isArray(entry.files) && entry.files.length);
+  }
+  function getRandom64CombinedSourceFiles(){
+    const out = [];
+    for (const entry of getRandom64LiveSourceEntries()){
+      for (const f of (entry.files || [])) out.push(f);
+    }
+    return out;
+  }
+  function setRandom64Sources(entries){
+    state.random64Sources = Array.isArray(entries) ? entries : [];
+  }
+  function exportRandom64SourceMetadata(){
+    return (state.random64Sources || []).map(entry => ({
+      id: String(entry?.id || random64SourceId()),
+      label: String(entry?.label || entry?.folderName || "Folder"),
+      folderName: String(entry?.folderName || entry?.label || "Folder"),
+      relPrefix: String(entry?.relPrefix || entry?.pathPrefix || ""),
+      pathHint: String(entry?.pathHint || ""),
+      examplePaths: Array.isArray(entry?.examplePaths) ? entry.examplePaths.slice(0,3) : [],
+      skipped: !!entry?.skipped,
+      fileCount: Number(entry?.fileCount || (Array.isArray(entry?.files) ? entry.files.length : 0) || 0),
+      audioCount: Number(entry?.audioCount || (Array.isArray(entry?.files) ? entry.files.filter(isAudioFile).length : 0) || 0),
+      live: !!(entry && entry.live && Array.isArray(entry.files) && entry.files.length),
+    }));
+  }
+  function importRandom64SourceMetadata(list){
+    if (!Array.isArray(list)){
+      setRandom64Sources([]);
+      try{ updateRandom64SourcesButton(); }catch(_e){}
+      return;
+    }
+    setRandom64Sources(list.map((entry, idx) => makeRandom64SourceEntry([], {
+      id: String(entry?.id || ("preset_" + idx)),
+      label: String(entry?.label || entry?.folderName || `Folder ${idx+1}`),
+      folderName: String(entry?.folderName || entry?.label || `Folder ${idx+1}`),
+      relPrefix: String(entry?.relPrefix || entry?.pathPrefix || ""),
+      pathHint: String(entry?.pathHint || ""),
+      examplePaths: Array.isArray(entry?.examplePaths) ? entry.examplePaths.slice(0,3) : [],
+      skipped: !!entry?.skipped,
+      fileCount: Number(entry?.fileCount || 0),
+      audioCount: Number(entry?.audioCount || 0),
+    })));
+    state.random64Sources.forEach(entry => { entry.live = false; entry.files = []; });
+    try{ updateRandom64SourcesButton(); }catch(_e){}
   }
 
 
@@ -3007,8 +3453,351 @@ function computeRootHintFromPreset(preset){
         fadeOutMs: 0,
         fitMode: "padtrim", // rate|padtrim|loop
       },
+      locked: false,
+      duplicateLoaded: false,
+      duplicatePeers: [],
+      duplicateKey: "",
+      duplicateNameKey: "",
       cache: { key: "", L: null, R: null, frames: 0 }
     };
+  }
+
+  function looksLikeLoadedFilename(value){
+    const t = String(value || "").trim();
+    return !!t && /\.[A-Za-z0-9]{2,5}$/.test((t.split(/[\/]/).pop() || ""));
+  }
+
+  function normalizeDuplicatePath(value){
+    return String(value || "")
+      .replace(/\\/g, "/")
+      .replace(/^\/+/, "")
+      .replace(/\/+/g, "/")
+      .trim();
+  }
+
+  function makeDuplicateFileKeyFromParts(fileName, relPath, sourceKey, displayName){
+    let filePart = String(fileName || "").trim();
+    let rel = normalizeDuplicatePath(relPath || "");
+    const fallbackDisplay = String(displayName || "").split("·")[0].trim();
+    if (!filePart && looksLikeLoadedFilename(fallbackDisplay)) filePart = fallbackDisplay;
+    if (sourceKey){
+      const left = normalizeDuplicatePath(String(sourceKey).split("::")[0] || "");
+      if (left){
+        const base = (left.split("/").pop() || "").trim();
+        if (!filePart && looksLikeLoadedFilename(base)) filePart = base;
+        if (!rel) rel = left;
+      }
+    }
+    const fileLower = String(filePart || "").trim().toLowerCase();
+    if (rel){
+      const relLower = rel.toLowerCase();
+      if (fileLower){
+        if (relLower === fileLower || relLower.endsWith("/" + fileLower)) return relLower;
+        return relLower.replace(/\/+$/, "") + "/" + fileLower;
+      }
+      return relLower;
+    }
+    return fileLower;
+  }
+
+  function getDuplicateNameKeyFromParts(fileName, relPath, sourceKey, displayName){
+    let filePart = String(fileName || "").trim();
+    let rel = normalizeDuplicatePath(relPath || "");
+    const fallbackDisplay = String(displayName || "").split("·")[0].trim();
+    if (!filePart && looksLikeLoadedFilename(fallbackDisplay)) filePart = fallbackDisplay;
+    if ((!filePart || !looksLikeLoadedFilename(filePart)) && sourceKey){
+      const left = normalizeDuplicatePath(String(sourceKey).split("::")[0] || "");
+      const base = (left.split("/").pop() || "").trim();
+      if (base && looksLikeLoadedFilename(base)) filePart = base;
+      if (!rel) rel = left;
+    }
+    if (!filePart && rel){
+      const base = (rel.split("/").pop() || "").trim();
+      if (base) filePart = base;
+    }
+    return String(filePart || "").trim().toLowerCase();
+  }
+
+  function getFileDuplicateKey(file){
+    if (!file) return "";
+    try{ inferRelPathForFile(file); }catch(_e){}
+    const rel = (file.webkitRelativePath || file._relPath || "");
+    return makeDuplicateFileKeyFromParts(file.name || "", rel, "", file.name || "");
+  }
+
+  function getFileDuplicateNameKey(file){
+    if (!file) return "";
+    try{ inferRelPathForFile(file); }catch(_e){}
+    const rel = (file.webkitRelativePath || file._relPath || "");
+    return getDuplicateNameKeyFromParts(file.name || "", rel, "", file.name || "");
+  }
+
+  function getCellDuplicateKey(cell){
+    if (!cell || !cell.left) return "";
+    if (cell.duplicateKey) return String(cell.duplicateKey || "").trim().toLowerCase();
+    const origin = cell.origin || {};
+    if (origin && (origin.type === "split" || origin.split || origin.overflow)) return "";
+    return makeDuplicateFileKeyFromParts(
+      origin.fileName || "",
+      origin.relPath || "",
+      cell.sourceKey || (origin && origin.split && origin.split.sourceKey) || "",
+      cell.name || ""
+    );
+  }
+
+  function getCellDuplicateNameKey(cell){
+    if (!cell || !cell.left) return "";
+    if (cell.duplicateNameKey) return String(cell.duplicateNameKey || "").trim().toLowerCase();
+    const origin = cell.origin || {};
+    if (origin && (origin.type === "split" || origin.split || origin.overflow)) return "";
+    return getDuplicateNameKeyFromParts(
+      origin.fileName || "",
+      origin.relPath || "",
+      cell.sourceKey || (origin && origin.split && origin.split.sourceKey) || "",
+      cell.name || ""
+    );
+  }
+
+  function duplicateKeyHasPath(key){
+    return String(key || "").includes("/");
+  }
+
+  function makeCoordKey(col, row){
+    return `${col}:${row}`;
+  }
+
+  function makeCoordSet(coords){
+    const out = new Set();
+    for (const coord of (Array.isArray(coords) ? coords : [])){
+      if (!coord) continue;
+      out.add(makeCoordKey(coord.col|0, coord.row|0));
+    }
+    return out;
+  }
+
+  function getLoadedDuplicateIndex(opts={}){
+    const exclude = makeCoordSet(opts.excludeTargets || []);
+    const map = new Map();
+    for (let c=0; c<COLS; c++){
+      for (let r=0; r<ROWS; r++){
+        if (exclude.has(makeCoordKey(c, r))) continue;
+        const key = getCellDuplicateKey(state.cells[c][r]);
+        if (!key) continue;
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push({ col:c, row:r });
+      }
+    }
+    return map;
+  }
+
+  function findLoadedCellsForFile(file, opts={}){
+    const key = getFileDuplicateKey(file);
+    const index = getLoadedDuplicateIndex(opts);
+    if (key){
+      const exact = Array.isArray(index.get(key)) ? index.get(key).slice() : [];
+      if (exact.length) return exact;
+      if (duplicateKeyHasPath(key)) return [];
+    }
+    const nameKey = getFileDuplicateNameKey(file);
+    if (!nameKey) return [];
+    const exclude = makeCoordSet(opts.excludeTargets || []);
+    const loose = [];
+    for (let c=0; c<COLS; c++){
+      for (let r=0; r<ROWS; r++){
+        if (exclude.has(makeCoordKey(c, r))) continue;
+        const cell = state.cells[c][r];
+        if (!cell || !cell.left) continue;
+        if (getCellDuplicateNameKey(cell) !== nameKey) continue;
+        loose.push({ col:c, row:r });
+      }
+    }
+    return loose;
+  }
+
+  function formatCellRef(coord){
+    if (!coord) return "";
+    return `Sample ${coord.col + 1} / C${coord.row + 1}`;
+  }
+
+  function formatCellRefList(coords, limit=4){
+    const list = Array.isArray(coords) ? coords : [];
+    const slice = list.slice(0, Math.max(1, limit|0));
+    const text = slice.map(formatCellRef).filter(Boolean).join(", " );
+    if (list.length > slice.length){
+      const more = list.length - slice.length;
+      return text ? `${text} +${more} more` : `+${more} more`;
+    }
+    return text;
+  }
+
+  function dedupeFilesByDuplicateKey(files){
+    const list = Array.from(files || []).filter(Boolean);
+    const seen = new Set();
+    const unique = [];
+    let removed = 0;
+    for (let i=0; i<list.length; i++){
+      const file = list[i];
+      const key = getFileDuplicateKey(file) || (`__file__${i}_${String(file && file.name || "")}`.toLowerCase());
+      if (seen.has(key)){
+        removed++;
+        continue;
+      }
+      seen.add(key);
+      unique.push(file);
+    }
+    return { unique, removed };
+  }
+
+  function buildUniqueFirstRepeatPlan(primaryFiles, secondaryFiles, count){
+    const first = shuffleInPlace(Array.from(primaryFiles || []).filter(Boolean).slice());
+    const second = shuffleInPlace(Array.from(secondaryFiles || []).filter(Boolean).slice());
+    const base = first.concat(second);
+    const targetCount = Math.max(0, count|0);
+    const chosen = [];
+    if (!base.length || !targetCount) return { chosen, repeatedCount:0 };
+    let repeatedCount = 0;
+    while (chosen.length < targetCount){
+      const cycle = (chosen.length === 0) ? base.slice() : shuffleInPlace(base.slice());
+      for (const file of cycle){
+        if (chosen.length >= targetCount) break;
+        chosen.push(file);
+        if (chosen.length > base.length) repeatedCount++;
+      }
+    }
+    return { chosen, repeatedCount };
+  }
+
+  async function filterFilesByMaxDuration(files, maxSec, skipMetadataProbe){
+    const list = Array.from(files || []).filter(Boolean);
+    if (!list.length || !maxSec || maxSec <= 0 || skipMetadataProbe){
+      return { files:list, skipped:0 };
+    }
+    const out = [];
+    let skipped = 0;
+    for (const file of list){
+      try{
+        const dur = await getFileDurationSec(file);
+        if (dur != null && dur > maxSec){
+          skipped++;
+          continue;
+        }
+      }catch(_e){}
+      out.push(file);
+    }
+    return { files:out, skipped };
+  }
+
+  function pickUniqueAwareFallbackFile(files, usedKeys, badKeys, existingKeys){
+    const good = Array.from(files || []).filter(Boolean).filter(file => !badKeys.has(getFileDuplicateKey(file)));
+    if (!good.length) return null;
+    const freshUnused = good.filter(file => {
+      const key = getFileDuplicateKey(file);
+      return key && !usedKeys.has(key) && !existingKeys.has(key);
+    });
+    const loadedUnused = good.filter(file => {
+      const key = getFileDuplicateKey(file);
+      return key && !usedKeys.has(key) && existingKeys.has(key);
+    });
+    const freshAny = good.filter(file => {
+      const key = getFileDuplicateKey(file);
+      return key && !existingKeys.has(key);
+    });
+    const pickFrom = freshUnused.length ? freshUnused
+      : (loadedUnused.length ? loadedUnused
+      : (freshAny.length ? freshAny : good));
+    return pickFrom[(Math.random() * pickFrom.length) | 0] || null;
+  }
+
+  function refreshDuplicateLoadedState(){
+    for (let c=0; c<COLS; c++){
+      for (let r=0; r<ROWS; r++){
+        const cell = state.cells[c][r];
+        if (!cell) continue;
+        cell.duplicateLoaded = false;
+        cell.duplicatePeers = [];
+      }
+    }
+
+    const index = getLoadedDuplicateIndex();
+    index.forEach((coords) => {
+      if (!Array.isArray(coords) || coords.length < 2) return;
+      const origin = coords[0] || null;
+      if (!origin) return;
+      for (let i=1; i<coords.length; i++){
+        const coord = coords[i];
+        const cell = state.cells[coord.col][coord.row];
+        if (!cell) continue;
+        cell.duplicateLoaded = true;
+        cell.duplicatePeers = [{ col:origin.col, row:origin.row }];
+      }
+    });
+
+    const nameGroups = new Map();
+    for (let c=0; c<COLS; c++){
+      for (let r=0; r<ROWS; r++){
+        const cell = state.cells[c][r];
+        if (!cell || !cell.left) continue;
+        const nameKey = getCellDuplicateNameKey(cell);
+        if (!nameKey) continue;
+        if (!nameGroups.has(nameKey)) nameGroups.set(nameKey, []);
+        nameGroups.get(nameKey).push({ col:c, row:r });
+      }
+    }
+    nameGroups.forEach((coords) => {
+      if (!Array.isArray(coords) || coords.length < 2) return;
+      const looseCoords = coords.filter(coord => {
+        const cell = state.cells?.[coord.col]?.[coord.row];
+        return !!cell && !duplicateKeyHasPath(getCellDuplicateKey(cell));
+      });
+      if (!looseCoords.length) return;
+      const origin = coords.find(coord => {
+        const cell = state.cells?.[coord.col]?.[coord.row];
+        return !!cell && duplicateKeyHasPath(getCellDuplicateKey(cell));
+      }) || coords[0];
+      if (!origin) return;
+      for (const coord of looseCoords){
+        if (coord.col === origin.col && coord.row === origin.row) continue;
+        const cell = state.cells[coord.col][coord.row];
+        if (!cell) continue;
+        cell.duplicateLoaded = true;
+        cell.duplicatePeers = [{ col:origin.col, row:origin.row }];
+      }
+    });
+
+    for (let c=0; c<COLS; c++){
+      for (let r=0; r<ROWS; r++){
+        const dom = (__cellDom[c] && __cellDom[c][r]) ? __cellDom[c][r] : null;
+        const cellEl = dom ? dom.cellEl : document.getElementById(`cell-${c}-${r}`);
+        if (cellEl) cellEl.classList.toggle("duplicateLoaded", !!(state.cells[c][r] && state.cells[c][r].duplicateLoaded));
+      }
+    }
+  }
+
+  function getDuplicateInspectorSuffix(col, row, cell){
+    if (!cell || !cell.duplicateLoaded) return "";
+    const peer = Array.isArray(cell.duplicatePeers) ? cell.duplicatePeers[0] : null;
+    if (!peer) return "";
+    return ` (${formatCellRef({ col, row })} ← ${formatCellRef(peer)})`;
+  }
+
+  function summarizeDuplicateTargets(coords, limit=4){
+    const list = Array.isArray(coords) ? coords : [];
+    const seen = new Set();
+    const lines = [];
+    for (const coord of list){
+      const cell = state.cells?.[coord.col]?.[coord.row];
+      if (!cell || !cell.duplicateLoaded) continue;
+      const peer = Array.isArray(cell.duplicatePeers) ? cell.duplicatePeers[0] : null;
+      const label = peer ? `${formatCellRef(coord)} ← ${formatCellRef(peer)}` : formatCellRef(coord);
+      if (!label || seen.has(label)) continue;
+      seen.add(label);
+      lines.push(label);
+      if (lines.length >= Math.max(1, limit|0)) break;
+    }
+    const allDupTargets = list.filter(coord => !!(state.cells?.[coord.col]?.[coord.row]?.duplicateLoaded)).length;
+    if (!lines.length) return "";
+    const more = Math.max(0, allDupTargets - lines.length);
+    return `Duplicates: ${lines.join("; ")}${more ? ` +${more} more` : ""}`;
   }
 
   
@@ -3070,6 +3859,96 @@ function computeRootHintFromPreset(preset){
   function cloneSettings(s){
     return JSON.parse(JSON.stringify(s));
   }
+  function cloneUndoValue(value){
+    if (value == null || typeof value !== "object") return value;
+    if (value instanceof Float32Array) return new Float32Array(value);
+    if (value instanceof Map){
+      const out = new Map();
+      value.forEach((v, k) => out.set(k, cloneUndoValue(v)));
+      return out;
+    }
+    if (Array.isArray(value)) return value.map(cloneUndoValue);
+    const out = {};
+    for (const key in value){
+      if (!Object.prototype.hasOwnProperty.call(value, key)) continue;
+      out[key] = cloneUndoValue(value[key]);
+    }
+    return out;
+  }
+  function snapshotCellState(col, row){
+    return {
+      col: col|0,
+      row: row|0,
+      cell: cloneUndoValue(state.cells[col][row]),
+      cellName: (state.cellNames && state.cellNames[col]) ? state.cellNames[col][row] : null,
+    };
+  }
+  function syncRestoredCellState(col, row){
+    try{
+      const cell = state.cells[col][row];
+      if (cell && cell.left && cell.right) refreshNormalizedCellVisuals(cell, col, row);
+      else {
+        invalidateCellCache(col, row);
+        updateCellUI(col, row);
+      }
+
+      if (waveEditor && waveEditor.open && waveEditor.col === col && waveEditor.row === row){
+        const key = (cell && cell.editorKey && sourceStore.has(cell.editorKey))
+          ? cell.editorKey
+          : ((cell && cell.sourceKey && sourceStore.has(cell.sourceKey)) ? cell.sourceKey : "");
+        if (key){
+          waveEditor.key = key;
+          waveEditor.src = sourceStore.get(key);
+        }else if (cell && cell.left && cell.right){
+          waveEditor.key = "";
+          waveEditor.src = { L: cell.left, R: cell.right, name: cell.fileName || cell.name || "sample", peaksByW: new Map() };
+        }else{
+          waveEditor.key = "";
+          waveEditor.src = null;
+        }
+        waveEditor.undo = (cell && Array.isArray(cell.editorUndo)) ? cell.editorUndo.slice() : [];
+        const total = (waveEditor.src && waveEditor.src.L) ? waveEditor.src.L.length : 0;
+        if (total > 0){
+          waveEditor.selLen = clamp((typeof cell.selLenFrames === "number") ? Math.round(cell.selLenFrames) : total, 1, total);
+          waveEditor.selStart = clamp((typeof cell.selStartFrames === "number") ? Math.round(cell.selStartFrames) : 0, 0, Math.max(0, total - waveEditor.selLen));
+          try{ _waveUndoBtnRefresh(); }catch(_e){}
+          try{ scheduleWaveDraw(); }catch(_e){}
+        }
+      }
+    }catch(_e){}
+  }
+  function restoreCellState(snapshot){
+    if (!snapshot) return;
+    const col = snapshot.col|0;
+    const row = snapshot.row|0;
+    state.cells[col][row] = cloneUndoValue(snapshot.cell);
+    if (state.cellNames && state.cellNames[col]) state.cellNames[col][row] = snapshot.cellName ?? null;
+    syncRestoredCellState(col, row);
+  }
+  function pushUndoAction(action){
+    if (!action) return;
+    undoStack.push(action);
+    if (undoStack.length > 60) undoStack.shift();
+    redoStack.length = 0;
+  }
+  function pushCellSnapshotsUndo(reason, targets){
+    if (!Array.isArray(targets) || !targets.length) return;
+    pushUndoAction({ type:"cellSnapshots", reason, targets });
+  }
+  function applyCellSnapshotAction(action, which){
+    const targets = Array.isArray(action && action.targets) ? action.targets : [];
+    if (!targets.length) return;
+    const touchedCols = new Set();
+    for (const t of targets){
+      const snap = (which === "before") ? t.before : t.after;
+      if (!snap) continue;
+      touchedCols.add(snap.col|0);
+      restoreCellState(snap);
+    }
+    touchedCols.forEach(col => { try{ updateColUI(col); }catch(_e){} });
+    try{ updateInspector(); }catch(_e){}
+    try{ scheduleWaveFlush(); }catch(_e){}
+  }
   function resetCellEditorMetaForSettings(cell, row){
     try{
       cell.origin = null;
@@ -3091,7 +3970,6 @@ function computeRootHintFromPreset(preset){
     pendingSettingsUndo = {
       targets: targets.map(({col,row}) => {
         const cell = state.cells[col][row];
-        resetCellEditorMetaForSettings(cell, row);
         return { col, row, before: cloneSettings(cell.settings) };
       })
     };
@@ -3110,12 +3988,10 @@ function computeRootHintFromPreset(preset){
     if (!changes.length) return;
     if (changes.length === 1){
       const a = changes[0];
-      undoStack.push({ type:"settings", col:a.col, row:a.row, before:a.before, after:a.after });
+      pushUndoAction({ type:"settings", col:a.col, row:a.row, before:a.before, after:a.after });
     }else{
-      undoStack.push({ type:"settingsMulti", targets: changes });
+      pushUndoAction({ type:"settingsMulti", targets: changes });
     }
-    if (undoStack.length > 60) undoStack.shift();
-    redoStack.length = 0;
   }
   function applySettingsSnapshot(col, row, snap){
     const cell = state.cells[col][row];
@@ -3140,14 +4016,16 @@ function computeRootHintFromPreset(preset){
     const a = undoStack.pop();
     if (!a) { toast("Nothing to undo", 1200); return; }
     redoStack.push(a);
-    applySettingsAction(a, "before");
+    if (a.type === "cellSnapshots") applyCellSnapshotAction(a, "before");
+    else applySettingsAction(a, "before");
     toast("Undo", 900);
   }
   function doRedo(){
     const a = redoStack.pop();
     if (!a) { toast("Nothing to redo", 1200); return; }
     undoStack.push(a);
-    applySettingsAction(a, "after");
+    if (a.type === "cellSnapshots") applyCellSnapshotAction(a, "after");
+    else applySettingsAction(a, "after");
     toast("Redo", 900);
   }
 
@@ -3376,6 +4254,10 @@ let waveUndoBtnEl = null;
   }
 
   function openWaveEditor(col, row){
+    try{
+      const ae = document.activeElement;
+      if (ae && ae !== document.body && typeof ae.blur === "function") ae.blur();
+    }catch(_e){}
     if (!ensureWaveEls()) { setStatus("Wave editor UI not ready", "warn"); return; }
     const cell = state.cells[col][row];
     // Capture a persistent baseline snapshot the first time this source is edited, so Undo can always return to the original.
@@ -3503,17 +4385,19 @@ if (waveSnapBtnEl){
 
     if (waveOverlayEl){
       waveOverlayEl.style.display = "flex";
-    lockBodyScroll();
     try{ const h=document.getElementById("waveSliceHint"); if(h) h.style.display = (waveEditor._tmpIsSlice ? "block" : "none"); }catch(_e){}
 
       waveOverlayEl.classList.add("show");
       waveOverlayEl.setAttribute("aria-hidden", "false");
       waveOverlayEl.style.zIndex = "34000";
+      focusOverlayElement(waveCloseBtnEl || waveOverlayEl);
     }
     scheduleWaveDraw();
   }
 
   function closeWaveEditor(){
+    const _col = waveEditor.col|0;
+    const _row = waveEditor.row|0;
     try{
       if (waveEditor && waveEditor._tmpKey && typeof waveEditor._tmpKey === "string" && waveEditor._tmpKey.startsWith("__cellbuf__")){
         sourceStore.delete(waveEditor._tmpKey);
@@ -3523,7 +4407,7 @@ if (waveSnapBtnEl){
 magHide();
 // Persist editor state for reopen (trim + undo)
     try{
-      const _cell = state.cells?.[waveEditor.col]?.[waveEditor.row];
+      const _cell = state.cells?.[_col]?.[_row];
       if (_cell){
         _cell.editorKey = waveEditor.key || _cell.editorKey;
         _cell.editorUndo = Array.isArray(waveEditor.undo) ? waveEditor.undo.slice() : [];
@@ -3542,11 +4426,24 @@ magHide();
     if (waveOverlayEl){
       waveOverlayEl.classList.remove("show");
       waveOverlayEl.style.display = "none";
-    unlockBodyScroll(true);
     try{ const h=document.getElementById("waveSliceHint"); if(h) h.style.display="none"; }catch(_e){}
 
       waveOverlayEl.setAttribute("aria-hidden", "true");
     }
+
+    // Refresh mini-wave selection overlay after closing without Apply.
+    try{
+      updateCellUI(_col, _row);
+      markWaveDirty(_col, _row);
+      scheduleWaveFlush();
+      requestAnimationFrame(()=>{
+        try{
+          updateCellUI(_col, _row);
+          markWaveDirty(_col, _row);
+          scheduleWaveFlush();
+        }catch(_e){}
+      });
+    }catch(_e){}
   }
 
   function commitWaveSelection(){
@@ -4296,6 +5193,11 @@ let splitPointerId = null; let splitActiveIdx = 0;
     // --- modal scroll lock (Wave/Slice editors) ---
   let __prevBodyOverflow = null;
   let __prevHtmlOverflow = null;
+  let __prevBodyPosition = null;
+  let __prevBodyTop = null;
+  let __prevBodyLeft = null;
+  let __prevBodyRight = null;
+  let __prevBodyWidth = null;
   let __modalLockCount = 0;
   let __lockScrollX = 0;
   let __lockScrollY = 0;
@@ -4307,22 +5209,20 @@ let splitPointerId = null; let splitActiveIdx = 0;
     }catch(_e){}
   }
 
+  function focusOverlayElement(el){
+    if (!el || typeof el.focus !== "function") return;
+    requestAnimationFrame(() => {
+      try{ el.focus({ preventScroll:true }); }
+      catch(_){ try{ el.focus(); }catch(__){} }
+    });
+  }
+
   function lockBodyScroll(){
     try{
       __modalLockCount++;
-      if (__modalLockCount > 1) return; // already locked
-      __lockScrollX = window.scrollX || 0;
-      __lockScrollY = window.scrollY || 0;
-
-      const de = document.documentElement;
-      __prevBodyOverflow = document.body.style.overflow;
-      __prevHtmlOverflow = de.style.overflow;
-
-      // Lock scroll without losing position (some browsers jump when overflow changes)
-      document.body.style.overflow = "hidden";
-      de.style.overflow = "hidden";
-
-      __restoreScrollSoon(__lockScrollX, __lockScrollY);
+      if (__modalLockCount > 1) return;
+      __lockScrollX = window.scrollX || window.pageXOffset || 0;
+      __lockScrollY = window.scrollY || window.pageYOffset || 0;
     }catch(e){}
   }
 
@@ -4331,17 +5231,7 @@ let splitPointerId = null; let splitActiveIdx = 0;
       if (force) __modalLockCount = 1;
       __modalLockCount = Math.max(0, __modalLockCount - 1);
       if (__modalLockCount !== 0) return;
-
-      // Preserve current scroll position across unlocking (some browsers jump)
-      const x = window.scrollX || __lockScrollX || 0;
-      const y = window.scrollY || __lockScrollY || 0;
-
-      const de = document.documentElement;
-      if (__prevBodyOverflow !== null) document.body.style.overflow = __prevBodyOverflow;
-      if (__prevHtmlOverflow !== null) de.style.overflow = __prevHtmlOverflow;
-      __prevBodyOverflow = null; __prevHtmlOverflow = null;
-
-      __restoreScrollSoon(x, y);
+      __restoreScrollSoon(__lockScrollX || 0, __lockScrollY || 0);
     }catch(e){}
   }
 
@@ -4371,9 +5261,9 @@ let splitPointerId = null; let splitActiveIdx = 0;
     splitViewStartFrames = 0;
     splitViewLenFrames = null;
     splitOverlayEl.style.display = "flex";
-    lockBodyScroll();
     splitOverlayEl.classList.add("show");
     splitOverlayEl.setAttribute("aria-hidden","false");
+    focusOverlayElement(splitCloseBtnEl || splitOverlayEl);
     const st = splitGetState(splitCol);
     splitUndoBtnEl.disabled = (st.undo.length===0);
     splitHintEl.innerHTML = '';
@@ -4389,7 +5279,6 @@ splitEnsureEls();
     }
     splitDragging=null;
     splitOverlayEl.style.display="none";
-    unlockBodyScroll(true);
     splitOverlayEl.setAttribute("aria-hidden","true");
         splitOverlayEl.classList.remove("show");
 // Reset cursor just in case
@@ -5115,7 +6004,6 @@ wavePlayFullBtnEl?.addEventListener("click", async (e)=>{
       closeWaveEditor();
 
       // Safety: if an undo/apply flow left scroll locked, unlock when no editor is open.
-      if (!isAnyEditorOpen()) { unlockBodyScroll(true); }
     });
 
     waveResetBtnEl?.addEventListener("click", (e)=>{
@@ -5720,8 +6608,6 @@ const fileInput = document.getElementById("fileInput");
   const tempoModeEl = document.getElementById("tempoMode");
   const bpmEl = document.getElementById("bpm");
   const beatsPerCellEl = document.getElementById("beatsPerCell");
-  const splitFitEl = document.getElementById("splitFit");
-  const normalizeOnLoadEl = document.getElementById("normalizeOnLoad");
   const nameTemplateEl = document.getElementById("nameTemplate");
 
   // ====== Name template history (last 5) ======
@@ -6048,6 +6934,7 @@ window.addEventListener("resize", () => {
 const exportAllBtn = document.getElementById("exportAllBtn");
   const exportCanvasBtn = document.getElementById("exportCanvasBtn");
   const helpBtn = document.getElementById("helpBtn");
+  const autoPreviewBtn = document.getElementById("autoPreviewBtn");
   const stopBtn = document.getElementById("stopBtn");
   const clearAllBtn = document.getElementById("clearAllBtn");
 
@@ -6058,8 +6945,11 @@ const exportAllBtn = document.getElementById("exportAllBtn");
   const inspLoadBtn = document.getElementById("inspLoadBtn");
   const inspClearBtn = document.getElementById("inspClearBtn");
   const inspNormalizeBtn = document.getElementById("inspNormalizeBtn");
+  const inspLockColBtn = document.getElementById("inspLockColBtn");
+  const inspLockRowBtn = document.getElementById("inspLockRowBtn");
   const inspCopyToColBtn = document.getElementById("inspCopyToColBtn");
   const inspCopyToAllBtn = document.getElementById("inspCopyToAllBtn");
+  const inspLockCellBtn = document.getElementById("inspLockCellBtn");
 
   const volEl = document.getElementById("vol");
   const volValEl = document.getElementById("volVal");
@@ -6072,7 +6962,7 @@ const exportAllBtn = document.getElementById("exportAllBtn");
   const fitValEl = document.getElementById("fitVal");
   const muteEl = document.getElementById("mute");
   const reverseEl = document.getElementById("reverse");
-  const cellInfoEl = document.getElementById("cellInfo");
+  const lockEl = document.getElementById("lockCell");
 
   // Release focus after clicking inspector toggles (so arrow navigation keeps working)
   function _blurIfFocused(el){
@@ -6091,6 +6981,8 @@ const exportAllBtn = document.getElementById("exportAllBtn");
   }
   _bindInspectorNoFocus(muteEl);
   _bindInspectorNoFocus(reverseEl);
+  _bindInspectorNoFocus(lockEl);
+  _bindInspectorNoFocus(inspLockCellBtn);
 
 
   // Also release focus after using inspector sliders/selects (vol/fades/fit mode),
@@ -6864,16 +7756,22 @@ function computePeaks(left, right, points=72){
             const k0 = cell.sourceKey || ""; // Do not use origin.split.sourceKey for mini-wave; slice cells must show their own buffer.
             if (k0 && sourceStore && sourceStore.has(k0)){
               const src0 = sourceStore.get(k0);
-              if (src0 && src0.L && (src0.L.length|0) > (cellFrames0|0)){
+              if (src0 && src0.L){
+                const srcFrames0 = (src0.L.length|0);
                 const peaks0 = getSourcePeaks(src0, cv.width);
                 const edited0 = (cell.selEdited === true);
+                const defaultSelLen0 = (srcFrames0 > (cellFrames0|0)) ? (cellFrames0|0) : srcFrames0;
                 const selStart0 = (cell.selStartFrames != null) ? Math.round(cell.selStartFrames) : 0;
-                const selLen0 = (cell.selLenFrames != null) ? Math.round(cell.selLenFrames) : (cellFrames0|0);
-                const showSel0 = edited0 || ((cell.settings && cell.settings.fitMode) !== "rate"); // show window unless rate-fit is active
-                const drawSelStart0 = showSel0 ? (edited0 ? selStart0 : 0) : null;
-                const drawSelLen0   = showSel0 ? (edited0 ? selLen0   : (cellFrames0|0)) : null;
-                drawWave(cv, peaks0, cell.settings, src0.L.length, !!cell.settings.reverse, drawSelStart0, drawSelLen0, src0.L.length);
-                return;
+                const selLen0 = (cell.selLenFrames != null) ? Math.round(cell.selLenFrames) : defaultSelLen0;
+                const moved0 = (selStart0 > 0) || (selLen0 !== defaultSelLen0);
+                const useFullSource0 = edited0 || moved0 || (srcFrames0 > (cellFrames0|0));
+                if (useFullSource0){
+                  const showSel0 = edited0 || moved0 || ((srcFrames0 > (cellFrames0|0)) && ((cell.settings && cell.settings.fitMode) !== "rate"));
+                  const drawSelStart0 = showSel0 ? ((edited0 || moved0) ? selStart0 : 0) : null;
+                  const drawSelLen0   = showSel0 ? ((edited0 || moved0) ? selLen0   : defaultSelLen0) : null;
+                  drawWave(cv, peaks0, cell.settings, srcFrames0, !!cell.settings.reverse, drawSelStart0, drawSelLen0, srcFrames0);
+                  return;
+                }
               }
             }
           }catch(_e){}
@@ -6915,12 +7813,14 @@ function computePeaks(left, right, points=72){
           // - For unedited cells (normal load / slice apply), base "long sample" detection on the ACTUAL cell buffer length.
           // - For edited cells (Wave Editor Apply/Trim), keep using the ORIGINAL source length so the selection overlay remains visible (per UX rules).
           const isLong = (total > cellFrames);
+          const defaultSelLen = isLong ? cellFrames : total;
+          const moved = (selStart > 0) || (selLen !== defaultSelLen);
           const srcFrames = (cell.origin && cell.origin.split && cell.origin.split.frames) ? cell.origin.split.frames : total;
           const totalFramesForSel = edited ? srcFrames : total;
 
           const showSel = edited || (isLong && ((cell.settings && cell.settings.fitMode) !== "rate"));
-          const drawSelStart = showSel ? (edited ? selStart : 0) : null;
-          const drawSelLen   = showSel ? (edited ? selLen   : cellFrames) : null;
+          const drawSelStart = showSel ? ((edited || moved) ? selStart : 0) : null;
+          const drawSelLen   = showSel ? ((edited || moved) ? selLen   : cellFrames) : null;
 
           drawWave(cv, peaks, cell.settings, total, !!cell.settings.reverse, drawSelStart, drawSelLen, totalFramesForSel);
 
@@ -6939,9 +7839,11 @@ function computePeaks(left, right, points=72){
             const cellFrames = getCellFrames(meta.row);
 const isLong = (src.L.length > cellFrames);
 const edited = (cell.selEdited === true);
+const defaultSelLen = isLong ? cellFrames : src.L.length;
+const moved = (selStart > 0) || (selLen !== defaultSelLen);
 const showSel = edited || (isLong && ((cell.settings && cell.settings.fitMode) !== "rate"));
-const drawSelStart = showSel ? (edited ? selStart : 0) : null;
-const drawSelLen   = showSel ? (edited ? selLen   : cellFrames) : null;
+const drawSelStart = showSel ? ((edited || moved) ? selStart : 0) : null;
+const drawSelLen   = showSel ? ((edited || moved) ? selLen   : cellFrames) : null;
 drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSelStart, drawSelLen, src.L.length);
 
           }else{
@@ -6996,7 +7898,29 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     }
   }
 
-  function applyFadesAndGain(L, R, settings, targetFrames, autoFadeRegion=null){
+
+  function findTailZeroCrossingStereo(L, R, start, end){
+    const n = Math.min(L ? L.length : 0, R ? R.length : 0, end|0);
+    const a = clamp(start|0, 0, Math.max(0, n - 1));
+    const b = clamp(end|0, a + 1, n);
+    const eps = 1e-4;
+
+    for (let i=b - 2; i>=a; i--){
+      const l0 = L[i],     r0 = R[i];
+      const l1 = L[i + 1], r1 = R[i + 1];
+      const m0 = 0.5 * (l0 + r0);
+      const m1 = 0.5 * (l1 + r1);
+      if (Math.abs(m1) <= eps) return i + 1;
+      if ((m0 <= 0 && m1 >= 0) || (m0 >= 0 && m1 <= 0)){
+        const a0 = Math.abs(l0) + Math.abs(r0);
+        const a1 = Math.abs(l1) + Math.abs(r1);
+        return a0 <= a1 ? i : (i + 1);
+      }
+    }
+    return -1;
+  }
+
+  function applyFadesAndGain(L, R, settings, targetFrames, autoFadeRegion=null, opts=null){
     const gain = settings.gain;
     const mute = settings.mute;
 
@@ -7048,38 +7972,53 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
           for (let i=0; i<autoFrames; i++){
             const idx = end - 1 - i;
             if (idx < start) break;
-            const g = 1 - (i / autoFrames);
+            const g = i / autoFrames;
             L[idx] *= g; R[idx] *= g;
           }
         }
       }
     }
   
-    // Always apply a tiny safety fade to avoid clicks (in addition to user fades)
+    // Always apply a tiny safety fade to avoid clicks (in addition to user fades).
+    // Export can optionally extend the tail fade back to a nearby zero crossing for standalone cells.
     const microFrames = Math.min(Math.floor(SR * 0.003), Math.floor(targetFrames/2)); // 3ms
     if (microFrames > 0){
       for (let i=0; i<microFrames; i++){
         const g = i / microFrames;
         L[i] *= g; R[i] *= g;
       }
-      for (let i=0; i<microFrames; i++){
-        const idx = targetFrames - 1 - i;
-        const g = i / microFrames;
-        const gg = 1 - g;
-        L[idx] *= gg; R[idx] *= gg;
+
+      let tailFadeStart = Math.max(0, targetFrames - microFrames);
+      if (opts && opts.tailZeroCrossAssist){
+        const scanFrames = clamp(
+          Number.isFinite(opts.tailScanFrames) ? (opts.tailScanFrames|0) : Math.floor(SR * 0.006),
+          microFrames,
+          Math.max(microFrames, Math.min(targetFrames - 1, Math.floor(SR * 0.008)))
+        );
+        const scanStart = Math.max(0, targetFrames - scanFrames);
+        const zc = findTailZeroCrossingStereo(L, R, scanStart, targetFrames);
+        if (zc >= 0) tailFadeStart = Math.min(tailFadeStart, zc);
+      }
+
+      const tailFrames = Math.max(1, targetFrames - tailFadeStart);
+      for (let i=0; i<tailFrames; i++){
+        const idx = tailFadeStart + i;
+        const g = (tailFrames <= 1) ? 0 : (1 - (i / (tailFrames - 1)));
+        L[idx] *= g; R[idx] *= g;
       }
     }
 
 }
 
-  function renderCellToTarget(cell, targetFrames){
+  function renderCellToTarget(cell, targetFrames, opts=null){
     const s = cell.settings;
     const cacheKey = [
       targetFrames, s.fitMode, s.reverse, s.mute,
       s.gain.toFixed(4), Math.round(s.fadeInMs), Math.round(s.fadeOutMs),
       cell.left ? cell.left.length : 0,
       (typeof cell.selStartFrames === "number") ? cell.selStartFrames : 0,
-      (typeof cell.selLenFrames === "number") ? cell.selLenFrames : 0
+      (typeof cell.selLenFrames === "number") ? cell.selLenFrames : 0,
+      (opts && opts.exportTailAssist) ? 1 : 0
     ].join("|");
 
     if (cell.cache.key === cacheKey && cell.cache.L && cell.cache.R && cell.cache.frames === targetFrames){
@@ -7150,7 +8089,11 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
       reverseInPlace(Rout);
     }
 
-    applyFadesAndGain(Lout, Rout, s, targetFrames, autoFadeRegion);
+    const fadeOpts = ((opts && opts.exportTailAssist) && !(cell && cell.origin && cell.origin.overflow))
+      ? { tailZeroCrossAssist: true, tailScanFrames: Math.floor(SR * 0.006) }
+      : null;
+
+    applyFadesAndGain(Lout, Rout, s, targetFrames, autoFadeRegion, fadeOpts);
 
     cell.cache = { key: cacheKey, L: Lout, R: Rout, frames: targetFrames };
     return { L: Lout, R: Rout };
@@ -7165,6 +8108,93 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
       if (b > peak) peak = b;
     }
     return peak;
+  }
+
+  function measurePeakStereoRange(L, R, start, end){
+    if (!L || !R || !L.length || !R.length) return 0;
+    const a = clamp(start|0, 0, L.length);
+    const b = clamp(end|0, a, L.length);
+    let peak = 0;
+    for (let i=a; i<b; i++){
+      const x = Math.abs(L[i]);
+      const y = Math.abs(R[i]);
+      if (x > peak) peak = x;
+      if (y > peak) peak = y;
+    }
+    return peak;
+  }
+
+  function getCellNormalizeRegion(cell, row){
+    if (!cell || !cell.left || !cell.right) return null;
+    const total = cell.left.length|0;
+    if (total <= 0) return null;
+
+    const hasSel = Number.isFinite(cell.selStartFrames) && Number.isFinite(cell.selLenFrames) && (cell.selLenFrames > 0);
+    if (hasSel && total > (cell.selLenFrames|0)){
+      const selLen = clamp(cell.selLenFrames|0, 1, total);
+      const selStart = clamp(cell.selStartFrames|0, 0, Math.max(0, total - selLen));
+      return { start: selStart, end: selStart + selLen };
+    }
+
+    return { start: 0, end: total };
+  }
+
+  function normalizeCellAudio(cell, row){
+    const region = getCellNormalizeRegion(cell, row);
+    if (!region) return { ok:false, reason:'empty' };
+
+    const peak = measurePeakStereoRange(cell.left, cell.right, region.start, region.end);
+    if (!(peak > 0.000001)) return { ok:false, reason:'silent' };
+
+    const factor = 1 / peak;
+    for (let i=region.start; i<region.end; i++){
+      cell.left[i] *= factor;
+      cell.right[i] *= factor;
+    }
+
+    cell.peaks = computePeaks(cell.left, cell.right, MINI_PEAKS_POINTS);
+    cell.cache = { key:'', L:null, R:null, frames:0 };
+    return { ok:true, factor, regionStart: region.start, regionEnd: region.end };
+  }
+
+  function refreshNormalizedCellVisuals(cell, col, row){
+    try{
+      const keys = new Set();
+      const add = (k) => { if (k && typeof k === "string") keys.add(k); };
+      add(cell && cell.sourceKey);
+      add(cell && cell.editorKey);
+      add(cell && cell.fullSourceKey);
+      add(cell && cell.origin && cell.origin.split && cell.origin.split.sourceKey);
+
+      keys.forEach((key) => {
+        if (!sourceStore || !sourceStore.has(key)) return;
+        const src = sourceStore.get(key);
+        if (!src) return;
+
+        const sameLen = !!(cell && cell.left && cell.right && src.L && src.R && src.L.length === cell.left.length && src.R.length === cell.right.length);
+        if (sameLen){
+          src.L = cell.left;
+          src.R = cell.right;
+          src.frames = cell.left.length;
+          src.name = src.name || cell.fileName || cell.name || "sample";
+        }
+
+        if (src.peaksByW && src.peaksByW.clear) src.peaksByW.clear();
+        else src.peaksByW = new Map();
+        try{ delete src.peaks; }catch(_e){ src.peaks = null; }
+      });
+    }catch(_e){}
+
+    try{ cell._trimPeaksByW = null; }catch(_e){}
+    try{ cell.peaks = computePeaks(cell.left, cell.right, MINI_PEAKS_POINTS); }catch(_e){}
+    try{ cell.cache = { key:'', L:null, R:null, frames:0 }; }catch(_e){}
+    try{ invalidateCellCache(col, row); }catch(_e){}
+    try{ hardResetMiniWavesForCol(col); }catch(_e){}
+    try{
+      for (let rr=0; rr<8; rr++) markWaveDirty(col, rr);
+    }catch(_e){}
+    try{ updateCellUI(col, row); }catch(_e){}
+    try{ scheduleWaveFlush(); }catch(_e){}
   }
 
   function normalizeCellGain(cell){
@@ -7277,7 +8307,6 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     cellLoadModeOverlayEl.classList.remove("show");
     cellLoadModeOverlayEl.style.display = "none";
     cellLoadModeOverlayEl.setAttribute("aria-hidden", "true");
-    unlockBodyScroll(true);
     if (typeof window.__hideTCMTip === "function") window.__hideTCMTip();
     requestAnimationFrame(() => {
       restoreCellLoadModeFocus();
@@ -7287,20 +8316,26 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
   }
 
   function updateCellLoadModeOverflowHint(){
-    if (!cellLoadModeContext || !cellLoadOverflowHintEl || !cellLoadOverflowCountEl) return;
+    if (!cellLoadModeContext || !cellLoadOverflowHintEl || !cellLoadOverflowCountEl || !cellLoadModeOverlayEl) return;
     const row = cellLoadModeContext.row|0;
     const underCells = Math.max(1, Number(cellLoadOverflowCountEl.value || 1)|0);
     const totalCells = underCells + 1;
     const capFrames = getCellOverflowCapacityFrames(row, underCells);
     const capSec = formatLoadChoiceSeconds(capFrames / SR);
+    const modeEl = cellLoadModeOverlayEl.querySelector('input[name="cellLoadMode"]:checked');
+    const mode = modeEl ? modeEl.value : 'trim';
     const restTrimmed = (cellLoadModeContext.totalFrames|0) > capFrames;
-    cellLoadOverflowHintEl.textContent = `Uses ${totalCells} cell${totalCells===1?'':'s'} total and gives ${capSec}s space.${restTrimmed ? ' Any remaining audio is trimmed.' : ''}`;
+    if (mode === 'overflow_fit'){
+      cellLoadOverflowHintEl.textContent = `Uses ${totalCells} cell${totalCells===1?'':'s'} total and fits the whole sample exactly into ${capSec}s by changing pitch.`;
+    } else {
+      cellLoadOverflowHintEl.textContent = `Uses ${totalCells} cell${totalCells===1?'':'s'} total and gives ${capSec}s space.${restTrimmed ? ' Any remaining audio is trimmed.' : ''}`;
+    }
   }
 
   function updateCellLoadModeControls(){
     if (!cellLoadModeOverlayEl) return;
     const modeEl = cellLoadModeOverlayEl.querySelector('input[name="cellLoadMode"]:checked');
-    const isOverflow = !!(modeEl && modeEl.value === 'overflow');
+    const isOverflow = !!(modeEl && (modeEl.value === 'overflow' || modeEl.value === 'overflow_fit'));
     if (cellLoadOverflowRowEl) cellLoadOverflowRowEl.classList.toggle('isDisabled', !isOverflow);
     if (cellLoadOverflowCountEl) cellLoadOverflowCountEl.disabled = !isOverflow;
     updateCellLoadModeOverflowHint();
@@ -7347,8 +8382,10 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
 
     const trimRadio = cellLoadModeOverlayEl.querySelector('input[name="cellLoadMode"][value="trim"]');
     const overflowRadio = cellLoadModeOverlayEl.querySelector('input[name="cellLoadMode"][value="overflow"]');
+    const overflowFitRadio = cellLoadModeOverlayEl.querySelector('input[name="cellLoadMode"][value="overflow_fit"]');
     if (trimRadio) trimRadio.checked = true;
     if (overflowRadio) overflowRadio.checked = false;
+    if (overflowFitRadio) overflowFitRadio.checked = false;
 
     updateCellLoadModeControls();
 
@@ -7361,7 +8398,6 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     cellLoadModeOverlayEl.style.display = 'flex';
     cellLoadModeOverlayEl.classList.add('show');
     cellLoadModeOverlayEl.setAttribute('aria-hidden', 'false');
-    lockBodyScroll();
     requestAnimationFrame(() => {
       focusCellLoadModeOverlayStart();
     });
@@ -7398,7 +8434,7 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
       if (e) e.preventDefault();
       const modeEl = cellLoadModeOverlayEl.querySelector('input[name="cellLoadMode"]:checked');
       const mode = modeEl ? modeEl.value : 'trim';
-      const underCells = (mode === 'overflow') ? Math.max(1, Number(cellLoadOverflowCountEl?.value || 1)|0) : 0;
+      const underCells = (mode === 'overflow' || mode === 'overflow_fit') ? Math.max(1, Number(cellLoadOverflowCountEl?.value || 1)|0) : 0;
       closeCellLoadModeOverlay({ mode, underCells });
     };
 
@@ -7466,6 +8502,8 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     cell._trimPeaksByW = null;
     cell._peaksByW = null;
     cell._trimPeaks = null;
+    cell.duplicateLoaded = false;
+    cell.duplicatePeers = [];
     cell.settings = {
       gain: 1.0,
       mute: false,
@@ -7487,15 +8525,26 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
       if (right.length > maxFrames) right = right.slice(0, maxFrames);
     }
 
-    try{ inferRelPathForFile(file); }catch(_e){}
-    const srcKey = getSourceKeyFromFile(file, name);
-    ensureSourceInStore(srcKey, left, right, name);
-    const relPath = (file && (file.webkitRelativePath || file._relPath)) ? (file.webkitRelativePath || file._relPath) : '';
-    applyAutoColumnName(col, (file && file.name) ? file.name : name);
-
     const maxBelow = Math.max(0, ROWS - (startRow|0) - 1);
     const underCells = clamp((opts && typeof opts.underCells === 'number') ? opts.underCells : 1, 1, Math.max(1, maxBelow));
     const maxParts = 1 + underCells;
+    const fitOverflow = !!(opts && opts.fitOverflow);
+
+    try{ inferRelPathForFile(file); }catch(_e){}
+    const srcKey = getSourceKeyFromFile(file, name);
+    const relPath = (file && (file.webkitRelativePath || file._relPath)) ? (file.webkitRelativePath || file._relPath) : '';
+    applyAutoColumnName(col, (file && file.name) ? file.name : name);
+
+    let overflowSourceKey = srcKey;
+    if (fitOverflow){
+      const totalTargetFrames = getCellOverflowCapacityFrames(startRow, underCells);
+      left = resampleToLength(left, totalTargetFrames);
+      right = resampleToLength(right, totalTargetFrames);
+      overflowSourceKey = `${srcKey}::overflowfit@${startRow}_${underCells}_${totalTargetFrames}`;
+      ensureSourceInStore(overflowSourceKey, left, right, name);
+    } else {
+      ensureSourceInStore(srcKey, left, right, name);
+    }
 
     let cursor = 0;
     let usedParts = 0;
@@ -7517,7 +8566,7 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
         fileName: (file && file.name) ? file.name : name,
         relPath,
         overflow: {
-          sourceKey: srcKey,
+          sourceKey: overflowSourceKey,
           startFrames: cursor,
           lenFrames: partLen,
           startRow: startRow|0,
@@ -7530,7 +8579,6 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
       cell.selStartFrames = 0;
       cell.selLenFrames = partLen;
       cell.sr = SR;
-      if (normalizeOnLoadEl.checked) normalizeCellGain(cell);
       cell.peaks = computePeaks(cell.left, cell.right, MINI_PEAKS_POINTS);
       try { cell._waveBaseline = _waveSnapshotCell(cell); cell._waveApplyUndo = null; } catch(_e){}
       updateCellUI(col, row);
@@ -7539,6 +8587,7 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
       usedParts++;
     }
 
+    refreshDuplicateLoadedState();
     updateColUI(col);
     try{ hardResetMiniWavesForCol(col); }catch(_e){}
     try{ markAllWavesDirty(); scheduleWaveFlush(); }catch(_e){}
@@ -7546,9 +8595,13 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
 
     if (!opts.silent){
       const trimmed = cursor < left.length;
-      toast(trimmed
-        ? `Loaded with overflow into ${usedParts} cells. Remaining audio trimmed.`
-        : `Loaded with overflow into ${usedParts} cells.`);
+      if (fitOverflow){
+        toast(`Loaded with overflow + fit into ${usedParts} cells.`);
+      } else {
+        toast(trimmed
+          ? `Loaded with overflow into ${usedParts} cells. Remaining audio trimmed.`
+          : `Loaded with overflow into ${usedParts} cells.`);
+      }
     }
   }
 
@@ -7557,6 +8610,13 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     const cell = state.cells[col][row];
     const _isImport = !!(opts && (opts.importing || typeof opts.importSelEdited === 'boolean' || (opts.importTrimStart != null) || (opts.importTrimLen != null) || (opts.importSelStart != null) || (opts.importSelLen != null)));
     const _preserveTemplateSettings = !!(!_isImport && cell && cell.templateSettingsOnly === true);
+    const _skipDuplicateRefresh = !!(opts && opts.skipDuplicateRefresh);
+    if (!silent && !_isImport && !(opts && opts.skipDuplicateWarning)){
+      const dupes = findLoadedCellsForFile(file, { excludeTargets:[{ col, row }] });
+      if (dupes.length){
+        toast(`Already loaded in ${formatCellRefList(dupes, 4)}. Loading anyway.`, 3600);
+      }
+    }
     if (!_isImport){
       cell.scissors = false;
       cell.selEdited = false;
@@ -7594,6 +8654,10 @@ cell.left = null;
 cell.right = null;
 cell.peaks = null;
 cell.name = "";
+cell.duplicateLoaded = false;
+cell.duplicatePeers = [];
+cell.duplicateKey = "";
+cell.duplicateNameKey = "";
 
 
 // Clear any cached peak maps for previous buffer
@@ -7706,10 +8770,8 @@ const _srcKey = getSourceKeyFromFile(file, name);
       fileName: (file && file.name) ? file.name : name,
       relPath: (file && (file.webkitRelativePath || file._relPath)) ? (file.webkitRelativePath || file._relPath) : "",
     };
-
-    if (normalizeOnLoadEl.checked && !_preserveTemplateSettings){
-      normalizeCellGain(cell);
-    }
+    cell.duplicateKey = getFileDuplicateKey(file) || makeDuplicateFileKeyFromParts(cell.origin.fileName || name || "", cell.origin.relPath || "", "", cell.name || name || "");
+    cell.duplicateNameKey = getFileDuplicateNameKey(file) || getDuplicateNameKeyFromParts(cell.origin.fileName || name || "", cell.origin.relPath || "", "", cell.name || name || "");
 
     if (_preserveTemplateSettings){
       cell.templateImported = false;
@@ -7717,6 +8779,7 @@ const _srcKey = getSourceKeyFromFile(file, name);
 
     cell.peaks = computePeaks(cell.left, cell.right, MINI_PEAKS_POINTS);
 
+    if (!_skipDuplicateRefresh) refreshDuplicateLoadedState();
     updateCellUI(col,row);
     // Reset Wave-editor baseline for this cell to the newly loaded sample (always-available "original" undo point).
     try { cell._waveBaseline = _waveSnapshotCell(cell); cell._waveApplyUndo = null; } catch(_e) {}
@@ -7766,18 +8829,13 @@ try{
     const colFrames = getColFrames();
     const cellFrames = getCellFrames(state.selected.row);
 
-    // Create a column buffer by either pad/trim (default) or "rate fit"
+    // Create a column buffer with pad/trim behavior.
     let colL, colR;
-    if (splitFitEl.checked){
-      colL = resampleToLength(left, colFrames);
-      colR = resampleToLength(right, colFrames);
-    } else {
-      colL = new Float32Array(colFrames);
-      colR = new Float32Array(colFrames);
-      const n = Math.min(colFrames, left.length);
-      colL.set(left.subarray(0,n), 0);
-      colR.set(right.subarray(0,n), 0);
-    }
+    colL = new Float32Array(colFrames);
+    colR = new Float32Array(colFrames);
+    const n = Math.min(colFrames, left.length);
+    colL.set(left.subarray(0,n), 0);
+    colR.set(right.subarray(0,n), 0);
 
     // Split into 8 slices => each becomes the cell's source (exact cellFrames)
     for (let r=0;r<ROWS;r++){
@@ -7800,9 +8858,6 @@ try{
       };
 
       // default: since slice is exact, pad/trim doesn't matter, but keep user's choice
-      if (normalizeOnLoadEl.checked){
-        normalizeCellGain(cell);
-      }
       cell.peaks = computePeaks(cell.left, cell.right, MINI_PEAKS_POINTS);
       updateCellUI(col,r);
     }
@@ -7864,9 +8919,6 @@ try{
         split: { sourceKey: _srcKey, startFrames: srcSliceStart, lenFrames: srcSliceLen, col, row: r }
       };
 
-      if (normalizeOnLoadEl.checked){
-        normalizeCellGain(cell);
-      }
 
       cell.peaks = computePeaks(cell.left, cell.right, MINI_PEAKS_POINTS);
       updateCellUI(col, r);
@@ -7987,28 +9039,223 @@ async function loadFilesIntoColumnCells(col, files){
   const list = Array.from(files || []).filter(Boolean);
   if (!list.length) return;
 
-  const randomized = list.length > ROWS;
-  const chosen = randomized ? shuffleInPlace(list.slice()).slice(0, ROWS) : list;
-  const max = Math.min(ROWS, chosen.length);
-
-  toast(`Loading ${max} sample(s) → column ${col+1}...`, 1400);
-
-  for (let r=0; r<max; r++){
-    await loadFileIntoCell(col, r, chosen[r], { silent: true });
+  const unlockedRows = [];
+  for (let r=0; r<ROWS; r++){
+    if (!state.cells[col][r].locked) unlockedRows.push(r);
+  }
+  const lockedCount = ROWS - unlockedRows.length;
+  if (!unlockedRows.length){
+    toast(`Column ${col+1}: all ${ROWS} cells are locked.`, 2400);
+    return;
   }
 
+  const deduped = dedupeFilesByDuplicateKey(list);
+  const uniqueList = deduped.unique;
+  const slotCount = unlockedRows.length;
+  const randomized = uniqueList.length > slotCount;
+  const chosen = randomized ? shuffleInPlace(uniqueList.slice()).slice(0, slotCount) : uniqueList;
+  const max = Math.min(slotCount, chosen.length);
+  const lockNote = lockedCount ? ` (${lockedCount} locked kept)` : '';
+  const loadedTargets = [];
+
+  toast(`Loading ${max} sample(s) → column ${col+1}${lockNote}...`, 1400);
+
+  for (let i=0; i<max; i++){
+    const r = unlockedRows[i];
+    await loadFileIntoCell(col, r, chosen[i], { silent: true, skipDuplicateRefresh: true });
+    loadedTargets.push({ col, row:r });
+  }
+
+  refreshDuplicateLoadedState();
   updateColUI(col);
   if (state.selected.has && state.selected.col === col){
     updateInspector();
   }
 
+  const notes = [];
+  if (deduped.removed) notes.push(`${deduped.removed} duplicate selection(s) skipped`);
+  const dupSummary = summarizeDuplicateTargets(loadedTargets, 4);
+  if (dupSummary) notes.push(dupSummary);
+
   if (randomized){
-    toast(`Column ${col+1}: randomized ${ROWS} from ${list.length} selected`, 2600);
-  } else if (list.length < ROWS){
-    toast(`Column ${col+1}: loaded ${list.length} (kept the rest as-is)`, 2400);
+    toast(`Column ${col+1}: randomized ${slotCount} from ${uniqueList.length} unique selected${lockNote}${notes.length ? ` · ${notes.join(' · ')}` : ''}`, 3200);
+  } else if (uniqueList.length < slotCount){
+    const openLeft = slotCount - uniqueList.length;
+    toast(`Column ${col+1}: loaded ${uniqueList.length} unique file(s) (${openLeft} unlocked kept as-is)${lockNote}${notes.length ? ` · ${notes.join(' · ')}` : ''}`, 3200);
   } else {
-    toast(`Column ${col+1}: loaded 8/8 cells`, 2200);
+    toast(`Column ${col+1}: loaded ${max}/${slotCount} unlocked cells${lockNote}${notes.length ? ` · ${notes.join(' · ')}` : ''}`, 3000);
   }
+}
+
+
+async function randomFillColumnFromFiles(col, files){
+  try{ updateRandom64FilterIndicator(); }catch(_e){}
+  files = applyRandomFilters(files);
+  const all = Array.from(files || []).filter(Boolean);
+  try{ setGlobalFileCatalog(all); }catch(_e){}
+  const pool = all.filter(isAudioFile);
+  const nonAudio = all.length - pool.length;
+  const MAX_RANDOM8_SEC = 60;
+  const _isSafari = /Safari\//.test(navigator.userAgent||'') && !/Chrome\//.test(navigator.userAgent||'') && !/Chromium\//.test(navigator.userAgent||'') && !/Edg\//.test(navigator.userAgent||'');
+
+  if (!pool.length){
+    toast(`No audio files found for Random 8. (${nonAudio} non-audio item(s))`, 3200);
+    return;
+  }
+
+  const unlockedRows = [];
+  for (let r=0; r<ROWS; r++){
+    if (!state.cells[col][r].locked) unlockedRows.push(r);
+  }
+  const lockedCount = ROWS - unlockedRows.length;
+  if (!unlockedRows.length){
+    toast(`Column ${col+1}: all ${ROWS} cells are locked.`, 2400);
+    return;
+  }
+
+  const excludeTargets = unlockedRows.map(r => ({ col, row:r }));
+  const existingKeys = new Set(getLoadedDuplicateIndex({ excludeTargets }).keys());
+  const deduped = dedupeFilesByDuplicateKey(pool);
+  const durationFiltered = await filterFilesByMaxDuration(deduped.unique, MAX_RANDOM8_SEC, _isSafari);
+  const uniquePool = durationFiltered.files;
+  if (!uniquePool.length){
+    toast(`Random 8: no usable unique files remain after duration filtering (>${MAX_RANDOM8_SEC}s).`, 3600);
+    return;
+  }
+  const freshUnique = uniquePool.filter(file => !existingKeys.has(getFileDuplicateKey(file)));
+  const alreadyLoadedUnique = uniquePool.filter(file => existingKeys.has(getFileDuplicateKey(file)));
+  const plan = buildUniqueFirstRepeatPlan(freshUnique, alreadyLoadedUnique, unlockedRows.length);
+  const chosen = plan.chosen;
+  const repeatedCount = plan.repeatedCount;
+  if (repeatedCount > 0){
+    toast(`Random 8: only ${uniquePool.length} usable unique file(s) available — reusing files to fill ${unlockedRows.length} unlocked cells.`, 2800);
+  }
+
+  const lockNote = lockedCount ? ` (${lockedCount} locked kept)` : '';
+  toast(`Random 8: loading ${unlockedRows.length} unlocked cell(s) in column ${col+1} from ${uniquePool.length} usable unique file(s)${lockNote}...`, 1800);
+
+  const loadedTargets = [];
+  let failCount = 0;
+  let lastFail = "";
+  const usedKeys = new Set();
+  const badKeys = new Set();
+  for (let i=0; i<unlockedRows.length; i++){
+    const r = unlockedRows[i];
+    let ok = false;
+    let attemptFile = chosen[i] || pickUniqueAwareFallbackFile(uniquePool, usedKeys, badKeys, existingKeys);
+    for (let attempt=0; attempt<8; attempt++){
+      if (!attemptFile) break;
+      try{
+        await loadFileIntoCell(col, r, attemptFile, { silent: true, maxSec: MAX_RANDOM8_SEC, skipLongerThanMaxSec: true, skipDuplicateRefresh: true });
+        ok = true;
+        const key = getFileDuplicateKey(attemptFile);
+        if (key) usedKeys.add(key);
+        loadedTargets.push({ col, row:r });
+        break;
+      }catch(err){
+        failCount++;
+        lastFail = (attemptFile && attemptFile.name) ? attemptFile.name : String(attemptFile || "");
+        console.warn("Random 8: decode/load failed for", lastFail, err);
+        const badKey = getFileDuplicateKey(attemptFile);
+        if (badKey) badKeys.add(badKey);
+        attemptFile = pickUniqueAwareFallbackFile(uniquePool, usedKeys, badKeys, existingKeys);
+      }
+    }
+    if (!ok){
+      clearCell(col, r);
+    }
+  }
+
+  refreshDuplicateLoadedState();
+  updateColUI(col);
+  if (state.selected.has && state.selected.col === col){
+    updateInspector();
+  }
+
+  const notes = [];
+  if (deduped.removed) notes.push(`${deduped.removed} duplicate source file(s) skipped`);
+  if (durationFiltered.skipped) notes.push(`${durationFiltered.skipped} long file(s) skipped`);
+  if (repeatedCount > 0) notes.push(`${repeatedCount} repeated fill(s)`);
+  const dupSummary = summarizeDuplicateTargets(loadedTargets, 4);
+  if (dupSummary) notes.push(dupSummary);
+
+  if (failCount){
+    toast(`Random 8 complete for column ${col+1} with ${failCount} decode/load failure(s). Last: ${lastFail || "?"}${notes.length ? ` · ${notes.join(' · ')}` : ''}`, 4600);
+  } else {
+    toast(`Random 8 complete for column ${col+1} (${loadedTargets.length} unlocked loaded${lockNote})${notes.length ? ` · ${notes.join(' · ')}` : ''}.`, 3600);
+  }
+}
+
+
+function hasLiveRandomSources(){
+  try{
+    return getRandom64CombinedSourceFiles().length > 0;
+  }catch(_e){
+    return false;
+  }
+}
+
+function updateColumnLoad8Buttons(){
+  const isRandomMode = hasLiveRandomSources();
+  const buttons = colsEl ? colsEl.querySelectorAll('button[data-role="colLoad8Action"]') : [];
+  buttons.forEach(btn => {
+    btn.textContent = isRandomMode ? 'Random 8' : 'Load 8';
+    btn.title = isRandomMode
+      ? 'Randomly fill this column from the shared live Sources pool. Locked cells are kept. Shift opens the shared random filename filters.'
+      : 'Load up to 8 files into this column (top → bottom). If you select more than 8, it randomly picks 8 for this column.';
+  });
+}
+
+async function handleColumnLoad8Action(col, e){
+  if (hasLiveRandomSources()) {
+    await triggerRandom8ForColumn(col, e);
+    return;
+  }
+  state.pick = { kind: "colmulti", col: col, row: null };
+  fileInput.value = "";
+  fileInput.multiple = true;
+  fileInput.click();
+}
+
+async function triggerRandom8ForColumn(col, e){
+  if (e && e.shiftKey){
+    try{
+      const fn = window.openRandom64FilterOverlay || openRandom64FilterOverlay;
+      if (typeof fn !== "function"){
+        toast("Filter UI unavailable in this build.", 2800);
+        return;
+      }
+      const res = await fn();
+      if (!res) return;
+      const {inc, exc} = res;
+      setFilterList(FILTER_KEY_INCLUDE, inc);
+      setFilterList(FILTER_KEY_EXCLUDE, exc);
+      const incList = getFilterList(FILTER_KEY_INCLUDE);
+      const excList = getFilterList(FILTER_KEY_EXCLUDE);
+      updateRandom64FilterIndicator();
+      toast(`Random filters set. include=${incList.length}, exclude=${excList.length}`, 2200);
+    }catch(err){
+      console.error(err);
+      toast("Filter dialog failed: " + (err?.message || String(err)), 3600);
+    }
+    return;
+  }
+
+  const liveFiles = getRandom64CombinedSourceFiles();
+  if (liveFiles.length){
+    await randomFillColumnFromFiles(col, liveFiles);
+    return;
+  }
+  if (Array.isArray(state.random64Sources) && state.random64Sources.length){
+    toast("Sources are remembered, but no live folders are attached yet. Reattach them in Sources first.", 3200);
+    openRandom64SourcesOverlay();
+    return;
+  }
+
+  state.random64FolderPickMode = "random8_oneshot";
+  state.randomSourceTargetCol = col;
+  folderInput.value = '';
+  folderInput.click();
 }
 
   // ====== Build UI ======
@@ -8130,12 +9377,11 @@ const btns = document.createElement("div");
         try{ openSplitEditor(c); }catch(e){ showFatal(e); }
       }, "Pick one sample, then split it into 8 slices with the new editor (zoom, L/M/R, Z auto-norm).");
 
-      const load8Btn = mkBtn("Load 8", "tiny secondary", async () => {
-        state.pick = { kind: "colmulti", col: c, row: null };
-        fileInput.value = "";
-        fileInput.multiple = true;
-        fileInput.click();
+      const load8Btn = mkBtn("Load 8", "tiny secondary", async (e) => {
+        await handleColumnLoad8Action(c, e);
       }, "Load up to 8 files into this column (top → bottom). If you select more than 8, it randomly picks 8 for this column.");
+      load8Btn.dataset.role = "colLoad8Action";
+      load8Btn.dataset.col = String(c);
 
       const playBtn = mkBtn("▶", "tiny secondary", async () => {
         await playColumn(c);
@@ -8179,11 +9425,12 @@ const btns = document.createElement("div");
 
         cellEl.innerHTML = `
   <div class="cellTop">
-    <span class="tag">C${r+1}</span>
+    <span class="tag cellId">C${r+1}</span>
     <span class="tag warn mode" id="icMode-${c}-${r}">rate</span>
     <div class="icons">
       <span class="icon" id="icMute-${c}-${r}">M</span>
       <span class="icon" id="icRev-${c}-${r}">R</span>
+      <span class="icon" id="icLock-${c}-${r}">L</span>
     </div>
   </div>
 
@@ -8217,6 +9464,7 @@ const btns = document.createElement("div");
           timeEl: cellEl.querySelector(".cellTime"),
           icMute: cellEl.querySelector(`#icMute-${c}-${r}`),
           icRev:  cellEl.querySelector(`#icRev-${c}-${r}`),
+          icLock: cellEl.querySelector(`#icLock-${c}-${r}`),
           icMode: cellEl.querySelector(`#icMode-${c}-${r}`)
         };
 
@@ -8250,7 +9498,11 @@ const btns = document.createElement("div");
               fileInput.multiple = false;
               fileInput.click();
             } else if (action === "clear") {
-              clearCell(c,r);
+              const coords = getSelectedCoords();
+              const multi = coords.length > 1;
+              const inSelection = !!(state.multiSelected && state.multiSelected.has(cellKey(c,r)));
+              if (multi && inSelection) clearCellsWithUndo(coords);
+              else clearCellsWithUndo([{ col:c, row:r }]);
             }
             return;
           }
@@ -8302,6 +9554,7 @@ const btns = document.createElement("div");
               toast(`Swapped cells`);
             }
 
+            refreshDuplicateLoadedState();
             updateCellUI(src.col, src.row);
             updateCellUI(c,r);
             updateColUI(src.col);
@@ -8401,11 +9654,17 @@ const btns = document.createElement("div");
 
     const dom = (__cellDom[col] && __cellDom[col][row]) ? __cellDom[col][row] : null;
 
+    const cellEl = dom ? dom.cellEl : document.getElementById(`cell-${col}-${row}`);
     const fnameEl = dom ? dom.fnameEl : document.getElementById(`fname-${col}-${row}`);
     const icMute = dom ? dom.icMute : document.getElementById(`icMute-${col}-${row}`);
     const icRev  = dom ? dom.icRev  : document.getElementById(`icRev-${col}-${row}`);
+    const icLock = dom ? dom.icLock : document.getElementById(`icLock-${col}-${row}`);
     const icMode = dom ? dom.icMode : document.getElementById(`icMode-${col}-${row}`);
     const wave = dom ? dom.wave : document.getElementById(`wave-${col}-${row}`);
+
+    if (cellEl){
+      cellEl.classList.toggle("duplicateLoaded", !!cell.duplicateLoaded);
+    }
 
     if (fnameEl){
       if (!cell.left){
@@ -8440,8 +9699,12 @@ const btns = document.createElement("div");
       if (icRev.title !== "Reverse") icRev.title = "Reverse";
     }
     if (icMode){
-      icMode.textContent = cell.settings.fitMode;
+      icMode.textContent = (cell.settings.fitMode === "padtrim") ? "trim" : cell.settings.fitMode;
       if (icMode.title !== "Fit mode") icMode.title = "Fit mode";
+    }
+    if (icLock){
+      icLock.classList.toggle("on", !!cell.locked);
+      if (icLock.title !== "Locked") icLock.title = "Locked";
     }
 
     if (wave){
@@ -8492,13 +9755,13 @@ const btns = document.createElement("div");
 
 
     // selected highlight
-    const cellEl = dom ? dom.cellEl : colsEl.querySelector(`.cell[data-col="${col}"][data-row="${row}"]`);
     if (cellEl){
       const key = cellKey(col,row);
       const isPrimary = state.selected.has && state.selected.col===col && state.selected.row===row;
       const isMulti = !!(state.multiSelected && state.multiSelected.has && state.multiSelected.has(key) && !isPrimary);
       cellEl.classList.toggle("selected", isPrimary);
       cellEl.classList.toggle("multiSelected", isMulti);
+      cellEl.classList.toggle("locked", !!cell.locked);
     }
   }
 
@@ -8510,10 +9773,12 @@ const btns = document.createElement("div");
     if (colEl){
       colEl.classList.toggle("loaded", any);
     }
+    updateColumnLoad8Buttons();
   }
 
 
   function updateAllUI(){
+    refreshDuplicateLoadedState();
     for (let c=0;c<COLS;c++){
       for (let r=0;r<ROWS;r++) updateCellUI(c,r);
       updateColUI(c);
@@ -8646,6 +9911,27 @@ function cellKey(col,row){ return `${col}:${row}`; }
     try{ return state.cells[col]?.[row] ?? null; }catch(_){ return null; }
   }
 
+  function getCellStoredPath(cell){
+    try{
+      if (!cell) return "";
+      const origin = cell.origin || null;
+      const relRaw = origin?.relPath || cell.relPath || "";
+      const fileRaw = origin?.fileName || cell.fileName || "";
+      const rel = String(relRaw || "").replace(/\\/g, "/").trim().replace(/^\/+/, "");
+      const fileName = String(fileRaw || "").trim();
+      if (rel){
+        const relTrim = rel.replace(/\/+$/, "");
+        const relBase = relTrim.split("/").filter(Boolean).pop() || "";
+        if (fileName && relBase && relBase !== fileName) return relTrim + "/" + fileName;
+        return relTrim || fileName;
+      }
+      return fileName;
+    }catch(_){
+      return "";
+    }
+  }
+
+
 
   function updateInspector(){
     // Diff-only inspector updates: only touch DOM when values changed
@@ -8655,10 +9941,21 @@ function cellKey(col,row){ return `${col}:${row}`; }
       }
       if (inspTitleEl.textContent !== "Cell settings") inspTitleEl.textContent = "Cell settings";
       if (inspDescEl.textContent !== "Select a cell.") inspDescEl.textContent = "Select a cell.";
-      if (cellInfoEl && cellInfoEl.textContent !== "—") cellInfoEl.textContent = "—";
+      if (inspLockCellBtn){
+        inspLockCellBtn.disabled = true;
+        if (inspLockCellBtn.textContent !== "Lock Cell") inspLockCellBtn.textContent = "Lock Cell";
+      }
       // disable buttons in empty selection
-      if (!inspPlayBtn.disabled) inspPlayBtn.disabled = true;
+      if (inspPlayBtn && !inspPlayBtn.disabled) inspPlayBtn.disabled = true;
       if (!inspNormalizeBtn.disabled) inspNormalizeBtn.disabled = true;
+      if (inspLockColBtn){
+        inspLockColBtn.disabled = true;
+        if (inspLockColBtn.textContent !== "Lock Col") inspLockColBtn.textContent = "Lock Col";
+      }
+      if (inspLockRowBtn){
+        inspLockRowBtn.disabled = true;
+        if (inspLockRowBtn.textContent !== "Lock Row") inspLockRowBtn.textContent = "Lock Row";
+      }
       return;
     }
 
@@ -8669,25 +9966,15 @@ function cellKey(col,row){ return `${col}:${row}`; }
     if (__inspCache.selKey !== selKey){
       __inspCache = { selKey };
     }
-
-    // Info (mostly stable unless selection/source/tempo changes)
-    const cellFrames = getCellFrames(row);
-    const info = [];
-    info.push(`Target: ${cellFrames} frames (${seconds(cellFrames).toFixed(6)}s)`);
-    (function(){
-      let srcFrames = 0;
-      try{
-        const key = cell.sourceKey || "";
-        const src = (key && sourceStore && sourceStore.has(key)) ? sourceStore.get(key) : null;
-        srcFrames = (src && src.L) ? src.L.length : 0;
-      }catch(_){}
-      const showFrames = srcFrames || (cell.left ? cell.left.length : 0);
-      info.push(`Source: ${showFrames ? `${showFrames} frames (${seconds(showFrames).toFixed(4)}s)` : "—"}`);
-    })();
-    const infoText = info.join("\n");
-    if (__inspCache.infoText !== infoText){
-      if (cellInfoEl) cellInfoEl.textContent = infoText;
-      __inspCache.infoText = infoText;
+    const pathText = getCellStoredPath(cell) || "";
+    const lockCellText = cell.locked ? "Unlock Cell" : "Lock Cell";
+    if (__inspCache.lockCellText !== lockCellText){
+      if (inspLockCellBtn) inspLockCellBtn.textContent = lockCellText;
+      __inspCache.lockCellText = lockCellText;
+    }
+    if (__inspCache.lockCellDisabled !== false){
+      if (inspLockCellBtn) inspLockCellBtn.disabled = false;
+      __inspCache.lockCellDisabled = false;
     }
 
     const selCount = getSelectedCoords().length;
@@ -8700,7 +9987,7 @@ function cellKey(col,row){ return `${col}:${row}`; }
     }
 
     let descText = cell.left ? (cell.name || "loaded") : "empty";
-    // If name is formatted as 'filename · <cell name>', hide the redundant cell name in the inspector footer.
+    // If name is formatted as 'filename · <cell name>', hide the redundant cell name in the inspector subtitle.
     if (cell.left && cell && typeof cell.name === 'string' && cell.name.includes('·')){
       const parts = cell.name.split('·');
       const leftPart = (parts[0]||'').trim();
@@ -8710,7 +9997,13 @@ function cellKey(col,row){ return `${col}:${row}`; }
         descText = leftPart;
       }
     }
-    
+
+    if (pathText){
+      descText = pathText;
+    }
+    const dupSuffix = getDuplicateInspectorSuffix(col, row, cell);
+    if (dupSuffix) descText += dupSuffix;
+
       if (cellNameEl){ const v = getCellDisplayName(col, row); if (cellNameEl.value !== v) cellNameEl.value = v; }
 const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
     if (__inspCache.descText !== descOut){
@@ -8834,13 +10127,42 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
       reverseEl.checked = rev;
       __inspCache.rev = rev;
     }
+    const locked = !!cell.locked;
+    if (__inspCache.locked !== locked){
+      if (lockEl) lockEl.checked = locked;
+      __inspCache.locked = locked;
+    }
 
     // Disable inspector buttons when empty?
     const has = !!cell.left;
     if (__inspCache.has !== has){
-      inspPlayBtn.disabled = !has;
+      if (inspPlayBtn) inspPlayBtn.disabled = !has;
       inspNormalizeBtn.disabled = !has;
       __inspCache.has = has;
+    }
+
+    const colLockedCount = state.cells[col].reduce((n, it) => n + (it && it.locked ? 1 : 0), 0);
+    const allColLocked = colLockedCount === ROWS;
+    const lockColText = allColLocked ? "Unlock Col" : "Lock Col";
+    if (__inspCache.lockColText !== lockColText){
+      if (inspLockColBtn) inspLockColBtn.textContent = lockColText;
+      __inspCache.lockColText = lockColText;
+    }
+    if (__inspCache.lockColDisabled !== false){
+      if (inspLockColBtn) inspLockColBtn.disabled = false;
+      __inspCache.lockColDisabled = false;
+    }
+
+    const rowLockedCount = state.cells.reduce((n, colCells) => n + ((colCells && colCells[row] && colCells[row].locked) ? 1 : 0), 0);
+    const allRowLocked = rowLockedCount === COLS;
+    const lockRowText = allRowLocked ? "Unlock Row" : "Lock Row";
+    if (__inspCache.lockRowText !== lockRowText){
+      if (inspLockRowBtn) inspLockRowBtn.textContent = lockRowText;
+      __inspCache.lockRowText = lockRowText;
+    }
+    if (__inspCache.lockRowDisabled !== false){
+      if (inspLockRowBtn) inspLockRowBtn.disabled = false;
+      __inspCache.lockRowDisabled = false;
     }
 
     // Reflect selection cell UI (icons/wave affordances) — but updateCellUI is itself cheapened
@@ -8923,12 +10245,11 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
   fadeOutEl.addEventListener("dblclick", (e) => { e.preventDefault(); resetRange(fadeOutEl, 0); });
 
 
-  fitModeEl.addEventListener("change", () => {
-    const cell = getSelectedCell(); if (!cell) return;
-    const fitValue = fitModeEl.value;
-    fitValEl.textContent = fitValue;
+  function applySelectedFitMode(fitValue){
+    const nextFit = (fitValue === "rate") ? "rate" : "padtrim";
+    fitValEl.textContent = nextFit;
     applySettingsToSelectedCells((target, col, row) => {
-      target.settings.fitMode = fitValue;
+      target.settings.fitMode = nextFit;
       try{
         if (target.left && target.right){
           const cf = (typeof getCellFrames === "function") ? (getCellFrames(row)|0) : 0;
@@ -8951,25 +10272,238 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
         }
       }catch(_e){}
     });
+  }
+
+  function setSelectedFitMode(value, opts={}){
+    const cell = getSelectedCell(); if (!cell) return false;
+    const nextFit = (value === "rate") ? "rate" : "padtrim";
+    if (!opts.skipUndo) captureSettingsUndo();
+    fitModeEl.value = nextFit;
+    applySelectedFitMode(nextFit);
+    if (!opts.skipUndo) commitSettingsUndo();
+    return true;
+  }
+
+  function toggleSelectedFitMode(){
+    const cell = getSelectedCell(); if (!cell) return false;
+    return setSelectedFitMode(cell.settings.fitMode === "rate" ? "padtrim" : "rate");
+  }
+
+  fitModeEl.addEventListener("change", () => {
+    setSelectedFitMode(fitModeEl.value, { skipUndo:true });
   });
 
-  muteEl.addEventListener("change", () => {
-    const cell = getSelectedCell(); if (!cell) return;
-    const value = !!muteEl.checked;
+  function setSelectedMute(value){
+    const cell = getSelectedCell(); if (!cell) return false;
+    const next = !!value;
     applySettingsToSelectedCells((target) => {
-      target.settings.mute = value;
+      target.settings.mute = next;
     });
+    return true;
+  }
+
+  function toggleSelectedMute(){
+    const cell = getSelectedCell(); if (!cell) return false;
+    return setSelectedMute(!cell.settings.mute);
+  }
+
+  function setSelectedReverse(value){
+    const cell = getSelectedCell(); if (!cell) return false;
+    const next = !!value;
+    applySettingsToSelectedCells((target) => {
+      target.settings.reverse = next;
+    });
+    return true;
+  }
+
+  function toggleSelectedReverse(){
+    const cell = getSelectedCell(); if (!cell) return false;
+    return setSelectedReverse(!cell.settings.reverse);
+  }
+
+  function setSelectedLocked(value){
+    if (!state.selected.has) return false;
+    const next = !!value;
+    const coords = getSelectedCoords();
+    if (!coords.length) return false;
+    for (const {col,row} of coords){
+      const cell = state.cells[col][row];
+      if (!cell) continue;
+      cell.locked = next;
+      updateCellUI(col, row);
+    }
+    updateInspector();
+    return true;
+  }
+
+  function toggleSelectedLocked(){
+    const cell = getSelectedCell(); if (!cell) return false;
+    return setSelectedLocked(!cell.locked);
+  }
+
+  function toggleSelectedColumnLocked(forceValue){
+    if (!state.selected.has) return false;
+    const col = state.selected.col;
+    const cells = state.cells[col] || [];
+    if (!cells.length) return false;
+    const next = (typeof forceValue === "boolean") ? !!forceValue : !cells.every(cell => !!(cell && cell.locked));
+    for (let r = 0; r < ROWS; r++) {
+      const cell = state.cells[col][r];
+      if (!cell) continue;
+      cell.locked = next;
+      updateCellUI(col, r);
+    }
+    updateInspector();
+    toast(next ? `Column ${col+1} locked` : `Column ${col+1} unlocked`, 1800);
+    return true;
+  }
+
+  function toggleSelectedRowLocked(forceValue){
+    if (!state.selected.has) return false;
+    const row = state.selected.row;
+    const cells = state.cells.map(colCells => colCells ? colCells[row] : null).filter(Boolean);
+    if (!cells.length) return false;
+    const next = (typeof forceValue === "boolean") ? !!forceValue : !cells.every(cell => !!cell.locked);
+    for (let c = 0; c < COLS; c++) {
+      const cell = state.cells[c] ? state.cells[c][row] : null;
+      if (!cell) continue;
+      cell.locked = next;
+      updateCellUI(c, row);
+    }
+    updateInspector();
+    toast(next ? `Row ${row+1} locked` : `Row ${row+1} unlocked`, 1800);
+    return true;
+  }
+
+  function openSelectedCellLoadPicker(){
+    if (!state.selected.has) return false;
+    state.pick = { kind: "cell", col: state.selected.col, row: state.selected.row };
+    fileInput.value = "";
+    fileInput.multiple = false;
+    fileInput.click();
+    return true;
+  }
+
+  const AUTO_PREVIEW_KEY = "TCM_autoPreview";
+
+  function updateAutoPreviewButton(){
+    if (!autoPreviewBtn) return;
+    const on = !!state.autoPreview;
+    autoPreviewBtn.textContent = on ? "Auto preview: On" : "Auto preview: Off";
+    autoPreviewBtn.classList.toggle("good", on);
+    autoPreviewBtn.classList.toggle("secondary", !on);
+  }
+
+  function setAutoPreview(value, opts){
+    opts = opts || {};
+    state.autoPreview = !!value;
+    updateAutoPreviewButton();
+    if (!opts.skipSave){
+      try{ localStorage.setItem(AUTO_PREVIEW_KEY, state.autoPreview ? "1" : "0"); }catch(_e){}
+    }
+  }
+
+  function toggleAutoPreview(){
+    setAutoPreview(!state.autoPreview);
+    return state.autoPreview;
+  }
+
+  function previewSelectedCellIfEnabled(){
+    if (!state.autoPreview || !state.selected || !state.selected.has) return false;
+    const { col, row } = state.selected;
+    const cell = state.cells?.[col]?.[row];
+    if (!cell || !cell.left || !cell.right) return false;
+    const cellEl = getCellEl(col, row) || colsEl.querySelector(`.cell[data-col="${col}"][data-row="${row}"]`);
+    try{ playCell(col, row, cellEl); }catch(_e){}
+    return true;
+  }
+
+  function normalizeSelectedCellAudio(){
+    const coords = getSelectedCoords();
+    if (!coords.length || !state.selected.has) return false;
+
+    let okCount = 0;
+    let silentCount = 0;
+    let emptyCount = 0;
+    let refreshWaveEditor = false;
+    const undoTargets = [];
+
+    coords.forEach(({col, row}) => {
+      const cell = state.cells?.[col]?.[row];
+      if (!cell) return;
+      const before = snapshotCellState(col, row);
+      const result = normalizeCellAudio(cell, row);
+      if (!result.ok){
+        if (result.reason === 'silent') silentCount++;
+        else emptyCount++;
+        return;
+      }
+
+      okCount++;
+      refreshNormalizedCellVisuals(cell, col, row);
+      undoTargets.push({ before, after: snapshotCellState(col, row) });
+
+      if (waveEditor && waveEditor.open && waveEditor.col === col && waveEditor.row === row){
+        try{
+          const key = (cell.editorKey && sourceStore.has(cell.editorKey)) ? cell.editorKey : (cell.sourceKey || "");
+          if (key && sourceStore.has(key)){
+            waveEditor.key = key;
+            waveEditor.src = sourceStore.get(key);
+          }else{
+            waveEditor.src = { L: cell.left, R: cell.right, name: cell.fileName || cell.name || "sample", peaksByW: new Map() };
+          }
+        }catch(_e){}
+        refreshWaveEditor = true;
+      }
+    });
+
+    if (!okCount){
+      if (silentCount && !emptyCount){
+        toast(coords.length > 1 ? "Normalize skipped: selected cells are silent" : "Normalize skipped: selection is silent", 1800);
+      }else{
+        toast("Nothing to normalize", 1800);
+      }
+      return false;
+    }
+
+    pushCellSnapshotsUndo("normalize", undoTargets);
+
+    if (refreshWaveEditor){
+      try{ scheduleWaveDraw(); }catch(_e){}
+    }
+
+    updateInspector();
+
+    if (coords.length === 1){
+      toast("Normalized audio");
+      return true;
+    }
+
+    const skipped = silentCount + emptyCount;
+    let msg = `Normalized ${okCount} cell${okCount === 1 ? '' : 's'}`;
+    if (skipped){
+      const parts = [];
+      if (silentCount) parts.push(`${silentCount} silent`);
+      if (emptyCount) parts.push(`${emptyCount} empty`);
+      msg += ` (${parts.join(', ')} skipped)`;
+    }
+    toast(msg);
+    return true;
+  }
+
+  muteEl.addEventListener("change", () => {
+    setSelectedMute(!!muteEl.checked);
   });
 
   reverseEl.addEventListener("change", () => {
-    const cell = getSelectedCell(); if (!cell) return;
-    const value = !!reverseEl.checked;
-    applySettingsToSelectedCells((target) => {
-      target.settings.reverse = value;
-    });
+    setSelectedReverse(!!reverseEl.checked);
   });
 
-  inspPlayBtn.addEventListener("click", () => {
+  lockEl?.addEventListener("change", () => {
+    setSelectedLocked(!!lockEl.checked);
+  });
+
+  inspPlayBtn?.addEventListener("click", () => {
     if (!state.selected.has) return;
     const {col,row} = state.selected;
     const cellEl = colsEl.querySelector(`.cell[data-col="${col}"][data-row="${row}"]`);
@@ -8977,26 +10511,29 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
         playCell(col,row, cellEl);
   });
 
-  inspLoadBtn.addEventListener("click", () => {
-    if (!state.selected.has) return;
-    state.pick = { kind: "cell", col: state.selected.col, row: state.selected.row };
-    fileInput.value = "";
-    fileInput.multiple = false;
-    fileInput.click();
+  inspLoadBtn?.addEventListener("click", () => {
+    openSelectedCellLoadPicker();
   });
 
-  inspClearBtn.addEventListener("click", () => {
+  inspClearBtn?.addEventListener("click", () => {
     if (!state.selected.has) return;
     clearCell(state.selected.col, state.selected.row);
   });
 
   inspNormalizeBtn.addEventListener("click", () => {
-    const cell = getSelectedCell(); if (!cell) return;
-    normalizeCellGain(cell);
-    invalidateCellCache(state.selected.col, state.selected.row);
-    updateCellUI(state.selected.col, state.selected.row);
-    updateInspector();
-    toast("Normalized gain");
+    normalizeSelectedCellAudio();
+  });
+
+  inspLockCellBtn?.addEventListener("click", () => {
+    toggleSelectedLocked();
+  });
+
+  inspLockColBtn?.addEventListener("click", () => {
+    toggleSelectedColumnLocked();
+  });
+
+  inspLockRowBtn?.addEventListener("click", () => {
+    toggleSelectedRowLocked();
   });
 
   inspCopyToColBtn.addEventListener("click", () => {
@@ -9047,23 +10584,57 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
         fadeOutMs: src.settings.fadeOutMs,
         fitMode: src.settings.fitMode,
       },
+      locked: !!src.locked,
       cache: { key:"", L:null, R:null, frames:0 }
     };
   }
 
   // ====== Clear ======
-  function clearCell(col,row){
-    stopPlayback();
+  function clearCellCore(col,row, opts={}){
+    const silent = !!(opts && opts.silent);
+    const refreshInspector = !opts || opts.refreshInspector !== false;
+    if (!opts || opts.stopPlayback !== false) stopPlayback();
     state.cells[col][row] = makeEmptyCell();
     // Reset cell display name back to default (C1..C8)
     if (state.cellNames && state.cellNames[col]) state.cellNames[col][row] = null;
+    refreshDuplicateLoadedState();
     updateCellUI(col,row);
     updateColUI(col);
-    updateInspector();
-    toast(`Cleared cell col ${col+1} Cel ${row+1}`);
+    if (refreshInspector) updateInspector();
+    if (!silent) toast(`Cleared cell col ${col+1} Cel ${row+1}`);
+    return true;
   }
 
-  function clearColumn(col){
+  function clearCell(col,row){
+    return clearCellCore(col, row);
+  }
+
+  function clearCellsWithUndo(coords, opts={}){
+    const list = (Array.isArray(coords) && coords.length) ? coords : getSelectedCoords();
+    if (!list.length) return false;
+    stopPlayback();
+    const targets = [];
+    for (const {col, row} of list){
+      const before = snapshotCellState(col, row);
+      clearCellCore(col, row, { silent:true, stopPlayback:false, refreshInspector:false });
+      targets.push({ before, after: snapshotCellState(col, row) });
+    }
+    pushCellSnapshotsUndo("clear", targets);
+    updateInspector();
+    if (!(opts && opts.silent)){
+      if (list.length === 1){
+        const only = list[0];
+        toast(`Cleared cell col ${only.col+1} Cel ${only.row+1}`);
+      }else{
+        toast(`Cleared ${list.length} cells`);
+      }
+    }
+    return true;
+  }
+
+  function clearColumn(col, opts={}){
+    const silent = !!(opts && opts.silent);
+    const refreshInspector = !!(opts && opts.refreshInspector);
     stopPlayback();
     for (let r=0;r<ROWS;r++){
       state.cells[col][r] = makeEmptyCell();
@@ -9074,14 +10645,16 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
     // Also clear the Load+Slice (Slice Editor) buffer for this column
     try{ if (typeof splitStateByCol !== 'undefined' && splitStateByCol) splitStateByCol.delete(col); }catch(_e){}
 
+    refreshDuplicateLoadedState();
     updateColUI(col);
-    toast(`Cleared column ${col+1}`);
+    if (refreshInspector || (state.selected && state.selected.has && state.selected.col === col)) updateInspector();
+    if (!silent) toast(`Cleared column ${col+1}`);
   }
 
   function clearAll(){
     stopPlayback();
     for (let c=0;c<COLS;c++){
-      clearColumn(c);
+      clearColumn(c, { silent:true });
     }
 
     // Reset column names to defaults
@@ -9095,6 +10668,7 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
     try{ for (let c=0;c<COLS;c++){ hardResetMiniWavesForCol(c); } }catch(_e){}
     try{ markAllWavesDirty(); scheduleWaveFlush(); requestAnimationFrame(()=>{ try{ scheduleWaveFlush(); }catch(_e){} }); }catch(_e){}
 
+    updateInspector();
     toast("Cleared everything");
   }
 
@@ -9264,7 +10838,7 @@ src.onended = () => {
       if (cell.left && cell.right) any = true;
 
       const frames = rowFrames[r];
-      const out = renderCellToTarget(cell, frames);
+      const out = renderCellToTarget(cell, frames, { exportTailAssist:true });
       outL.set(out.L, off);
       outR.set(out.R, off);
       off += frames;
@@ -9382,7 +10956,7 @@ src.onended = () => {
     for (let r=0;r<ROWS;r++){
       const cell = state.cells[col][r];
       const frames = rowFrames[r];
-      const out = renderCellToTarget(cell, frames);
+      const out = renderCellToTarget(cell, frames, { exportTailAssist:true });
       outL.set(out.L, off);
       outR.set(out.R, off);
       off += frames;
@@ -9622,7 +11196,7 @@ src.onended = () => {
     for (let r=0;r<ROWS;r++){
       const cell = state.cells[col][r];
       const frames = rowFrames[r];
-      const out = renderCellToTarget(cell, frames);
+      const out = renderCellToTarget(cell, frames, { exportTailAssist:true });
       outL.set(out.L, off);
       outR.set(out.R, off);
       off += frames;
@@ -9662,7 +11236,7 @@ src.onended = () => {
       const cell = state.cells[col][r];
       if (!cell || !cell.left) continue;
       const frames = rowFrames[r];
-      const out = renderCellToTarget(cell, frames);
+      const out = renderCellToTarget(cell, frames, { exportTailAssist:true });
       const wav = encodeWav16StereoBytes(out.L, out.R);
       const cellLabel = sanitizeFilename((state.cellNames && state.cellNames[col] && state.cellNames[col][r]) ? String(state.cellNames[col][r]) : `C${r+1}`);
       const fname = sanitizeFilename(`${colName}_${cellLabel}`) + ".wav";
@@ -9861,10 +11435,14 @@ topFolders: computeTopFoldersFromState(),
           beatsPerCell: Number(beatsPerCellEl?.value || 1),
         },
         options: {
-          splitFit: !!(splitFitEl && splitFitEl.checked),
-          normalizeOnLoad: !!(normalizeOnLoadEl && normalizeOnLoadEl.checked),
           nameTemplate: String(nameTemplateEl?.value || ""),
         },
+        canvasBaseTemplate: {
+          enabled: !!(state.canvasBaseTemplate && state.canvasBaseTemplate.enabled),
+          fileName: String(state.canvasBaseTemplate?.fileName || ""),
+          relPathHint: String(state.canvasBaseTemplate?.relPathHint || ""),
+        },
+        random64Sources: exportRandom64SourceMetadata(),
         exportMode: templateOnly ? "template_only" : (includeSources ? "portable_preset" : "preset_with_audio"),
         templateOnly: !!templateOnly,
         template: !!templateOnly,
@@ -11071,6 +12649,14 @@ const _flacCrc8Table = (() => {
       }
       const canvasName = res.name || def;
       const baseCanvasFile = res.baseCanvasFile || null;
+      if (res.baseCanvasMeta){
+        rememberCanvasBaseTemplate({
+          enabled: !!res.baseCanvasMeta.enabled,
+          fileName: String(res.baseCanvasMeta.fileName || ""),
+          relPathHint: String(res.baseCanvasMeta.relPathHint || ""),
+          file: baseCanvasFile || (state.canvasBaseTemplate && state.canvasBaseTemplate.file) || null,
+        });
+      }
 
       if (baseCanvasFile) toast(`Using base canvas: ${baseCanvasFile.name}`, 1400);
       const files = await temperaBuildCanvasFiles(baseCanvasFile);
@@ -11107,6 +12693,7 @@ stopBtn.addEventListener("click", () => stopPlayback());
     }catch{}
     helpOverlayEl.classList.add("show");
     helpOverlayEl.setAttribute("aria-hidden", "false");
+    focusOverlayElement(document.getElementById("helpCloseBtn") || helpOverlayEl);
   }
   function closeHelp(){
     if (!helpOverlayEl) return;
@@ -11351,10 +12938,253 @@ const cleanup = () => {
       window.addEventListener("keydown", onKey);
       overlay.classList.add("show");
       overlay.setAttribute("aria-hidden","false");
+      focusOverlayElement(pickBtn || closeBtn || overlay);
     });
   }
 
   
+  const random64SourcesBtn = document.getElementById("random64SourcesBtn");
+  let random64SourcesOverlayResolver = null;
+  let random64SourcesOverlayMode = "manage";
+
+  function updateRandom64SourcesButton(){
+    if (!random64SourcesBtn) return;
+    const live = getRandom64LiveSourceEntries();
+    const total = (state.random64Sources || []).length;
+    random64SourcesBtn.textContent = live.length ? `Sources (${live.length})` : (total ? `Sources (${total})` : "Sources");
+    try{ updateColumnLoad8Buttons(); }catch(_e){}
+    random64SourcesBtn.classList.toggle("good", live.length > 0);
+    random64SourcesBtn.classList.toggle("warn", !live.length && total > 0);
+    random64SourcesBtn.title = live.length
+      ? `Manage ${live.length} live random source folder(s). Random 64 and the column Load 8 / Random 8 action use this combined pool.`
+      : (total ? `Manage ${total} remembered random source folder(s). Add folders again to make them live.` : "Manage a reusable live folder list for Random 64 and the column Load 8 / Random 8 action");
+  }
+
+  function renderRandom64SourcesOverlay(){
+    const listEl = document.getElementById("random64SourcesList");
+    const emptyEl = document.getElementById("random64SourcesEmpty");
+    const summaryEl = document.getElementById("random64SourcesSummary");
+    const addBtn = document.getElementById("random64SourcesAddBtn");
+    const clearBtn = document.getElementById("random64SourcesClearBtn");
+    const runBtn = document.getElementById("random64SourcesRunBtn");
+    const doneBtn = document.getElementById("random64SourcesDoneBtn");
+    if (!listEl || !emptyEl || !summaryEl) return;
+    listEl.innerHTML = "";
+    const entries = Array.isArray(state.random64Sources) ? state.random64Sources : [];
+    const liveEntries = getRandom64LiveSourceEntries();
+    const liveFiles = getRandom64CombinedSourceFiles();
+    const liveAudio = liveFiles.filter(isAudioFile).length;
+    const relinkMode = (random64SourcesOverlayMode === "relink");
+
+    if (addBtn) addBtn.style.display = relinkMode ? "none" : "";
+    if (clearBtn) clearBtn.style.display = relinkMode ? "none" : "";
+    if (runBtn) runBtn.style.display = relinkMode ? "none" : "";
+    if (doneBtn){
+      doneBtn.textContent = relinkMode ? "Continue import" : "Done";
+      doneBtn.classList.toggle("good", relinkMode);
+      doneBtn.classList.toggle("secondary", !relinkMode);
+    }
+
+    if (!entries.length){
+      emptyEl.style.display = "block";
+      summaryEl.textContent = relinkMode
+        ? "This preset does not contain remembered Random 64 source folders."
+        : "No source folders added yet.";
+    } else {
+      emptyEl.style.display = "none";
+      if (relinkMode){
+        const skippedCount = entries.filter(entry => entry && entry.skipped).length;
+        summaryEl.textContent = liveEntries.length
+          ? `Preset remembered ${entries.length} source folder entr${entries.length===1?"y":"ies"}. ${liveEntries.length} relinked live so far (${liveAudio} audio before filters).${skippedCount ? ` ${skippedCount} skipped intentionally.` : ""} Reattach any remaining folders you want available for Random 64, then continue import.`
+          : `Preset remembered ${entries.length} source folder entr${entries.length===1?"y":"ies"}.${skippedCount ? ` ${skippedCount} already skipped intentionally.` : ""} Reattach the folders you want available for Random 64, then continue import.`;
+      } else {
+        summaryEl.textContent = liveEntries.length
+          ? `${liveEntries.length} live folder(s) ready (${liveFiles.length} files, ${liveAudio} audio before filters). Random 64 and the column Load 8 / Random 8 action now use this combined pool.`
+          : `${entries.length} remembered folder entr${entries.length===1?"y":"ies"}, but none are live yet. Add folders again to use them.`;
+      }
+    }
+
+    entries.forEach((entry, idx) => {
+      const item = document.createElement("div");
+      item.className = "randomSourcesItem";
+
+      const top = document.createElement("div");
+      top.className = "randomSourcesTop";
+
+      const label = document.createElement("input");
+      label.type = "text";
+      label.className = "randomSourcesLabel";
+      label.value = String(entry.label || entry.folderName || `Folder ${idx+1}`);
+      label.setAttribute("data-r64-label-index", String(idx));
+      label.setAttribute("aria-label", `Random source ${idx+1} label`);
+      top.appendChild(label);
+
+      const status = document.createElement("div");
+      status.className = `randomSourcesStatus ${entry.live ? "isLive" : "isGhost"}`;
+      const statusText = entry.live ? "live" : (entry.skipped ? "skipped" : "remembered only");
+      status.innerHTML = `<span class="randomSourcesStatusDot" aria-hidden="true"></span><span>${statusText}</span>`;
+      top.appendChild(status);
+
+      const attachBtn = document.createElement("button");
+      attachBtn.type = "button";
+      attachBtn.className = entry.live ? "good" : (entry.skipped ? "warn" : "secondary");
+      attachBtn.textContent = entry.live ? "Replace folder…" : (entry.skipped ? "Reattach skipped folder…" : "Reattach folder…");
+      attachBtn.setAttribute("data-r64-attach-index", String(idx));
+      top.appendChild(attachBtn);
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = relinkMode && entry.skipped ? "warn" : "secondary";
+      removeBtn.textContent = relinkMode ? (entry.skipped ? "Skipped" : "Skip") : "Remove";
+      removeBtn.setAttribute("data-r64-remove-index", String(idx));
+      top.appendChild(removeBtn);
+
+      const meta = document.createElement("div");
+      meta.className = "randomSourcesMeta";
+      const folderLine = entry.folderName ? `Folder: <strong>${String(entry.folderName)}</strong>` : `Folder ${idx+1}`;
+      const countLine = entry.live
+        ? `${entry.fileCount} files • ${entry.audioCount} audio before filters`
+        : `${entry.fileCount} files • ${entry.audioCount} audio in remembered metadata`;
+      const extraLine = relinkMode
+        ? (entry.live
+            ? "Preset import will keep this source live for Random 64 and the column Load 8 / Random 8 action."
+            : (entry.skipped
+                ? "Skipped on purpose: dependent preset cells will stay empty and no base-folder fallback will be requested for this source."
+                : "Pick the real folder again if you want this source available after import for Random 64 and the column Load 8 / Random 8 action."))
+        : (entry.live
+            ? "Used immediately by Random 64 while this list stays active."
+            : (entry.skipped
+                ? "Currently skipped. Reattach the folder later if you want this source available again for Random 64 and the column Load 8 / Random 8 action."
+                : "Preset restored the name only. Add the real folder again to make it live."));
+      meta.innerHTML = `${folderLine}<br>${countLine}<br>${extraLine}`;
+
+      item.appendChild(top);
+      item.appendChild(meta);
+      listEl.appendChild(item);
+    });
+
+    updateRandom64SourcesButton();
+  }
+  window.renderRandom64SourcesOverlay = renderRandom64SourcesOverlay;
+
+  function closeRandom64SourcesOverlay(reason="done"){
+    const ov = document.getElementById("random64SourcesOverlay");
+    if (!ov) return;
+    ov.classList.remove("show");
+    ov.setAttribute("aria-hidden", "true");
+    const hadResolver = random64SourcesOverlayResolver;
+    const hadMode = random64SourcesOverlayMode;
+    random64SourcesOverlayResolver = null;
+    random64SourcesOverlayMode = "manage";
+    if (hadResolver){
+      try{ hadResolver({ reason, liveCount: getRandom64LiveSourceEntries().length, mode: hadMode }); }catch(_e){}
+    }
+  }
+
+  function openRandom64SourcesOverlay(opts={}){
+    const ov = document.getElementById("random64SourcesOverlay");
+    const doneBtn = document.getElementById("random64SourcesDoneBtn");
+    if (!ov) return;
+    random64SourcesOverlayMode = (opts && opts.relinkMode) ? "relink" : "manage";
+    (window.renderRandom64SourcesOverlay || renderRandom64SourcesOverlay)();
+    ov.classList.add("show");
+    ov.setAttribute("aria-hidden", "false");
+    focusOverlayElement(doneBtn || ov);
+  }
+
+  function requestRandom64SourceRelink(){
+    return new Promise((resolve) => {
+      if (!Array.isArray(state.random64Sources) || !state.random64Sources.length){
+        resolve({ reason:"none", liveCount:0, mode:"relink" });
+        return;
+      }
+      random64SourcesOverlayResolver = resolve;
+      openRandom64SourcesOverlay({ relinkMode:true });
+    });
+  }
+
+  window.addRandom64SourceFolder = function addRandom64SourceFolder(files){
+    const entry = makeRandom64SourceEntry(files);
+    state.random64Sources = Array.isArray(state.random64Sources) ? state.random64Sources : [];
+    state.random64Sources.push(entry);
+    (window.renderRandom64SourcesOverlay || renderRandom64SourcesOverlay)();
+    toast(`Added Random 64 source: ${entry.label} (${entry.audioCount} audio file(s))`, 2200);
+  };
+
+  function runRandom64FromActiveSources(){
+    const files = getRandom64CombinedSourceFiles();
+    if (!files.length){
+      toast("No live Random 64 source folders yet. Add folder(s) first.", 2600);
+      return;
+    }
+    closeRandom64SourcesOverlay("run");
+    randomFill64FromFiles(files);
+  }
+
+  function initRandom64SourcesOverlay(){
+    const ov = document.getElementById("random64SourcesOverlay");
+    const listEl = document.getElementById("random64SourcesList");
+    const addBtn = document.getElementById("random64SourcesAddBtn");
+    const clearBtn = document.getElementById("random64SourcesClearBtn");
+    const runBtn = document.getElementById("random64SourcesRunBtn");
+    const doneBtn = document.getElementById("random64SourcesDoneBtn");
+    const closeBtn = document.getElementById("random64SourcesClose");
+    if (!ov || !listEl || !addBtn || !clearBtn || !runBtn || !doneBtn || !closeBtn) return;
+
+    addBtn.addEventListener("click", () => {
+      state.random64FolderPickMode = "add_source";
+      state.random64SourceReplaceIndex = -1;
+      folderInput.value = "";
+      folderInput.click();
+    });
+    clearBtn.addEventListener("click", () => {
+      state.random64Sources = [];
+      (window.renderRandom64SourcesOverlay || renderRandom64SourcesOverlay)();
+      toast("Random 64 source list cleared", 1600);
+    });
+    runBtn.addEventListener("click", () => runRandom64FromActiveSources());
+    doneBtn.addEventListener("click", () => closeRandom64SourcesOverlay("done"));
+    closeBtn.addEventListener("click", () => closeRandom64SourcesOverlay("close"));
+    ov.addEventListener("click", (e) => { if (e.target === ov) closeRandom64SourcesOverlay("backdrop"); });
+    listEl.addEventListener("input", (e) => {
+      const idx = e.target && e.target.getAttribute ? e.target.getAttribute("data-r64-label-index") : null;
+      if (idx == null) return;
+      const i = Number(idx);
+      if (!Number.isFinite(i) || !state.random64Sources || !state.random64Sources[i]) return;
+      state.random64Sources[i].label = String(e.target.value || "").trim() || state.random64Sources[i].folderName || `Folder ${i+1}`;
+      updateRandom64SourcesButton();
+    });
+    listEl.addEventListener("click", (e) => {
+      const attachIdx = e.target && e.target.getAttribute ? e.target.getAttribute("data-r64-attach-index") : null;
+      if (attachIdx != null){
+        const i = Number(attachIdx);
+        if (!Number.isFinite(i) || !state.random64Sources || !state.random64Sources[i]) return;
+        state.random64FolderPickMode = "replace_source";
+        state.random64SourceReplaceIndex = i;
+        folderInput.value = "";
+        folderInput.click();
+        return;
+      }
+      const idx = e.target && e.target.getAttribute ? e.target.getAttribute("data-r64-remove-index") : null;
+      if (idx == null) return;
+      const i = Number(idx);
+      if (!Number.isFinite(i) || !state.random64Sources || !state.random64Sources[i]) return;
+      const label = state.random64Sources[i].label || state.random64Sources[i].folderName || `Folder ${i+1}`;
+      if (random64SourcesOverlayMode === "relink"){
+        state.random64Sources[i].skipped = true;
+        state.random64Sources[i].live = false;
+        state.random64Sources[i].files = [];
+      } else {
+        state.random64Sources.splice(i, 1);
+      }
+      (window.renderRandom64SourcesOverlay || renderRandom64SourcesOverlay)();
+      toast(`${random64SourcesOverlayMode === "relink" ? "Skipped" : "Removed"} Random 64 source: ${label}`, 1600);
+    });
+
+    random64SourcesBtn?.addEventListener("click", () => openRandom64SourcesOverlay());
+    updateRandom64SourcesButton();
+  }
+
   function openRandom64FilterOverlay(){
     return new Promise((resolve) => {
       const ov = document.getElementById("filterOverlay");
@@ -11416,12 +13246,16 @@ const cleanup = () => {
       ov.classList.add("show");
       ov.setAttribute("aria-hidden","false");
 
-      // focus include input
-      setTimeout(() => incEl.focus(), 0);
+      // focus include input without disturbing the current matrix scroll position
+      requestAnimationFrame(() => {
+        try{ incEl.focus({ preventScroll:true }); }
+        catch(_){ try{ incEl.focus(); }catch(__){} }
+      });
     });
   }
   // Expose for Safari (avoids scope quirks)
   window.openRandom64FilterOverlay = openRandom64FilterOverlay;
+  initRandom64SourcesOverlay();
 
 
 // --- Native tooltip suppression while modal overlays are open ---
@@ -11509,24 +13343,34 @@ function openCanvasNameOverlay(defaultName){
       const raw = prompt("Canvas name (used for .canvas filename):", defaultName || "");
       if (raw == null) return resolve(null);
       const s = sanitizeFilename(raw);
-      return resolve({ name: (s || sanitizeFilename(defaultName || "TCM_Canvas")), baseCanvasFile: null });
+      return resolve({ name: (s || sanitizeFilename(defaultName || "TCM_Canvas")), baseCanvasFile: null, baseCanvasMeta: null });
     }
 
-    let selectedBaseCanvasFile = null;
+    const rememberedMeta = (state && state.canvasBaseTemplate)
+      ? {
+          enabled: !!state.canvasBaseTemplate.enabled,
+          fileName: String(state.canvasBaseTemplate.fileName || ""),
+          relPathHint: String(state.canvasBaseTemplate.relPathHint || ""),
+        }
+      : { enabled:false, fileName:"", relPathHint:"" };
+    let selectedBaseCanvasFile = (state && state.canvasBaseTemplate && state.canvasBaseTemplate.file) ? state.canvasBaseTemplate.file : null;
 
     function refreshBaseUi(){
       const enabled = !!(useBaseChk && useBaseChk.checked);
+      const display = getCanvasTemplateDisplay(rememberedMeta, selectedBaseCanvasFile);
       if (baseWrap) baseWrap.style.display = enabled ? "block" : "none";
       if (basePickBtn) basePickBtn.disabled = !enabled;
       if (baseChosen){
         if (!enabled) baseChosen.textContent = "No base canvas selected.";
-        else baseChosen.textContent = selectedBaseCanvasFile ? selectedBaseCanvasFile.name : "No base canvas selected.";
+        else if (selectedBaseCanvasFile) baseChosen.textContent = display || selectedBaseCanvasFile.name || "No base canvas selected.";
+        else if (display) baseChosen.textContent = `${display} (choose again to confirm)`;
+        else baseChosen.textContent = "No base canvas selected.";
       }
     }
 
     input.value = String(defaultName || "");
     input.select?.();
-    if (useBaseChk) useBaseChk.checked = false;
+    if (useBaseChk) useBaseChk.checked = !!rememberedMeta.enabled;
     if (baseInput) baseInput.value = "";
     refreshBaseUi();
 
@@ -11549,10 +13393,6 @@ function openCanvasNameOverlay(defaultName){
 
     if (useBaseChk){
       useBaseChk.onchange = () => {
-        if (!useBaseChk.checked){
-          selectedBaseCanvasFile = null;
-          if (baseInput) baseInput.value = "";
-        }
         refreshBaseUi();
       };
     }
@@ -11569,14 +13409,26 @@ function openCanvasNameOverlay(defaultName){
     }
 
     btnOk.onclick = () => {
-      if (useBaseChk && useBaseChk.checked && !selectedBaseCanvasFile){
-        toast("Choose a base Tempera .canvas first", 2200);
+      const enabled = !!(useBaseChk && useBaseChk.checked);
+      if (enabled && !selectedBaseCanvasFile){
+        if (rememberedMeta.fileName){
+          toast("Choose the remembered base Tempera .canvas again to confirm it", 2600);
+        } else {
+          toast("Choose a base Tempera .canvas first", 2200);
+        }
         return;
       }
       const s = sanitizeFilename(String(input.value || ""));
+      const metaFileName = selectedBaseCanvasFile ? String(selectedBaseCanvasFile.name || "") : rememberedMeta.fileName;
+      const metaRelPath = selectedBaseCanvasFile ? getCanvasTemplateRelPathHint(selectedBaseCanvasFile) : rememberedMeta.relPathHint;
       close({
         name: (s || sanitizeFilename(defaultName || "TCM_Canvas")),
-        baseCanvasFile: (useBaseChk && useBaseChk.checked) ? selectedBaseCanvasFile : null
+        baseCanvasFile: enabled ? selectedBaseCanvasFile : null,
+        baseCanvasMeta: {
+          enabled,
+          fileName: String(metaFileName || ""),
+          relPathHint: String(metaRelPath || ""),
+        }
       });
     };
     btnCancel.onclick = () => close(null);
@@ -11584,7 +13436,10 @@ function openCanvasNameOverlay(defaultName){
 
     ov.classList.add("show");
     ov.setAttribute("aria-hidden","false");
-    setTimeout(()=>{ try{ input.focus(); input.select?.(); }catch(_){} }, 0);
+    requestAnimationFrame(() => {
+      try{ input.focus({ preventScroll:true }); }catch(_){ try{ input.focus(); }catch(__){} }
+      try{ input.select?.(); }catch(_){ }
+    });
     document.addEventListener("keydown", onKey, true);
   });
 }
@@ -11807,6 +13662,26 @@ function indexFiles(files){
     return {byRel, byName, byNorm, normKey};
   }
 
+  function presetHasUnresolvedAudioRefs(preset, idx){
+    try{
+      const cols = Array.isArray(preset?.columns) ? preset.columns : [];
+      for (let c=0; c<cols.length; c++){
+        const col = cols[c];
+        const cells = Array.isArray(col?.cells) ? col.cells : [];
+        for (let r=0; r<cells.length; r++){
+          const cellP = cells[r];
+          if (!cellP) continue;
+          const ref = cellP.origin || ((cellP.fileName || cellP.relPath) ? cellP : null);
+          if (!ref) continue;
+          if (isRefSkippedByRandom64Sources(ref)) continue;
+          if (!resolveFile(ref, idx)) return true;
+        }
+      }
+    }catch(_e){
+      return true;
+    }
+    return false;
+  }
 
 
   // Global file catalog (built from Random64 folder picks and preset relink folder picks)
@@ -11915,6 +13790,7 @@ function indexFiles(files){
     opts = opts || {};
     if (!preset || typeof preset !== "object") throw new Error("Invalid preset JSON");
     const templatePreset = isTemplatePreset(preset);
+    const hasRememberedRandom64Sources = Array.isArray(preset?.random64Sources) && preset.random64Sources.length > 0;
     if (templatePreset){
       resetMatrixForTemplateImport();
     }
@@ -11926,6 +13802,19 @@ function indexFiles(files){
       if (typeof preset.tempo.beatsPerCell === "number") beatsPerCellEl.value = String(preset.tempo.beatsPerCell);
       onTimingChanged();
     }
+
+    if (preset.canvasBaseTemplate && typeof preset.canvasBaseTemplate === "object"){
+      rememberCanvasBaseTemplate({
+        enabled: !!preset.canvasBaseTemplate.enabled,
+        fileName: String(preset.canvasBaseTemplate.fileName || ""),
+        relPathHint: String(preset.canvasBaseTemplate.relPathHint || ""),
+        file: null,
+      });
+    } else {
+      rememberCanvasBaseTemplate({ enabled:false, fileName:"", relPathHint:"", file:null });
+    }
+
+    importRandom64SourceMetadata(preset.random64Sources);
 
     // Apply column names (prefer preset.colNames, fallback to preset.columns[].name)
 const applyColName = (c, name) => {
@@ -12002,17 +13891,50 @@ if (Array.isArray(preset.cellNames)){
       requestAnimationFrame(() => { try{ __inspCache = { selKey: null }; updateInspector(); }catch(_e){} });
       setStatus("Template preset loaded. Empty matrix with imported settings/layout.", "good");
       toast("Template preset loaded without relinking samples.", 2600);
+      if (hasRememberedRandom64Sources){
+        await requestRandom64SourceRelink();
+      }
       return;
     }
 
-    const files = (Array.isArray(opts.filesOverride) && opts.filesOverride.length)
-      ? opts.filesOverride
-      : await requestSampleFolder(preset);
-    if (!files || !files.length){
+    let liveSourceFiles = [];
+    if (hasRememberedRandom64Sources){
+      await requestRandom64SourceRelink();
+      try{ liveSourceFiles = getRandom64CombinedSourceFiles(); }catch(_e){ liveSourceFiles = []; }
+    }
+
+    let files = (Array.isArray(opts.filesOverride) && opts.filesOverride.length)
+      ? Array.from(opts.filesOverride)
+      : [];
+
+    const liveSourceIdx = indexFiles(liveSourceFiles || []);
+    const needsBaseFolderAfterSources = presetHasUnresolvedAudioRefs(preset, liveSourceIdx);
+
+    if (!files.length && liveSourceFiles.length){
+      files = Array.from(liveSourceFiles);
+      if (needsBaseFolderAfterSources){
+        const extraFiles = await requestSampleFolder(preset);
+        if (extraFiles && extraFiles.length){
+          files = files.concat(Array.from(extraFiles));
+        }
+      }
+    } else if (!files.length){
+      if (hasRememberedRandom64Sources){
+        if (needsBaseFolderAfterSources){
+          files = await requestSampleFolder(preset);
+        } else {
+          files = [];
+        }
+      } else {
+        files = await requestSampleFolder(preset);
+      }
+    }
+
+    const idx = indexFiles(files || []);
+    if ((!files || !files.length) && presetHasUnresolvedAudioRefs(preset, idx)){
       setStatus("No files received from the folder picker. If you are running via file://, try opening the app via http://localhost (or another local web server) and retry.", "bad");
       return;
     }
-    const idx = indexFiles(files);
     try{ setGlobalFileCatalog(files, idx); }catch(_e){}
 
     let loaded = 0, missing = 0;
@@ -12047,6 +13969,13 @@ if (Array.isArray(preset.cellNames)){
         }
         const file = resolveFile(ref, idx);
       if (!file){
+        if (isRefSkippedByRandom64Sources(ref)){
+          for (let r=0; r<ROWS; r++){
+            try{ updateCellUI(c,r); }catch(_e){}
+          }
+          updateColUI(c);
+          continue;
+        }
         missing += ROWS;
         continue;
       }
@@ -12124,6 +14053,11 @@ if (Array.isArray(preset.cellNames)){
         }
         const file = resolveFile(ref, idx);
         if (!file){
+          if (isRefSkippedByRandom64Sources(ref)){
+            if (cellP.name) cell.name = String(cellP.name);
+            updateCellUI(c,r);
+            continue;
+          }
           missing++;
           // keep name for user
           if (cellP.name) cell.name = String(cellP.name);
@@ -12246,7 +14180,6 @@ if (Array.isArray(preset.cellNames)){
     const nonAudio = all.length - pool.length;
     const MAX_RANDOM_SEC = 60; // Hard cap for Random 64 (seconds)
     const _isSafari = /Safari\//.test(navigator.userAgent||'') && !/Chrome\//.test(navigator.userAgent||'') && !/Chromium\//.test(navigator.userAgent||'') && !/Edg\//.test(navigator.userAgent||'');
-    // Safari: avoid metadata-duration probing (can balloon memory); we trim after decode instead.
 
     if (!pool.length){
       toast(`No audio files found in that selection. (${nonAudio} non-audio items)`, 3200);
@@ -12254,75 +14187,95 @@ if (Array.isArray(preset.cellNames)){
     }
 
     const totalCells = COLS * ROWS;
-    let chosen = [];
-
-    if (pool.length >= totalCells){
-      chosen = shuffleInPlace(pool.slice()).slice(0, totalCells);
-    } else {
-      // Not enough unique files: sample with replacement
-      for (let i=0; i<totalCells; i++){
-        chosen.push(pool[(Math.random() * pool.length) | 0]);
+    const cells = [];
+    for (let c=0;c<COLS;c++){
+      for (let r=0;r<ROWS;r++){
+        if (!state.cells[c][r].locked) cells.push({c,r});
       }
-      toast(`Only ${pool.length} file(s) available — reusing files to fill 64 cells.`, 2800);
+    }
+    const lockedCount = totalCells - cells.length;
+    if (!cells.length){
+      toast(`Random fill skipped: all ${totalCells} cells are locked.`, 2800);
+      return;
     }
 
-    const cells = [];
-    for (let c=0;c<COLS;c++) for (let r=0;r<ROWS;r++) cells.push({c,r});
+    const excludeTargets = cells.map(({c,r}) => ({ col:c, row:r }));
+    const existingKeys = new Set(getLoadedDuplicateIndex({ excludeTargets }).keys());
+    const deduped = dedupeFilesByDuplicateKey(pool);
+    const durationFiltered = await filterFilesByMaxDuration(deduped.unique, MAX_RANDOM_SEC, _isSafari);
+    const uniquePool = durationFiltered.files;
+    if (!uniquePool.length){
+      toast(`Random fill: no usable unique files remain after duration filtering (>${MAX_RANDOM_SEC}s).`, 3600);
+      return;
+    }
+    const freshUnique = uniquePool.filter(file => !existingKeys.has(getFileDuplicateKey(file)));
+    const alreadyLoadedUnique = uniquePool.filter(file => existingKeys.has(getFileDuplicateKey(file)));
+    const plan = buildUniqueFirstRepeatPlan(freshUnique, alreadyLoadedUnique, cells.length);
+    const chosen = plan.chosen;
+    const repeatedCount = plan.repeatedCount;
+    if (repeatedCount > 0){
+      toast(`Only ${uniquePool.length} usable unique file(s) available — reusing files to fill ${cells.length} unlocked cells.`, 2800);
+    }
+
     shuffleInPlace(cells);
+    const lockNote = lockedCount ? `, ${lockedCount} locked kept` : '';
+    toast(`Random fill: loading ${cells.length} unlocked cells from ${uniquePool.length} usable unique file(s) (≤ ${MAX_RANDOM_SEC}s${lockNote})…`, 1800);
 
-    toast(`Random fill: loading 64 cells from ${pool.length} file(s) (≤ ${MAX_RANDOM_SEC}s)…`, 1800);
-
-    // Sequential load for stability (64 decodes can be heavy)
     let failCount = 0;
     let lastFail = "";
+    const loadedTargets = [];
+    const usedKeys = new Set();
+    const badKeys = new Set();
+    const halfwayIndex = cells.length > 1 ? Math.floor(cells.length / 2) : -1;
     for (let i=0; i<cells.length; i++){
       const {c, r} = cells[i];
 
-      // Try the intended file first; if decode fails, retry with other random files.
       let ok = false;
-      let attemptFile = chosen[i];
+      let attemptFile = chosen[i] || pickUniqueAwareFallbackFile(uniquePool, usedKeys, badKeys, existingKeys);
       for (let attempt=0; attempt<8; attempt++){
-        // Skip very long files BEFORE decoding/loading into a cell.
-        // Non-Safari: fast metadata probe. Safari: skip probe and rely on post-decode trimming.
-        if (!_isSafari){
-          const dur = await getFileDurationSec(attemptFile);
-          if (dur != null && dur > MAX_RANDOM_SEC){
-            attemptFile = pool[(Math.random() * pool.length) | 0];
-            continue;
-          }
-        }
-
+        if (!attemptFile) break;
         try{
-          await loadFileIntoCell(c, r, attemptFile, { silent: true, maxSec: MAX_RANDOM_SEC, skipLongerThanMaxSec: true });
+          await loadFileIntoCell(c, r, attemptFile, { silent: true, maxSec: MAX_RANDOM_SEC, skipLongerThanMaxSec: true, skipDuplicateRefresh: true });
           ok = true;
+          const key = getFileDuplicateKey(attemptFile);
+          if (key) usedKeys.add(key);
+          loadedTargets.push({ col:c, row:r });
           break;
         }catch(err){
           failCount++;
           lastFail = (attemptFile && attemptFile.name) ? attemptFile.name : String(attemptFile || "");
           console.warn("Random 64: decode/load failed for", lastFail, err);
-
-          // pick another random file from pool and try again
-          attemptFile = pool[(Math.random() * pool.length) | 0];
+          const badKey = getFileDuplicateKey(attemptFile);
+          if (badKey) badKeys.add(badKey);
+          attemptFile = pickUniqueAwareFallbackFile(uniquePool, usedKeys, badKeys, existingKeys);
         }
       }
 
       if (!ok){
-        // If still not ok after retries, clear this cell so UI is consistent.
         clearCell(c, r);
       }
 
-      if (i === 31) toast('Random fill: halfway (32/64)…', 1400);
+      if (i + 1 === halfwayIndex) toast(`Random fill: halfway (${i + 1}/${cells.length})…`, 1400);
     }
 
+    refreshDuplicateLoadedState();
     updateAllUI();
+    const notes = [];
+    if (deduped.removed) notes.push(`${deduped.removed} duplicate source file(s) skipped`);
+    if (durationFiltered.skipped) notes.push(`${durationFiltered.skipped} long file(s) skipped`);
+    if (repeatedCount > 0) notes.push(`${repeatedCount} repeated fill(s)`);
+    const dupSummary = summarizeDuplicateTargets(loadedTargets, 4);
+    if (dupSummary) notes.push(dupSummary);
     if (failCount){
-      toast(`Random fill complete with ${failCount} decode/load failure(s). Last: ${lastFail || "?"}`, 4200);
+      toast(`Random fill complete (${loadedTargets.length} unlocked loaded${lockNote}) with ${failCount} decode/load failure(s). Last: ${lastFail || "?"}${notes.length ? ` · ${notes.join(' · ')}` : ''}`, 4800);
     } else {
-      toast('Random fill complete.', 2200);
+      toast(`Random fill complete (${loadedTargets.length} unlocked loaded${lockNote})${notes.length ? ` · ${notes.join(' · ')}` : ''}.`, 3800);
     }
   }
 
-  // Random 64 via folder picker
+
+
+  // Random 64 via source list or folder picker
   random64Btn?.addEventListener('click', (e) => {
     // Shift+Click: configure filename include/exclude filters (comma separated)
     if (e && e.shiftKey){
@@ -12352,13 +14305,61 @@ if (Array.isArray(preset.cellNames)){
       return;
     }
 
+    const liveFiles = getRandom64CombinedSourceFiles();
+    if (liveFiles.length){
+      randomFill64FromFiles(liveFiles);
+      return;
+    }
+    if (Array.isArray(state.random64Sources) && state.random64Sources.length){
+      toast("Source list is remembered, but no live folders are attached yet. Add them again in Sources.", 3200);
+      openRandom64SourcesOverlay();
+      return;
+    }
+
+    state.random64FolderPickMode = "oneshot";
     folderInput.value = '';
     folderInput.click();
   });
 
   folderInput?.addEventListener('change', async () => {
     const files = folderInput.files;
-    if (!files || !files.length) return;
+    const mode = String(state.random64FolderPickMode || "oneshot");
+    const replaceIndex = Number(state.random64SourceReplaceIndex);
+    const targetCol = Number(state.randomSourceTargetCol);
+    state.random64FolderPickMode = "oneshot";
+    state.random64SourceReplaceIndex = -1;
+    state.randomSourceTargetCol = -1;
+    if (!files || !files.length){
+      folderInput.value = '';
+      return;
+    }
+    if (mode === "add_source"){
+      (window.addRandom64SourceFolder || addRandom64SourceFolder)(Array.from(files || []));
+      folderInput.value = '';
+      return;
+    }
+    if (mode === "replace_source"){
+      const arr = Array.from(files || []);
+      const prev = (state.random64Sources && Number.isFinite(replaceIndex)) ? state.random64Sources[replaceIndex] : null;
+      if (prev){
+        const entry = makeRandom64SourceEntry(arr, {
+          id: String(prev.id || random64SourceId()),
+          label: String(prev.label || prev.folderName || `Folder ${replaceIndex+1}`),
+          folderName: String(prev.folderName || prev.label || `Folder ${replaceIndex+1}`),
+          skipped: false,
+        });
+        state.random64Sources[replaceIndex] = entry;
+        (window.renderRandom64SourcesOverlay || renderRandom64SourcesOverlay)();
+        toast(`Reattached Random 64 source: ${entry.label} (${entry.audioCount} audio file(s))`, 2200);
+      }
+      folderInput.value = '';
+      return;
+    }
+    if (mode === "random8_oneshot") {
+      await randomFillColumnFromFiles(Number.isFinite(targetCol) ? targetCol : 0, files);
+      folderInput.value = '';
+      return;
+    }
     await randomFill64FromFiles(files);
     folderInput.value = '';
   });
@@ -12378,6 +14379,17 @@ if (Array.isArray(preset.cellNames)){
   });
 
   clearAllBtn.addEventListener("click", () => clearAll());
+
+  try{
+    const savedAutoPreview = localStorage.getItem(AUTO_PREVIEW_KEY);
+    setAutoPreview(savedAutoPreview === "1", { skipSave:true });
+  }catch(_e){
+    setAutoPreview(false, { skipSave:true });
+  }
+  autoPreviewBtn?.addEventListener("click", () => {
+    const on = toggleAutoPreview();
+    toast(on ? "Auto preview on" : "Auto preview off", 1400);
+  });
 
   window.addEventListener("keydown", (e) => {
     // If any modal overlay is open, ignore global keybindings (typing in dialogs, etc.)
@@ -12474,18 +14486,50 @@ if (Array.isArray(preset.cellNames)){
       const tag = ae ? ae.tagName : "";
       const typing = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (ae && ae.isContentEditable);
       const overlayOpen = !!Array.from(document.querySelectorAll('.overlay.show')).find(el => el.style.display !== 'none' && el.getAttribute('aria-hidden') !== 'true');
-      // Enter on a selected cell focuses the Cell name field for fast naming
-      if (!typing && !overlayOpen && e.key === 'Enter' && state && state.selected && state.selected.has && cellNameEl){
+      const waveOpen = !!(window.waveEditor && window.waveEditor.open);
+      // Space in Split Editor: play/stop focused slice
+      if (e.code==="Space" && splitOverlayEl && splitOverlayEl.style.display!=="none"){
         e.preventDefault();
-        try{ cellNameEl.focus(); cellNameEl.select(); }catch(_){}
+        splitPlayActiveSlice();
         return;
       }
-    // Space in Split Editor: play/stop focused slice
-    if (e.code==="Space" && splitOverlayEl && splitOverlayEl.style.display!=="none"){
-      e.preventDefault();
-      splitPlayActiveSlice();
-      return;
-    }
+      if (!typing && !overlayOpen && !waveOpen && !splitOpen && state && state.selected && state.selected.has){
+        if (e.key === 'Enter'){
+          e.preventDefault();
+          openSelectedCellLoadPicker();
+          return;
+        }
+        if (e.key === 'n' || e.key === 'N'){
+          e.preventDefault();
+          normalizeSelectedCellAudio();
+          return;
+        }
+        if (e.key === 't' || e.key === 'T'){
+          e.preventDefault();
+          toggleSelectedFitMode();
+          return;
+        }
+        if (e.key === 'm' || e.key === 'M'){
+          e.preventDefault();
+          toggleSelectedMute();
+          return;
+        }
+        if (e.key === 'r' || e.key === 'R'){
+          e.preventDefault();
+          toggleSelectedReverse();
+          return;
+        }
+        if (e.key === 'l' || e.key === 'L'){
+          e.preventDefault();
+          toggleSelectedLocked();
+          return;
+        }
+        if (e.key === 'Delete' || e.key === 'Backspace'){
+          e.preventDefault();
+          clearCellsWithUndo();
+          return;
+        }
+      }
       if (!typing && !overlayOpen && state && state.selected){
         let dc = 0, dr = 0;
         if (e.key === "ArrowLeft") dc = -1;
@@ -12501,6 +14545,7 @@ if (Array.isArray(preset.cellNames)){
           r = (r + dr + ROWS) % ROWS;
           try{ stopPlayback(); }catch(_){ }
           setSelected(c, r);
+          previewSelectedCellIfEnabled();
           return;
         }
       }
@@ -12522,11 +14567,6 @@ if (e.key === "Escape"){
         const {col,row} = state.selected;
         const cellEl = colsEl.querySelector(`.cell[data-col="${col}"][data-row="${row}"]`);
         playCell(col,row, cellEl);
-      }
-    }
-    if (e.key === "Delete" || e.key === "Backspace"){
-      if (state.selected.has){
-        clearCell(state.selected.col, state.selected.row);
       }
     }
   });
@@ -12566,6 +14606,10 @@ if (e.key === "Escape"){
         toast("Loading…");
         const file = files[0];
         if (p.kind === "cell"){
+          const existingDupes = findLoadedCellsForFile(file, { excludeTargets:[{ col:p.col, row:p.row }] });
+          if (existingDupes.length){
+            toast(`Already loaded in ${formatCellRefList(existingDupes, 4)}. Loading anyway.`, 3600);
+          }
           const decoded = await decodeFileToStereo48k(file);
           const cellFrames = getCellFrames(p.row);
           const hasBelowCells = p.row < (ROWS - 1);
@@ -12577,10 +14621,14 @@ if (e.key === "Escape"){
               totalFrames: decoded.left.length,
             });
             if (!choice) return;
-            if (choice.mode === 'overflow') await loadDecodedOverflowIntoCells(p.col, p.row, file, decoded, { underCells: choice.underCells });
-            else await loadFileIntoCell(p.col, p.row, file, { decoded });
+            if (choice.mode === 'overflow' || choice.mode === 'overflow_fit') {
+              await loadDecodedOverflowIntoCells(p.col, p.row, file, decoded, {
+                underCells: choice.underCells,
+                fitOverflow: choice.mode === 'overflow_fit'
+              });
+            } else await loadFileIntoCell(p.col, p.row, file, { decoded, skipDuplicateWarning:true });
           } else {
-            await loadFileIntoCell(p.col, p.row, file, { decoded });
+            await loadFileIntoCell(p.col, p.row, file, { decoded, skipDuplicateWarning:true });
           }
         } else if (p.kind === "split"){
           await loadFileSplitIntoColumn(p.col, file);
@@ -13149,6 +15197,8 @@ window.addEventListener("keydown", (ev)=>{
       }
     }
     btn.textContent = on ? "Scrollbar: On" : "Scrollbar: Off";
+    btn.classList.toggle("good", !!on);
+    btn.classList.toggle("secondary", !on);
   }
 
   const saved = localStorage.getItem(key);
