@@ -1,6 +1,6 @@
 # Tempera Cell Matrix (TCM)
 
-![version](https://img.shields.io/badge/version-2.10.25-blue)
+![version](https://img.shields.io/badge/version-2.11.22-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![platform](https://img.shields.io/badge/platform-Web%20Audio-orange)
 
@@ -14,64 +14,44 @@ https://patronix-music.github.io/tempera-cell-matrix/
 
 ---
 
-## 🔥 TCM v2.10.77 🔥
+## 🔥 TCM v2.11.22 (beta) 🔥
 
-Here’s a quick recap of the latest additions and workflow improvements:
+### Main new features:
 
-🧩 Tempera canvas template merge
-- You can now export a TCM .canvas using an existing Tempera .canvas as a settings template
-- TCM replaces the audio tracks, while keeping the Tempera canvas settings intact
+- 🎛️ Tempera `.canvas` export, with optional use of an existing Tempera `.canvas` as a settings template
+- 📦 Template-only preset export, plus template preset import into an empty matrix
+- 🧠 Presets now remember the chosen `.canvas` template metadata for later export
+- ✂️ Long sample popup: trim in current cell, overflow into cells below, or Overflow + Fit (pitch)
+- 🔒 Cell Lock added, plus Lock Col and Lock Row
+- 🎲 Load 8 and Random 64 now respect locked cells
+- 🎧 Auto Preview while navigating the matrix
+- ⌨️ Matrix shortcuts: `N(ormalize)`, `R(everse)`, `M(ute)`, `L(ock)`, `T(rim/fit)`, `Enter(load)`, `Delete/Backspace`
+- 🎚️ Normalize supports multi-select, with undo for Normalize and selected-cell Clear/Delete
+- 🗂️ Random 64 Sources: reusable live multi-folder source list
+- 🔗 Preset import can relink remembered Random 64 source folders directly
+- 🎰 The per-column `Load 8` button now becomes `Random 8` when a live Sources list is active
+- 🚨 Duplicate detection: single-cell loads warn about duplicates, and Random 8 / Random 64 prefer unique files and mark unavoidable repeats in red
 
-🗂️ Template-only preset export
-- New preset export option: settings + layout only
-- Exports a reusable template preset without audio files
-- Useful for loading a ready-made matrix setup and then dropping in new samples later
+### Since version 2.10.77:
 
-🪄 Template preset import
-- Template presets now load as a clean empty matrix with names + cell settings
-- No missing-files popup
-- Settings stay available for later sample loading / Random 64
+- 🧩 Tempera canvas template merge: export a TCM `.canvas` using an existing Tempera `.canvas` as the settings template while replacing only the audio tracks
+- 🗂️ Template-only preset export: export a reusable preset with settings + layout only, without audio files
+- 🪄 Template preset import: template presets now load as a clean empty matrix with names and cell settings, without a missing-files popup
+- ➡️ Long sample load options: long samples can now be trimmed in the current cell or overflow seamlessly into the cells below
+- 🎚️ Overflow control: choose exactly how many cells a long sample should spread across
+- 🏷️ Auto column naming for overflow loads: overflow-loaded long samples now auto-fill the column name from the filename
+- 🌊 Full-length fades: fade in and fade out can now use the full sample length instead of being capped halfway
+- ✨ Anti-click microfade: short pad/trim samples now get a tiny automatic fade to reduce clicks
+- 🎲 Load 8 improved: selecting more than 8 files now randomly picks 8 samples for that column
+- 🧩 Real Tempera `.canvas` export: export directly to an actual Tempera canvas file
+- 📦 ZIP import with embedded sources: exported ZIPs with embedded samples can now be imported directly and relink automatically from `TCM_Sources`
+- 🔍 Wave Editor improvements: handle grabbing is more reliable, edge jumping is reduced, and editing feels faster
+- 👀 Zoom Auto Hide: the zoom window in both Wave Editor and Slice Editor can now hide automatically on mouse release
+- ✅ Multi-cell editing: Shift-click range select, Cmd/Ctrl-click non-contiguous select, and apply inspector changes across all selected cells with undo support
 
-➡️ Long sample load options
-When loading a long sample into a cell, you can now choose to:
-- trim it in the current cell
-- or let it overflow seamlessly into cells below
+So lots of bug fixes and new stuff to tryout. Watch out for those creepy crawlers 🪲🐛🐌 and let me know when you find one.
 
-🎚️ Overflow control
-You can choose how many cells the sample should flow across.
-
-🏷️ Auto column naming for overflow loads
-If a long sample is loaded with overflow, the column name is now filled automatically from the sample filename.
-
-🌊 Fades can now use the full sample length
-Fade in / fade out are no longer limited to half the sample.
-
-✨ Automatic anti-click microfade
-Short samples in pad/trim now get a tiny default fade to avoid clicks without manual editing.
-
-🎲 Load 8 improved
-If you select more than 8 files, it now randomly picks 8 samples for that column.
-
-🧩 Export to real Tempera `.canvas`
-You can export directly to an actual Tempera canvas file.
-
-📦 ZIP import with embedded sources
-If you export a ZIP with embedded samples, you can now import that ZIP directly and it will relink from [TCM_Sources] automatically.
-
-🔍 Wave Editor improvements
-Better handle grabbing, less accidental jumping near the selection edges, and faster editing feel.
-
-👀 Zoom: Auto Hide
-Added to both the Wave Editor and Slice Editor so the zoom window can disappear automatically on mouse release.
-
-✅ Multi-cell editing
-You can now:
-- Shift-click to select a range
-- Cmd/Ctrl-click for non-contiguous cells
-- Cmd/Ctrl-Z undo support for multi-cell changes
-Apply the lower inspector settings to all selected cells at once
-
-Still beta, so test it to your heart's content and let me know if anything is not what it should be. 🫣
+For more info: Click the help button in TCM for all your unanswered questions.
 
 <br>
 
@@ -176,18 +156,6 @@ Still beta, so test it to your heart's content and let me know if anything is no
 3. Slice visually, apply
 4. Name cells if needed
 5. Export or save a preset
-
-No install. No build. Just open and go.
-
----
-
-## ⌨️ Core shortcuts
-- **Z** — toggle zoom / auto-normalize  
-- **L / M / R** — left / move / right  
-- **Arrow keys** — nudge selection  
-- **ESC** — close zoom → close editor  
-
-(Full list is available in the in-app Help.)
 
 ---
 
