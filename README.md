@@ -14,6 +14,67 @@ https://patronix-music.github.io/tempera-cell-matrix/
 
 ---
 
+## 🔥 TCM v2.10.77 🔥
+
+Here’s a quick recap of the latest additions and workflow improvements:
+
+🧩 Tempera canvas template merge
+- You can now export a TCM .canvas using an existing Tempera .canvas as a settings template
+- TCM replaces the audio tracks, while keeping the Tempera canvas settings intact
+
+🗂️ Template-only preset export
+- New preset export option: settings + layout only
+- Exports a reusable template preset without audio files
+- Useful for loading a ready-made matrix setup and then dropping in new samples later
+
+🪄 Template preset import
+- Template presets now load as a clean empty matrix with names + cell settings
+- No missing-files popup
+- Settings stay available for later sample loading / Random 64
+
+➡️ Long sample load options
+When loading a long sample into a cell, you can now choose to:
+- trim it in the current cell
+- or let it overflow seamlessly into cells below
+
+🎚️ Overflow control
+You can choose how many cells the sample should flow across.
+
+🏷️ Auto column naming for overflow loads
+If a long sample is loaded with overflow, the column name is now filled automatically from the sample filename.
+
+🌊 Fades can now use the full sample length
+Fade in / fade out are no longer limited to half the sample.
+
+✨ Automatic anti-click microfade
+Short samples in pad/trim now get a tiny default fade to avoid clicks without manual editing.
+
+🎲 Load 8 improved
+If you select more than 8 files, it now randomly picks 8 samples for that column.
+
+🧩 Export to real Tempera `.canvas`
+You can export directly to an actual Tempera canvas file.
+
+📦 ZIP import with embedded sources
+If you export a ZIP with embedded samples, you can now import that ZIP directly and it will relink from [TCM_Sources] automatically.
+
+🔍 Wave Editor improvements
+Better handle grabbing, less accidental jumping near the selection edges, and faster editing feel.
+
+👀 Zoom: Auto Hide
+Added to both the Wave Editor and Slice Editor so the zoom window can disappear automatically on mouse release.
+
+✅ Multi-cell editing
+You can now:
+- Shift-click to select a range
+- Cmd/Ctrl-click for non-contiguous cells
+- Cmd/Ctrl-Z undo support for multi-cell changes
+Apply the lower inspector settings to all selected cells at once
+
+Still beta, so test it to your heart's content and let me know if anything is not what it should be. 🫣
+
+<br>
+
 ## ✨ What’s new in v2.10.25
 
 ### 🧰 Mainly UI bugs fixed, and you can now open TCM as an app with the new TCM icon <img width="32" height="32" alt="favicon-32x32" src="https://github.com/user-attachments/assets/2447a974-17a8-4ed7-8fe3-5392198e49cf" />
