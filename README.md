@@ -14,7 +14,7 @@ https://patronix-music.github.io/tempera-cell-matrix/
 
 ---
 
-## 🔥 TCM v2.11.46 (beta) 🔥
+## 🔥 TCM v2.11.46 🔥
 
 ### Main new features:
 
