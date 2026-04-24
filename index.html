@@ -336,8 +336,8 @@
       width: 100%;
       display:flex;
       align-items:center;
-      gap: 6px;
-      font-size: 11px;
+      gap: 1px;
+      font-size: 10px;
       font-weight: 900;
       letter-spacing: 0.2px;
       color: var(--text);
@@ -770,7 +770,7 @@
       background: rgba(255,255,255,0.03);
       border-radius: 14px;
       padding: 8px 9px;
-      min-height: 74px;
+      min-height: 68px;
       display: flex;
       flex-direction: column;
 }
@@ -815,20 +815,17 @@
       align-items:center;
     }
 
-    .inspHead .ctrlRow .lockBulkBtn{
-      min-width: 92px;
-      justify-content: center;
-    }
-    .inspHead .ctrlRow #inspLockCellBtn{
-      min-width: 106px;
+    .inspHead .ctrlRow > button{
+      width: 73px;
+      min-width: 73px;
       justify-content: center;
     }
 
     .chk{
       display:flex;
       align-items:center;
-      gap: 6px;
-      font-size: 11px;
+      gap: 1px;
+      font-size: 10px;
       color: var(--muted);
       user-select:none;
     }
@@ -2236,7 +2233,7 @@ input[type="range"]::-webkit-slider-thumb:active{
         </div>
 </div>
     </div>
-  <div class="copyrightTop"><span id="copyrightText"></span><div class="miniRow"><button class="secondary audioMini" id="autoPreviewBtn" title="Automatically preview the selected cell while navigating the matrix with arrow keys">Auto preview: Off</button><button class="secondary audioMini" id="scrollbarBtn" title="Toggle matrix scrollbar visibility">Scrollbar: On</button><button class="good audioMini" id="enableAudioBtn" title="Required on some browsers before audio playback">Enable audio</button><button class="secondary audioMini" id="stopBtn">Stop</button><button class="danger audioMini" id="clearAllBtn">Clear all</button></div></div>
+  <div class="copyrightTop"><span id="copyrightText"></span><div class="miniRow"><button class="secondary audioMini" id="autoPreviewBtn" title="Automatically preview the selected cell while navigating with arrow keys or by clicking a matrix cell">Auto preview: Off</button><button class="secondary audioMini" id="scrollbarBtn" title="Toggle matrix scrollbar visibility">Scrollbar: On</button><button class="good audioMini" id="enableAudioBtn" title="Required on some browsers before audio playback">Enable audio</button><button class="secondary audioMini" id="stopBtn">Stop</button><button class="danger audioMini" id="clearAllBtn">Clear all</button></div></div>
 </header>
 
   <main>
@@ -2251,9 +2248,13 @@ input[type="range"]::-webkit-slider-thumb:active{
           </div>
           <div class="ctrlRow">
             <button class="tiny good" id="inspNormalizeBtn">Normalize</button>
-            <button class="tiny secondary" id="inspLockCellBtn" type="button" title="Lock or unlock the selected cell or current multi-selection">Lock Cell</button>
+            <button class="tiny pop" id="inspPrepLoopBtn" title="Load one loop into the selected column, fit it to the current BPM/beats grid, and slice it across 8 cells">Loop Prep</button>
+            <button class="tiny pop" id="inspRemixBtn" title="Create a simple remix variant of the current column in the next empty column to the right">Remix</button>
+            <button class="tiny secondary" id="inspFitAllBtn" title="Set all 64 cells to fit (rate/pitch) mode">Fit All</button>
             <button class="tiny secondary lockBulkBtn" id="inspLockColBtn" title="Lock or unlock all 8 cells in this column">Lock Col</button>
             <button class="tiny secondary lockBulkBtn" id="inspLockRowBtn" title="Lock or unlock this row across all 8 columns">Lock Row</button>
+            <button class="tiny secondary selBulkBtn" id="inspSelectColBtn" title="Select all 8 cells in this column">Sel Col</button>
+            <button class="tiny secondary selBulkBtn" id="inspSelectRowBtn" title="Select this row across all 8 columns">Sel Row</button>
             <button class="tiny secondary" id="inspCopyToColBtn" title="Copy settings to all 8 cells in this column">Copy→Col</button>
             <button class="tiny secondary" id="inspCopyToAllBtn" title="Copy settings to all 64 cells">Copy→All</button>
           </div>
@@ -2283,19 +2284,17 @@ input[type="range"]::-webkit-slider-thumb:active{
           </div>
 
           <div class="ctrl">
-            <div class="lbl"><span>Fit mode</span><b id="fitVal">rate</b></div>
-            <select id="fitMode">
-              <option value="rate">fit (rate/pitch)</option>
-              <option value="padtrim">pad/trim</option>
-</select>
+            <div class="lbl"><span>Cell Pitch</span><b id="pitchVal">0.0 st</b></div>
+            <input id="pitch" type="range" min="-24" max="24" step="0.1" value="0">
           </div>
 
           <div class="ctrl">
             <div class="lbl"><span>Switches</span><b>&nbsp;</b></div>
-            <div class="ctrlRow" style="gap:14px;">
+            <div class="ctrlRow" style="gap:1px;">
               <label class="chk"><input id="mute" type="checkbox"> Mute</label>
               <label class="chk"><input id="reverse" type="checkbox"> Reverse</label>
               <label class="chk"><input id="lockCell" type="checkbox"> Lock</label>
+              <label class="chk"><input id="fitMode" type="checkbox"> Trim/Fit</label>
 </div>
           </div>
         </div>
@@ -2533,6 +2532,31 @@ input[type="range"]::-webkit-slider-thumb:active{
   </div>
 </div>
 
+<div class="overlay" id="remixOverlay" aria-hidden="true">
+  <div class="helpPanel folderPanel" role="dialog" aria-modal="true" aria-label="Column remix">
+    <div class="helpHead">
+      <div class="helpTitle">Column remix</div>
+      <button class="helpClose" id="remixOverlayCloseBtn" title="Close">✕</button>
+    </div>
+    <div class="helpBody" style="font-size:13px;">
+      <p class="muted" id="remixOverlayText" style="margin-top:0;">Create a simple remix variant in the next empty column to the right.</p>
+      <div class="helpCard" style="margin-top:10px;">
+        <div class="helpCardTitle">Choose a variant</div>
+        <div class="overlayActions helpActions" style="margin-top:10px; justify-content:flex-start;">
+          <button class="secondary" id="remixReverseBtn">Reverse</button>
+          <button class="secondary" id="remixRotateBtn">Rotate +1</button>
+          <button class="secondary" id="remixOddEvenBtn">Odd/Even</button>
+          <button class="good" id="remixRandomBtn">Random order</button>
+        </div>
+      </div>
+      <p class="muted" style="margin-top:10px;">Only loaded cells are remixed. The result is written into the next empty column to the right.</p>
+      <div class="overlayActions helpActions" style="margin-top:12px;">
+        <button class="secondary" id="remixOverlayCancelBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
   <!-- One hidden input for all loads -->
@@ -2557,14 +2581,14 @@ input[type="range"]::-webkit-slider-thumb:active{
                         <ul class="helpList">
                           <li>Click a cell to select it, use the settings panel for name/volume/fades/fit/reverse/mute/lock.</li>
                           <li><b>Double‑click</b> a cell, press <b>space</b> or <b>▶</b> to play.</li>
-                          <li><b>Arrow keys</b> move through the matrix. With <b>Auto preview</b> on, the newly selected cell plays automatically.</li>
+                          <li><b>Arrow keys</b> move through the matrix. With <b>Auto preview</b> on, the newly selected cell also plays automatically when you click a matrix cell with the mouse.</li>
                           <li><b>Matrix shortcuts</b>: <b>N</b>=Normalize, <b>T</b>=Trim/Fit toggle, <b>R</b>=Reverse, <b>M</b>=Mute, <b>L</b>=Lock, <b>Enter</b>=Load, <b>Delete/Backspace</b>=Clear.</li>
                           <li><b>Esc</b> stops playback. In editors: Esc hides the zoom window first, then closes the editor.</li>
                           <li><b>Tempo mode</b> uses BPM + Beats/cell and distributes rounding across 8 slices (no drift).</li>
                           <li>Drag cell→cell: swap. <b>Alt</b> + drag: copy.</li>
             </ul></div><div class="helpCard"><h3>Editing</h3>
 <ul class="helpList">
-                          <li>Use the <b>Cell settings</b> panel to change Gain, Mute, Reverse, Fade In/Out, Fit mode and Lock state.</li>
+                          <li>Use the <b>Cell settings</b> panel to change Gain, Mute, Reverse, Fade In/Out, Cell Pitch, Trim/Fit and Lock state.</li>
                           <li><b>Normalize</b> peak-normalizes the current audible cell/selection audio and also works on multi-selected cells. <b>Cmd/Ctrl+Z</b> restores Normalize and selected-cell Clear actions.</li>
                           <li><b>Lock Col</b> and <b>Lock Row</b> bulk-toggle the existing cell locks in the current column or row.</li>
                           <li>Fades are drawn as an <b>envelope overlay</b> on top of the oscilloscope.</li>
@@ -2604,6 +2628,8 @@ input[type="range"]::-webkit-slider-thumb:active{
                           <li>When one long sample is loaded with <b>overflow</b>, the column name at the top is auto-filled from that sample name.</li>
                           <li><b>Load+Slice</b>: pick one file → opens Slice Editor where you can drag/resize 8 blocks, then <b>Apply</b> to the column.</li>
                           <li><b>Load 8</b>: select up to 8 files → fills the 8 cells top→bottom. Duplicate selections are skipped. If you select more than 8 unique files, it randomly picks 8 for the current column. When a live <b>Sources</b> list is active, this same button changes to <b>Random 8</b> and fills the unlocked cells in that column from the shared pool instead.</li>
+                          <li><b>Remix</b> in the inspector creates a quick column variant in the next empty column to the right: Reverse, Rotate +1, Odd/Even, or Random order. Remix-generated variants refresh their mini-waves and file labels immediately, and are treated as derived helper columns so they do not get duplicate-red warning styling.</li>
+                          <li><b>Prep Loop</b> in the inspector loads one sample into the selected column, fits it to the current <b>Tempo (BPM)</b> grid, and slices it cleanly across the 8 cells. This is a simple BPM loop-prep helper and requires Tempo mode to be enabled.</li>
                           <li><b>Locked cells</b> are retained during <b>Load 8</b>, <b>Random 8</b> and <b>Random 64</b>. If a random fill must reuse a file, duplicate-loaded cells get a red border.</li>
                           <li><b>Random 64</b>: if a live <b>Sources</b> list exists, it uses that combined folder pool. Otherwise it still lets you pick one folder (subfolders included) and fills all unlocked cells randomly.</li>
             <li><b>Sources</b> next to Random 64 opens a reusable multi-folder source list shared by <b>Random 64</b> and the column <b>Load 8 / Random 8</b> action. <b>Shift + click Random 64</b> still opens the filter dialog:
@@ -2795,7 +2821,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-const APP_VERSION = '2.11.22';
+const APP_VERSION = '2.11.46';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -2961,6 +2987,24 @@ const APP_VERSION = '2.11.22';
 
   const APP_BUILD_DATE = '2026-04-15';
   const CHANGELOG = [
+  "2.11.46 - UI: inspector Loop Prep and Remix were swapped, and both now use the same highlighted fun-button styling as Random 64.",
+  "2.11.45 - UI: checkbox labels now sit closer to their checkboxes with 1px spacing, and the checkbox label font is reduced to 10px for a tighter inspector switches row.",
+  "2.11.44 - UI: inspector controls are slightly taller again, switch spacing is tighter, Trim/Fit now uses title case, and switch labels use a smaller font for a denser inspector layout.",
+  "2.11.43 - UI: inspector slider/control blocks are more compact, and Fit mode moved out of its own block into a trim/fit switch in the Switches row.",
+  "2.11.42 - Editor: added inspector Cell Pitch slider for per-cell semitone pitch on TCM playback/export audio, while .canvas keeps using the exported audio only.",
+  "2.11.40 - UI: when Auto preview is on, a normal mouse click on a matrix cell now immediately previews that cell too (not only arrow-key navigation).",
+  "2.11.34 - UI: inspector copy labels now read Copy→Col / Copy→All again, without the extra Cel text.",
+  "2.11.33 - UI: inspector action buttons now use a tighter 73px fixed width, and the copy labels switch back to the real arrow glyph for Copy Cel→Col / Copy Cel→All.",
+  "2.11.32 - UI: inspector action buttons now use one shared fixed width, were reordered for the new workflow, Prep Loop is labeled Loop Prep, and the copy labels use explicit Cell-> targets.",
+  "2.11.31 - UI: Sel Col / Sel Row now toggle to DeSel Col / DeSel Row when the current column or row is already fully selected, and deselect back to the primary cell while keeping button widths stable.",
+  "2.11.30 - UI: added inspector Sel Col / Sel Row buttons for quick full-column or full-row selection, with fixed-width labels that stay stable if the text changes.",
+  "2.11.29 - UI: removed the redundant inspector Lock Cell button; locking remains available through the existing Lock checkbox.",
+  "2.11.28 - Fix: single-file column drops now load into the next empty cell, and long-file drops on columns or single cells now use the same Long sample popup flow.",
+  "2.11.27 - Fix: dropping a sample onto a column no longer throws srcSliceStart is not defined during Load+Slice column import.",
+  "2.11.26 - Editor: added inspector Prep Loop to load one sample into the selected column, fit it to the current BPM/beats grid, and slice it cleanly across 8 cells.",
+  "2.11.25 - Fix/UI: Remix overlay now labels the source as Column X, and remixed target cells immediately refresh their file labels instead of staying on empty.",
+  "2.11.24 - Fix/UI: Remix now forces immediate mini-wave redraws in the target column and generated remix variants no longer use duplicate-red marking.",
+  "2.11.23 - UI/editor: added inspector Remix for quick column variants (Reverse, Rotate +1, Odd/Even, Random order) into the next empty column to the right.",
   "2.11.22 - UI: duplicate-marked cells now also hide the left accent stripe so the red state reads cleanly like selected/playing cells.",
   "2.11.21 - UI/Fix: duplicate info now stays visible in the inspector, and hand-loaded single cells also reuse the duplicate marker when they match already loaded files.",
   "2.11.20 - Fix: duplicate highlighting now marks only the extra repeated cells red; the first loaded/original cell stays normal so Random 64 / Random 8 duplicate reuse is easier to read.",
@@ -3451,6 +3495,7 @@ function computeRootHintFromPreset(preset){
         reverse: false,
         fadeInMs: 0,
         fadeOutMs: 0,
+        pitchSemitones: 0,
         fitMode: "padtrim", // rate|padtrim|loop
       },
       locked: false,
@@ -3458,6 +3503,7 @@ function computeRootHintFromPreset(preset){
       duplicatePeers: [],
       duplicateKey: "",
       duplicateNameKey: "",
+      remixDerived: false,
       cache: { key: "", L: null, R: null, frames: 0 }
     };
   }
@@ -3534,6 +3580,7 @@ function computeRootHintFromPreset(preset){
 
   function getCellDuplicateKey(cell){
     if (!cell || !cell.left) return "";
+    if (cell.remixDerived) return "";
     if (cell.duplicateKey) return String(cell.duplicateKey || "").trim().toLowerCase();
     const origin = cell.origin || {};
     if (origin && (origin.type === "split" || origin.split || origin.overflow)) return "";
@@ -3547,6 +3594,7 @@ function computeRootHintFromPreset(preset){
 
   function getCellDuplicateNameKey(cell){
     if (!cell || !cell.left) return "";
+    if (cell.remixDerived) return "";
     if (cell.duplicateNameKey) return String(cell.duplicateNameKey || "").trim().toLowerCase();
     const origin = cell.origin || {};
     if (origin && (origin.type === "split" || origin.split || origin.overflow)) return "";
@@ -5696,6 +5744,7 @@ function splitDraw(){
             cell.settings.gain = 1;
             cell.settings.fadeInMs = 0;
             cell.settings.fadeOutMs = 0;
+            cell.settings.pitchSemitones = 0;
           }
         }catch(_e){}
         try{ delete cell._waveApplyUndo; }catch(_e){ cell._waveApplyUndo = null; }
@@ -6947,9 +6996,13 @@ const exportAllBtn = document.getElementById("exportAllBtn");
   const inspNormalizeBtn = document.getElementById("inspNormalizeBtn");
   const inspLockColBtn = document.getElementById("inspLockColBtn");
   const inspLockRowBtn = document.getElementById("inspLockRowBtn");
+  const inspSelectColBtn = document.getElementById("inspSelectColBtn");
+  const inspSelectRowBtn = document.getElementById("inspSelectRowBtn");
   const inspCopyToColBtn = document.getElementById("inspCopyToColBtn");
   const inspCopyToAllBtn = document.getElementById("inspCopyToAllBtn");
-  const inspLockCellBtn = document.getElementById("inspLockCellBtn");
+  const inspRemixBtn = document.getElementById("inspRemixBtn");
+  const inspPrepLoopBtn = document.getElementById("inspPrepLoopBtn");
+  const inspFitAllBtn = document.getElementById("inspFitAllBtn");
 
   const volEl = document.getElementById("vol");
   const volValEl = document.getElementById("volVal");
@@ -6957,9 +7010,10 @@ const exportAllBtn = document.getElementById("exportAllBtn");
   const fadeInValEl = document.getElementById("fadeInVal");
   const fadeOutEl = document.getElementById("fadeOut");
   const fadeOutValEl = document.getElementById("fadeOutVal");
+  const pitchEl = document.getElementById("pitch");
+  const pitchValEl = document.getElementById("pitchVal");
   const fitModeEl = document.getElementById("fitMode");
   const cellNameEl = document.getElementById("cellName");
-  const fitValEl = document.getElementById("fitVal");
   const muteEl = document.getElementById("mute");
   const reverseEl = document.getElementById("reverse");
   const lockEl = document.getElementById("lockCell");
@@ -6982,19 +7036,17 @@ const exportAllBtn = document.getElementById("exportAllBtn");
   _bindInspectorNoFocus(muteEl);
   _bindInspectorNoFocus(reverseEl);
   _bindInspectorNoFocus(lockEl);
-  _bindInspectorNoFocus(inspLockCellBtn);
+  _bindInspectorNoFocus(fitModeEl);
+  _bindInspectorNoFocus(inspRemixBtn);
+  _bindInspectorNoFocus(inspPrepLoopBtn);
+  _bindInspectorNoFocus(inspFitAllBtn);
 
 
-  // Also release focus after using inspector sliders/selects (vol/fades/fit mode),
+  // Also release focus after using inspector sliders (vol/fades/pitch),
   // so arrow navigation in the matrix keeps working.
   function _bindInspectorBlurOnUse(el){
     if (!el) return;
     const _blurLater = ()=>{ setTimeout(()=>_blurIfFocused(el), 0); };
-    // Select dropdowns (fit mode): only blur after a value is chosen.
-    if ((el.tagName||"").toUpperCase() === "SELECT"){
-      el.addEventListener("change", _blurLater, {passive:true});
-      return;
-    }
     // Range sliders: blur when interaction ends so arrow navigation works.
     el.addEventListener("pointerup", _blurLater, {passive:true});
     el.addEventListener("mouseup", _blurLater, {passive:true});
@@ -7012,7 +7064,7 @@ const exportAllBtn = document.getElementById("exportAllBtn");
   _bindInspectorBlurOnUse(volEl);
   _bindInspectorBlurOnUse(fadeInEl);
   _bindInspectorBlurOnUse(fadeOutEl);
-  _bindInspectorBlurOnUse(fitModeEl);
+  _bindInspectorBlurOnUse(pitchEl);
 
 
 
@@ -7331,6 +7383,44 @@ function stopPlayback(){
   function seconds(frames){ return frames / SR; }
 
   function lerp(a,b,t){ return a + (b-a)*t; }
+
+  function formatPitchSemitonesLabel(value){
+    const num = Number(value || 0);
+    const fixed = (Math.abs(num) < 0.05 ? 0 : num).toFixed(1);
+    return `${fixed} st`;
+  }
+
+  function getPitchRatioFromSemitones(value){
+    const st = clamp(Number(value || 0), -48, 48);
+    return Math.pow(2, st / 12);
+  }
+
+  function renderSourceAtSpeedToLength(Lsrc, Rsrc, outLen, speed){
+    const Lout = new Float32Array(outLen);
+    const Rout = new Float32Array(outLen);
+    const inLen = (Lsrc && Lsrc.length) ? Lsrc.length : 0;
+    if (!inLen || outLen <= 0) return { L:Lout, R:Rout, audibleFrames:0 };
+
+    const step = (Number.isFinite(speed) && speed > 0) ? speed : 1;
+    let audibleFrames = 0;
+
+    for (let i=0; i<outLen; i++){
+      const pos = i * step;
+      if (pos > (inLen - 1)) break;
+      const idx = Math.floor(pos);
+      const frac = pos - idx;
+      const next = Math.min(inLen - 1, idx + 1);
+      const aL = Lsrc[idx];
+      const bL = Lsrc[next];
+      const aR = Rsrc[idx];
+      const bR = Rsrc[next];
+      Lout[i] = lerp(aL, bL, frac);
+      Rout[i] = lerp(aR, bR, frac);
+      audibleFrames = i + 1;
+    }
+
+    return { L:Lout, R:Rout, audibleFrames };
+  }
 
   function resampleToLength(src, outLen){
     const inLen = src.length;
@@ -8015,6 +8105,7 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     const cacheKey = [
       targetFrames, s.fitMode, s.reverse, s.mute,
       s.gain.toFixed(4), Math.round(s.fadeInMs), Math.round(s.fadeOutMs),
+      Number(s.pitchSemitones || 0).toFixed(3),
       cell.left ? cell.left.length : 0,
       (typeof cell.selStartFrames === "number") ? cell.selStartFrames : 0,
       (typeof cell.selLenFrames === "number") ? cell.selLenFrames : 0,
@@ -8062,26 +8153,62 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     }catch(_){}
 
 
+    const pitchRatio = getPitchRatioFromSemitones(s.pitchSemitones || 0);
+    const hasPitchOffset = Math.abs((s.pitchSemitones || 0)) > 0.0001;
+
     if (s.fitMode === "padtrim"){
-      const n = Math.min(targetFrames, Lin.length);
-      Lout.set(Lin.subarray(0,n), 0);
-      Rout.set(Rin.subarray(0,n), 0);
-      if (n > 0 && n < targetFrames){
-        autoFadeRegion = s.reverse ? { start: targetFrames - n, end: targetFrames } : { start: 0, end: n };
+      if (hasPitchOffset){
+        const pitched = renderSourceAtSpeedToLength(Lin, Rin, targetFrames, pitchRatio);
+        Lout.set(pitched.L);
+        Rout.set(pitched.R);
+        const n = Math.min(targetFrames, pitched.audibleFrames|0);
+        if (n > 0 && n < targetFrames){
+          autoFadeRegion = s.reverse ? { start: targetFrames - n, end: targetFrames } : { start: 0, end: n };
+        }
+      }else{
+        const n = Math.min(targetFrames, Lin.length);
+        Lout.set(Lin.subarray(0,n), 0);
+        Rout.set(Rin.subarray(0,n), 0);
+        if (n > 0 && n < targetFrames){
+          autoFadeRegion = s.reverse ? { start: targetFrames - n, end: targetFrames } : { start: 0, end: n };
+        }
       }
     } else if (s.fitMode === "loop"){ // legacy: treat old "loop" as pad/trim
-      const n = Math.min(targetFrames, Lin.length);
-      Lout.set(Lin.subarray(0,n), 0);
-      Rout.set(Rin.subarray(0,n), 0);
-      if (n > 0 && n < targetFrames){
-        autoFadeRegion = s.reverse ? { start: targetFrames - n, end: targetFrames } : { start: 0, end: n };
+      if (hasPitchOffset){
+        const pitched = renderSourceAtSpeedToLength(Lin, Rin, targetFrames, pitchRatio);
+        Lout.set(pitched.L);
+        Rout.set(pitched.R);
+        const n = Math.min(targetFrames, pitched.audibleFrames|0);
+        if (n > 0 && n < targetFrames){
+          autoFadeRegion = s.reverse ? { start: targetFrames - n, end: targetFrames } : { start: 0, end: n };
+        }
+      }else{
+        const n = Math.min(targetFrames, Lin.length);
+        Lout.set(Lin.subarray(0,n), 0);
+        Rout.set(Rin.subarray(0,n), 0);
+        if (n > 0 && n < targetFrames){
+          autoFadeRegion = s.reverse ? { start: targetFrames - n, end: targetFrames } : { start: 0, end: n };
+        }
       }
     } else { // "rate"
-      // time-fit by resampling to exact targetFrames (pitch changes)
-      const Lr = resampleToLength(Lin, targetFrames);
-      const Rr = resampleToLength(Rin, targetFrames);
-      Lout.set(Lr);
-      Rout.set(Rr);
+      if (hasPitchOffset){
+        const baseSpeed = (targetFrames > 1 && Lin.length > 1)
+          ? ((Lin.length - 1) / (targetFrames - 1))
+          : 1;
+        const pitched = renderSourceAtSpeedToLength(Lin, Rin, targetFrames, baseSpeed * pitchRatio);
+        Lout.set(pitched.L);
+        Rout.set(pitched.R);
+        const n = Math.min(targetFrames, pitched.audibleFrames|0);
+        if (n > 0 && n < targetFrames){
+          autoFadeRegion = s.reverse ? { start: targetFrames - n, end: targetFrames } : { start: 0, end: n };
+        }
+      }else{
+        // time-fit by resampling to exact targetFrames (pitch changes)
+        const Lr = resampleToLength(Lin, targetFrames);
+        const Rr = resampleToLength(Rin, targetFrames);
+        Lout.set(Lr);
+        Rout.set(Rr);
+      }
     }
 
     if (s.reverse){
@@ -8407,6 +8534,54 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     });
   }
 
+
+  function isLoadedCell(cell){
+    return !!(cell && cell.left && cell.left.length);
+  }
+
+  function findNextEmptyUnlockedRowInColumn(col){
+    for (let r=0; r<ROWS; r++){
+      const cell = state.cells[col][r];
+      if (cell && cell.locked) continue;
+      if (!isLoadedCell(cell)) return r;
+    }
+    return -1;
+  }
+
+  async function loadChosenFileIntoCellWithPrompt(col, row, file, opts={}){
+    const decoded = (opts && opts.decoded) ? opts.decoded : await decodeFileToStereo48k(file);
+
+    if (!(opts && opts.skipDuplicateWarning)){
+      const existingDupes = findLoadedCellsForFile(file, { excludeTargets:[{ col, row }] });
+      if (existingDupes.length){
+        toast(`Already loaded in ${formatCellRefList(existingDupes, 4)}. Loading anyway.`, 3600);
+      }
+    }
+
+    const cellFrames = getCellFrames(row);
+    const hasBelowCells = row < (ROWS - 1);
+    if ((decoded.left.length > cellFrames) && hasBelowCells){
+      const choice = await askCellLoadMode({
+        col,
+        row,
+        fileName: decoded.name || file.name || 'sample',
+        totalFrames: decoded.left.length,
+      });
+      if (!choice) return false;
+      if (choice.mode === 'overflow' || choice.mode === 'overflow_fit'){
+        await loadDecodedOverflowIntoCells(col, row, file, decoded, {
+          underCells: choice.underCells,
+          fitOverflow: choice.mode === 'overflow_fit',
+          silent: !!opts.silent,
+        });
+        return true;
+      }
+    }
+
+    await loadFileIntoCell(col, row, file, { ...opts, decoded, skipDuplicateWarning:true });
+    return true;
+  }
+
   function initCellLoadModeOverlay(){
     if (!cellLoadModeOverlayEl) return;
     if (cellLoadModeOverlayEl.dataset.bound === '1') return;
@@ -8510,6 +8685,7 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
       reverse: false,
       fadeInMs: 0,
       fadeOutMs: 0,
+      pitchSemitones: 0,
       fitMode: 'padtrim',
     };
   }
@@ -8632,6 +8808,7 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
         cell.settings.gain = 1;
         cell.settings.fadeInMs = 0;
         cell.settings.fadeOutMs = 0;
+        cell.settings.pitchSemitones = 0;
       }
     }catch(_e){}
 
@@ -8847,6 +9024,8 @@ try{
       cell.cache = { key:"", L:null, R:null, frames:0 };
       cell.left = colL.subarray(r*cellFrames, (r+1)*cellFrames);
       cell.right = colR.subarray(r*cellFrames, (r+1)*cellFrames);
+      const srcSliceStart = cell.selStartFrames;
+      const srcSliceLen = cell.selLenFrames;
       cell.name = `${name} · ${getCellDisplayName(col, r)}`;
       cell.origin = {
         type: "split",
@@ -9507,6 +9686,7 @@ const btns = document.createElement("div");
             return;
           }
           setSelected(c,r,{ mode: selMode });
+          if (!toggleSel && !rangeSel) previewSelectedCellIfEnabled();
         });
 
         // double click => play
@@ -9534,7 +9714,7 @@ const btns = document.createElement("div");
 
           const file = e.dataTransfer.files && e.dataTransfer.files[0];
           if (file){
-            await loadFileIntoCell(c,r,file);
+            await loadChosenFileIntoCellWithPrompt(c, r, file);
             return;
           }
 
@@ -9585,7 +9765,12 @@ const btns = document.createElement("div");
           if (files.length >= 2){
             await loadFilesIntoColumnCells(c, files);
           } else {
-            await loadFileSplitIntoColumn(c, files[0]);
+            const targetRow = findNextEmptyUnlockedRowInColumn(c);
+            if (targetRow < 0){
+              toast(`Column ${c+1}: no empty unlocked cell available.`, 2600);
+              return;
+            }
+            await loadChosenFileIntoCellWithPrompt(c, targetRow, files[0]);
           }
         }
       });
@@ -9902,6 +10087,112 @@ function cellKey(col,row){ return `${col}:${row}`; }
     }catch(_){ }
   }
 
+  function isCurrentColumnFullySelected(){
+    if (!state.selected.has) return false;
+    const col = state.selected.col | 0;
+    const set = state.multiSelected || new Set();
+    for (let r = 0; r < ROWS; r++){
+      if (!set.has(cellKey(col, r))) return false;
+    }
+    return true;
+  }
+
+  function isCurrentRowFullySelected(){
+    if (!state.selected.has) return false;
+    const row = state.selected.row | 0;
+    const set = state.multiSelected || new Set();
+    for (let c = 0; c < COLS; c++){
+      if (!set.has(cellKey(c, row))) return false;
+    }
+    return true;
+  }
+
+  function deselectCurrentColumn(){
+    if (!state.selected.has) return false;
+    const col = state.selected.col | 0;
+    const row = state.selected.row | 0;
+    const primaryKey = cellKey(col, row);
+    const set = new Set(state.multiSelected || []);
+    for (let r = 0; r < ROWS; r++){
+      const key = cellKey(col, r);
+      if (key !== primaryKey) set.delete(key);
+    }
+    set.add(primaryKey);
+    state.multiSelected = set;
+    state.selected = { col, row, has: true };
+    state.selectionAnchor = { col, row, has: true };
+    refreshSelectionUI();
+    updateInspector();
+    try{
+      const selEl = getCellEl(col, row);
+      if (selEl) scrollCellIntoSafeCenter(selEl);
+    }catch(_){ }
+    toast(`Column ${col+1} deselected`, 1600);
+    return true;
+  }
+
+  function deselectCurrentRow(){
+    if (!state.selected.has) return false;
+    const col = state.selected.col | 0;
+    const row = state.selected.row | 0;
+    const primaryKey = cellKey(col, row);
+    const set = new Set(state.multiSelected || []);
+    for (let c = 0; c < COLS; c++){
+      const key = cellKey(c, row);
+      if (key !== primaryKey) set.delete(key);
+    }
+    set.add(primaryKey);
+    state.multiSelected = set;
+    state.selected = { col, row, has: true };
+    state.selectionAnchor = { col, row, has: true };
+    refreshSelectionUI();
+    updateInspector();
+    try{
+      const selEl = getCellEl(col, row);
+      if (selEl) scrollCellIntoSafeCenter(selEl);
+    }catch(_){ }
+    toast(`Row ${row+1} deselected`, 1600);
+    return true;
+  }
+
+  function selectCurrentColumn(){
+    if (!state.selected.has) return false;
+    const col = state.selected.col | 0;
+    const row = state.selected.row | 0;
+    const set = new Set();
+    for (let r = 0; r < ROWS; r++) set.add(cellKey(col, r));
+    state.multiSelected = set;
+    state.selected = { col, row, has: true };
+    state.selectionAnchor = { col, row, has: true };
+    refreshSelectionUI();
+    updateInspector();
+    try{
+      const selEl = getCellEl(col, row);
+      if (selEl) scrollCellIntoSafeCenter(selEl);
+    }catch(_){ }
+    toast(`Column ${col+1} selected`, 1600);
+    return true;
+  }
+
+  function selectCurrentRow(){
+    if (!state.selected.has) return false;
+    const col = state.selected.col | 0;
+    const row = state.selected.row | 0;
+    const set = new Set();
+    for (let c = 0; c < COLS; c++) set.add(cellKey(c, row));
+    state.multiSelected = set;
+    state.selected = { col, row, has: true };
+    state.selectionAnchor = { col, row, has: true };
+    refreshSelectionUI();
+    updateInspector();
+    try{
+      const selEl = getCellEl(col, row);
+      if (selEl) scrollCellIntoSafeCenter(selEl);
+    }catch(_){ }
+    toast(`Row ${row+1} selected`, 1600);
+    return true;
+  }
+
   function getSelectedCell(){
     if (!state.selected.has) return null;
     return state.cells[state.selected.col][state.selected.row];
@@ -9941,10 +10232,6 @@ function cellKey(col,row){ return `${col}:${row}`; }
       }
       if (inspTitleEl.textContent !== "Cell settings") inspTitleEl.textContent = "Cell settings";
       if (inspDescEl.textContent !== "Select a cell.") inspDescEl.textContent = "Select a cell.";
-      if (inspLockCellBtn){
-        inspLockCellBtn.disabled = true;
-        if (inspLockCellBtn.textContent !== "Lock Cell") inspLockCellBtn.textContent = "Lock Cell";
-      }
       // disable buttons in empty selection
       if (inspPlayBtn && !inspPlayBtn.disabled) inspPlayBtn.disabled = true;
       if (!inspNormalizeBtn.disabled) inspNormalizeBtn.disabled = true;
@@ -9956,6 +10243,16 @@ function cellKey(col,row){ return `${col}:${row}`; }
         inspLockRowBtn.disabled = true;
         if (inspLockRowBtn.textContent !== "Lock Row") inspLockRowBtn.textContent = "Lock Row";
       }
+      if (inspSelectColBtn){
+        inspSelectColBtn.disabled = true;
+        if (inspSelectColBtn.textContent !== "Sel Col") inspSelectColBtn.textContent = "Sel Col";
+      }
+      if (inspSelectRowBtn){
+        inspSelectRowBtn.disabled = true;
+        if (inspSelectRowBtn.textContent !== "Sel Row") inspSelectRowBtn.textContent = "Sel Row";
+      }
+      if (inspRemixBtn) inspRemixBtn.disabled = true;
+      if (inspPrepLoopBtn) inspPrepLoopBtn.disabled = true;
       return;
     }
 
@@ -9967,16 +10264,6 @@ function cellKey(col,row){ return `${col}:${row}`; }
       __inspCache = { selKey };
     }
     const pathText = getCellStoredPath(cell) || "";
-    const lockCellText = cell.locked ? "Unlock Cell" : "Lock Cell";
-    if (__inspCache.lockCellText !== lockCellText){
-      if (inspLockCellBtn) inspLockCellBtn.textContent = lockCellText;
-      __inspCache.lockCellText = lockCellText;
-    }
-    if (__inspCache.lockCellDisabled !== false){
-      if (inspLockCellBtn) inspLockCellBtn.disabled = false;
-      __inspCache.lockCellDisabled = false;
-    }
-
     const selCount = getSelectedCoords().length;
     const titleText = (selCount > 1)
       ? `${selCount} cells selected — ${getColDisplayName(col)} — ${getCellDisplayName(col, row)}`
@@ -10046,6 +10333,17 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
       __inspCache.foLbl = foLbl;
     }
 
+    const pitchStr = String(Number(cell.settings.pitchSemitones || 0));
+    if (__inspCache.pitchStr !== pitchStr){
+      if (pitchEl) pitchEl.value = pitchStr;
+      __inspCache.pitchStr = pitchStr;
+    }
+    const pitchLbl = formatPitchSemitonesLabel(cell.settings.pitchSemitones || 0);
+    if (__inspCache.pitchLbl !== pitchLbl){
+      if (pitchValEl) pitchValEl.textContent = pitchLbl;
+      __inspCache.pitchLbl = pitchLbl;
+    }
+
     // Dynamic fade range: keep faders proportional to the *effective* audible length.
     // - fitMode "rate": audio always fills the full cell (time-stretch via resample)
     // - fitMode "padtrim"/"loop": audio can be shorter than the cell; fades should scale to the audible portion
@@ -10108,12 +10406,12 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
       if (fadeInEl.value !== fiNow) fadeInEl.value = fiNow;
       if (fadeOutEl.value !== foNow) fadeOutEl.value = foNow;
     }catch(_){}
-// Fit mode
+// Trim/Fit switch
     const fit = cell.settings.fitMode;
-    if (__inspCache.fit !== fit){
-      fitModeEl.value = fit;
-      fitValEl.textContent = fit;
-      __inspCache.fit = fit;
+    const fitChecked = (fit === "rate");
+    if (__inspCache.fitChecked !== fitChecked){
+      if (fitModeEl) fitModeEl.checked = fitChecked;
+      __inspCache.fitChecked = fitChecked;
     }
 
     // Switches
@@ -10165,6 +10463,38 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
       __inspCache.lockRowDisabled = false;
     }
 
+    const selectColText = isCurrentColumnFullySelected() ? "DeSel Col" : "Sel Col";
+    if (__inspCache.selectColText !== selectColText){
+      if (inspSelectColBtn) inspSelectColBtn.textContent = selectColText;
+      __inspCache.selectColText = selectColText;
+    }
+    if (__inspCache.selectColDisabled !== false){
+      if (inspSelectColBtn) inspSelectColBtn.disabled = false;
+      __inspCache.selectColDisabled = false;
+    }
+
+    const selectRowText = isCurrentRowFullySelected() ? "DeSel Row" : "Sel Row";
+    if (__inspCache.selectRowText !== selectRowText){
+      if (inspSelectRowBtn) inspSelectRowBtn.textContent = selectRowText;
+      __inspCache.selectRowText = selectRowText;
+    }
+    if (__inspCache.selectRowDisabled !== false){
+      if (inspSelectRowBtn) inspSelectRowBtn.disabled = false;
+      __inspCache.selectRowDisabled = false;
+    }
+
+    const canRemix = !!getNextEmptyColumnRight(col) || getNextEmptyColumnRight(col) === 0;
+    if (__inspCache.remixDisabled !== !canRemix){
+      if (inspRemixBtn) inspRemixBtn.disabled = !canRemix;
+      __inspCache.remixDisabled = !canRemix;
+    }
+
+    const canPrepLoop = true;
+    if (__inspCache.prepLoopDisabled !== !canPrepLoop){
+      if (inspPrepLoopBtn) inspPrepLoopBtn.disabled = !canPrepLoop;
+      __inspCache.prepLoopDisabled = !canPrepLoop;
+    }
+
     // Reflect selection cell UI (icons/wave affordances) — but updateCellUI is itself cheapened
     updateCellUI(col,row);
   }
@@ -10180,6 +10510,7 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
     toCell.settings.reverse = fromCell.settings.reverse;
     toCell.settings.fadeInMs = fromCell.settings.fadeInMs;
     toCell.settings.fadeOutMs = fromCell.settings.fadeOutMs;
+    toCell.settings.pitchSemitones = Number(fromCell.settings.pitchSemitones || 0);
     toCell.settings.fitMode = fromCell.settings.fitMode;
     toCell.cache = { key:"", L:null, R:null, frames:0 };
   }
@@ -10199,7 +10530,7 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
   // Inspector events
 
   // Undo capture/commit for inspector controls
-  [volEl, fadeInEl, fadeOutEl, fitModeEl, muteEl, reverseEl].forEach(el => {
+  [volEl, fadeInEl, fadeOutEl, pitchEl, fitModeEl, muteEl, reverseEl].forEach(el => {
     if (!el) return;
     el.addEventListener("pointerdown", captureSettingsUndo);
     el.addEventListener("focus", captureSettingsUndo);
@@ -10232,6 +10563,15 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
     });
   });
 
+  pitchEl.addEventListener("input", () => {
+    const cell = getSelectedCell(); if (!cell) return;
+    const value = Number(pitchEl.value);
+    if (pitchValEl) pitchValEl.textContent = formatPitchSemitonesLabel(value);
+    applySettingsToSelectedCells((target) => {
+      target.settings.pitchSemitones = value;
+    });
+  });
+
   // Double-click sliders to reset to defaults
   function resetRange(el, value){
     try{
@@ -10243,34 +10583,39 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
   volEl.addEventListener("dblclick", (e) => { e.preventDefault(); resetRange(volEl, 1); });
   fadeInEl.addEventListener("dblclick", (e) => { e.preventDefault(); resetRange(fadeInEl, 0); });
   fadeOutEl.addEventListener("dblclick", (e) => { e.preventDefault(); resetRange(fadeOutEl, 0); });
+  pitchEl.addEventListener("dblclick", (e) => { e.preventDefault(); resetRange(pitchEl, 0); });
 
+
+  function applyFitModeToCell(target, row, fitValue){
+    const nextFit = (fitValue === "rate") ? "rate" : "padtrim";
+    target.settings.fitMode = nextFit;
+    try{
+      if (target.left && target.right){
+        const cf = (typeof getCellFrames === "function") ? (getCellFrames(row)|0) : 0;
+        const cellFrames = (cf && cf > 0) ? cf : (target.left.length|0);
+        const total = (target.left.length|0);
+        const long = (total > cellFrames);
+        const selStart = (typeof target.selStartFrames === "number") ? (target.selStartFrames|0) : 0;
+        const selLen   = (typeof target.selLenFrames === "number")   ? (target.selLenFrames|0)   : 0;
+
+        if (long && target.selEdited !== true && selStart === 0){
+          const autoSel = (selLen === cellFrames) || (selLen === total) || (selLen === 0);
+          if (autoSel){
+            target.selStartFrames = 0;
+            target.selLenFrames = (target.settings.fitMode === "rate")
+              ? total
+              : clamp(cellFrames, 1, total);
+            target.cache = { key:"", L:null, R:null, frames:0 };
+          }
+        }
+      }
+    }catch(_e){}
+  }
 
   function applySelectedFitMode(fitValue){
     const nextFit = (fitValue === "rate") ? "rate" : "padtrim";
-    fitValEl.textContent = nextFit;
     applySettingsToSelectedCells((target, col, row) => {
-      target.settings.fitMode = nextFit;
-      try{
-        if (target.left && target.right){
-          const cf = (typeof getCellFrames === "function") ? (getCellFrames(row)|0) : 0;
-          const cellFrames = (cf && cf > 0) ? cf : (target.left.length|0);
-          const total = (target.left.length|0);
-          const long = (total > cellFrames);
-          const selStart = (typeof target.selStartFrames === "number") ? (target.selStartFrames|0) : 0;
-          const selLen   = (typeof target.selLenFrames === "number")   ? (target.selLenFrames|0)   : 0;
-
-          if (long && target.selEdited !== true && selStart === 0){
-            const autoSel = (selLen === cellFrames) || (selLen === total) || (selLen === 0);
-            if (autoSel){
-              target.selStartFrames = 0;
-              target.selLenFrames = (target.settings.fitMode === "rate")
-                ? total
-                : clamp(cellFrames, 1, total);
-              target.cache = { key:"", L:null, R:null, frames:0 };
-            }
-          }
-        }
-      }catch(_e){}
+      applyFitModeToCell(target, row, nextFit);
     });
   }
 
@@ -10278,7 +10623,7 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
     const cell = getSelectedCell(); if (!cell) return false;
     const nextFit = (value === "rate") ? "rate" : "padtrim";
     if (!opts.skipUndo) captureSettingsUndo();
-    fitModeEl.value = nextFit;
+    if (fitModeEl) fitModeEl.checked = (nextFit === "rate");
     applySelectedFitMode(nextFit);
     if (!opts.skipUndo) commitSettingsUndo();
     return true;
@@ -10290,7 +10635,7 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
   }
 
   fitModeEl.addEventListener("change", () => {
-    setSelectedFitMode(fitModeEl.value, { skipUndo:true });
+    setSelectedFitMode(fitModeEl.checked ? "rate" : "padtrim", { skipUndo:true });
   });
 
   function setSelectedMute(value){
@@ -10372,6 +10717,290 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
     }
     updateInspector();
     toast(next ? `Row ${row+1} locked` : `Row ${row+1} unlocked`, 1800);
+    return true;
+  }
+
+  async function loadFilePrepLoopIntoColumn(col, file){
+    if (!tempoModeEl.checked){
+      toast("Enable Tempo (BPM) mode first for Prep Loop.", 2600);
+      updateInspector();
+      return false;
+    }
+    if (!file) return false;
+
+    const lockedRows = [];
+    for (let r = 0; r < ROWS; r++){
+      if (state.cells[col] && state.cells[col][r] && state.cells[col][r].locked) lockedRows.push(r + 1);
+    }
+    if (lockedRows.length){
+      toast(`Unlock the selected column first. Locked: ${lockedRows.map(n => `C${n}`).join(", ")}`, 3200);
+      updateInspector();
+      return false;
+    }
+
+    const decoded = await decodeFileToStereo48k(file);
+    const name = decoded.name || ((file && file.name) ? file.name : 'sample');
+    const maxSec = MAX_SPLIT_LOAD_SEC;
+    if (decoded.left && maxSec > 0){
+      const durSec = decoded.left.length / SR;
+      if (durSec > maxSec){
+        toast(`Sample too long for Prep Loop (${durSec.toFixed(1)}s). Max is ${maxSec}s.`, 3200);
+        return false;
+      }
+    }
+
+    try{ inferRelPathForFile(file); }catch(_e){}
+    applyAutoColumnName(col, (file && file.name) ? file.name : name);
+
+    const rowFrames = getCellFramesArray();
+    const totalFrames = rowFrames.reduce((sum, n) => sum + (n|0), 0);
+    const bpm = Number(bpmEl.value || 120);
+    const beatsPerCell = Number(beatsPerCellEl.value || 1);
+    const relPath = (file && (file.webkitRelativePath || file._relPath)) ? (file.webkitRelativePath || file._relPath) : '';
+    const baseKey = getSourceKeyFromFile(file, name);
+    const prepKey = `${baseKey}::preploop@${bpm}_${beatsPerCell}_${totalFrames}`;
+    const fitLeft = resampleToLength(decoded.left, totalFrames);
+    const fitRight = resampleToLength(decoded.right, totalFrames);
+    ensureSourceInStore(prepKey, fitLeft, fitRight, name);
+
+    let cursor = 0;
+    for (let r = 0; r < ROWS; r++){
+      const cell = state.cells[col][r];
+      const partLen = Math.max(1, rowFrames[r]|0);
+      const end = Math.min(totalFrames, cursor + partLen);
+
+      resetCellForOverflowLoad(cell);
+      cell.remixDerived = false;
+      cell.sourceKey = null;
+      cell.duplicateLoaded = false;
+      cell.duplicatePeers = [];
+      cell.duplicateKey = '';
+      cell.duplicateNameKey = '';
+      cell.fileName = (file && file.name) ? file.name : name;
+      cell.left = new Float32Array(fitLeft.subarray(cursor, end));
+      cell.right = new Float32Array(fitRight.subarray(cursor, end));
+      cell.name = `${name} · ${getCellDisplayName(col, r)}`;
+      cell.origin = {
+        type: 'split',
+        fileName: (file && file.name) ? file.name : name,
+        relPath,
+        prepLoop: {
+          bpm,
+          beatsPerCell,
+          totalFrames,
+          fitted: true
+        },
+        split: { sourceKey: prepKey, startFrames: cursor, lenFrames: (end - cursor), col, row: r }
+      };
+      cell.trimStartSrcFrames = cursor;
+      cell.trimLenSrcFrames = Math.max(1, end - cursor);
+      cell.selStartFrames = 0;
+      cell.selLenFrames = Math.max(1, end - cursor);
+      cell.sr = SR;
+      cell.allowWaveEditor = true;
+      cell.editorUndo = [];
+      cell.editorTrimmed = false;
+      cell.editorSelStart = null;
+      cell.editorSelLen = null;
+      cell.selEdited = false;
+      try { cell._waveBaseline = _waveSnapshotCell(cell); cell._waveApplyUndo = null; } catch(_e){}
+      try{ if (cell._trimPeaksByW && cell._trimPeaksByW.clear) cell._trimPeaksByW.clear(); }catch(_e){}
+      cell._trimPeaksByW = null;
+      cell._peaksByW = null;
+      cell._trimPeaks = null;
+      cell.peaks = computePeaks(cell.left, cell.right, MINI_PEAKS_POINTS);
+      invalidateCellCache(col, r);
+      updateCellUI(col, r);
+      markWaveDirty(col, r);
+      cursor = end;
+    }
+
+    refreshDuplicateLoadedState();
+    updateColUI(col);
+    try{ hardResetMiniWavesForCol(col); }catch(_e){}
+    try{ markAllWavesDirty(); scheduleWaveFlush(); }catch(_e){}
+    try{ updateInspector(); }catch(_e){}
+    toast(`Prep Loop → column ${col + 1}`, 2200);
+    return true;
+  }
+
+  function getNextEmptyColumnRight(srcCol){
+    for (let c = (srcCol|0) + 1; c < COLS; c++){
+      let hasAudio = false;
+      for (let r = 0; r < ROWS; r++){
+        const cell = state.cells[c] && state.cells[c][r];
+        if (cell && cell.left){ hasAudio = true; break; }
+      }
+      if (!hasAudio) return c;
+    }
+    return -1;
+  }
+
+  function getLoadedRowsForColumn(col){
+    const rows = [];
+    for (let r = 0; r < ROWS; r++){
+      const cell = state.cells[col] && state.cells[col][r];
+      if (cell && cell.left) rows.push(r);
+    }
+    return rows;
+  }
+
+  function getRemixRowOrder(mode, count){
+    const base = Array.from({length: Math.max(0, count|0)}, (_, i) => i);
+    if (!base.length) return base;
+    if (mode === "reverse") return base.slice().reverse();
+    if (mode === "rotate") return [base[base.length - 1]].concat(base.slice(0, -1));
+    if (mode === "oddeven") return base.filter(i => (i % 2) === 0).concat(base.filter(i => (i % 2) === 1));
+    if (mode === "random") return shuffleInPlace(base.slice());
+    return base;
+  }
+
+  function getRemixModeLabel(mode){
+    if (mode === "reverse") return "Reverse";
+    if (mode === "rotate") return "Rotate +1";
+    if (mode === "oddeven") return "Odd/Even";
+    if (mode === "random") return "Random order";
+    return "Remix";
+  }
+
+  function getRemixColumnName(srcCol, mode){
+    const base = getColDisplayName(srcCol);
+    const suffix = ({ reverse:"Rev", rotate:"Rot1", oddeven:"OddEven", random:"Rand" })[mode] || "Remix";
+    return `${base} ${suffix}`.trim();
+  }
+
+  function applyColumnRemix(mode){
+    if (!state.selected.has) return false;
+    const srcCol = state.selected.col|0;
+    const dstCol = getNextEmptyColumnRight(srcCol);
+    if (dstCol < 0){
+      toast("No empty column to the right", 2200);
+      updateInspector();
+      return false;
+    }
+
+    const sourceRows = getLoadedRowsForColumn(srcCol);
+    if (!sourceRows.length){
+      toast("Current column has no loaded cells", 2200);
+      updateInspector();
+      return false;
+    }
+
+    const order = getRemixRowOrder(mode, sourceRows.length);
+    const orderedRows = order.map(i => sourceRows[i]).filter(i => Number.isFinite(i));
+    let writeIdx = 0;
+    let wrote = 0;
+
+    for (let r = 0; r < ROWS; r++){
+      const existing = state.cells[dstCol][r];
+      if (existing && existing.locked) continue;
+      if (writeIdx < orderedRows.length){
+        const srcRow = orderedRows[writeIdx++];
+        const srcCell = state.cells[srcCol][srcRow];
+        const remixedCell = cloneUndoValue(srcCell);
+        const filePart = String(remixedCell?.origin?.fileName || remixedCell?.fileName || remixedCell?.name || srcCell?.name || "")
+          .split('·')[0]
+          .trim();
+        remixedCell.remixDerived = true;
+        remixedCell.duplicateLoaded = false;
+        remixedCell.duplicatePeers = [];
+        remixedCell.fileName = filePart || remixedCell.fileName || "";
+        remixedCell.name = filePart ? `${filePart} · ${getCellDisplayName(dstCol, r)}` : (remixedCell.name || "loaded");
+        if (remixedCell.origin && typeof remixedCell.origin === 'object') remixedCell.origin.remix = true;
+        state.cells[dstCol][r] = remixedCell;
+        if (state.cellNames && state.cellNames[dstCol]) state.cellNames[dstCol][r] = null;
+        try{ updateCellUI(dstCol, r); }catch(_e){}
+        wrote++;
+      } else {
+        state.cells[dstCol][r] = makeEmptyCell();
+        if (state.cellNames && state.cellNames[dstCol]) state.cellNames[dstCol][r] = null;
+        try{ updateCellUI(dstCol, r); }catch(_e){}
+      }
+    }
+
+    state.colNames[dstCol] = getRemixColumnName(srcCol, mode);
+    refreshDuplicateLoadedState();
+    updateColUI(srcCol);
+    updateColUI(dstCol);
+    try{ hardResetMiniWavesForCol(dstCol); }catch(_e){}
+    try{
+      for (let rr = 0; rr < ROWS; rr++) markWaveDirty(dstCol, rr);
+      scheduleWaveFlush();
+    }catch(_e){}
+    updateInspector();
+    toast(`${getRemixModeLabel(mode)} → column ${dstCol + 1}`, 2000);
+    return wrote > 0;
+  }
+
+  function openRemixOverlay(){
+    if (!state.selected.has) return false;
+    const srcCol = state.selected.col|0;
+    const dstCol = getNextEmptyColumnRight(srcCol);
+    if (dstCol < 0){
+      toast("No empty column to the right", 2200);
+      updateInspector();
+      return false;
+    }
+    const sourceRows = getLoadedRowsForColumn(srcCol);
+    if (!sourceRows.length){
+      toast("Current column has no loaded cells", 2200);
+      updateInspector();
+      return false;
+    }
+
+    const ov = document.getElementById("remixOverlay");
+    const textEl = document.getElementById("remixOverlayText");
+    const btnClose = document.getElementById("remixOverlayCloseBtn");
+    const btnCancel = document.getElementById("remixOverlayCancelBtn");
+    const btnReverse = document.getElementById("remixReverseBtn");
+    const btnRotate = document.getElementById("remixRotateBtn");
+    const btnOddEven = document.getElementById("remixOddEvenBtn");
+    const btnRandom = document.getElementById("remixRandomBtn");
+    if (!ov || !btnClose || !btnCancel || !btnReverse || !btnRotate || !btnOddEven || !btnRandom){
+      return false;
+    }
+
+    const close = () => {
+      ov.classList.remove("show");
+      ov.style.display = "none";
+      ov.setAttribute("aria-hidden", "true");
+      document.removeEventListener("keydown", onKey, true);
+      btnClose.onclick = null;
+      btnCancel.onclick = null;
+      btnReverse.onclick = null;
+      btnRotate.onclick = null;
+      btnOddEven.onclick = null;
+      btnRandom.onclick = null;
+      try{ if (state.selected && state.selected.has && typeof focusCellEl === "function") focusCellEl(state.selected.col, state.selected.row); }catch(_e){}
+    };
+
+    const run = (mode) => {
+      close();
+      applyColumnRemix(mode);
+    };
+
+    const onKey = (e) => {
+      if (!ov.classList.contains("show")) return;
+      if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(); }
+    };
+
+    if (textEl){
+      textEl.textContent = `Column ${srcCol + 1} → next empty column to the right (column ${dstCol + 1}).`;
+    }
+
+    btnClose.onclick = () => close();
+    btnCancel.onclick = () => close();
+    btnReverse.onclick = () => run("reverse");
+    btnRotate.onclick = () => run("rotate");
+    btnOddEven.onclick = () => run("oddeven");
+    btnRandom.onclick = () => run("random");
+    ov.style.display = "flex";
+    ov.classList.add("show");
+    ov.setAttribute("aria-hidden", "false");
+    document.addEventListener("keydown", onKey, true);
+    requestAnimationFrame(() => {
+      try{ btnReverse.focus({ preventScroll:true }); }catch(_){ try{ btnReverse.focus(); }catch(__){} }
+    });
     return true;
   }
 
@@ -10524,16 +11153,22 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
     normalizeSelectedCellAudio();
   });
 
-  inspLockCellBtn?.addEventListener("click", () => {
-    toggleSelectedLocked();
-  });
-
   inspLockColBtn?.addEventListener("click", () => {
     toggleSelectedColumnLocked();
   });
 
   inspLockRowBtn?.addEventListener("click", () => {
     toggleSelectedRowLocked();
+  });
+
+  inspSelectColBtn?.addEventListener("click", () => {
+    if (isCurrentColumnFullySelected()) deselectCurrentColumn();
+    else selectCurrentColumn();
+  });
+
+  inspSelectRowBtn?.addEventListener("click", () => {
+    if (isCurrentRowFullySelected()) deselectCurrentRow();
+    else selectCurrentRow();
   });
 
   inspCopyToColBtn.addEventListener("click", () => {
@@ -10559,6 +11194,37 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
     toast("Settings copied → all cells");
   });
 
+  inspRemixBtn?.addEventListener("click", () => {
+    openRemixOverlay();
+  });
+
+  inspPrepLoopBtn?.addEventListener("click", () => {
+    if (!state.selected.has) return;
+    if (!tempoModeEl.checked){
+      toast("Enable Tempo (BPM) mode first for Prep Loop.", 2600);
+      return;
+    }
+    state.pick = { kind:"prepLoop", col: state.selected.col|0, row:null };
+    fileInput.multiple = false;
+    fileInput.click();
+  });
+
+  inspFitAllBtn?.addEventListener("click", () => {
+    const nextFit = "rate";
+    for (let c=0; c<COLS; c++){
+      for (let r=0; r<ROWS; r++){
+        applyFitModeToCell(state.cells[c][r], r, nextFit);
+        invalidateCellCache(c, r);
+        updateCellUI(c, r);
+      }
+    }
+    if (state.selected && state.selected.has){
+      if (fitModeEl) fitModeEl.checked = true;
+      updateInspector();
+    }
+    toast("All cells set to fit");
+  });
+
   // ====== Swap / Copy cells ======
   function swapCells(c1,r1,c2,r2){
     const a = state.cells[c1][r1];
@@ -10582,6 +11248,7 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
         reverse: src.settings.reverse,
         fadeInMs: src.settings.fadeInMs,
         fadeOutMs: src.settings.fadeOutMs,
+        pitchSemitones: Number(src.settings.pitchSemitones || 0),
         fitMode: src.settings.fitMode,
       },
       locked: !!src.locked,
@@ -14606,32 +15273,12 @@ if (e.key === "Escape"){
         toast("Loading…");
         const file = files[0];
         if (p.kind === "cell"){
-          const existingDupes = findLoadedCellsForFile(file, { excludeTargets:[{ col:p.col, row:p.row }] });
-          if (existingDupes.length){
-            toast(`Already loaded in ${formatCellRefList(existingDupes, 4)}. Loading anyway.`, 3600);
-          }
-          const decoded = await decodeFileToStereo48k(file);
-          const cellFrames = getCellFrames(p.row);
-          const hasBelowCells = p.row < (ROWS - 1);
-          if ((decoded.left.length > cellFrames) && hasBelowCells){
-            const choice = await askCellLoadMode({
-              col: p.col,
-              row: p.row,
-              fileName: decoded.name || file.name || 'sample',
-              totalFrames: decoded.left.length,
-            });
-            if (!choice) return;
-            if (choice.mode === 'overflow' || choice.mode === 'overflow_fit') {
-              await loadDecodedOverflowIntoCells(p.col, p.row, file, decoded, {
-                underCells: choice.underCells,
-                fitOverflow: choice.mode === 'overflow_fit'
-              });
-            } else await loadFileIntoCell(p.col, p.row, file, { decoded, skipDuplicateWarning:true });
-          } else {
-            await loadFileIntoCell(p.col, p.row, file, { decoded, skipDuplicateWarning:true });
-          }
+          const handled = await loadChosenFileIntoCellWithPrompt(p.col, p.row, file);
+          if (!handled) return;
         } else if (p.kind === "split"){
           await loadFileSplitIntoColumn(p.col, file);
+        } else if (p.kind === "prepLoop"){
+          await loadFilePrepLoopIntoColumn(p.col, file);
         } else if (p.kind === "splitEditor"){
           const col = p.col;
           // Decode into sourceStore only
