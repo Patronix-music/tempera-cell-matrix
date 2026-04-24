@@ -1,6 +1,6 @@
 # Tempera Cell Matrix (TCM)
 
-![version](https://img.shields.io/badge/version-2.11.22-blue)
+![version](https://img.shields.io/badge/version-2.11.46-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![platform](https://img.shields.io/badge/platform-Web%20Audio-orange)
 
@@ -14,7 +14,21 @@ https://patronix-music.github.io/tempera-cell-matrix/
 
 ---
 
-## 🔥 TCM v2.11.22 (beta) 🔥
+## 🔥 TCM v2.11.46 (beta) 🔥
+
+### Main new features:
+
+- 🧩 **Remix workflow added** — create quick column variants like Reverse, Rotate +1, Odd/Even, and Random Order right from the inspector.
+- 🎚️ **Prep Loop added** — load one file into the selected column, fit it to the current BPM / beats-per-cell grid, and slice it cleanly across all 8 cells.
+- 🛠️ **Safer drag & drop** — single-file column drops now go to the next empty cell, and long sample drops on cells or columns use the same shared Long Sample popup flow.
+- ✅ **Faster bulk selection** — added **Sel Col / Sel Row**, including toggle behavior to quickly de-select back to the main cell.
+- ▶️ **Auto Preview upgraded** — when Auto Preview is on, clicking a cell with the mouse now previews it too, not just arrow-key navigation.
+- ⚡ **Fit All added** — one inspector button now sets all 64 cells to Fit mode in one go.
+- 🎵 **Cell Pitch added** — per-cell pitch control is now available in the inspector and affects TCM playback / exported audio.
+
+---
+
+## TCM v2.11.22
 
 ### Main new features:
 
@@ -32,7 +46,11 @@ https://patronix-music.github.io/tempera-cell-matrix/
 - 🎰 The per-column `Load 8` button now becomes `Random 8` when a live Sources list is active
 - 🚨 Duplicate detection: single-cell loads warn about duplicates, and Random 8 / Random 64 prefer unique files and mark unavoidable repeats in red
 
-### Since version 2.10.77:
+---
+
+## TCM v2.10.77
+
+### Main new features:
 
 - 🧩 Tempera canvas template merge: export a TCM `.canvas` using an existing Tempera `.canvas` as the settings template while replacing only the audio tracks
 - 🗂️ Template-only preset export: export a reusable preset with settings + layout only, without audio files
@@ -49,13 +67,11 @@ https://patronix-music.github.io/tempera-cell-matrix/
 - 👀 Zoom Auto Hide: the zoom window in both Wave Editor and Slice Editor can now hide automatically on mouse release
 - ✅ Multi-cell editing: Shift-click range select, Cmd/Ctrl-click non-contiguous select, and apply inspector changes across all selected cells with undo support
 
-So lots of bug fixes and new stuff to tryout. Watch out for those creepy crawlers 🪲🐛🐌 and let me know when you find one.
+---
 
-For more info: Click the help button in TCM for all your unanswered questions.
+## TCM v2.10.25
 
-<br>
-
-## ✨ What’s new in v2.10.25
+### Main new features:
 
 ### 🧰 Mainly UI bugs fixed, and you can now open TCM as an app with the new TCM icon <img width="32" height="32" alt="favicon-32x32" src="https://github.com/user-attachments/assets/2447a974-17a8-4ed7-8fe3-5392198e49cf" />
 - ☕️ meta: added Buy Me a Coffee support link (header)
@@ -68,14 +84,15 @@ For more info: Click the help button in TCM for all your unanswered questions.
 - 🔪 Fix Load+Slice applies/loads to correct column when switching columns.
 - 🧹 Clear All / Clear Column now also clears Load+Slice buffer for that column.
 
-<br>
+---
 
-## ✨ What’s new in v2.9.84
+## TCM v2.9.84
 
-### 🔍 New: Slice zoom for large samples — + / - to zoom into a slice, TAB to jump between slices.
+### Main new features:
 
-### 📦 New: You can now embed samples directly into ZIP exports. Perfect for hand-picked samples and sharing presets.
-### 🖱️ New: Scrollbar On/Off toggle in the header (great for trackpads and iPad users).
+- 🔍 New: Slice zoom for large samples — + / - to zoom into a slice, TAB to jump between slices.
+- 📦 New: You can now embed samples directly into ZIP exports. Perfect for hand-picked samples and sharing presets.
+- 🖱️ New: Scrollbar On/Off toggle in the header (great for trackpads and iPad users).
 - 🟢 Matrix playback outline now stays nicely in sync, even with fast retriggering.
 - ⌨️ Playback is much more solid when navigating with Tab, Arrow keys and Space (matrix + editors).
 - 💬 Tooltips fully rebuilt — no more laggy or stuck browser tooltips.
@@ -83,50 +100,29 @@ For more info: Click the help button in TCM for all your unanswered questions.
 - 🧹 Header cleaned up to make room for the scrollbar control.
 - 🎛️ Wave & Slice editor UI cleaned up, with help moved to the Help page (? for help, X to close).
 
-<br>
+---
 
-## ✨ What’s new in v2.9
+## TCM v2.9
 
-### 🧠 Massive CPU & memory optimizations
-  - Safari is no longer choking (big win). Chrome also runs lean and stable.
+### Main new features:
 
-- 📦 Preset import fixed for long samples
-  - Selections are restored correctly in mini-wave AND Wave Editor.
-
-- 🎚️ Sliders got love
-  - Themed sliders, double-click to reset, and all volume/fade sliders now reset properly on every load
+- 🧠 Massive CPU & memory optimizations: Safari is no longer choking (big win). Chrome also runs lean and stable.
+- 📦 Preset import fixed for long samples: Selections are restored correctly in mini-wave AND Wave Editor.
+- 🎚️ Sliders got love: Themed sliders, double-click to reset, and all volume/fade sliders now reset properly on every load
 (Load, Load 8, Load+Slice, Random64).
-
-- ▶️ Playback clarity
-  - Green play-outline now reflects actual sample length, not just cell length.
-
-- 🎛️ Wave / Slice editor improvements
-  - Source file duration shown
-  - Slice behavior fine-tuned
-  - Scissors only appear when a file is actually edited (also after preset import)
-
+- ▶️ Playback clarity: Green play-outline now reflects actual sample length, not just cell length.
+- 🎛️ Wave / Slice editor improvements: Source file duration shown, Slice behavior fine-tuned and Scissors only appear when a file is actually edited (also after preset import).
 - 📱 iOS finally behaves: Audio works correctly and the file picker can load WAV files.
 
-<br>
+---
 
-## ✨ What’s new in v2.7
+## TCM v2.7
 
-### ✂️ Load + Slice Editor (major upgrade)
-- Visual slicing (no more blind splits)
-- Live **zoom window** that follows your selection
-- **Z** = auto zoom / auto normalize
-- **L / M / R** = left edge / move / right edge
-- Sample-accurate nudging
+### Main new features:
 
-### 🌊 Wave Editor
-- Same zoom & shortcuts as Slice Editor
-- Clear selection handles
-- Predictable **ESC** workflow (zoom → editor)
-
-### ⌨️ Workflow & Export
-- **Export 8**: export all 8 cells as individual WAV files (zipped)
-- Cell names stored in presets and used in exports
-- Preset import/export preserves slices and trims
+- ✂️ Load + Slice Editor (major upgrade): Visual slicing, Live zoom window, Z = auto zoom (auto normalize), L / M / R = left edge / move / right edge (Sample-accurate nudging)
+- 🌊 Wave Editor: Same zoom & shortcuts as Slice Editor, Clear selection handles, Predictable ESC workflow (zoom → editor)
+- ⌨️ Workflow & Export: "Export 8" export all 8 cells as individual WAV files (zipped), Cell names stored in presets and used in exports, Preset import/export preserves slices and trims.
 
 ---
 
