@@ -2821,7 +2821,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-const APP_VERSION = '2.11.46';
+const APP_VERSION = '2.11.51';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -2987,6 +2987,11 @@ const APP_VERSION = '2.11.46';
 
   const APP_BUILD_DATE = '2026-04-15';
   const CHANGELOG = [
+  "2.11.51 - UI: cell fit badges now show fit instead of the old rate label, so Trim/Fit terminology stays consistent in the matrix.",
+  "2.11.50 - Fix: Fit All and the Trim/Fit toggle now leave already-fitting samples in Trim, so short cells no longer show Fit as active when no time-fit is needed.",
+  "2.11.49 - Fix: Random 64 / Random 8 no longer crash after the lazy long-file loading change by replacing the removed durationFiltered reference with a local long-skip counter.",
+  "2.11.48 - Performance: Random 64 / Random 8 no longer pre-scan every file for duration in Chrome; long files are skipped lazily while loading so large folders start much faster.",
+  "2.11.47 - Fix: Trim/Fit now only time-fits audio when the source is longer than the cell, so short samples no longer change pitch just because Fit is enabled.",
   "2.11.46 - UI: inspector Loop Prep and Remix were swapped, and both now use the same highlighted fun-button styling as Random 64.",
   "2.11.45 - UI: checkbox labels now sit closer to their checkboxes with 1px spacing, and the checkbox label font is reduced to 10px for a tighter inspector switches row.",
   "2.11.44 - UI: inspector controls are slightly taller again, switch spacing is tighter, Trim/Fit now uses title case, and switch labels use a smaller font for a denser inspector layout.",
@@ -8191,11 +8196,28 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
         }
       }
     } else { // "rate"
-      if (hasPitchOffset){
-        const baseSpeed = (targetFrames > 1 && Lin.length > 1)
-          ? ((Lin.length - 1) / (targetFrames - 1))
-          : 1;
-        const pitched = renderSourceAtSpeedToLength(Lin, Rin, targetFrames, baseSpeed * pitchRatio);
+      const needsTimeFit = Lin.length > targetFrames;
+      if (needsTimeFit){
+        if (hasPitchOffset){
+          const baseSpeed = (targetFrames > 1 && Lin.length > 1)
+            ? ((Lin.length - 1) / (targetFrames - 1))
+            : 1;
+          const pitched = renderSourceAtSpeedToLength(Lin, Rin, targetFrames, baseSpeed * pitchRatio);
+          Lout.set(pitched.L);
+          Rout.set(pitched.R);
+          const n = Math.min(targetFrames, pitched.audibleFrames|0);
+          if (n > 0 && n < targetFrames){
+            autoFadeRegion = s.reverse ? { start: targetFrames - n, end: targetFrames } : { start: 0, end: n };
+          }
+        }else{
+          // time-fit by resampling to exact targetFrames (pitch changes)
+          const Lr = resampleToLength(Lin, targetFrames);
+          const Rr = resampleToLength(Rin, targetFrames);
+          Lout.set(Lr);
+          Rout.set(Rr);
+        }
+      }else if (hasPitchOffset){
+        const pitched = renderSourceAtSpeedToLength(Lin, Rin, targetFrames, pitchRatio);
         Lout.set(pitched.L);
         Rout.set(pitched.R);
         const n = Math.min(targetFrames, pitched.audibleFrames|0);
@@ -8203,11 +8225,12 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
           autoFadeRegion = s.reverse ? { start: targetFrames - n, end: targetFrames } : { start: 0, end: n };
         }
       }else{
-        // time-fit by resampling to exact targetFrames (pitch changes)
-        const Lr = resampleToLength(Lin, targetFrames);
-        const Rr = resampleToLength(Rin, targetFrames);
-        Lout.set(Lr);
-        Rout.set(Rr);
+        const n = Math.min(targetFrames, Lin.length);
+        Lout.set(Lin.subarray(0,n), 0);
+        Rout.set(Rin.subarray(0,n), 0);
+        if (n > 0 && n < targetFrames){
+          autoFadeRegion = s.reverse ? { start: targetFrames - n, end: targetFrames } : { start: 0, end: n };
+        }
       }
     }
 
@@ -8863,10 +8886,21 @@ cell.name = "";
 
     try{ inferRelPathForFile(file); }catch(_e){}
 
+    // Random64 / Random8 can skip over-long files lazily during actual loading instead of
+    // pre-scanning an entire folder up front. This keeps large Chrome folder picks responsive.
+    const maxSec = (opts && typeof opts.maxSec === "number") ? opts.maxSec : MAX_CELL_LOAD_SEC;
+    if ((opts && opts.skipLongerThanMaxSec) && maxSec && maxSec > 0){
+      try{
+        const dur = await getFileDurationSec(file);
+        if (dur != null && dur > maxSec) throw new Error('TCM_SKIP_OVER_MAXSEC');
+      }catch(err){
+        if (err && err.message === 'TCM_SKIP_OVER_MAXSEC') throw err;
+      }
+    }
+
     let {left, right, name} = (opts && opts.decoded) ? opts.decoded : await decodeFileToStereo48k(file);
 
     // Random64 (and other callers) may request a hard max duration to keep Safari stable.
-    const maxSec = (opts && typeof opts.maxSec === "number") ? opts.maxSec : MAX_CELL_LOAD_SEC;
     if (maxSec && maxSec > 0){
       const maxFrames = Math.max(1, Math.floor(maxSec * SR));
       if (left.length > maxFrames) left = left.slice(0, maxFrames);
@@ -9275,7 +9309,6 @@ async function randomFillColumnFromFiles(col, files){
   const pool = all.filter(isAudioFile);
   const nonAudio = all.length - pool.length;
   const MAX_RANDOM8_SEC = 60;
-  const _isSafari = /Safari\//.test(navigator.userAgent||'') && !/Chrome\//.test(navigator.userAgent||'') && !/Chromium\//.test(navigator.userAgent||'') && !/Edg\//.test(navigator.userAgent||'');
 
   if (!pool.length){
     toast(`No audio files found for Random 8. (${nonAudio} non-audio item(s))`, 3200);
@@ -9295,10 +9328,9 @@ async function randomFillColumnFromFiles(col, files){
   const excludeTargets = unlockedRows.map(r => ({ col, row:r }));
   const existingKeys = new Set(getLoadedDuplicateIndex({ excludeTargets }).keys());
   const deduped = dedupeFilesByDuplicateKey(pool);
-  const durationFiltered = await filterFilesByMaxDuration(deduped.unique, MAX_RANDOM8_SEC, _isSafari);
-  const uniquePool = durationFiltered.files;
+  const uniquePool = deduped.unique;
   if (!uniquePool.length){
-    toast(`Random 8: no usable unique files remain after duration filtering (>${MAX_RANDOM8_SEC}s).`, 3600);
+    toast('Random 8: no usable unique files found.', 3200);
     return;
   }
   const freshUnique = uniquePool.filter(file => !existingKeys.has(getFileDuplicateKey(file)));
@@ -9307,14 +9339,15 @@ async function randomFillColumnFromFiles(col, files){
   const chosen = plan.chosen;
   const repeatedCount = plan.repeatedCount;
   if (repeatedCount > 0){
-    toast(`Random 8: only ${uniquePool.length} usable unique file(s) available — reusing files to fill ${unlockedRows.length} unlocked cells.`, 2800);
+    toast(`Random 8: only ${uniquePool.length} unique file(s) available — reusing files to fill ${unlockedRows.length} unlocked cells.`, 2800);
   }
 
   const lockNote = lockedCount ? ` (${lockedCount} locked kept)` : '';
-  toast(`Random 8: loading ${unlockedRows.length} unlocked cell(s) in column ${col+1} from ${uniquePool.length} usable unique file(s)${lockNote}...`, 1800);
+  toast(`Random 8: loading ${unlockedRows.length} unlocked cell(s) in column ${col+1} from ${uniquePool.length} unique file(s)${lockNote}...`, 1800);
 
   const loadedTargets = [];
   let failCount = 0;
+  let longSkipCount = 0;
   let lastFail = "";
   const usedKeys = new Set();
   const badKeys = new Set();
@@ -9332,9 +9365,14 @@ async function randomFillColumnFromFiles(col, files){
         loadedTargets.push({ col, row:r });
         break;
       }catch(err){
-        failCount++;
-        lastFail = (attemptFile && attemptFile.name) ? attemptFile.name : String(attemptFile || "");
-        console.warn("Random 8: decode/load failed for", lastFail, err);
+        const isLongSkip = !!(err && err.message === 'TCM_SKIP_OVER_MAXSEC');
+        if (isLongSkip) {
+          longSkipCount++;
+        } else {
+          failCount++;
+          lastFail = (attemptFile && attemptFile.name) ? attemptFile.name : String(attemptFile || "");
+          console.warn("Random 8: decode/load failed for", lastFail, err);
+        }
         const badKey = getFileDuplicateKey(attemptFile);
         if (badKey) badKeys.add(badKey);
         attemptFile = pickUniqueAwareFallbackFile(uniquePool, usedKeys, badKeys, existingKeys);
@@ -9353,7 +9391,7 @@ async function randomFillColumnFromFiles(col, files){
 
   const notes = [];
   if (deduped.removed) notes.push(`${deduped.removed} duplicate source file(s) skipped`);
-  if (durationFiltered.skipped) notes.push(`${durationFiltered.skipped} long file(s) skipped`);
+  if (longSkipCount) notes.push(`${longSkipCount} long file(s) skipped`);
   if (repeatedCount > 0) notes.push(`${repeatedCount} repeated fill(s)`);
   const dupSummary = summarizeDuplicateTargets(loadedTargets, 4);
   if (dupSummary) notes.push(dupSummary);
@@ -9605,7 +9643,7 @@ const btns = document.createElement("div");
         cellEl.innerHTML = `
   <div class="cellTop">
     <span class="tag cellId">C${r+1}</span>
-    <span class="tag warn mode" id="icMode-${c}-${r}">rate</span>
+    <span class="tag warn mode" id="icMode-${c}-${r}">fit</span>
     <div class="icons">
       <span class="icon" id="icMute-${c}-${r}">M</span>
       <span class="icon" id="icRev-${c}-${r}">R</span>
@@ -9884,7 +9922,7 @@ const btns = document.createElement("div");
       if (icRev.title !== "Reverse") icRev.title = "Reverse";
     }
     if (icMode){
-      icMode.textContent = (cell.settings.fitMode === "padtrim") ? "trim" : cell.settings.fitMode;
+      icMode.textContent = (cell.settings.fitMode === "padtrim") ? "trim" : "fit";
       if (icMode.title !== "Fit mode") icMode.title = "Fit mode";
     }
     if (icLock){
@@ -10587,14 +10625,15 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
 
 
   function applyFitModeToCell(target, row, fitValue){
-    const nextFit = (fitValue === "rate") ? "rate" : "padtrim";
-    target.settings.fitMode = nextFit;
+    let nextFit = (fitValue === "rate") ? "rate" : "padtrim";
     try{
       if (target.left && target.right){
         const cf = (typeof getCellFrames === "function") ? (getCellFrames(row)|0) : 0;
         const cellFrames = (cf && cf > 0) ? cf : (target.left.length|0);
         const total = (target.left.length|0);
         const long = (total > cellFrames);
+        if (!long && nextFit === "rate") nextFit = "padtrim";
+        target.settings.fitMode = nextFit;
         const selStart = (typeof target.selStartFrames === "number") ? (target.selStartFrames|0) : 0;
         const selLen   = (typeof target.selLenFrames === "number")   ? (target.selLenFrames|0)   : 0;
 
@@ -10608,8 +10647,13 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
             target.cache = { key:"", L:null, R:null, frames:0 };
           }
         }
+      } else {
+        if (nextFit === "rate") nextFit = "padtrim";
+        target.settings.fitMode = nextFit;
       }
-    }catch(_e){}
+    }catch(_e){
+      target.settings.fitMode = nextFit;
+    }
   }
 
   function applySelectedFitMode(fitValue){
@@ -11211,18 +11255,19 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
 
   inspFitAllBtn?.addEventListener("click", () => {
     const nextFit = "rate";
+    let fitCount = 0;
     for (let c=0; c<COLS; c++){
       for (let r=0; r<ROWS; r++){
         applyFitModeToCell(state.cells[c][r], r, nextFit);
+        if (state.cells[c][r] && state.cells[c][r].settings.fitMode === "rate") fitCount++;
         invalidateCellCache(c, r);
         updateCellUI(c, r);
       }
     }
     if (state.selected && state.selected.has){
-      if (fitModeEl) fitModeEl.checked = true;
       updateInspector();
     }
-    toast("All cells set to fit");
+    toast(fitCount > 0 ? `${fitCount} cell${fitCount === 1 ? "" : "s"} set to Fit` : "No cells needed Fit");
   });
 
   // ====== Swap / Copy cells ======
@@ -14846,7 +14891,6 @@ if (Array.isArray(preset.cellNames)){
     const pool = all.filter(isAudioFile);
     const nonAudio = all.length - pool.length;
     const MAX_RANDOM_SEC = 60; // Hard cap for Random 64 (seconds)
-    const _isSafari = /Safari\//.test(navigator.userAgent||'') && !/Chrome\//.test(navigator.userAgent||'') && !/Chromium\//.test(navigator.userAgent||'') && !/Edg\//.test(navigator.userAgent||'');
 
     if (!pool.length){
       toast(`No audio files found in that selection. (${nonAudio} non-audio items)`, 3200);
@@ -14869,10 +14913,9 @@ if (Array.isArray(preset.cellNames)){
     const excludeTargets = cells.map(({c,r}) => ({ col:c, row:r }));
     const existingKeys = new Set(getLoadedDuplicateIndex({ excludeTargets }).keys());
     const deduped = dedupeFilesByDuplicateKey(pool);
-    const durationFiltered = await filterFilesByMaxDuration(deduped.unique, MAX_RANDOM_SEC, _isSafari);
-    const uniquePool = durationFiltered.files;
+    const uniquePool = deduped.unique;
     if (!uniquePool.length){
-      toast(`Random fill: no usable unique files remain after duration filtering (>${MAX_RANDOM_SEC}s).`, 3600);
+      toast('Random fill: no usable unique files found.', 3200);
       return;
     }
     const freshUnique = uniquePool.filter(file => !existingKeys.has(getFileDuplicateKey(file)));
@@ -14881,14 +14924,15 @@ if (Array.isArray(preset.cellNames)){
     const chosen = plan.chosen;
     const repeatedCount = plan.repeatedCount;
     if (repeatedCount > 0){
-      toast(`Only ${uniquePool.length} usable unique file(s) available — reusing files to fill ${cells.length} unlocked cells.`, 2800);
+      toast(`Only ${uniquePool.length} unique file(s) available — reusing files to fill ${cells.length} unlocked cells.`, 2800);
     }
 
     shuffleInPlace(cells);
     const lockNote = lockedCount ? `, ${lockedCount} locked kept` : '';
-    toast(`Random fill: loading ${cells.length} unlocked cells from ${uniquePool.length} usable unique file(s) (≤ ${MAX_RANDOM_SEC}s${lockNote})…`, 1800);
+    toast(`Random fill: loading ${cells.length} unlocked cells from ${uniquePool.length} unique file(s) (long files skipped while loading${lockNote})…`, 1800);
 
     let failCount = 0;
+    let longSkipCount = 0;
     let lastFail = "";
     const loadedTargets = [];
     const usedKeys = new Set();
@@ -14909,9 +14953,14 @@ if (Array.isArray(preset.cellNames)){
           loadedTargets.push({ col:c, row:r });
           break;
         }catch(err){
-          failCount++;
-          lastFail = (attemptFile && attemptFile.name) ? attemptFile.name : String(attemptFile || "");
-          console.warn("Random 64: decode/load failed for", lastFail, err);
+          const isLongSkip = !!(err && err.message === 'TCM_SKIP_OVER_MAXSEC');
+          if (isLongSkip) {
+            longSkipCount++;
+          } else {
+            failCount++;
+            lastFail = (attemptFile && attemptFile.name) ? attemptFile.name : String(attemptFile || "");
+            console.warn("Random 64: decode/load failed for", lastFail, err);
+          }
           const badKey = getFileDuplicateKey(attemptFile);
           if (badKey) badKeys.add(badKey);
           attemptFile = pickUniqueAwareFallbackFile(uniquePool, usedKeys, badKeys, existingKeys);
@@ -14929,7 +14978,7 @@ if (Array.isArray(preset.cellNames)){
     updateAllUI();
     const notes = [];
     if (deduped.removed) notes.push(`${deduped.removed} duplicate source file(s) skipped`);
-    if (durationFiltered.skipped) notes.push(`${durationFiltered.skipped} long file(s) skipped`);
+    if (longSkipCount) notes.push(`${longSkipCount} long file(s) skipped`);
     if (repeatedCount > 0) notes.push(`${repeatedCount} repeated fill(s)`);
     const dupSummary = summarizeDuplicateTargets(loadedTargets, 4);
     if (dupSummary) notes.push(dupSummary);
