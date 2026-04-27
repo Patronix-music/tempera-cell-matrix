@@ -2821,7 +2821,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-const APP_VERSION = '2.11.51';
+const APP_VERSION = '2.11.56';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -2985,8 +2985,13 @@ const APP_VERSION = '2.11.51';
   }
 
 
-  const APP_BUILD_DATE = '2026-04-15';
+  const APP_BUILD_DATE = '2026-04-27';
   const CHANGELOG = [
+  "2.11.56 - Fix: Safari Random 64 / Random 8 now uses the pre-2.11.48 loading path again (no Safari pre-scan and no lazy long-file metadata skip), while Chrome keeps the fast lazy long-file skip path.",
+  "2.11.55 - Fix: Safari Random 64 / Random 8 uses a safe pre-load duration filter again to avoid memory growth, while Chrome keeps the fast lazy long-file skip path.",
+  "2.11.54 - UI: Random 64 Sources now shows total audio in the folder first, then audio after filtering when filters are active, without repeating the filtered file count.",
+  "2.11.53 - Fix/UI: Random 64 Sources now keep total audio-in-folder counts separate from filtered Random 64 counts.",
+  "2.11.52 - UI: Random 64 Sources now show live file/audio counts after filtering when include/exclude filters are active.",
   "2.11.51 - UI: cell fit badges now show fit instead of the old rate label, so Trim/Fit terminology stays consistent in the matrix.",
   "2.11.50 - Fix: Fit All and the Trim/Fit toggle now leave already-fitting samples in Trim, so short cells no longer show Fit as active when no time-fit is needed.",
   "2.11.49 - Fix: Random 64 / Random 8 no longer crash after the lazy long-file loading change by replacing the removed durationFiltered reference with a local long-skip counter.",
@@ -3720,6 +3725,24 @@ function computeRootHintFromPreset(preset){
     return { chosen, repeatedCount };
   }
 
+  function isSafariLikeBrowser(){
+    try{
+      const ua = String(navigator.userAgent || "");
+      const vendor = String(navigator.vendor || "");
+      const isSafari = /Safari/i.test(ua) && /Apple/i.test(vendor);
+      const isChromiumFamily = /Chrome|Chromium|CriOS|Edg|OPR|Opera|FxiOS/i.test(ua);
+      return isSafari && !isChromiumFamily;
+    }catch(_e){
+      return false;
+    }
+  }
+
+  function shouldPreFilterRandomDurations(){
+    // Safari is intentionally rolled back to the pre-2.11.48 Random64/Random8 path.
+    // Chrome keeps the fast lazy long-file skip path; Safari does not pre-scan here.
+    return false;
+  }
+
   async function filterFilesByMaxDuration(files, maxSec, skipMetadataProbe){
     const list = Array.from(files || []).filter(Boolean);
     if (!list.length || !maxSec || maxSec <= 0 || skipMetadataProbe){
@@ -3727,7 +3750,8 @@ function computeRootHintFromPreset(preset){
     }
     const out = [];
     let skipped = 0;
-    for (const file of list){
+    for (let i=0; i<list.length; i++){
+      const file = list[i];
       try{
         const dur = await getFileDurationSec(file);
         if (dur != null && dur > maxSec){
@@ -3736,6 +3760,10 @@ function computeRootHintFromPreset(preset){
         }
       }catch(_e){}
       out.push(file);
+      // Give Safari a short cleanup/breathing point during large folder scans.
+      if ((i + 1) % 24 === 0){
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
     }
     return { files:out, skipped };
   }
@@ -8889,7 +8917,8 @@ cell.name = "";
     // Random64 / Random8 can skip over-long files lazily during actual loading instead of
     // pre-scanning an entire folder up front. This keeps large Chrome folder picks responsive.
     const maxSec = (opts && typeof opts.maxSec === "number") ? opts.maxSec : MAX_CELL_LOAD_SEC;
-    if ((opts && opts.skipLongerThanMaxSec) && maxSec && maxSec > 0){
+    const allowLazyLongSkip = !isSafariLikeBrowser();
+    if ((opts && opts.skipLongerThanMaxSec) && allowLazyLongSkip && maxSec && maxSec > 0){
       try{
         const dur = await getFileDurationSec(file);
         if (dur != null && dur > maxSec) throw new Error('TCM_SKIP_OVER_MAXSEC');
@@ -9306,13 +9335,25 @@ async function randomFillColumnFromFiles(col, files){
   files = applyRandomFilters(files);
   const all = Array.from(files || []).filter(Boolean);
   try{ setGlobalFileCatalog(all); }catch(_e){}
-  const pool = all.filter(isAudioFile);
+  let pool = all.filter(isAudioFile);
   const nonAudio = all.length - pool.length;
   const MAX_RANDOM8_SEC = 60;
 
   if (!pool.length){
     toast(`No audio files found for Random 8. (${nonAudio} non-audio item(s))`, 3200);
     return;
+  }
+
+  let preLongSkipCount = 0;
+  if (shouldPreFilterRandomDurations()){
+    toast(`Random 8: checking durations for Safari safety...`, 1400);
+    const durationFiltered = await filterFilesByMaxDuration(pool, MAX_RANDOM8_SEC, false);
+    pool = durationFiltered.files;
+    preLongSkipCount = durationFiltered.skipped || 0;
+    if (!pool.length){
+      toast(`Random 8: all audio files are longer than ${MAX_RANDOM8_SEC}s and were skipped.`, 3600);
+      return;
+    }
   }
 
   const unlockedRows = [];
@@ -9347,7 +9388,7 @@ async function randomFillColumnFromFiles(col, files){
 
   const loadedTargets = [];
   let failCount = 0;
-  let longSkipCount = 0;
+  let longSkipCount = preLongSkipCount;
   let lastFail = "";
   const usedKeys = new Set();
   const badKeys = new Set();
@@ -13685,7 +13726,13 @@ const cleanup = () => {
     const entries = Array.isArray(state.random64Sources) ? state.random64Sources : [];
     const liveEntries = getRandom64LiveSourceEntries();
     const liveFiles = getRandom64CombinedSourceFiles();
-    const liveAudio = liveFiles.filter(isAudioFile).length;
+    const randomFiltersActive = !!(getFilterList(FILTER_KEY_INCLUDE).length || getFilterList(FILTER_KEY_EXCLUDE).length);
+    const liveDisplayFiles = randomFiltersActive ? applyRandomFilters(liveFiles) : liveFiles;
+    const liveAudioTotal = liveFiles.filter(isAudioFile).length;
+    const liveAudioFiltered = liveDisplayFiles.filter(isAudioFile).length;
+    const liveSummaryCount = randomFiltersActive
+      ? `${liveAudioTotal} audio total in folder(s), ${liveAudioFiltered} audio after filtering`
+      : `${liveAudioTotal} audio total in folder(s)`;
     const relinkMode = (random64SourcesOverlayMode === "relink");
 
     if (addBtn) addBtn.style.display = relinkMode ? "none" : "";
@@ -13707,11 +13754,11 @@ const cleanup = () => {
       if (relinkMode){
         const skippedCount = entries.filter(entry => entry && entry.skipped).length;
         summaryEl.textContent = liveEntries.length
-          ? `Preset remembered ${entries.length} source folder entr${entries.length===1?"y":"ies"}. ${liveEntries.length} relinked live so far (${liveAudio} audio before filters).${skippedCount ? ` ${skippedCount} skipped intentionally.` : ""} Reattach any remaining folders you want available for Random 64, then continue import.`
+          ? `Preset remembered ${entries.length} source folder entr${entries.length===1?"y":"ies"}. ${liveEntries.length} relinked live so far (${liveSummaryCount}).${skippedCount ? ` ${skippedCount} skipped intentionally.` : ""} Reattach any remaining folders you want available for Random 64, then continue import.`
           : `Preset remembered ${entries.length} source folder entr${entries.length===1?"y":"ies"}.${skippedCount ? ` ${skippedCount} already skipped intentionally.` : ""} Reattach the folders you want available for Random 64, then continue import.`;
       } else {
         summaryEl.textContent = liveEntries.length
-          ? `${liveEntries.length} live folder(s) ready (${liveFiles.length} files, ${liveAudio} audio before filters). Random 64 and the column Load 8 / Random 8 action now use this combined pool.`
+          ? `${liveEntries.length} live folder(s) ready (${liveSummaryCount}). Random 64 and the column Load 8 / Random 8 action now use this combined pool.`
           : `${entries.length} remembered folder entr${entries.length===1?"y":"ies"}, but none are live yet. Add folders again to use them.`;
       }
     }
@@ -13754,9 +13801,16 @@ const cleanup = () => {
       const meta = document.createElement("div");
       meta.className = "randomSourcesMeta";
       const folderLine = entry.folderName ? `Folder: <strong>${String(entry.folderName)}</strong>` : `Folder ${idx+1}`;
+      const entryLiveFiles = (entry.live && Array.isArray(entry.files)) ? entry.files : [];
+      const entryDisplayFiles = (entry.live && randomFiltersActive) ? applyRandomFilters(entryLiveFiles) : entryLiveFiles;
+      const entryFileCount = entry.live ? (randomFiltersActive ? entryDisplayFiles.length : (entry.fileCount || entryLiveFiles.length)) : entry.fileCount;
+      const entryAudioTotal = entry.live ? (entry.audioCount || entryLiveFiles.filter(isAudioFile).length) : entry.audioCount;
+      const entryAudioFiltered = entry.live ? entryDisplayFiles.filter(isAudioFile).length : entry.audioCount;
       const countLine = entry.live
-        ? `${entry.fileCount} files • ${entry.audioCount} audio before filters`
-        : `${entry.fileCount} files • ${entry.audioCount} audio in remembered metadata`;
+        ? (randomFiltersActive
+            ? `${entryAudioTotal} audio total in folder • ${entryAudioFiltered} audio after filtering`
+            : `${entryAudioTotal} audio total in folder`)
+        : `${entry.audioCount} audio in remembered metadata`;
       const extraLine = relinkMode
         ? (entry.live
             ? "Preset import will keep this source live for Random 64 and the column Load 8 / Random 8 action."
@@ -14888,13 +14942,26 @@ if (Array.isArray(preset.cellNames)){
     files = applyRandomFilters(files);
     const all = Array.from(files || []);
     try{ setGlobalFileCatalog(all); }catch(_e){}
-    const pool = all.filter(isAudioFile);
+    let pool = all.filter(isAudioFile);
     const nonAudio = all.length - pool.length;
     const MAX_RANDOM_SEC = 60; // Hard cap for Random 64 (seconds)
+    const _isSafari = isSafariLikeBrowser();
 
     if (!pool.length){
       toast(`No audio files found in that selection. (${nonAudio} non-audio items)`, 3200);
       return;
+    }
+
+    let preLongSkipCount = 0;
+    if (shouldPreFilterRandomDurations()){
+      toast(`Random fill: checking durations for Safari safety...`, 1400);
+      const durationFiltered = await filterFilesByMaxDuration(pool, MAX_RANDOM_SEC, false);
+      pool = durationFiltered.files;
+      preLongSkipCount = durationFiltered.skipped || 0;
+      if (!pool.length){
+        toast(`Random fill: all audio files are longer than ${MAX_RANDOM_SEC}s and were skipped.`, 3600);
+        return;
+      }
     }
 
     const totalCells = COLS * ROWS;
@@ -14929,10 +14996,11 @@ if (Array.isArray(preset.cellNames)){
 
     shuffleInPlace(cells);
     const lockNote = lockedCount ? `, ${lockedCount} locked kept` : '';
-    toast(`Random fill: loading ${cells.length} unlocked cells from ${uniquePool.length} unique file(s) (long files skipped while loading${lockNote})…`, 1800);
+    const random64LoadNote = _isSafari ? lockNote : ` (long files skipped while loading${lockNote})`;
+    toast(`Random fill: loading ${cells.length} unlocked cells from ${uniquePool.length} unique file(s)${random64LoadNote}…`, 1800);
 
     let failCount = 0;
-    let longSkipCount = 0;
+    let longSkipCount = preLongSkipCount;
     let lastFail = "";
     const loadedTargets = [];
     const usedKeys = new Set();
