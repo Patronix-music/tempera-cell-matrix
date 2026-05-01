@@ -1,6 +1,6 @@
 # Tempera Cell Matrix (TCM)
 
-![version](https://img.shields.io/badge/version-2.11.46-blue)
+![version](https://img.shields.io/badge/version-2.11.71-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![platform](https://img.shields.io/badge/platform-Web%20Audio-orange)
 
@@ -14,7 +14,28 @@ https://patronix-music.github.io/tempera-cell-matrix/
 
 ---
 
-## 🔥 TCM v2.11.46 🔥
+## 🔥 TCM v2.11.71 🔥
+
+### Main new features:
+
+🧭 **Compact Tuner popup**
+Added a small Tuner tool in the inspector for looping the selected cell and fine-tuning the existing Cell Pitch slider.
+
+🧩 **Smarter Trim/Fit behavior**
+Trim/Fit now only switches to Fit when a sample is actually longer than the cell, so short samples no longer get unwanted pitch changes.
+
+🗂️ **Improved Random Sources list**
+Sources now show total audio files first, then filtered audio files when filters are active.
+
+🖱️ **Auto Preview on click**
+Auto preview now also plays when clicking a matrix cell, not only when navigating with arrow keys.
+
+🏷️ **Better export naming**
+The name template now supports {celname}, and recent name templates can be deleted while the default stays protected.
+
+---
+
+## TCM v2.11.46
 
 ### Main new features:
 
