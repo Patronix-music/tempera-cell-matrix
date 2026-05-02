@@ -19,19 +19,19 @@ https://patronix-music.github.io/tempera-cell-matrix/
 ### Main new features:
 
 🧭 **Compact Tuner popup**
-Added a small Tuner tool in the inspector for looping the selected cell and fine-tuning the existing Cell Pitch slider.
+<br>Added a small Tuner tool in the inspector for looping the selected cell and fine-tuning the existing Cell Pitch slider.
 
 🧩 **Smarter Trim/Fit behavior**
-Trim/Fit now only switches to Fit when a sample is actually longer than the cell, so short samples no longer get unwanted pitch changes.
+<br>Trim/Fit now only switches to Fit when a sample is actually longer than the cell, so short samples no longer get unwanted pitch changes.
 
 🗂️ **Improved Random Sources list**
-Sources now show total audio files first, then filtered audio files when filters are active.
+<br>Sources now show total audio files first, then filtered audio files when filters are active.
 
 🖱️ **Auto Preview on click**
-Auto preview now also plays when clicking a matrix cell, not only when navigating with arrow keys.
+<br>Auto preview now also plays when clicking a matrix cell, not only when navigating with arrow keys.
 
 🏷️ **Better export naming**
-The name template now supports {celname}, and recent name templates can be deleted while the default stays protected.
+<br>The name template now supports {celname}, and recent name templates can be deleted while the default stays protected.
 
 ---
 
