@@ -164,7 +164,7 @@ The name template now supports {celname}, and recent name templates can be delet
 ![TCM Wave Editor](./screenshots/wave-editor.png)
 
 ### Main 8x8 Matrix
-![TCM Wave Editor](./screenshots/matrix-overview.png)
+![TCM Wave Editor](./screenshots/matrix-overview.jpeg)
 ---
 
 ## 🚀 Getting started
