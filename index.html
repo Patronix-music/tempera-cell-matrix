@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tempera Cell Matrix</title>
-  <link rel="icon" href="favicon.ico" sizes="any" />
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-  <link rel="manifest" href="site.webmanifest" />
+  <link rel="icon" href="favicon-v2.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32-v2.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16-v2.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-v2.png" />
+  <link rel="manifest" href="site-v2.webmanifest" />
   <meta name="theme-color" content="#05070b" />
   <style>
 
@@ -2229,6 +2229,7 @@ input[type="range"]::-webkit-slider-thumb:active{
           <div class="btnGroupInline"><button class="pop" id="random64Btn" title="Randomly fill all 64 cells. If a Sources list is active, Random 64 uses that live folder pool. Tip: hold Shift to filter which files are used for loading samples.">Random 64 <span class="filterIcon" aria-hidden="true"></span></button><button class="secondary" id="random64SourcesBtn" title="Manage a reusable live folder list for Random 64 / Random 8">Sources</button>
           <button class="warn" id="exportAllBtn">Export all (ZIP)</button>
           <button class="warn" id="exportCanvasBtn" title="Export Tempera .canvas">Export .canvas</button>
+          <button class="warn" id="exportGridBtn" title="Export loaded cells as one evenly sliced sampler grid WAV">Export Grid</button>
           <button class="secondary" id="importPresetBtn" title="Load preset JSON or exported ZIP. ZIP imports can auto-use embedded TCM_Sources.">Import Preset</button>
           <button class="secondary" id="helpBtn" title="Show help / shortcuts">Help</button></div>
 
@@ -2526,6 +2527,50 @@ input[type="range"]::-webkit-slider-thumb:active{
 </div>
 <!-- /Canvas Name Overlay -->
 
+<!-- Grid Name Overlay (Export Grid WAV) -->
+<div class="overlay" id="gridNameOverlay" aria-hidden="true">
+  <div class="helpPanel folderPanel" role="dialog" aria-modal="true" aria-label="Grid export name">
+    <div class="helpHead">
+      <div class="helpTitle">Export Grid</div>
+      <button class="helpClose" id="gridNameOverlayClose" title="Close">✕</button>
+    </div>
+    <div class="helpBody">
+      <p class="muted" id="gridNameNote" style="margin-top:0;line-height:1.35;">
+        Exports loaded cells as one evenly spaced grid WAV.
+      </p>
+      <div class="helpCard" style="margin-top:10px;">
+        <label class="muted" for="gridNameInput" style="display:block;margin-bottom:6px;">Grid WAV name</label>
+        <input id="gridNameInput" class="colTitleInput" type="text" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="helpCard" style="margin-top:10px;">
+        <div class="helpCardTitle">Sample rate</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+          <label class="chk" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+            <input type="radio" name="gridSampleRate" id="gridSampleRate48" value="48000" checked>
+            <span><b>48 kHz</b><br><span class="muted">Default. Best for Digitakt II / TCM-first use.</span></span>
+          </label>
+          <label class="chk" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+            <input type="radio" name="gridSampleRate" id="gridSampleRate441" value="44100">
+            <span><b>44.1 kHz</b><br><span class="muted">Compatibility export for samplers that prefer 44.1 kHz.</span></span>
+          </label>
+        </div>
+      </div>
+      <div class="helpCard" style="margin-top:10px;">
+        <div class="helpCardTitle">Sampler note</div>
+        <p class="muted" style="margin:0;line-height:1.35;">
+          The WAV uses equal time intervals for Grid/Slice-style samplers. Digitakt II is the main target, but the file is also useful for MPC/Force, SP-404MKII, Octatrack, Polyend Tracker/Play and 1010music Blackbox style workflows.
+        </p>
+      </div>
+      <div class="overlayActions helpActions" style="margin-top:12px;">
+        <button class="good" id="gridNameOkBtn">OK</button>
+        <button class="secondary" id="gridNameCancelBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /Grid Name Overlay -->
+
+
 
 
 
@@ -2558,6 +2603,13 @@ input[type="range"]::-webkit-slider-thumb:active{
           <label class="chk" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
             <input type="radio" name="cellLoadMode" value="overflow_fit">
             <span><b>Overflow + Fit (pitch)</b><br><span class="muted">Fits the whole sample exactly into the chosen cells by changing speed and pitch first, then spreads it across them.</span></span>
+          </label>
+
+          <div class="cellLoadModeDivider" aria-hidden="true"></div>
+
+          <label class="chk" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+            <input type="radio" name="cellLoadMode" value="overflow_tune">
+            <span><b>Overflow + Tune</b><br><span class="muted">Loads the sample in the current cell first, opens Tuner, then applies the tuned overflow after you click Apply Overflow.</span></span>
           </label>
         </div>
         <div class="cellLoadOverflowRow" id="cellLoadOverflowRow">
@@ -2628,6 +2680,9 @@ input[type="range"]::-webkit-slider-thumb:active{
       <div class="helpCard" style="margin-top:10px;">
         <div class="helpCardTitle">Keys</div>
         <p class="muted" style="margin:0;">Left/Right = ±0.1 st · Shift + Left/Right = ±1.0 st · Space = restart loop · Esc = close</p>
+        <div class="overlayActions helpActions" id="tunerOverflowActions" style="display:none;margin-top:10px;justify-content:flex-end;">
+          <button class="good" id="tunerApplyOverflowBtn" type="button">Apply Overflow</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2665,6 +2720,9 @@ input[type="range"]::-webkit-slider-thumb:active{
             </ul></div><div class="helpCard"><h3>Editing</h3>
 <ul class="helpList">
                           <li>Use the <b>Cell settings</b> panel to change Gain, Mute, Reverse, Fade In/Out, Cell Pitch, Trim/Fit and Lock state.</li>
+                          <li><b>Cell Pitch</b> is a per-cell semitone offset used for TCM playback and WAV/ZIP/Grid audio export.</li>
+                          <li><b>Tuner</b> opens a compact pitch helper for the selected loaded cell. It loops the cell while you adjust Cell Pitch with the slider or keys; it works best on monophonic or stable-pitch samples.</li>
+                          <li><b>Fit All</b> quickly enables Trim/Fit where the loaded sample is longer than the target cell length.</li>
                           <li><b>Normalize</b> peak-normalizes the current audible cell/selection audio and also works on multi-selected cells. <b>Cmd/Ctrl+Z</b> restores Normalize and selected-cell Clear actions.</li>
                           <li><b>Lock Col</b> and <b>Lock Row</b> bulk-toggle the existing cell locks in the current column or row.</li>
                           <li>Fades are drawn as an <b>envelope overlay</b> on top of the oscilloscope.</li>
@@ -2700,7 +2758,8 @@ input[type="range"]::-webkit-slider-thumb:active{
             </ul></div><div class="helpCard"><h3>Loading audio</h3>
 <ul class="helpList">
                           <li><b>Cell Load</b>: click <b>Load</b> inside a cell or drop a file onto that cell.</li>
-                          <li>Long samples can now either stay in the current cell (<b>trim</b>), <b>overflow</b> into the cells below, or use <b>Overflow + Fit</b> to pitch-fit across the chosen cells.</li>
+                          <li>Long samples can stay in the current cell (<b>trim</b>), <b>overflow</b> below, use <b>Overflow + Fit</b>, or use <b>Overflow + Tune</b> to open Tuner before applying overflow.</li>
+                          <li><b>Overflow + Tune</b>: tune the temporary start cell first, then click <b>Apply Overflow</b> or press <b>Enter</b>. <b>Esc</b> cancels and restores the previous cell state.</li>
                           <li>When one long sample is loaded with <b>overflow</b>, the column name at the top is auto-filled from that sample name.</li>
                           <li><b>Load+Slice</b>: pick one file → opens Slice Editor where you can drag/resize 8 blocks, then <b>Apply</b> to the column.</li>
                           <li><b>Load 8</b>: select up to 8 files → fills the 8 cells top→bottom. Duplicate selections are skipped. If you select more than 8 unique files, it randomly picks 8 for the current column. When a live <b>Sources</b> list is active, this same button changes to <b>Random 8</b> and fills the unlocked cells in that column from the shared pool instead.</li>
@@ -2719,12 +2778,16 @@ input[type="range"]::-webkit-slider-thumb:active{
 <p><b>Import Preset</b>: load the preset JSON exported by this app (e.g. <span class="kbd">zz_TCM-Preset_MyPreset_20260111.json</span>), or load the exported ZIP directly for automatic embedded-sample relinking. JSON import still asks for your top-level sample folder. Subfolders are included. The folder overlay shows example filenames to help you pick the right folder.</p>
                           <ul class="helpList">
                             <li><b>Export</b> in a column: exports that column to WAV.</li>
+                            <li>The header <b>Name</b> template supports placeholders such as <b>{col}</b>, <b>{colname}</b>, <b>{celname}</b>, <b>{mode}</b>, <b>{bpm}</b>, <b>{sr}</b>, <b>{frames}</b> and <b>{date}</b>. Recent templates can be selected from the dropdown; the default template stays protected.</li>
                             <li><b>Export 8</b> in a column: exports the 8 cells as separate WAV files (downloaded as one ZIP). Filenames use Sample + C# by default, or the Name template when it includes <b>{celname}</b>.</li>
                             <li><b>Export all (ZIP)</b>: exports up to 8 columns and downloads one ZIP file.</li>
                             <li>Empty columns are skipped.</li>
                             <li><b>Template only</b>: export settings + layout only, with no audio files in the ZIP. Good for reusing a canvas setup and swapping samples later.</li>
                             <li><b>Include original samples in ZIP</b> for handpicked samples in the Matrix and TCM preset sharing.</li>
                             <li><b>Export .canvas</b>: optionally use an existing Tempera .canvas as a settings template; TCM preserves its settings and replaces the track audio.</li>
+                            <li><b>Export Grid</b>: exports loaded cells as one evenly spaced 4/8/16/32/64-slice WAV for Grid/Slice samplers such as Digitakt II, MPC/Force, SP-404MKII, Octatrack, Polyend Tracker/Play and 1010music Blackbox.</li>
+                            <li><b>Export Grid rules</b>: empty cells are skipped. If the loaded count is not exactly 4/8/16/32/64, TCM uses the nearest lower grid size in matrix order, e.g. 10 loaded cells exports the first 8 and skips the last 2.</li>
+                            <li><b>Export Grid sample rate</b>: choose <b>48 kHz</b> for Digitakt II / TCM default, or <b>44.1 kHz</b> for wider sampler compatibility. Grid WAVs are exported as 16-bit PCM.</li>
                           </ul></div><div class="helpCard helpCardRelease">
             <h3>Release notes</h3>
             <ul class="helpList" id="releaseNotes"></ul>
@@ -2897,7 +2960,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-const APP_VERSION = '2.11.71';
+const APP_VERSION = '2.11.80';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -3061,98 +3124,48 @@ const APP_VERSION = '2.11.71';
   }
 
 
-  const APP_BUILD_DATE = '2026-05-01';
+  const APP_BUILD_DATE = '2026-05-03';
   const CHANGELOG = [
-  "2.11.71 - UI: release notes trimmed to important NEW, FIX, UI, Import, Export and Editor milestones from v2.10.56 onward.",
-  "2.11.70 - Fix/editor: tuner octave detection corrected so clean sine samples keep the intended octave.",
-  "2.11.69 - Fix/editor: tuner pitch detection now uses a wider C0-C7 range and first-strong-period autocorrelation.",
-  "2.11.68 - Fix/editor: tuner detection now supports F0-range lows with a larger analysis window and octave-jump protection.",
-  "2.11.66 - Export/UI: added {celname} as a name-template placeholder for cell-based WAV exports.",
-  "2.11.57 - NEW/editor: added a compact Tuner popup for looping a selected cell and fine-tuning the Cell Pitch slider.",
-  "2.11.56 - Fix: Safari Random 64 / Random 8 restored the safer pre-optimization loading path while Chrome keeps lazy long-file skip.",
-  "2.11.54 - UI: Random 64 Sources now shows total audio in folder first, then audio after filtering.",
-  "2.11.51 - UI: cell mode badges now show trim / fit terminology instead of the old padtrim / rate wording.",
-  "2.11.50 - Fix: Fit All and Trim/Fit only enable Fit when the sample is actually longer than the cell.",
-  "2.11.48 - Performance: Chrome Random 64 / Random 8 starts faster by skipping full-folder duration pre-scan.",
-  "2.11.47 - Fix: Trim/Fit no longer changes pitch for samples that already fit inside the cell.",
-  "2.11.43 - UI: inspector controls were compacted and Trim/Fit moved into the Switches row.",
-  "2.11.42 - NEW/editor: added per-cell Cell Pitch slider for TCM playback and WAV/ZIP export audio.",
-  "2.11.40 - UI: Auto preview now also plays on normal mouse click when enabled.",
-  "2.11.34 - UI: inspector copy labels now read Copy to Col / Copy to All again.",
-  "2.11.30 - NEW/UI: added inspector Sel Col and Sel Row buttons for fast column/row selection.",
-  "2.11.26 - NEW/editor: added Loop Prep to fit one loop to the BPM grid and slice it across the selected column.",
-  "2.11.23 - NEW/editor: added inspector Remix for quick column variants into the next empty column.",
-  "2.11.20 - Fix/UI: duplicate highlighting now marks only repeated cells, not the original source cell.",
-  "2.11.18 - Loaders/UI: duplicate warnings and unique-first behavior were added for manual loads and Random 64 / Random 8.",
-  "2.11.17 - UI: Load 8 dynamically changes to Random 8 when a live Sources list is active.",
-  "2.11.14 - Import: skipped Random 64 source folders now intentionally leave dependent preset cells empty.",
-  "2.11.11 - Import: presets with remembered Random 64 Sources now open a source relink dialog.",
-  "2.11.09 - NEW: Random 64 Sources can keep a reusable live multi-folder list shared by Random 64 and Random 8.",
-  "2.11.06 - NEW: long sample loading now supports Overflow + Fit while removing old header split toggles.",
-  "2.11.05 - Preset/template: chosen .canvas export template metadata is remembered in presets.",
-  "2.10.99 - Shortcuts/undo: added T for Trim/Fit and Cmd/Ctrl+Z undo for Normalize and selected-cell Clear.",
-  "2.10.93 - NEW/UI: added inspector Lock Row bulk-toggle.",
-  "2.10.92 - NEW/UI: added inspector Lock Col bulk-toggle.",
-  "2.10.90 - Loader locks: Random 64 and Load 8 now skip locked cells and keep them unchanged.",
-  "2.10.87 - NEW: Cell lock foundation added with L shortcut, inspector Lock toggle and locked-cell styling.",
-  "2.10.86 - NEW: Auto preview toggle added for arrow-key matrix navigation.",
-  "2.10.83 - Fix/editor: Normalize now peak-normalizes audible cell or selection audio and refreshes mini-waves.",
-  "2.10.79 - Export: standalone cell tails get optional zero-crossing assisted micro-fade on WAV/ZIP export.",
-  "2.10.78 - Fix/export: anti-click fade-out now reaches absolute zero at cell ends.",
-  "2.10.77 - UI: preset export dialog received focus-trap and Template only polish.",
-  "2.10.76 - Fix/import: template preset fade settings are preserved on empty imported cells until audio is loaded.",
-  "2.10.75 - Import: template presets now load as an empty matrix with saved settings and layout.",
-  "2.10.74 - NEW/export: Export preset can now be Template only with settings and layout but no audio files.",
-  "2.10.73 - NEW/export: .canvas export can use an existing Tempera canvas as a settings template.",
-  "2.10.71 - NEW: multi-select V1 added for bulk inspector settings.",
-  "2.10.70 - Import: exported ZIP files can now be imported directly using embedded TCM_Sources.",
-  "2.10.68 - UI/editor: Wave Editor handle grab zones were tuned for safer trimming.",
-  "2.10.66 - NEW/editor: Zoom Auto Hide toggle added in Wave and Slice editors.",
-  "2.10.65 - Fix/editor: short pad/trim cells get an automatic micro-fade at the internal sample edge.",
-  "2.10.64 - UI: overflow-loaded long samples auto-name the column from the source sample.",
-  "2.10.63 - Loaders: Load 8 randomizes when more than 8 unique samples are selected.",
-  "2.10.62 - Fades: fade in/out can now run across the full audible sample length.",
-  "2.10.56 - NEW: long sample loading can trim in the current cell or overflow into cells below.",
-"2.10.55 - Fit/Rate: after Wave Editor Apply, switches back to Pad/Trim.",
-"2.10.54 - Fit/Rate: long samples now time-fit the full source, hide selection in Rate.",
-"2.10.47 - UI: .canvas dialog copy/OK styling; export filenames now match name field.",
-"2.10.46 - Fix: .canvas export dialog opens (separate from ZIP export).",
-"2.10.43 - UI: Top-right copyright/mini-controls aligned with Name field.",
-"2.10.42 - UI: Name template dropdown fits on one line and stays reachable.",
-"2.10.36 - Added: Tempera .canvas export (optional).",
-"2.10.25 - meta: added Buy Me a Coffee support link (header)",
-"2.10.15 - ui-tune: removed duplicate version text from copyright in header",
-"2.10.10 - ui-tune: header+inspector fixed.",
-"2.10.5 - Fix: Clear All no longer blanks mini-wave placeholder (empty + center line).",
-"2.10.4 - Icons: add favicon/apple-touch-icon/manifest files.",
-"2.10.1 - fix-volume: mini-wave gain line stays in the middle at Volume=0.00.",
-"2.9.99 - Fix Import Preset: restore per-cell slice windows for Load+Slice columns.",
-"2.9.91 - Fix Load+Slice target column sticking to Column 1 on re-load in Slice Editor.",
-"2.9.90 - Fix Load+Slice applies/loads to correct column when switching columns.",
-"2.9.89 - Clear All / Clear Column now also clears Load+Slice buffer for that column.",
-"2.9.79 - Matrix green playback outline now response correctly to fast re-triggering.",
-"2.9.68 - Fix playback stops for the editors and matrix with tabs, arrows and space.",
-"2.9.62 - Tool-tips rebuild, no more lagging tool-tips from browser engine.",
-"2.9.55 - NEW: Embed samples to ZIP. For handpicked samples and sharing presets.",
-"2.9.36 - Fix fade in/out sliders to scale with sample length.",
-"2.9.26 - Scrollbar On/Off button in header for all (Magic) Track-pads and iPad users.",
-"2.9.22 - Clean-up UI Header for making room for the Scrollbar button.",
-"2.9.18 - Wave/Slice UI clean-up. Help hints to Help page with ? and X for close.",
-"2.9.11 - NEW Slice zoom for big samples: -/+ zooms in on slice, TAB for slice jumps.",
-"2.9.08 - NEW RELEASE and separate HELP-editor for easy writing.",
-"2.9.01 - Import Preset restores selection for long samples (mini-wave + Wave Editor).",
-"2.8.71 - Sliders are themed with double-click option for reset.",
-"2.8.69 - Reset Volume/Fade sliders when loading new samples.",
-"2.8.66 - Green play-outline plays length of sample instead of cell.",
-"2.8.49 - Source file duration in Wave/Slice editor.",
-"2.7.70 - Scissors only visible when file is edited, also when preset is loaded.",
-"2.7.53 - IOS Audio is audible and file picker can load WAV files.",
-"2.7.40 - CPU en memory overload for Safari fixed. Chrome is also low on CPU.",
-"2.7.16 - Matrix cell labels: filename truncates with … so C1–C8 stays visible.",
-"2.7.15 - Imported slices: mini-wave shows selection overlay + scissors correctly.",
-"2.7.12 - Fast naming: Enter focuses Cell name; Tab jumps across Sample names.",
-"2.7.10 - Presets now store original slice windows (start/length) from Load+Slice.",
-"2.7.09 - Preset import restores Load+Slice edits.",
+  '2.11.78 - Export Grid supports 48 kHz and 44.1 kHz WAV.',
+  '2.11.75 - Export Grid creates 4/8/16/32/64 slice WAVs.',
+  '2.11.73 - Overflow exports stay seamless without boundary fades.',
+  '2.11.72 - Overflow + Tune added for tuned long-sample overflow.',
+  '2.11.68 - Tuner improved for low notes and clean sine samples.',
+  '2.11.66 - WAV export names can use the {celname} placeholder.',
+  '2.11.57 - Tuner popup added for looping and Cell Pitch tuning.',
+  '2.11.56 - Safari Random 64/8 restored to safer loading path.',
+  '2.11.50 - Trim/Fit only fits samples longer than the cell.',
+  '2.11.42 - Cell Pitch added for playback and WAV/ZIP export.',
+  '2.11.30 - Sel Col and Sel Row added to the inspector.',
+  '2.11.26 - Loop Prep fits one loop to BPM and slices a column.',
+  '2.11.23 - Remix creates column variants in the next empty column.',
+  '2.11.20 - Duplicate highlighting marks repeats, not originals.',
+  '2.11.18 - Unique-first loading added for Random 64 and Random 8.',
+  '2.11.17 - Load 8 becomes Random 8 when Sources is active.',
+  '2.11.11 - Presets can relink remembered Random 64 Sources.',
+  '2.11.09 - Random 64 Sources added for reusable folder pools.',
+  '2.11.06 - Long samples can use Overflow + Fit.',
+  '2.11.05 - Canvas template metadata is saved in presets.',
+  '2.10.99 - Undo added for Normalize and selected-cell Clear.',
+  '2.10.90 - Random 64 and Load 8 now respect locked cells.',
+  '2.10.87 - Cell lock added with L shortcut and inspector toggle.',
+  '2.10.86 - Auto preview added for arrow-key navigation.',
+  '2.10.83 - Normalize works on audible cells and selections.',
+  '2.10.79 - Standalone cell export gets anti-click micro-fades.',
+  '2.10.76 - Template preset cell settings are preserved.',
+  '2.10.75 - Template presets import as empty matrices.',
+  '2.10.74 - Template-only preset export added.',
+  '2.10.73 - .canvas export can use a Tempera template.',
+  '2.10.71 - Multi-select added for bulk inspector settings.',
+  '2.10.70 - ZIP preset import can relink embedded samples.',
+  '2.10.66 - Zoom Auto Hide added in Wave and Slice editors.',
+  '2.10.62 - Fades can run across the full audible sample length.',
+  '2.10.56 - Long samples can trim in-cell or overflow below.',
+  '2.10.36 - Tempera .canvas export added.',
+  '2.9.55 - Embedded samples added for portable ZIP presets.',
+  '2.9.11 - Slice zoom added with +/- and Tab slice jumps.',
+  '2.7.53 - iOS audio and WAV picker support improved.',
+  '2.7.40 - Safari CPU and memory load reduced.',
 ];
 function renderReleaseNotes(){
     const ul = document.getElementById("releaseNotes");
@@ -7071,6 +7084,7 @@ window.addEventListener("resize", () => {
 
 const exportAllBtn = document.getElementById("exportAllBtn");
   const exportCanvasBtn = document.getElementById("exportCanvasBtn");
+  const exportGridBtn = document.getElementById("exportGridBtn");
   const helpBtn = document.getElementById("helpBtn");
   const autoPreviewBtn = document.getElementById("autoPreviewBtn");
   const stopBtn = document.getElementById("stopBtn");
@@ -7116,6 +7130,10 @@ const exportAllBtn = document.getElementById("exportAllBtn");
   const tunerHzEl = document.getElementById("tunerHz");
   const tunerPitchLabelEl = document.getElementById("tunerPitchLabel");
   const tunerNeedleEl = document.getElementById("tunerNeedle");
+  const tunerOverflowActionsEl = document.getElementById("tunerOverflowActions");
+  const tunerApplyOverflowBtnEl = document.getElementById("tunerApplyOverflowBtn");
+  let pendingOverflowTune = null;
+  let pendingOverflowTuneApplying = false;
 
   // Release focus after clicking inspector toggles (so arrow navigation keeps working)
   function _blurIfFocused(el){
@@ -7816,12 +7834,77 @@ function stopPlayback(){
     }, 90);
   }
 
-  function closeTunerOverlay(){
+  function syncTunerOverflowApplyButton(){
+    const pending = pendingOverflowTune;
+    const show = !!(pending && state.selected && state.selected.has && state.selected.col === pending.col && state.selected.row === pending.row);
+    if (tunerOverflowActionsEl) tunerOverflowActionsEl.style.display = show ? 'flex' : 'none';
+    if (tunerApplyOverflowBtnEl){
+      tunerApplyOverflowBtnEl.disabled = !show || !!pendingOverflowTuneApplying;
+      tunerApplyOverflowBtnEl.textContent = show ? `Apply Overflow (${(pending.underCells|0) + 1} cells)` : 'Apply Overflow';
+      if (show && tunerState.open){
+        requestAnimationFrame(() => {
+          try{
+            if (tunerState.open && pendingOverflowTune && document.activeElement === tunerCloseBtnEl) tunerApplyOverflowBtnEl.focus();
+          }catch(_e){}
+        });
+      }
+    }
+  }
+
+  function cancelPendingOverflowTune(){
+    const pending = pendingOverflowTune;
+    pendingOverflowTune = null;
+    pendingOverflowTuneApplying = false;
+    syncTunerOverflowApplyButton();
+    try{ stopPlayback(); }catch(_e){}
+    if (pending && pending.beforeSnapshot){
+      try{
+        restoreCellState(pending.beforeSnapshot);
+        updateColUI(pending.col);
+        setSelected(pending.col, pending.row, { mode:'single' });
+        updateInspector();
+        scheduleWaveFlush();
+      }catch(_e){}
+    }
+  }
+
+  async function applyPendingOverflowTune(){
+    const pending = pendingOverflowTune;
+    if (!pending || pendingOverflowTuneApplying) return;
+    const cell = state.cells?.[pending.col]?.[pending.row];
+    if (!cell || !cell.left || !cell.right){
+      toast('Overflow Tune source cell is no longer loaded.', 2200);
+      cancelPendingOverflowTune();
+      return;
+    }
+    pendingOverflowTuneApplying = true;
+    syncTunerOverflowApplyButton();
+    const tuneSemitones = Number(cell.settings?.pitchSemitones || 0);
+    pendingOverflowTune = null;
+    try{ stopPlayback(); }catch(_e){}
+    await loadDecodedOverflowIntoCells(pending.col, pending.row, pending.file, pending.decoded, {
+      underCells: pending.underCells,
+      tuneSemitones,
+      silent: !!pending.silent,
+      maxSec: pending.maxSec,
+    });
+    pendingOverflowTuneApplying = false;
+    setSelected(pending.col, pending.row, { mode:'single' });
+    closeTunerOverlay({ keepOverflowTune:true });
+  }
+
+  function closeTunerOverlay(opts={}){
     tunerState.open = false;
     tunerState.version = (tunerState.version|0) + 1;
     try{ if (tunerState.refreshTimer) clearTimeout(tunerState.refreshTimer); }catch(_e){}
     tunerState.refreshTimer = 0;
-    stopPlayback();
+    if (!(opts && opts.keepOverflowTune)){
+      cancelPendingOverflowTune();
+    }else{
+      pendingOverflowTuneApplying = false;
+      syncTunerOverflowApplyButton();
+      stopPlayback();
+    }
     if (tunerOverlayEl){
       tunerOverlayEl.classList.remove('show');
       tunerOverlayEl.style.display = 'none';
@@ -7842,6 +7925,7 @@ function stopPlayback(){
       tunerOverlayEl.setAttribute('aria-hidden', 'false');
     }
     focusOverlayElement(tunerCloseBtnEl || tunerOverlayEl);
+    syncTunerOverflowApplyButton();
     tunerStartLoop();
   }
 
@@ -7869,6 +7953,13 @@ function stopPlayback(){
       e.preventDefault();
       e.stopPropagation();
       closeTunerOverlay();
+      return;
+    }
+    if (e.key === 'Enter' && pendingOverflowTune){
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+      applyPendingOverflowTune();
       return;
     }
     if (e.key === ' ' || e.code === 'Space'){
@@ -8566,8 +8657,10 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     }
   
     // Always apply a tiny safety fade to avoid clicks (in addition to user fades).
+    // Overflow/long-sample cells must stay seamless across cell boundaries, so they can opt out.
     // Export can optionally extend the tail fade back to a nearby zero crossing for standalone cells.
-    const microFrames = Math.min(Math.floor(SR * 0.003), Math.floor(targetFrames/2)); // 3ms
+    const skipSafetyFade = !!(opts && opts.skipSafetyFade);
+    const microFrames = skipSafetyFade ? 0 : Math.min(Math.floor(SR * 0.003), Math.floor(targetFrames/2)); // 3ms
     if (microFrames > 0){
       for (let i=0; i<microFrames; i++){
         const g = i / microFrames;
@@ -8605,7 +8698,8 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
       cell.left ? cell.left.length : 0,
       (typeof cell.selStartFrames === "number") ? cell.selStartFrames : 0,
       (typeof cell.selLenFrames === "number") ? cell.selLenFrames : 0,
-      (opts && opts.exportTailAssist) ? 1 : 0
+      (opts && opts.exportTailAssist) ? 1 : 0,
+      (cell && cell.origin && cell.origin.overflow) ? 1 : 0
     ].join("|");
 
     if (cell.cache.key === cacheKey && cell.cache.L && cell.cache.R && cell.cache.frames === targetFrames){
@@ -8730,9 +8824,12 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
       reverseInPlace(Rout);
     }
 
-    const fadeOpts = ((opts && opts.exportTailAssist) && !(cell && cell.origin && cell.origin.overflow))
-      ? { tailZeroCrossAssist: true, tailScanFrames: Math.floor(SR * 0.006) }
-      : null;
+    const isOverflowCell = !!(cell && cell.origin && cell.origin.overflow);
+    const fadeOpts = isOverflowCell
+      ? { skipSafetyFade: true }
+      : (((opts && opts.exportTailAssist))
+        ? { tailZeroCrossAssist: true, tailScanFrames: Math.floor(SR * 0.006) }
+        : null);
 
     applyFadesAndGain(Lout, Rout, s, targetFrames, autoFadeRegion, fadeOpts);
 
@@ -8968,6 +9065,8 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     const restTrimmed = (cellLoadModeContext.totalFrames|0) > capFrames;
     if (mode === 'overflow_fit'){
       cellLoadOverflowHintEl.textContent = `Uses ${totalCells} cell${totalCells===1?'':'s'} total and fits the whole sample exactly into ${capSec}s by changing pitch.`;
+    } else if (mode === 'overflow_tune'){
+      cellLoadOverflowHintEl.textContent = `Uses ${totalCells} cell${totalCells===1?'':'s'} total. Tuner opens first; Apply Overflow writes the tuned audio into those cells.`;
     } else {
       cellLoadOverflowHintEl.textContent = `Uses ${totalCells} cell${totalCells===1?'':'s'} total and gives ${capSec}s space.${restTrimmed ? ' Any remaining audio is trimmed.' : ''}`;
     }
@@ -8976,7 +9075,7 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
   function updateCellLoadModeControls(){
     if (!cellLoadModeOverlayEl) return;
     const modeEl = cellLoadModeOverlayEl.querySelector('input[name="cellLoadMode"]:checked');
-    const isOverflow = !!(modeEl && (modeEl.value === 'overflow' || modeEl.value === 'overflow_fit'));
+    const isOverflow = !!(modeEl && (modeEl.value === 'overflow' || modeEl.value === 'overflow_fit' || modeEl.value === 'overflow_tune'));
     if (cellLoadOverflowRowEl) cellLoadOverflowRowEl.classList.toggle('isDisabled', !isOverflow);
     if (cellLoadOverflowCountEl) cellLoadOverflowCountEl.disabled = !isOverflow;
     updateCellLoadModeOverflowHint();
@@ -9024,9 +9123,11 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     const trimRadio = cellLoadModeOverlayEl.querySelector('input[name="cellLoadMode"][value="trim"]');
     const overflowRadio = cellLoadModeOverlayEl.querySelector('input[name="cellLoadMode"][value="overflow"]');
     const overflowFitRadio = cellLoadModeOverlayEl.querySelector('input[name="cellLoadMode"][value="overflow_fit"]');
+    const overflowTuneRadio = cellLoadModeOverlayEl.querySelector('input[name="cellLoadMode"][value="overflow_tune"]');
     if (trimRadio) trimRadio.checked = true;
     if (overflowRadio) overflowRadio.checked = false;
     if (overflowFitRadio) overflowFitRadio.checked = false;
+    if (overflowTuneRadio) overflowTuneRadio.checked = false;
 
     updateCellLoadModeControls();
 
@@ -9062,6 +9163,26 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     return -1;
   }
 
+  async function startOverflowTuneFlow(col, row, file, decoded, choice, opts={}){
+    const beforeSnapshot = snapshotCellState(col, row);
+    await loadFileIntoCell(col, row, file, { ...opts, decoded, skipDuplicateWarning:true, silent:true });
+    setSelected(col, row, { mode:'single' });
+    pendingOverflowTune = {
+      col: col|0,
+      row: row|0,
+      file,
+      decoded,
+      beforeSnapshot,
+      underCells: Math.max(1, Number(choice?.underCells || 1)|0),
+      silent: !!(opts && opts.silent),
+      maxSec: (opts && typeof opts.maxSec === 'number') ? opts.maxSec : MAX_CELL_LOAD_SEC,
+    };
+    updateInspector();
+    openTunerOverlay();
+    syncTunerOverflowApplyButton();
+    toast('Tune the cell, then click Apply Overflow in the Tuner.', 3200);
+  }
+
   async function loadChosenFileIntoCellWithPrompt(col, row, file, opts={}){
     const decoded = (opts && opts.decoded) ? opts.decoded : await decodeFileToStereo48k(file);
 
@@ -9082,6 +9203,10 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
         totalFrames: decoded.left.length,
       });
       if (!choice) return false;
+      if (choice.mode === 'overflow_tune'){
+        await startOverflowTuneFlow(col, row, file, decoded, choice, opts);
+        return true;
+      }
       if (choice.mode === 'overflow' || choice.mode === 'overflow_fit'){
         await loadDecodedOverflowIntoCells(col, row, file, decoded, {
           underCells: choice.underCells,
@@ -9123,7 +9248,7 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
       if (e) e.preventDefault();
       const modeEl = cellLoadModeOverlayEl.querySelector('input[name="cellLoadMode"]:checked');
       const mode = modeEl ? modeEl.value : 'trim';
-      const underCells = (mode === 'overflow' || mode === 'overflow_fit') ? Math.max(1, Number(cellLoadOverflowCountEl?.value || 1)|0) : 0;
+      const underCells = (mode === 'overflow' || mode === 'overflow_fit' || mode === 'overflow_tune') ? Math.max(1, Number(cellLoadOverflowCountEl?.value || 1)|0) : 0;
       closeCellLoadModeOverlay({ mode, underCells });
     };
 
@@ -9219,6 +9344,8 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     const underCells = clamp((opts && typeof opts.underCells === 'number') ? opts.underCells : 1, 1, Math.max(1, maxBelow));
     const maxParts = 1 + underCells;
     const fitOverflow = !!(opts && opts.fitOverflow);
+    const tuneSemitones = Number((opts && opts.tuneSemitones) || 0);
+    const hasTuneOverflow = !fitOverflow && Math.abs(tuneSemitones) > 0.0001;
 
     try{ inferRelPathForFile(file); }catch(_e){}
     const srcKey = getSourceKeyFromFile(file, name);
@@ -9231,6 +9358,14 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
       left = resampleToLength(left, totalTargetFrames);
       right = resampleToLength(right, totalTargetFrames);
       overflowSourceKey = `${srcKey}::overflowfit@${startRow}_${underCells}_${totalTargetFrames}`;
+      ensureSourceInStore(overflowSourceKey, left, right, name);
+    } else if (hasTuneOverflow){
+      const totalTargetFrames = getCellOverflowCapacityFrames(startRow, underCells);
+      const tuned = renderSourceAtSpeedToLength(left, right, totalTargetFrames, getPitchRatioFromSemitones(tuneSemitones));
+      const tunedFrames = Math.max(1, Math.min(totalTargetFrames, tuned.audibleFrames|0 || totalTargetFrames));
+      left = tunedFrames < totalTargetFrames ? tuned.L.slice(0, tunedFrames) : tuned.L;
+      right = tunedFrames < totalTargetFrames ? tuned.R.slice(0, tunedFrames) : tuned.R;
+      overflowSourceKey = `${srcKey}::overflowtune@${startRow}_${underCells}_${Number(tuneSemitones).toFixed(3)}_${left.length}`;
       ensureSourceInStore(overflowSourceKey, left, right, name);
     } else {
       ensureSourceInStore(srcKey, left, right, name);
@@ -9287,6 +9422,10 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
       const trimmed = cursor < left.length;
       if (fitOverflow){
         toast(`Loaded with overflow + fit into ${usedParts} cells.`);
+      } else if (hasTuneOverflow){
+        toast(trimmed
+          ? `Loaded with overflow + tune into ${usedParts} cells. Remaining audio trimmed.`
+          : `Loaded with overflow + tune into ${usedParts} cells.`);
       } else {
         toast(trimmed
           ? `Loaded with overflow into ${usedParts} cells. Remaining audio trimmed.`
@@ -11787,6 +11926,10 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
   });
   tunerCloseBtnEl?.addEventListener("click", () => closeTunerOverlay());
   tunerOverlayEl?.addEventListener("click", (e) => { if (e.target === tunerOverlayEl) closeTunerOverlay(); });
+  tunerApplyOverflowBtnEl?.addEventListener("click", (e) => {
+    e.preventDefault();
+    applyPendingOverflowTune().catch(err => { try{ showFatal(err); }catch(_e){ console.error(err); } });
+  });
 
   // ====== Swap / Copy cells ======
   function swapCells(c1,r1,c2,r2){
@@ -12556,6 +12699,186 @@ src.onended = () => {
   }
 
   
+
+  function getLoadedGridCellRefs(){
+    const out = [];
+    for (let c=0; c<COLS; c++){
+      for (let r=0; r<ROWS; r++){
+        const cell = state.cells[c][r];
+        if (cell && cell.left && cell.right) out.push({ col:c, row:r, cell });
+      }
+    }
+    return out;
+  }
+
+  function getGridExportSize(loadedCount){
+    const n = Math.max(0, loadedCount|0);
+    const sizes = [64, 32, 16, 8, 4];
+    for (const size of sizes){
+      if (n >= size) return size;
+    }
+    return 0;
+  }
+
+  function getGridExportDefaultName(gridCount){
+    return `TCM_Grid_${gridCount}_name.wav`;
+  }
+
+  function openGridNameOverlay(defaultName, info){
+    return new Promise((resolve) => {
+      const ov = document.getElementById("gridNameOverlay");
+      const input = document.getElementById("gridNameInput");
+      const note = document.getElementById("gridNameNote");
+      const btnOk = document.getElementById("gridNameOkBtn");
+      const btnCancel = document.getElementById("gridNameCancelBtn");
+      const btnClose = document.getElementById("gridNameOverlayClose");
+      if (!ov || !input || !btnOk || !btnCancel || !btnClose){
+        const raw = prompt("Grid WAV name:", defaultName || "TCM_Grid");
+        if (raw == null) return resolve(null);
+        const s = sanitizeFilename(raw);
+        return resolve({ name: (s || sanitizeFilename(defaultName || "TCM_Grid")), sampleRate: SR });
+      }
+
+      const loadedCount = Number(info && info.loadedCount || 0) || 0;
+      const gridCount = Number(info && info.gridCount || 0) || 0;
+      const skipped = Math.max(0, loadedCount - gridCount);
+      if (note){
+        note.innerHTML = skipped > 0
+          ? `Builds a <b>${gridCount}</b>-slice grid WAV from the first <b>${gridCount}</b> loaded cells. Last <b>${skipped}</b> loaded sample${skipped === 1 ? "" : "s"} will not be added.`
+          : `Builds a <b>${gridCount}</b>-slice grid WAV from the loaded cells.`;
+      }
+
+      input.value = String(defaultName || "TCM_Grid");
+      const sr48 = document.getElementById("gridSampleRate48");
+      if (sr48) sr48.checked = true;
+      input.select?.();
+
+      const cleanup = () => {
+        ov.classList.remove("show");
+        ov.setAttribute("aria-hidden", "true");
+        window.removeEventListener("keydown", onKey, true);
+        btnOk.onclick = null;
+        btnCancel.onclick = null;
+        btnClose.onclick = null;
+        ov.onclick = null;
+      };
+      const finish = (val) => {
+        cleanup();
+        resolve(val);
+      };
+      const onKey = (e) => {
+        if (e.key === "Escape"){
+          e.preventDefault();
+          finish(null);
+          return;
+        }
+        if (e.key === "Enter"){
+          const ae = document.activeElement;
+          const tag = ae ? (ae.tagName || "").toUpperCase() : "";
+          if (tag === "TEXTAREA") return;
+          e.preventDefault();
+          const s = sanitizeFilename(input.value || "");
+          const srEl = document.querySelector('input[name="gridSampleRate"]:checked');
+          const sr = srEl ? (Number(srEl.value) || SR) : SR;
+          finish({ name: (s || sanitizeFilename(defaultName || "TCM_Grid")), sampleRate: sr });
+        }
+      };
+
+      btnOk.onclick = () => {
+        const s = sanitizeFilename(input.value || "");
+        const srEl = document.querySelector('input[name="gridSampleRate"]:checked');
+        const sr = srEl ? (Number(srEl.value) || SR) : SR;
+        finish({ name: (s || sanitizeFilename(defaultName || "TCM_Grid")), sampleRate: sr });
+      };
+      const cancel = () => finish(null);
+      btnCancel.onclick = cancel;
+      btnClose.onclick = cancel;
+      ov.onclick = (e) => { if (e.target === ov) cancel(); };
+
+      try{ disableNativeTooltips(); }catch(_e){ try{ disableNativeTitleTooltips(); }catch(__){} }
+      try{
+        const ae = document.activeElement;
+        if (ae && ae !== document.body && !ov.contains(ae) && typeof ae.blur === "function") ae.blur();
+      }catch(_e){}
+      ov.classList.add("show");
+      ov.setAttribute("aria-hidden", "false");
+      window.addEventListener("keydown", onKey, true);
+      setTimeout(() => {
+        try{ input.focus({ preventScroll:true }); }catch(_){ try{ input.focus(); }catch(__){} }
+        try{ input.select?.(); }catch(_){ }
+      }, 0);
+    });
+  }
+
+  function resampleGridSlicesToRate(gridL, gridR, gridCount, srcSliceFrames, dstRate){
+    const rate = (Number(dstRate) || SR)|0;
+    if (rate === SR) return { L:gridL, R:gridR, sampleRate: SR, sliceFrames: srcSliceFrames };
+    const dstSliceFrames = Math.max(1, Math.round(srcSliceFrames * rate / SR));
+    const outL = new Float32Array(dstSliceFrames * gridCount);
+    const outR = new Float32Array(dstSliceFrames * gridCount);
+    for (let i=0; i<gridCount; i++){
+      const a = i * srcSliceFrames;
+      const b = a + srcSliceFrames;
+      const l = resampleToLength(gridL.subarray(a, b), dstSliceFrames);
+      const r = resampleToLength(gridR.subarray(a, b), dstSliceFrames);
+      const o = i * dstSliceFrames;
+      outL.set(l, o);
+      outR.set(r, o);
+    }
+    return { L:outL, R:outR, sampleRate: rate, sliceFrames: dstSliceFrames };
+  }
+
+  async function exportGridWav(){
+    try{
+      const loaded = getLoadedGridCellRefs();
+      const loadedCount = loaded.length;
+      const gridCount = getGridExportSize(loadedCount);
+      if (!gridCount){
+        toast(`Grid export needs at least 4 loaded cells. Current: ${loadedCount}.`, 3200);
+        return;
+      }
+
+      const defaultName = getGridExportDefaultName(gridCount);
+      const res = await openGridNameOverlay(defaultName, { loadedCount, gridCount });
+      if (!res){
+        toast("Export cancelled.", 1200);
+        return;
+      }
+
+      const selected = loaded.slice(0, gridCount);
+      const rowFrames = getCellFramesArray();
+      const gridSliceFrames = Math.max(1, ...rowFrames.map(v => Math.max(1, v|0)));
+      const outL = new Float32Array(gridSliceFrames * gridCount);
+      const outR = new Float32Array(gridSliceFrames * gridCount);
+
+      let off = 0;
+      for (const ref of selected){
+        const out = renderCellToTarget(ref.cell, gridSliceFrames, { exportTailAssist:true });
+        outL.set(out.L, off);
+        outR.set(out.R, off);
+        off += gridSliceFrames;
+      }
+
+      const targetSampleRate = (Number(res.sampleRate) === 44100) ? 44100 : SR;
+      const gridAudio = resampleGridSlicesToRate(outL, outR, gridCount, gridSliceFrames, targetSampleRate);
+      const filename = sanitizeFilename(res.name || defaultName).replace(/\.wav$/i, "") + ".wav";
+      const blob = encodeWav16Blob(gridAudio.L, gridAudio.R, gridAudio.sampleRate);
+      const url = URL.createObjectURL(blob);
+      clickDownload(url, filename);
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+
+      const skipped = loadedCount - gridCount;
+      const rateLabel = (gridAudio.sampleRate === 44100) ? "44.1 kHz" : "48 kHz";
+      toast(skipped > 0
+        ? `Exported ${gridCount}-slice grid WAV (${rateLabel}). Last ${skipped} loaded sample${skipped === 1 ? "" : "s"} not added.`
+        : `Exported ${gridCount}-slice grid WAV (${rateLabel}).`,
+        3600);
+    }catch(e){
+      console.error(e);
+      toast(`Grid export failed: ${e?.message || e}`, 4200);
+    }
+  }
+
   async function exportAllColumnsZip(){
     try{
       const files = [];
@@ -13914,6 +14237,7 @@ const _flacCrc8Table = (() => {
 
   exportAllBtn.addEventListener("click", () => { exportAllColumnsZip(); });
   exportCanvasBtn && exportCanvasBtn.addEventListener("click", () => { exportCanvasPOC3(); });
+  exportGridBtn && exportGridBtn.addEventListener("click", () => { exportGridWav(); });
 stopBtn.addEventListener("click", () => stopPlayback());
 
 
@@ -14850,7 +15174,7 @@ function openPresetNameOverlay(defaultName, opts){
     btnClose.onclick = cancel;
     ov.onclick = (e) => { if (e.target === ov) cancel(); };
 
-    disableNativeTooltips();
+    try{ disableNativeTooltips(); }catch(_e){ try{ disableNativeTitleTooltips(); }catch(__){} }
     blurActiveForOverlay();
     ov.classList.add("show");
     ov.setAttribute("aria-hidden","false");
