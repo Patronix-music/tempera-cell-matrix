@@ -1,6 +1,6 @@
 # Tempera Cell Matrix (TCM)
 
-![version](https://img.shields.io/badge/version-2.11.71-blue)
+![version](https://img.shields.io/badge/version-2.11.80-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![platform](https://img.shields.io/badge/platform-Web%20Audio-orange)
 
@@ -14,9 +14,21 @@ https://patronix-music.github.io/tempera-cell-matrix/
 
 ---
 
-## 🔥 TCM v2.11.71 🔥
+## 🔥 TCM v2.11.80 🔥
 
 ### Main new features:
+
+- 🧩 **Export Grid** — Export loaded cells as one evenly sliced 4 / 8 / 16 / 32 / 64 sample-grid WAV.
+- 🎛️ **Sampler-friendly Grid export** — Built for Digitakt II Grid Machine, also useful for MPC/Force, SP-404MKII, Octatrack, Polyend Tracker/Play and 1010music Blackbox workflows.
+- 🔢 **Smart Grid sizing** — Empty cells are skipped; if the loaded count is not exact, TCM uses the nearest lower valid grid size.
+- 🕒 **Grid sample-rate choice** — Export Grid now supports 48 kHz and 44.1 kHz WAV output.
+- 🎚️ **Overflow + Tune** — Long samples can now be tuned first, then safely overflowed across cells.
+- 🔊 **Seamless overflow export** — Long-sample overflow exports no longer get anti-click fades at cell boundaries.
+
+---
+## TCM v2.11.71
+
+### Main new features
 
 🧭 **Compact Tuner popup**
 <br>Added a small Tuner tool in the inspector for looping the selected cell and fine-tuning the existing Cell Pitch slider.
