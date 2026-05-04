@@ -37,6 +37,7 @@ jobs:
           cp apple-touch-icon-152x152-v3.png site/
           cp android-chrome-192x192-v3.png site/
           cp android-chrome-512x512-v3.png site/
+          cp safari-pinned-tab.svg site/
           cp site-v3.webmanifest site/
 
           touch site/.nojekyll
