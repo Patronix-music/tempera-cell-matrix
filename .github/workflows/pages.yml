@@ -26,6 +26,21 @@ jobs:
           rm -rf site
           mkdir -p site
           cp index.html site/index.html
+
+          cp favicon-v2.ico site/
+          cp favicon-16x16-v2.png site/
+          cp favicon-32x32-v2.png site/
+          cp apple-touch-icon-v2.png site/
+          cp android-chrome-192x192-v2.png site/
+          cp android-chrome-512x512-v2.png site/
+          cp site-v2.webmanifest site/
+
+          # Optional fallback for stubborn browsers/bookmarks
+          cp favicon.ico site/ || true
+          cp favicon-16x16.png site/ || true
+          cp favicon-32x32.png site/ || true
+          cp apple-touch-icon.png site/ || true
+
           touch site/.nojekyll
 
       - name: Upload Pages artifact
