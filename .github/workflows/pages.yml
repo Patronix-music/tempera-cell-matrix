@@ -27,13 +27,13 @@ jobs:
           mkdir -p site
           cp index.html site/index.html
 
-          cp favicon-v2.ico site/
-          cp favicon-16x16-v2.png site/
-          cp favicon-32x32-v2.png site/
-          cp favicon-48x48-v2.png site/
-          cp apple-touch-icon-v2.png site/
-          cp android-chrome-192x192-v2.png site/
-          cp android-chrome-512x512-v2.png site/
+          cp favicon-v3.ico site/
+          cp favicon-16x16-v3.png site/
+          cp favicon-32x32-v3.png site/
+          cp favicon-48x48-v3.png site/
+          cp apple-touch-icon-v3.png site/
+          cp android-chrome-192x192-v3.png site/
+          cp android-chrome-512x512-v3.png site/
           cp site-v2.webmanifest site/
 
           # Optional fallback for stubborn browsers/bookmarks
