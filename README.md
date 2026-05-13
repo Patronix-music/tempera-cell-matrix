@@ -1,6 +1,6 @@
 # Tempera Cell Matrix (TCM)
 
-![version](https://img.shields.io/badge/version-2.11.80-blue)
+![version](https://img.shields.io/badge/version-2.12.81-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![platform](https://img.shields.io/badge/platform-Web%20Audio-orange)
 
@@ -12,6 +12,62 @@ Focus: **fast, visual sample preparation** that feels like an **instrument**, no
 👉 **Live app:**  
 https://patronix-music.github.io/tempera-cell-matrix/
 
+---
+
+## 🔥 TCM v2.12.81 🔥
+
+### Main new features:
+
+- 🎚️ **Auto fade presets**
+  Added Click-safe, Soft, Strong and Custom Auto fade presets.
+  `A` applies Auto fade, while `Shift+A` opens the settings.
+
+- 🎵 **Improved Cell Pitch workflow**
+  Cell Pitch now supports faster and finer tuning steps:
+  normal, Shift and Alt/Option precision control. Keyboard shortcut: `-` / `+`
+
+- 🎛️ **Compact Tuner shortcuts**
+  `T` opens now the Tuner. `F` is now for fitting your long samples.
+
+- 🧲 **Wave Editor Snap**
+  Wave Snap now defaults to off, remembers its setting, and snaps
+  released L/R handles to the nearest nearby zero crossing.
+
+- ✂️ **Slice Editor Snap**
+  Slice Snap was added for L/R handle release and also works after
+  L/R arrow nudges settle.
+
+- 🎨 **Matrix palettes**
+  The app logo now cycles and remembers matrix palettes, including
+  stronger fun-style "Logo 4" colors.
+
+
+### Fixes and improvements:
+
+- 🧩 **Wave and Slice zoom mapping stabilized**
+  Zoom and magnifier mapping are now more consistent in both editors.
+
+- ↩️ **Better undo coverage**
+  Column Clear can now be undone with `Cmd/Ctrl+Z`.
+
+- ✂️ **Wave Editor selection fixes**
+  Wave Editor `Esc` now preserves long-sample selections, and sliced
+  cell edits persist correctly.
+
+- 🔊 **Fade rendering fixes**
+  Fade-out and fade envelopes now follow the audible trimmed or
+  fit-rendered sample length more accurately.
+
+- 🎛️ **Fit mode fix**
+  Fit mode no longer mirrors temporary Wave Editor selections, so
+  Trim and Fit behave separately again.
+
+- 📘 **Help shortcut**
+  Clicking the version text opens Help directly at the Release notes.
+
+- 🧹 **Interface cleanup**
+  Colors are reduced (better with matrix palletes),
+  buttons (also with shift function) are visible on or off and consistent.  
 ---
 
 ## 🔥 TCM v2.11.80 🔥
