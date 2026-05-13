@@ -306,6 +306,69 @@
       container-type: inline-size;
     }
 
+    /* v2.11.98: switchable subtle matrix column palettes */
+    #cols .col{
+      background:
+        linear-gradient(180deg, var(--tcmColTintA, rgba(255,255,255,0)), var(--tcmColTintB, rgba(255,255,255,0))),
+        var(--panel);
+    }
+    html[data-matrix-palette="default"] #cols .col{
+      --tcmColTintA: rgba(255,255,255,0);
+      --tcmColTintB: rgba(255,255,255,0);
+    }
+    html:not([data-matrix-palette]) #cols .col:nth-child(4n+1),
+    html[data-matrix-palette="tempera4"] #cols .col:nth-child(4n+1){ --tcmColTintA: rgba(0, 229, 255, 0.050); --tcmColTintB: rgba(0, 229, 255, 0.042); }
+    html:not([data-matrix-palette]) #cols .col:nth-child(4n+2),
+    html[data-matrix-palette="tempera4"] #cols .col:nth-child(4n+2){ --tcmColTintA: rgba(255, 0, 220, 0.046); --tcmColTintB: rgba(255, 0, 220, 0.038); }
+    html:not([data-matrix-palette]) #cols .col:nth-child(4n+3),
+    html[data-matrix-palette="tempera4"] #cols .col:nth-child(4n+3){ --tcmColTintA: rgba(255, 245, 0, 0.044); --tcmColTintB: rgba(255, 245, 0, 0.036); }
+    html:not([data-matrix-palette]) #cols .col:nth-child(4n+4),
+    html[data-matrix-palette="tempera4"] #cols .col:nth-child(4n+4){ --tcmColTintA: rgba(0, 255, 55, 0.046); --tcmColTintB: rgba(0, 255, 55, 0.038); }
+
+    html[data-matrix-palette="blue"] #cols .col:nth-child(odd){ --tcmColTintA: rgba(0, 229, 255, 0.050); --tcmColTintB: rgba(0, 229, 255, 0.042); }
+    html[data-matrix-palette="blue"] #cols .col:nth-child(even){ --tcmColTintA: rgba(255,255,255,0); --tcmColTintB: rgba(255,255,255,0); }
+    html[data-matrix-palette="pink"] #cols .col:nth-child(odd){ --tcmColTintA: rgba(255, 0, 220, 0.046); --tcmColTintB: rgba(255, 0, 220, 0.038); }
+    html[data-matrix-palette="pink"] #cols .col:nth-child(even){ --tcmColTintA: rgba(255,255,255,0); --tcmColTintB: rgba(255,255,255,0); }
+    html[data-matrix-palette="yellow"] #cols .col:nth-child(odd){ --tcmColTintA: rgba(255, 245, 0, 0.044); --tcmColTintB: rgba(255, 245, 0, 0.036); }
+    html[data-matrix-palette="yellow"] #cols .col:nth-child(even){ --tcmColTintA: rgba(255,255,255,0); --tcmColTintB: rgba(255,255,255,0); }
+    html[data-matrix-palette="green"] #cols .col:nth-child(odd){ --tcmColTintA: rgba(0, 255, 55, 0.046); --tcmColTintB: rgba(0, 255, 55, 0.038); }
+    html[data-matrix-palette="green"] #cols .col:nth-child(even){ --tcmColTintA: rgba(255,255,255,0); --tcmColTintB: rgba(255,255,255,0); }
+
+    /* Fan / logo palette: deliberately stronger four-color column cycle */
+    html[data-matrix-palette="logo4"] #cols .col{
+      /* Lower neutral grey base so the logo colors stay cleaner/purer. */
+      background:
+        linear-gradient(180deg, var(--tcmColTintA, rgba(255,255,255,0)), var(--tcmColTintB, rgba(255,255,255,0))),
+        rgba(0,0,0,0.12);
+    }
+    html[data-matrix-palette="logo4"] #cols .col .colHead{
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.16), rgba(0,0,0,0.06)),
+        linear-gradient(180deg, var(--tcmColTintA, rgba(255,255,255,0.02)), var(--tcmColTintB, rgba(255,255,255,0.01)));
+    }
+    html[data-matrix-palette="logo4"] #cols .col:nth-child(4n+1){ --tcmColTintA: rgba(0, 229, 255, 0.150); --tcmColTintB: rgba(0, 229, 255, 0.136); }
+    html[data-matrix-palette="logo4"] #cols .col:nth-child(4n+2){ --tcmColTintA: rgba(255, 0, 220, 0.140); --tcmColTintB: rgba(255, 0, 220, 0.126); }
+    html[data-matrix-palette="logo4"] #cols .col:nth-child(4n+3){ --tcmColTintA: rgba(255, 245, 0, 0.130); --tcmColTintB: rgba(255, 245, 0, 0.118); }
+    html[data-matrix-palette="logo4"] #cols .col:nth-child(4n+4){ --tcmColTintA: rgba(0, 255, 55, 0.140); --tcmColTintB: rgba(0, 255, 55, 0.126); }
+    html[data-matrix-palette="logo4"] #cols .col .cell{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.020)),
+        linear-gradient(180deg, rgba(0,0,0,0.16), rgba(0,0,0,0.08)),
+        linear-gradient(180deg, var(--tcmColTintA, rgba(255,255,255,0.04)), var(--tcmColTintB, rgba(255,255,255,0.03)));
+      border-color: rgba(255,255,255,0.14);
+    }
+    html[data-matrix-palette="logo4"] #cols .col .cell.locked{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.030), rgba(255,255,255,0.014)),
+        linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.10)),
+        linear-gradient(180deg, var(--tcmColTintA, rgba(255,255,255,0.03)), var(--tcmColTintB, rgba(255,255,255,0.02)));
+    }
+    #cols .col.dragover{
+      background:
+        linear-gradient(180deg, rgba(125,211,252,0.10), rgba(125,211,252,0.07)),
+        var(--panel);
+    }
+
     .col.loaded{
       border-color: rgba(125,211,252,0.28);
     }
@@ -320,6 +383,11 @@
       padding: 10px 10px 10px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
       background: linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.05));
+    }
+    #cols .col .colHead{
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.05)),
+        linear-gradient(180deg, var(--tcmColTintA, rgba(255,255,255,0.02)), var(--tcmColTintB, rgba(255,255,255,0.01)));
     }
 
     .colHeadRow{
@@ -1048,6 +1116,28 @@
       cursor:pointer;
       font-weight: 900;
     }
+    button.tcmActiveBtn,
+    .helpClose.tcmActiveBtn{
+      border-color: rgba(52,211,153,0.55) !important;
+      background: rgba(52,211,153,0.17) !important;
+      color: var(--text) !important;
+    }
+    button.tcmActiveBtn:hover,
+    .helpClose.tcmActiveBtn:hover{
+      border-color: rgba(52,211,153,0.75) !important;
+      background: rgba(52,211,153,0.23) !important;
+    }
+    button.tcmBlueActiveBtn,
+    .helpClose.tcmBlueActiveBtn{
+      border-color: rgba(125,211,252,0.62) !important;
+      background: rgba(125,211,252,0.18) !important;
+      color: var(--text) !important;
+    }
+    button.tcmBlueActiveBtn:hover,
+    .helpClose.tcmBlueActiveBtn:hover{
+      border-color: rgba(125,211,252,0.82) !important;
+      background: rgba(125,211,252,0.25) !important;
+    }
     .helpBody{
       padding: 8px;
       font-size: 11px;
@@ -1064,6 +1154,8 @@
 	    .helpCardRelease .helpList{ columns: 2; column-gap: 18px; }
 	    .helpCardRelease .helpList li{ break-inside: avoid; }
 	    .helpCardRelease p{ margin: 6px 0 8px; }
+	    .helpCardRelease:focus,
+	    .helpCardRelease:focus-visible{ outline: 2px solid rgba(125,211,252,0.35); outline-offset: 2px; }
 
     .helpCard{
       border: 1px solid rgba(255,255,255,0.10);
@@ -1135,7 +1227,7 @@
       height: var(--miniBtnH) !important;
       min-height: var(--miniBtnH) !important;
       padding: 0 10px !important;
-      border-radius: 999px;
+      border-radius: 12px;
       font-size: 11px;
       letter-spacing: 0.2px;
       line-height: var(--miniBtnH) !important;
@@ -1441,8 +1533,8 @@ input[type="number"]::-webkit-inner-spin-button{
       font-size: 11px;
       padding: 0 8px;
     }
-    .actions .field input[type="number"]{ width: 82px; }
-    .actions .field{ min-width: 84px; }
+    .actions .field input[type="number"]{ width: 47px; }
+    .actions .field{ min-width: 64px; }
     .pill{ font-size: 11px; padding: 2px 8px; }
 
   
@@ -1454,8 +1546,87 @@ input[type="number"]::-webkit-inner-spin-button{
     .titleRow{
       display:flex;
       flex-wrap: wrap;
-      align-items: baseline;
-      gap: 10px 12px;
+      align-items: center;
+      gap: 6px;
+    }
+    .titleRow .spec{
+      margin-top: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 20px;
+      line-height: 1;
+      vertical-align: middle;
+    }
+    .titleRow #appTitle{
+      line-height: 22px;
+      margin-right: 4px;
+    }
+    .titleRow .versionText{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height: 20px;
+      line-height: 20px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      color: var(--text);
+      opacity: 1;
+      cursor: pointer;
+      user-select: none;
+      padding: 0;
+      margin: 0 14px 0 0;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      vertical-align: middle;
+      transform: translateY(1px);
+    }
+    .titleRow .versionText:hover{ color: var(--muted); opacity: 1; }
+    .titleRow .versionText:focus,
+    .titleRow .versionText:focus-visible{
+      outline: none;
+      color: var(--muted);
+      box-shadow: 0 0 0 2px rgba(125,211,252,0.22);
+      border-radius: 6px;
+    }
+    .titleRow #donateBadge{
+      align-self: center;
+      margin-left: 0;
+      transform: none;
+    }
+    .titleLogoBtn{
+      align-self: center;
+      appearance: none;
+      border: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      width: 22px !important;
+      min-width: 22px !important;
+      height: 22px !important;
+      min-height: 22px !important;
+      padding: 0 !important;
+      border-radius: 7px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 22px;
+      cursor: pointer;
+    }
+    .titleLogoBtn:hover{
+      background: rgba(255,255,255,0.07) !important;
+    }
+    .titleLogoBtn:focus,
+    .titleLogoBtn:focus-visible{
+      outline: none !important;
+      box-shadow: 0 0 0 2px rgba(125,211,252,0.22) !important;
+    }
+    .titleLogo{
+      width: 18px;
+      height: 18px;
+      display: block;
+      flex: 0 0 auto;
     }
     .specInline{
       display:flex;
@@ -1780,7 +1951,7 @@ header{ overflow: visible; }
   background-size:14px 14px;
   opacity:0.85;
 }
-#random64Btn.hasFilter .filterIcon{ display:inline-block; }
+#random64Btn.hasFilter .filterIcon{ display:none; }
 
 
 /* --- Split Editor selections --- */
@@ -2060,10 +2231,46 @@ input[type="range"]::-moz-range-thumb{
   border: 1px solid rgba(255,255,255,0.28);
   box-shadow: 0 6px 16px rgba(0,0,0,0.35);
 }
+/* Per-slider logo-color thumb tints */
+#vol{ --sliderThumbColor: rgb(45,66,86); --sliderThumbBorderColor: rgb(65,86,106); }
+#fadeIn{ --sliderThumbColor: rgb(64,53,90); --sliderThumbBorderColor: rgb(84,73,110); }
+#fadeOut{ --sliderThumbColor: rgb(60,70,66); --sliderThumbBorderColor: rgb(80,90,86); }
+#pitch{ --sliderThumbColor: rgb(48,74,70); --sliderThumbBorderColor: rgb(68,94,90); }
+#vol::-webkit-slider-thumb,
+#fadeIn::-webkit-slider-thumb,
+#fadeOut::-webkit-slider-thumb,
+#pitch::-webkit-slider-thumb{
+  background: var(--sliderThumbColor);
+  border-color: var(--sliderThumbBorderColor);
+  box-shadow: none;
+}
+#vol::-moz-range-thumb,
+#fadeIn::-moz-range-thumb,
+#fadeOut::-moz-range-thumb,
+#pitch::-moz-range-thumb{
+  background: var(--sliderThumbColor);
+  border-color: var(--sliderThumbBorderColor);
+  box-shadow: none;
+}
+
 /* Reduce the default iOS highlight */
 input[type="range"]::-webkit-slider-thumb:active{
-  box-shadow: 0 0 0 6px rgba(125,211,252,0.18), 0 6px 16px rgba(0,0,0,0.35);
+  box-shadow: 0 0 0 5px rgba(125,211,252,0.12);
 }
+#vol::-webkit-slider-thumb:active{ box-shadow: 0 0 0 5px rgba(36,53,69,0.24); }
+#fadeIn::-webkit-slider-thumb:active{ box-shadow: 0 0 0 5px rgba(51,42,72,0.24); }
+#fadeOut::-webkit-slider-thumb:active{ box-shadow: 0 0 0 5px rgba(48,56,53,0.22); }
+#pitch::-webkit-slider-thumb:active{ box-shadow: 0 0 0 5px rgba(38,59,56,0.24); }
+
+/* Fan / logo palette: bright logo slider thumbs */
+html[data-matrix-palette="logo4"] #vol{ --sliderThumbColor: rgb(0, 229, 255); --sliderThumbBorderColor: rgb(80, 244, 255); }
+html[data-matrix-palette="logo4"] #fadeIn{ --sliderThumbColor: rgb(255, 0, 220); --sliderThumbBorderColor: rgb(255, 92, 236); }
+html[data-matrix-palette="logo4"] #fadeOut{ --sliderThumbColor: rgb(255, 245, 0); --sliderThumbBorderColor: rgb(255, 250, 90); }
+html[data-matrix-palette="logo4"] #pitch{ --sliderThumbColor: rgb(0, 255, 55); --sliderThumbBorderColor: rgb(90, 255, 125); }
+html[data-matrix-palette="logo4"] #vol::-webkit-slider-thumb:active{ box-shadow: 0 0 0 5px rgba(0,229,255,0.24); }
+html[data-matrix-palette="logo4"] #fadeIn::-webkit-slider-thumb:active{ box-shadow: 0 0 0 5px rgba(255,0,220,0.22); }
+html[data-matrix-palette="logo4"] #fadeOut::-webkit-slider-thumb:active{ box-shadow: 0 0 0 5px rgba(255,245,0,0.20); }
+html[data-matrix-palette="logo4"] #pitch::-webkit-slider-thumb:active{ box-shadow: 0 0 0 5px rgba(0,255,55,0.22); }
 
 
     /* --- Touch / iPad: allow scrolling without visible scrollbars --- */
@@ -2196,7 +2403,10 @@ input[type="range"]::-webkit-slider-thumb:active{
 }
 
 
-
+/* Cell Pitch slider active keyboard/mouse-step focus hint */
+#pitch.pitchSliderActive{
+  filter: drop-shadow(0 0 6px rgba(125,211,252,0.35));
+}
 
 /* Compact Tuner popup */
 .tunerPanel{ width:min(460px, calc(100vw - 24px)); }
@@ -2219,6 +2429,136 @@ input[type="range"]::-webkit-slider-thumb:active{
 .tunerStatus.is-warn{ color:var(--warn); }
 .tunerStatus.is-bad{ color:var(--bad); }
 
+
+/* v2.12.14: compact non-scrolling header actions (Safari-safe) */
+.actionsWrap{
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+  padding-bottom: 0 !important;
+}
+.actions{
+  flex-wrap: wrap !important;
+  align-items: flex-end !important;
+  align-content: flex-start !important;
+  gap: 6px 7px !important;
+  max-width: 100% !important;
+}
+.btnGroupInline{
+  flex-wrap: wrap !important;
+  gap: 6px 7px !important;
+}
+.actions .sep{
+  height: 28px !important;
+  margin: 0 5px 1px !important;
+}
+.actions button,
+.actions .tog{
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+.actions .field{
+  min-width: 48px !important;
+}
+.actions .field[title="Beats per minute"],
+.actions .field[title="How many beats in one cell (slice)."]{
+  min-width: 42px !important;
+}
+#bpm,
+#beatsPerCell{
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  padding-left: 3px !important;
+  padding-right: 3px !important;
+}
+.actions .stepBtn{
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+}
+.actions > .field.nameTpl{
+  min-width: 210px !important;
+}
+
+
+/* Auto fade active-state: color only, no symbol */
+#inspAutoFadeBtn{ position: relative; }
+#inspAutoFadeBtn.autoFadeNonDefault{
+  letter-spacing: -0.1px;
+}
+#inspAutoFadeBtn.autoFadeNonDefault::after{
+  content: none;
+}
+
+/* Auto fade percent popup */
+.autoFadePanel{ width:min(500px, calc(100vw - 24px)); }
+.autoFadePresetList{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+.autoFadePreset{
+  display:flex;
+  align-items:flex-start;
+  gap: 8px;
+  padding: 8px 9px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.035);
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+.autoFadePreset input{ margin-top: 2px; accent-color: var(--accent); }
+.autoFadePreset:focus-within,
+.autoFadePreset.autoFadePresetFocus{
+  border-color: rgba(125,211,252,0.58);
+  background: rgba(125,211,252,0.10);
+  color: var(--text);
+  box-shadow: 0 0 0 3px rgba(125,211,252,0.16);
+}
+.autoFadePreset input:focus,
+.autoFadePreset input:focus-visible{
+  outline: none !important;
+  box-shadow: none !important;
+}
+.autoFadePreset b{ color: var(--text); }
+.autoFadePctGrid{
+  display:grid;
+  grid-template-columns: repeat(2, max-content);
+  gap: 10px;
+  margin-top: 10px;
+  align-items:end;
+}
+.autoFadePctGrid label{
+  display:flex;
+  flex-direction:column;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.autoFadePctGrid input[type="number"]{
+  width: 64px;
+  max-width: 64px;
+  height: calc(var(--ctrlH) - 8px);
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 0 6px;
+  outline: none;
+  font-size: 12px;
+  text-align: center;
+}
+.autoFadePctGrid input[type="number"]:focus,
+.autoFadePctGrid input[type="number"]:focus-visible{
+  border-color: rgba(125,211,252,0.45) !important;
+  box-shadow: 0 0 0 3px rgba(125,211,252,0.14) !important;
+}
+@media (max-width: 560px){
+  .autoFadePresetList{ grid-template-columns: 1fr; }
+}
+
 </style>
 </head>
 <body>
@@ -2227,17 +2567,17 @@ input[type="range"]::-webkit-slider-thumb:active{
       <div class="topline">
         <div>
           <div class="titleRow">
-            <h1 id="appTitle">Tempera Cell Matrix</h1><span class="spec" id="aboutBadge" title="">v</span>
+            <button class="titleLogoBtn" id="matrixPaletteBtn" type="button" aria-label="Matrix palette"><img class="titleLogo" alt="" aria-hidden="true" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAKn0lEQVR4nO2bW6wdVRnHf9+avXd7KG2lIC2lQClEBQzK7aggvEjDi4mXkPggRFBjDAZJUMIDMXiNCa9EowgmqA/EF9QEA4FgDLECgtK0BGqxQLm0lN7o6enpvsz6+7DW3PY+p53ZRzw09Gtmz5yZb631rW99t/WfqQHifUxuoQVYaDqugIUWYKHpuAIWWoCFpuMKWGgBFpqOeQXYPNu3xmrlqnozQEYoqbyPNw1zQTwBplLFJYWj0ofhsMCbscX7Ho9ia4fDyAYrSIDHN57KaE9Ha2BWEb4scGSIPYritzpgxidlkzKUT3F2crGlPwKXw6EjcoxSbQUYgDloLYUrr4HVayBNQ2PvIQF7/RXY8BikXVi5Fq5cj5IO+bTNMA3gyQ3wyiawFFN4eq6t5XIuJyGhUJ5ISXlCf+NVXich4Qr7JGdzFkI4EoRokfA2u/iL/soUh0lJGylBdQ5zTobJvnq7zEv0JBQPH8626U3ZiatlIPvytyvPkMQg8j25RbZincxMzpxWskLPuA1Sourhwvk2u1mAlrNEz7uN4f7wkUi32y1yoBZJrTkBqh8DDKCNJiehL3jxHWzf/mhDHiYSeG5TWH0MdryJPb0NZqLlSNBejE4/Fa07F1uzDtu7DW/iTDuTj3Ie3vbyhnZwWF0MR4rHaYLtbMcwUgY8y9N0aDNgBosR4iT7AKfoHC6zSTpyDGaNErNTbQUEX0+wbh+1DXt8A9x5GyxKwSsoYWY/9A6ECT/xZ1j/FLQnQlwYeLjgcvjNfdAfDEkn+vRpqcV3/Xf4u56hRRuP6NHjHaZJzOhqwM3+Fk5kAhf/wYAfuR9zPefQpxuDZH2qrYAsnovotN2DcOAlSAZF5KcUIAczMPVavO0Cz4G18e/q+lj+z7GbA7zGHhJcHhgN8BIGTDHDFDNBeGvh1ecQh0tDj4Tl/40CRsiycQzJoiuUljW/tjDfkefF5Wjctuikis/LTYp+pYyjmHBTcKN5IWRFbkeZkKN5vaAQ/3LJimJgqN+ib0rTH+61nIDzxKmii6bUXAFDg9UZ1Ib/sKIrA5wKpdbJ4mWOoDeL1/WDX0YNFWDROLOh61EukJVmPlwoKVSL86Gy29SlsfcCTQcqGhaKG/HcsQt7q7RtYp2NFaARX27Y2EZLZJVdf4yOLcaY4UWp01NDBahU1c4WomqSgVlp6DhxoejFtSQpXaskmo08PxLNYztcimY1OEeonDXy2DAc3saRqVkl0FgBVphAo1bl02huiyLn++rANJeKR+9nbuUbx6bGhVBlAOcgKXRoEQ8QMTW5krLkwCXhemhW5eTlzHByeSUIYZ+fpcckxwMgieJbXMfZN+BHpsYKyIGNFPCGepkCFG5ahDUEpB7lQwjrJaWOZgnbQEovTreoCAzitI20AnqkAHhLgwHJqBtDMmqoAKF2C7opXHwR+uHPsSRFEtYy2LoFfvsL6E/DeZfCdTdgtJFZ2DCtWFOgQS4pfFUg84iUb3ETX7BdGC4qwnhAD/AMG+mQ8BW7kfM5H88gWolnkstISWnRYpzYUQ8PSJwMJ/vJPaG2nSnt87PjlX2ypWsCHnDjbaPPFXAEe6srO/vSwGemj9g67Xc7qjhA6bjDbhWgFSzVy8nWEbwgO35ldysBtWi9C3iAVzDbe36GLV8KK1dBLy0wpY7B5s3QOxh2f5ufw37/CPQzv4+MHeAPD8H2F8E5nDdeZju3citftGvx6udmHDC+Fk/xDxxGlx6/0/1cxMV4+gECk2jR5m12c7fujpaT1p5Wo9LZ8vjbAncClejuPWgGnA/YAAmoA0kn8ITICGkfOAQO5IOgmSm3MVq0KoF2wIA0jhsK8ZQOScQCCurRx0e+tAE4OhYoasncfqZBgQq7lo1sEs2CfnxaFTIxh5ljtjQm+RwPcM4xl5/L+4aQaGMLCBPwR2iRWfrROi2DyzaLFCPFzBw1RIXPAb7ZijZChc2g3YKLPuZYuaoEBEXauUNs3CwGKXzwZOPjFxrtTnWbn3rYtEm8saO01gasNLiwBW0FBCRr0wc2pfCWIAEucLDaVaV3BrsFzw2gF1aoiRKOngFAziEzdOP1iQ4fmpAGiyQtlrRI8uF6y+aOTjkptPn6Da70LB6xzROPd3TqCuQMmUN2sil5fIVaOl2JVsdjlZxWymmV7JuLghzLUfLsCjmdJqdVSrRKiU4Lfx8+TfaNxTJD5uyoc8qO+phg9N2rr3YsmoDpPUZ3EHK69yJZZOzYEVYfYGoK9uwW6oUCEInEOZYthU99wnHWWmPXXuEEnO2wKzp4L9gPDGLGSUFtYDpakQftBPYa9Hyoms2wxYaWOWz9InTf4QZr36QQUrC0Xi9ggI88OuDO7/cxZ3gvJNj3DhycDnwPPez552SfdluYGWkKl1ziuP/XbXpd5VUyRBPrAubh5r3oXwNoWVijnmCnD+Y+A/raPjjJBX8PaCn2vWXYl5aiXpzR4N1QQFQCEmbiwAGxeUuAL4f3cCIoYuvLVfDg5FPCOXtNUOk3urVe9fDCHGnMAzsFO6OZZUFvvy9Q4YY79EbvBcK5GMVZ2A/5UuTNI3v8GckcpXuV/hXQgHxlS1liWMOZks3NxVSfGr0XCCmn2IxmZX0Z9M1I8Sdb3OKFsFXAv+wWBGQnW0XlD0c7VvlaEREaUwG18ICqtUYzng9+V8rwNvRs7G5n7/CoVB8QqWzjNfdrgCN1YZCDHyPPwn5BNsZaWv7TuHEtBWRb1tIwOa5Rx/hy98/3vqpaUHkCNFzEnFljWU9zSKycvqiHDOaFYK6JwpELX88iX0OBslKt9MaiCdWOAUXZGgfTuN4a8J1SUogXVVuaV4hpQM3eDue+ILDmr0byl6RoNIgOpZK6fQ95z7sYA7L+S2nXZmOYrW1lJ6fYz0ghUOKpTzEnjZ0/mleCcSBnARA2R8VHsqLIYpGEIg9xTxDJhlYtn3cCuOx5rDN90X94Zvl1+WwGTT2z4RciufikPnz0MQy+ZDW+BGmGTEWewSC0zeDBETKgrwAo5aMOZTlf1CI58pWBK2PEpYZfiECSiDQVF5znuOP2Fs5BmgrnjG3bxIN/TOn24MMfMj7/uYRWEixBHs44w+IEIClZAw5MIbDadSfApweQxPo5BR7uwQsptMF9toPObYVUmgRl2oWdwDfG5x6NPpJKgelpI0mMyasck1e1KEzAsev1lEcfS5npwvrPOH56V3tIfcFXNC0OTpf6PqggScdhNy0bamGI3ej5FJsAu2s5rFtM9kmllX1jRgFAqWEIWQ1TSwEi+LYzuPfelLPWwspTjXTgw0bHQ9IRmzeG1TeDrS/B008KS33+xSgIa8GfHkzZ+pKCZQD8x6MfTGHXLkEZoGCWY6v8Ow0xoQd6uAuToL7iZghoG9rj0S+jVmtgouU0XDvu5sh2C5YsqXaEh5ku9NNg7kkCizvQbhdtzUIcmDoY3NXHbX4ezJYSlqQsUR84TDA/i88nqOYvZ3BIgQ9KMaTGnGiggPJE5ophWTrPtrzDbFlAyz8pJtvaRuEzRlUtWaoGQ8rXWdpR8z1KYwUMNzxSDVKRb+j8XqH3mjz/dzrm/7/AfOm4AhZagPnSfBGkY14B8w1gx7wC5kvHFbDQAiw0ve8V8F+PA4ZsdD1iFQAAAABJRU5ErkJggg==" /></button><h1 id="appTitle">Tempera Cell Matrix</h1><span class="versionText" id="aboutBadge" title="">v</span>
             </div>
           <div class="specInline" id="specLine"></div>
 </div>
 
         <div class="actionsWrap"><div class="actions">
-          <div class="btnGroupInline"><button class="pop" id="random64Btn" title="Randomly fill all 64 cells. If a Sources list is active, Random 64 uses that live folder pool. Tip: hold Shift to filter which files are used for loading samples.">Random 64 <span class="filterIcon" aria-hidden="true"></span></button><button class="secondary" id="random64SourcesBtn" title="Manage a reusable live folder list for Random 64 / Random 8">Sources</button>
-          <button class="warn" id="exportAllBtn">Export all (ZIP)</button>
-          <button class="warn" id="exportCanvasBtn" title="Export Tempera .canvas">Export .canvas</button>
-          <button class="warn" id="exportGridBtn" title="Export loaded cells as one evenly sliced sampler grid WAV">Export Grid</button>
-          <button class="secondary" id="importPresetBtn" title="Load preset JSON or exported ZIP. ZIP imports can auto-use embedded TCM_Sources.">Import Preset</button>
+          <div class="btnGroupInline"><button class="secondary" id="random64Btn" title="Randomly fill all 64 cells. If a Sources list is active, Random 64 uses that live folder pool. Tip: hold Shift to filter which files are used for loading samples.">Random 64</button><button class="secondary" id="random64SourcesBtn" title="Manage a reusable live folder list for Random 64 / Random 8">Sources</button>
+          <button class="secondary" id="exportAllBtn">Export all (ZIP)</button>
+          <button class="secondary" id="exportCanvasBtn" title="Export Tempera .canvas">Export .canvas</button>
+          <button class="secondary" id="exportGridBtn" title="Export loaded cells as one evenly sliced sampler grid WAV">Export grid</button>
+          <button class="secondary" id="importPresetBtn" title="Load preset JSON or exported ZIP. ZIP imports can auto-use embedded TCM_Sources.">Import preset</button>
           <button class="secondary" id="helpBtn" title="Show help / shortcuts">Help</button></div>
 
           <span class="sep" aria-hidden="true"></span>
@@ -2283,7 +2623,7 @@ input[type="range"]::-webkit-slider-thumb:active{
         </div>
 </div>
     </div>
-  <div class="copyrightTop"><span id="copyrightText"></span><div class="miniRow"><button class="secondary audioMini" id="autoPreviewBtn" title="Automatically preview the selected cell while navigating with arrow keys or by clicking a matrix cell">Auto preview: Off</button><button class="secondary audioMini" id="scrollbarBtn" title="Toggle matrix scrollbar visibility">Scrollbar: On</button><button class="good audioMini" id="enableAudioBtn" title="Required on some browsers before audio playback">Enable audio</button><button class="secondary audioMini" id="stopBtn">Stop</button><button class="danger audioMini" id="clearAllBtn">Clear all</button></div></div>
+  <div class="copyrightTop"><span id="copyrightText"></span><div class="miniRow"><button class="secondary audioMini" id="autoPreviewBtn" title="Automatically preview the selected cell while navigating with arrow keys or by clicking a matrix cell">Auto preview</button><button class="secondary audioMini" id="scrollbarBtn" title="Toggle matrix scrollbar visibility">Scrollbar</button><button class="secondary audioMini" id="enableAudioBtn" title="Required on some browsers before audio playback">Enable audio</button><button class="secondary audioMini" id="stopBtn">Stop</button><button class="danger audioMini" id="clearAllBtn">Clear all</button></div></div>
 </header>
 
   <main>
@@ -2297,17 +2637,18 @@ input[type="range"]::-webkit-slider-thumb:active{
             <div class="d" id="inspDesc">Select a cell.</div>
           </div>
           <div class="ctrlRow">
-            <button class="tiny good" id="inspNormalizeBtn">Normalize</button>
-            <button class="tiny good" id="inspTunerBtn" title="Open a compact tuner for the selected cell and loop it while fine-tuning Cell Pitch">Tuner</button>
-            <button class="tiny good" id="inspFitAllBtn" title="Set all 64 cells to fit (rate/pitch) mode">Fit All</button>
-            <button class="tiny pop" id="inspPrepLoopBtn" title="Load one loop into the selected column, fit it to the current BPM/beats grid, and slice it across 8 cells">Loop Prep</button>
-            <button class="tiny pop" id="inspRemixBtn" title="Create a simple remix variant of the current column in the next empty column to the right">Remix</button>
-            <button class="tiny secondary lockBulkBtn" id="inspLockColBtn" title="Lock or unlock all 8 cells in this column">Lock Col</button>
-            <button class="tiny secondary lockBulkBtn" id="inspLockRowBtn" title="Lock or unlock this row across all 8 columns">Lock Row</button>
-            <button class="tiny secondary selBulkBtn" id="inspSelectColBtn" title="Select all 8 cells in this column">Sel Col</button>
-            <button class="tiny secondary selBulkBtn" id="inspSelectRowBtn" title="Select this row across all 8 columns">Sel Row</button>
-            <button class="tiny secondary" id="inspCopyToColBtn" title="Copy settings to all 8 cells in this column">Copy→Col</button>
-            <button class="tiny secondary" id="inspCopyToAllBtn" title="Copy settings to all 64 cells">Copy→All</button>
+            <button class="tiny secondary" id="inspTunerBtn" title="Open a compact tuner for the selected cell and loop it while fine-tuning Cell Pitch">Tuner</button>
+            <button class="tiny secondary" id="inspAutoFadeBtn" title="Set Fade In and Fade Out automatically from the saved Auto fade scale. Shift-click or Shift+A opens presets and custom Start/End percentages.">Auto fade</button>
+            <button class="tiny secondary" id="inspNormalizeBtn">Normalize</button>
+            <button class="tiny secondary" id="inspFitAllBtn" title="Set all 64 cells to fit (rate/pitch) mode">Fit all</button>
+            <button class="tiny secondary" id="inspPrepLoopBtn" title="Load one loop into the selected column, fit it to the current BPM/beats grid, and slice it across 8 cells">Loop prep</button>
+            <button class="tiny secondary" id="inspRemixBtn" title="Create a simple remix variant of the current column in the next empty column to the right">Remix</button>
+            <button class="tiny secondary lockBulkBtn" id="inspLockColBtn" title="Lock or unlock all 8 cells in this column">Lock col</button>
+            <button class="tiny secondary lockBulkBtn" id="inspLockRowBtn" title="Lock or unlock this row across all 8 columns">Lock row</button>
+            <button class="tiny secondary selBulkBtn" id="inspSelectColBtn" title="Select all 8 cells in this column">Sel col</button>
+            <button class="tiny secondary selBulkBtn" id="inspSelectRowBtn" title="Select this row across all 8 columns">Sel row</button>
+            <button class="tiny secondary" id="inspCopyToColBtn" title="Copy settings to all 8 cells in this column">Copy→col</button>
+            <button class="tiny secondary" id="inspCopyToAllBtn" title="Copy settings to all 64 cells">Copy→all</button>
           </div>
         </div>
 
@@ -2336,7 +2677,7 @@ input[type="range"]::-webkit-slider-thumb:active{
 
           <div class="ctrl">
             <div class="lbl"><span>Cell Pitch</span><b id="pitchVal">0.0 st</b></div>
-            <input id="pitch" type="range" min="-24" max="24" step="0.01" value="0">
+            <input id="pitch" type="range" min="-24" max="24" step="0.01" value="0" tabindex="0" title="Cell Pitch. Use + / - on the selected cell: ±1.0 st, Shift = ±0.1 st, Alt/Option = ±0.01 st. Mouse drag uses the active modifier step and retriggers the selected sample once.">
           </div>
 
           <div class="ctrl">
@@ -2534,11 +2875,11 @@ input[type="range"]::-webkit-slider-thumb:active{
 </div>
 <!-- /Canvas Name Overlay -->
 
-<!-- Grid Name Overlay (Export Grid WAV) -->
+<!-- Grid Name Overlay (Export grid WAV) -->
 <div class="overlay" id="gridNameOverlay" aria-hidden="true">
   <div class="helpPanel folderPanel" role="dialog" aria-modal="true" aria-label="Grid export name">
     <div class="helpHead">
-      <div class="helpTitle">Export Grid</div>
+      <div class="helpTitle">Export grid</div>
       <button class="helpClose" id="gridNameOverlayClose" title="Close">✕</button>
     </div>
     <div class="helpBody">
@@ -2616,7 +2957,7 @@ input[type="range"]::-webkit-slider-thumb:active{
 
           <label class="chk" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
             <input type="radio" name="cellLoadMode" value="overflow_tune">
-            <span><b>Overflow + Tune</b><br><span class="muted">Loads the sample in the current cell first, opens Tuner, then applies the tuned overflow after you click Apply Overflow.</span></span>
+            <span><b>Overflow + Tune</b><br><span class="muted">Loads the sample in the current cell first, opens Tuner, then applies the tuned overflow after you click Apply overflow.</span></span>
           </label>
         </div>
         <div class="cellLoadOverflowRow" id="cellLoadOverflowRow">
@@ -2647,7 +2988,7 @@ input[type="range"]::-webkit-slider-thumb:active{
         <div class="overlayActions helpActions" style="margin-top:10px; justify-content:flex-start;">
           <button class="secondary" id="remixReverseBtn">Reverse</button>
           <button class="secondary" id="remixRotateBtn">Rotate +1</button>
-          <button class="secondary" id="remixOddEvenBtn">Odd/Even</button>
+          <button class="secondary" id="remixOddEvenBtn">Odd/even</button>
           <button class="good" id="remixRandomBtn">Random order</button>
         </div>
       </div>
@@ -2686,14 +3027,55 @@ input[type="range"]::-webkit-slider-thumb:active{
       </div>
       <div class="helpCard" style="margin-top:10px;">
         <div class="helpCardTitle">Keys</div>
-        <p class="muted" style="margin:0;">Left/Right = ±0.1 st · Shift + Left/Right = ±1.0 st · Space = restart loop · Esc = close</p>
+        <p class="muted" style="margin:0;">Left/Right = ±1.0 st · Shift + Left/Right = ±0.1 st · Alt/Option + Left/Right = ±0.01 st · Space = restart loop · Esc = close</p>
         <div class="overlayActions helpActions" id="tunerOverflowActions" style="display:none;margin-top:10px;justify-content:flex-end;">
-          <button class="good" id="tunerApplyOverflowBtn" type="button">Apply Overflow</button>
+          <button class="good" id="tunerApplyOverflowBtn" type="button">Apply overflow</button>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+
+<div class="overlay" id="autoFadeOverlay" aria-hidden="true" tabindex="-1">
+  <div class="helpPanel autoFadePanel" role="dialog" aria-modal="true" aria-label="Auto fade percentages">
+    <div class="helpHead">
+      <div class="helpTitle">Auto fade</div>
+      <button class="helpClose" id="autoFadeCloseBtn" title="Close">✕</button>
+    </div>
+    <div class="helpBody" style="font-size:13px;">
+      <p class="muted" style="margin-top:0;line-height:1.35;">
+        Choose the scale used by the Auto fade button. Apply saves the choice and writes the existing Fade In/Out sliders.
+      </p>
+      <div class="helpCard" style="margin-top:10px;">
+        <div class="helpCardTitle">Preset</div>
+        <div class="autoFadePresetList">
+          <label class="autoFadePreset"><input type="radio" name="autoFadeMode" value="clicksafe"><span><b>Click-safe / default</b><br>In 0.5%, Out 1.5%</span></label>
+          <label class="autoFadePreset"><input type="radio" name="autoFadeMode" value="soft"><span><b>Soft</b><br>In 1%, Out 3%</span></label>
+          <label class="autoFadePreset"><input type="radio" name="autoFadeMode" value="strong"><span><b>Strong</b><br>In 2%, Out 6%</span></label>
+          <label class="autoFadePreset"><input type="radio" name="autoFadeMode" value="custom"><span><b>Custom</b><br>Use the fields below</span></label>
+        </div>
+        <div class="autoFadePctGrid">
+          <label for="autoFadeStartPct">Start fade %
+            <input id="autoFadeStartPct" type="number" min="0" max="100" step="0.1" value="0.5" inputmode="decimal" />
+          </label>
+          <label for="autoFadeEndPct">End fade %
+            <input id="autoFadeEndPct" type="number" min="0" max="100" step="0.1" value="1.5" inputmode="decimal" />
+          </label>
+        </div>
+        <p class="muted" style="margin:10px 0 0;line-height:1.35;">
+          Custom fields are limited to 0–100%. Fades are still kept inside the audible region.
+        </p>
+      </div>
+      <div class="overlayActions helpActions" style="margin-top:12px;">
+        <button class="secondary" id="autoFadeDefaultsBtn" type="button">Default</button>
+        <button class="secondary" id="autoFadeCancelBtn" type="button">Cancel</button>
+        <button class="good" id="autoFadeApplyBtn" type="button">Apply + save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <div class="toast" id="toast"></div>
 
@@ -2720,32 +3102,34 @@ input[type="range"]::-webkit-slider-thumb:active{
                           <li>Click a cell to select it, use the settings panel for name/volume/fades/fit/reverse/mute/lock.</li>
                           <li><b>Double‑click</b> a cell, press <b>space</b> or <b>▶</b> to play.</li>
                           <li><b>Arrow keys</b> move through the matrix. With <b>Auto preview</b> on, the newly selected cell also plays automatically when you click a matrix cell with the mouse.</li>
-                          <li><b>Matrix shortcuts</b>: <b>N</b>=Normalize, <b>T</b>=Trim/Fit toggle, <b>R</b>=Reverse, <b>M</b>=Mute, <b>L</b>=Lock, <b>Enter</b>=Load, <b>Delete/Backspace</b>=Clear.</li>
+                          <li><b>Matrix shortcuts</b>: <b>N</b>=Normalize, <b>A</b>=Auto fade, <b>Shift+A</b>=Auto fade settings, <b>F</b>=Trim/Fit toggle, <b>T</b>=Tuner, <b>R</b>=Reverse, <b>M</b>=Mute, <b>L</b>=Lock, <b>Enter</b>=Load, <b>Delete/Backspace</b>=Clear.</li>
                           <li><b>Esc</b> stops playback. In editors: Esc hides the zoom window first, then closes the editor.</li>
                           <li><b>Tempo mode</b> uses BPM + Beats/cell and distributes rounding across 8 slices (no drift).</li>
                           <li>Drag cell→cell: swap. <b>Alt</b> + drag: copy.</li>
             </ul></div><div class="helpCard"><h3>Editing</h3>
+<p>Use the <b>Cell settings</b> panel to change Gain, Mute, Reverse, Fade In/Out, Cell Pitch, Trim/Fit and Lock state.</p>
 <ul class="helpList">
-                          <li>Use the <b>Cell settings</b> panel to change Gain, Mute, Reverse, Fade In/Out, Cell Pitch, Trim/Fit and Lock state.</li>
+                          <li><b>Auto fade</b> fills the existing Fade In/Out sliders from the audible cell/slice length. <b>A</b> applies the saved scale; <b>Shift+A</b> or Shift-click opens Click-safe/Soft/Strong presets and custom Start/End percentage fields. Click-safe is the default; the button turns green when a non-default scale is saved.</li>
                           <li><b>Cell Pitch</b> is a per-cell semitone offset used for TCM playback and WAV/ZIP/Grid audio export.</li>
                           <li><b>Tuner</b> opens a compact pitch helper for the selected loaded cell. It loops the cell while you adjust Cell Pitch with the slider or keys; it works best on monophonic or stable-pitch samples.</li>
-                          <li><b>Fit All</b> quickly enables Trim/Fit where the loaded sample is longer than the target cell length.</li>
+                          <li><b>Fit all</b> quickly enables Trim/Fit where the loaded sample is longer than the target cell length.</li>
                           <li><b>Normalize</b> peak-normalizes the current audible cell/selection audio and also works on multi-selected cells. <b>Cmd/Ctrl+Z</b> restores Normalize and selected-cell Clear actions.</li>
-                          <li><b>Lock Col</b> and <b>Lock Row</b> bulk-toggle the existing cell locks in the current column or row.</li>
+                          <li><b>Lock col</b> and <b>Lock row</b> bulk-toggle the existing cell locks in the current column or row.</li>
                           <li>Fades are drawn as an <b>envelope overlay</b> on top of the oscilloscope.</li>
                           <li>Gain is shown as a small bar under the oscilloscope (no text).</li>
                         </ul></div><div class="helpCard"><h3>Slice Editor</h3>
-<p>Used by <b>Load+Slice</b>. Drag or resize the 8 slice blocks. Each slice is limited to the <b>max cell length</b>.</p>
+<p>Used by <b>Slice 8</b>. Drag or resize the 8 slice blocks. Each slice is limited to the <b>max cell length</b>.</p>
                         <ul class="helpList">
                           <li><b>Click</b> a block to focus it and <b>space</b> for playback.</li>
                           <li><b>Drag</b> inside selection to move. Drag edges to resize.</li>
+                          <li><b>Snap</b> optionally snaps released L/R slice handles to the nearest nearby zero-crossing, and also snaps once after L/R arrow nudges settle. It does not affect Move, Space or Auto.</li>
                           <li><b>L / M / R</b> — choose Left edge / Move / Right edge control (also affects Zoom window and arrow nudges).</li>
                           <li><b>Zoom window</b> appears for closeup editing the slice. <b>+</b>/<b>-</b> zooms, <b>Z</b> toggles Auto‑Norm.</li>
                           <li><b>Slice view zoom</b>: press <b>+</b>/<b>-</b> to zoom around the focused slice (only when the zoom window is hidden).</li>
                           <li><b>Tab</b>/<b>Shift+Tab</b> jumps between the 8 slices for fast editing.</li>
                           <li><b>Esc</b>: if zoom window is visible → hide zoom. Otherwise → close editor.</li>
                           <li><b>← / →</b> nudge selection • <b>Shift</b>=coarse • <b>Alt/Option</b>=fine.</li>
-                          <li><b>Auto</b> tiles 8 slices evenly.</li>              
+                          <li><b>Auto</b> tiles 8 slices evenly.</li>
                           <li><b>Apply</b> commits 8 slices to the 8 cells in 1 column (used for playback + export).</li>
                           <li><b>Undo</b> multiple times a step back when editing. Also after apply.</li>
                           <li><b>Zoom On/Off</b> turns the zoom window on or off in both the editors.</li>
@@ -2758,7 +3142,7 @@ input[type="range"]::-webkit-slider-thumb:active{
                           <li><b>Zoom window</b> appears for closeup editing the slice. <b>+</b>/<b>-</b> zooms, <b>Z</b> toggles Auto‑Norm.</li>
                           <li><b>Esc</b>: if zoom window is visible → hide zoom. Otherwise → close editor.</li>
                           <li><b>← / →</b> nudge selection • <b>Shift</b>=coarse • <b>Alt/Option</b>=fine.</li>
-                          <li><b>Apply</b> commits selection to the cell (used for playback + export).</li>
+                          <li><b>Trim</b> writes the current selection into the cell. <b>Snap On</b> snaps left/right trim edges once after you release the handle or pause after an L/R arrow nudge; if no zero crossing is close, the edge stays where you put it. Snap Off keeps the exact unsnapped selection.</li>
                           <li><b>Undo</b> multiple times a step back when editing. Also after apply.</li>
                           <li><b>Reset</b> for default slice cell-length and position.</li>
                           <li><b>Zoom On/Off</b> turns the zoom window on or off in both the editors.</li>
@@ -2766,14 +3150,14 @@ input[type="range"]::-webkit-slider-thumb:active{
 <ul class="helpList">
                           <li><b>Cell Load</b>: click <b>Load</b> inside a cell or drop a file onto that cell.</li>
                           <li>Long samples can stay in the current cell (<b>trim</b>), <b>overflow</b> below, use <b>Overflow + Fit</b>, or use <b>Overflow + Tune</b> to open Tuner before applying overflow.</li>
-                          <li><b>Overflow + Tune</b>: tune the temporary start cell first, then click <b>Apply Overflow</b> or press <b>Enter</b>. <b>Esc</b> cancels and restores the previous cell state.</li>
+                          <li><b>Overflow + Tune</b>: tune the temporary start cell first, then click <b>Apply overflow</b> or press <b>Enter</b>. <b>Esc</b> cancels and restores the previous cell state.</li>
                           <li>When one long sample is loaded with <b>overflow</b>, the column name at the top is auto-filled from that sample name.</li>
-                          <li><b>Load+Slice</b>: pick one file → opens Slice Editor where you can drag/resize 8 blocks, then <b>Apply</b> to the column.</li>
+                          <li><b>Slice 8</b>: pick one file → opens Slice Editor where you can drag/resize 8 blocks, then <b>Apply</b> to the column.</li>
                           <li><b>Load 8</b>: select up to 8 files → fills the 8 cells top→bottom. Duplicate selections are skipped. If you select more than 8 unique files, it randomly picks 8 for the current column. When a live <b>Sources</b> list is active, this same button changes to <b>Random 8</b> and fills the unlocked cells in that column from the shared pool instead.</li>
                           <li><b>Remix</b> in the inspector creates a quick column variant in the next empty column to the right: Reverse, Rotate +1, Odd/Even, or Random order. Remix-generated variants refresh their mini-waves and file labels immediately, and are treated as derived helper columns so they do not get duplicate-red warning styling.</li>
                           <li><b>Prep Loop</b> in the inspector loads one sample into the selected column, fits it to the current <b>Tempo (BPM)</b> grid, and slices it cleanly across the 8 cells. This is a simple BPM loop-prep helper and requires Tempo mode to be enabled.</li>
                           <li><b>Locked cells</b> are retained during <b>Load 8</b>, <b>Random 8</b> and <b>Random 64</b>. If a random fill must reuse a file, duplicate-loaded cells get a red border.</li>
-                          <li><b>Random 64</b>: if a live <b>Sources</b> list exists, it uses that combined folder pool. Otherwise it still lets you pick one folder (subfolders included) and fills all unlocked cells randomly.</li>
+                          <li><b>Random 64</b>: if a live <b>Sources</b> list exists, it uses that combined folder pool. Otherwise it still lets you pick one folder (subfolders included) and fills all unlocked cells randomly. The button turns blue when filters are active.</li>
             <li><b>Sources</b> next to Random 64 opens a reusable multi-folder source list shared by <b>Random 64</b> and the column <b>Load 8 / Random 8</b> action. <b>Shift + click Random 64</b> still opens the filter dialog:
                             <ul>
                               <li><b>Include</b>: only filenames containing any token (comma separated)</li>
@@ -2782,7 +3166,7 @@ input[type="range"]::-webkit-slider-thumb:active{
                           </li>              
             <li><b>Drag and drop</b> samples in cells and columns</li>             
             </ul></div><div class="helpCard"><h3>Import / Export</h3>
-<p><b>Import Preset</b>: load the preset JSON exported by this app (e.g. <span class="kbd">zz_TCM-Preset_MyPreset_20260111.json</span>), or load the exported ZIP directly for automatic embedded-sample relinking. JSON import still asks for your top-level sample folder. Subfolders are included. The folder overlay shows example filenames to help you pick the right folder.</p>
+<p><b>Import preset</b>: load the preset JSON exported by this app (e.g. <span class="kbd">zz_TCM-Preset_MyPreset_20260111.json</span>), or load the exported ZIP directly for automatic embedded-sample relinking. JSON import still asks for your top-level sample folder. Subfolders are included. The folder overlay shows example filenames to help you pick the right folder.</p>
                           <ul class="helpList">
                             <li><b>Export</b> in a column: exports that column to WAV.</li>
                             <li>The header <b>Name</b> template supports placeholders such as <b>{col}</b>, <b>{colname}</b>, <b>{celname}</b>, <b>{mode}</b>, <b>{bpm}</b>, <b>{sr}</b>, <b>{frames}</b> and <b>{date}</b>. Recent templates can be selected from the dropdown; the default template stays protected.</li>
@@ -2792,10 +3176,10 @@ input[type="range"]::-webkit-slider-thumb:active{
                             <li><b>Template only</b>: export settings + layout only, with no audio files in the ZIP. Good for reusing a canvas setup and swapping samples later.</li>
                             <li><b>Include original samples in ZIP</b> for handpicked samples in the Matrix and TCM preset sharing.</li>
                             <li><b>Export .canvas</b>: optionally use an existing Tempera .canvas as a settings template; TCM preserves its settings and replaces the track audio.</li>
-                            <li><b>Export Grid</b>: exports loaded cells as one evenly spaced 4/8/16/32/64-slice WAV for Grid/Slice samplers such as Digitakt II, MPC/Force, SP-404MKII, Octatrack, Polyend Tracker/Play and 1010music Blackbox.</li>
-                            <li><b>Export Grid rules</b>: empty cells are skipped. If the loaded count is not exactly 4/8/16/32/64, TCM uses the nearest lower grid size in matrix order, e.g. 10 loaded cells exports the first 8 and skips the last 2.</li>
-                            <li><b>Export Grid sample rate</b>: choose <b>48 kHz</b> for Digitakt II / TCM default, or <b>44.1 kHz</b> for wider sampler compatibility. Grid WAVs are exported as 16-bit PCM.</li>
-                          </ul></div><div class="helpCard helpCardRelease">
+                            <li><b>Export grid</b>: exports loaded cells as one evenly spaced 4/8/16/32/64-slice WAV for Grid/Slice samplers such as Digitakt II, MPC/Force, SP-404MKII, Octatrack, Polyend Tracker/Play and 1010music Blackbox.</li>
+                            <li><b>Export grid rules</b>: empty cells are skipped. If the loaded count is not exactly 4/8/16/32/64, TCM uses the nearest lower grid size in matrix order, e.g. 10 loaded cells exports the first 8 and skips the last 2.</li>
+                            <li><b>Export grid sample rate</b>: choose <b>48 kHz</b> for Digitakt II / TCM default, or <b>44.1 kHz</b> for wider sampler compatibility. Grid WAVs are exported as 16-bit PCM.</li>
+                          </ul></div><div class="helpCard helpCardRelease" id="releaseNotesCard" tabindex="-1">
             <h3>Release notes</h3>
             <ul class="helpList" id="releaseNotes"></ul>
           </div>
@@ -2967,7 +3351,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-const APP_VERSION = '2.11.80';
+const APP_VERSION = '2.12.81';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -3069,9 +3453,9 @@ const APP_VERSION = '2.11.80';
       activeEl = el;
       timer = setTimeout(()=>{
         timer = null;
-        // Don't show if a modal/overlay is open
-        const anyOverlay = document.querySelector('.overlay.show, .modal.show, .dlg.show, .dialog.show, .overlay.active');
-        if(anyOverlay) return;
+        // Allow tooltips inside the currently open overlay, but suppress them for controls behind it.
+        const openOverlays = Array.from(document.querySelectorAll('.overlay.show, .modal.show, .dlg.show, .dialog.show, .overlay.active'));
+        if(openOverlays.length && !openOverlays.some(o => o && o.contains && o.contains(el))) return;
         showTip(el);
       }, TIP_DELAY_MS);
     }
@@ -3131,10 +3515,42 @@ const APP_VERSION = '2.11.80';
   }
 
 
-  const APP_BUILD_DATE = '2026-05-03';
+  const APP_BUILD_DATE = '2026-05-13';
   const CHANGELOG = [
-  '2.11.78 - Export Grid supports 48 kHz and 44.1 kHz WAV.',
-  '2.11.75 - Export Grid creates 4/8/16/32/64 slice WAVs.',
+  '2.12.81 - Release notes restore v2.11.80 and older entries.',
+  '2.12.80 - Release notes show key changes from v2.11.80 up.',
+  '2.12.78 - Logo 4 palette keeps fan colors cleaner.',
+  '2.12.68 - Column Clear can now be undone with Cmd/Ctrl+Z.',
+  '2.12.62 - Version text opens Help directly at Release notes.',
+  '2.12.57 - Slice Snap works after L/R arrow nudges settle.',
+  '2.12.55 - Slice Snap added for L/R handle release.',
+  '2.12.32 - Wave Snap works after L/R arrow nudges settle.',
+  '2.12.31 - Wave Snap chooses the nearest nearby zero crossing.',
+  '2.12.27 - Wave Snap defaults to off and remembers its setting.',
+  '2.12.25 - Wave Editor Trim applies the default long-sample selection.',
+  '2.12.19 - A applies Auto fade; Shift+A opens Auto fade settings.',
+  '2.12.18 - Auto fade settings trap Tab and save with Enter.',
+  '2.12.17 - Auto fade presets and saved custom percentages added.',
+  '2.12.15 - Auto fade writes scalable Fade In and Fade Out values.',
+  '2.12.14 - Header controls wrap without horizontal scrolling.',
+  '2.12.11 - F toggles Trim/Fit and T opens Tuner.',
+  '2.12.10 - Fit mode no longer mirrors temporary Wave selections.',
+  '2.12.09 - Wave Editor Esc preserves long-sample selections.',
+  '2.12.08 - Fade envelopes follow trimmed and fit-rendered audio.',
+  '2.12.06 - Fade-out follows audible slice/sample length.',
+  '2.12.05 - Tuner and Cell Pitch use normal/Shift/Alt fine steps.',
+  '2.12.04 - Cell Pitch retriggers selected-cell preview once.',
+  '2.12.03 - Cell Pitch can be tuned with +/- shortcuts.',
+  '2.12.00 - Single-color palettes match Tempera 4 strength.',
+  '2.11.98 - App logo cycles and remembers matrix palettes.',
+  '2.11.96 - Wave and Slice zoom mapping were stabilized.',
+  '2.11.89 - Wave selection edits on sliced cells persist after Esc.',
+  '2.11.85 - Slice L/M/R shortcuts control zoom handle mode.',
+  '2.11.84 - Zoom Auto Hide preference is remembered.',
+  '2.11.82 - Slice Play all previews the eight selected slices.',
+  '2.11.81 - Editor right handles stop without sliding selection.',
+  '2.11.78 - Export grid supports 48 kHz and 44.1 kHz WAV.',
+  '2.11.75 - Export grid creates 4/8/16/32/64 slice WAVs.',
   '2.11.73 - Overflow exports stay seamless without boundary fades.',
   '2.11.72 - Overflow + Tune added for tuned long-sample overflow.',
   '2.11.68 - Tuner improved for low notes and clean sine samples.',
@@ -3144,7 +3560,7 @@ const APP_VERSION = '2.11.80';
   '2.11.50 - Trim/Fit only fits samples longer than the cell.',
   '2.11.42 - Cell Pitch added for playback and WAV/ZIP export.',
   '2.11.30 - Sel Col and Sel Row added to the inspector.',
-  '2.11.26 - Loop Prep fits one loop to BPM and slices a column.',
+  '2.11.26 - Loop prep fits one loop to BPM and slices a column.',
   '2.11.23 - Remix creates column variants in the next empty column.',
   '2.11.20 - Duplicate highlighting marks repeats, not originals.',
   '2.11.18 - Unique-first loading added for Random 64 and Random 8.',
@@ -3183,6 +3599,62 @@ function renderReleaseNotes(){
       li.textContent = line;
       ul.appendChild(li);
     }
+  }
+
+
+  // Matrix background palette selector (logo click)
+  const MATRIX_PALETTE_KEY = "tcm_matrix_palette";
+  const DEFAULT_MATRIX_PALETTE_ID = "tempera4";
+  const MATRIX_PALETTES = [
+    { id:"default",  label:"Default" },
+    { id:"tempera4", label:"Tempera 4" },
+    { id:"blue",     label:"Blue" },
+    { id:"pink",     label:"Pink" },
+    { id:"yellow",   label:"Yellow" },
+    { id:"green",    label:"Green" },
+    { id:"logo4",    label:"Logo 4" },
+  ];
+
+  function getMatrixPaletteIndexById(id){
+    const raw = String(id || "").trim();
+    const idx = MATRIX_PALETTES.findIndex(p => p.id === raw);
+    const fallbackIdx = MATRIX_PALETTES.findIndex(p => p.id === DEFAULT_MATRIX_PALETTE_ID);
+    return idx >= 0 ? idx : (fallbackIdx >= 0 ? fallbackIdx : 0); // Tempera 4 is the no-storage/default palette
+  }
+
+  function applyMatrixPalette(index, silent){
+    const safeIndex = ((Number(index) || 0) + MATRIX_PALETTES.length) % MATRIX_PALETTES.length;
+    const palette = MATRIX_PALETTES[safeIndex] || MATRIX_PALETTES[1];
+    document.documentElement.dataset.matrixPalette = palette.id;
+    document.documentElement.dataset.matrixPaletteIndex = String(safeIndex);
+
+    const btn = document.getElementById("matrixPaletteBtn");
+    if (btn){
+      const label = `Matrix palette: ${palette.label}`;
+      btn.setAttribute("aria-label", label);
+      btn.setAttribute("title", label);
+      try{ btn.dataset.nativeTitle = label; }catch(_e){}
+    }
+    if (!silent) toast(`Matrix palette: ${palette.label}`, 1300);
+  }
+
+  function initMatrixPalette(){
+    let saved = "";
+    try{ saved = localStorage.getItem(MATRIX_PALETTE_KEY) || ""; }catch(_e){}
+    const startIndex = getMatrixPaletteIndexById(saved || DEFAULT_MATRIX_PALETTE_ID);
+    applyMatrixPalette(startIndex, true);
+
+    const btn = document.getElementById("matrixPaletteBtn");
+    if (!btn) return;
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const current = getMatrixPaletteIndexById(document.documentElement.dataset.matrixPalette || DEFAULT_MATRIX_PALETTE_ID);
+      const next = (current + 1) % MATRIX_PALETTES.length;
+      const nextPalette = MATRIX_PALETTES[next] || MATRIX_PALETTES[0];
+      try{ localStorage.setItem(MATRIX_PALETTE_KEY, nextPalette.id); }catch(_e){}
+      applyMatrixPalette(next, false);
+    });
   }
 
   // Waveform peak caching (performance)
@@ -3949,11 +4421,20 @@ function computeRootHintFromPreset(preset){
       if (!btn) return;
       const inc = (localStorage.getItem(FILTER_KEY_INCLUDE) || "").trim();
       const exc = (localStorage.getItem(FILTER_KEY_EXCLUDE) || "").trim();
-      const has = !!(inc || exc);
-      btn.classList.toggle("hasFilter", has);
-      btn.title = has
-        ? "Pick a folder (recursive). Filter is active (Shift opens filters)."
-        : "Pick a folder (recursive). Shift opens filters.";
+      const hasFilter = !!(inc || exc);
+      let liveSources = 0;
+      try{ liveSources = getRandom64LiveSourceEntries().length || 0; }catch(_e){}
+      btn.classList.toggle("hasFilter", false);
+      btn.classList.toggle("tcmBlueActiveBtn", hasFilter);
+      const parts = [];
+      if (liveSources > 0) parts.push(`${liveSources} live source folder${liveSources === 1 ? "" : "s"}`);
+      if (hasFilter) parts.push("filters active");
+      const tip = parts.length
+        ? `Random 64: ${parts.join(" + ")}. Click to run; Shift-click opens filters.`
+        : "Randomly fill all 64 unlocked cells. Shift-click opens filters.";
+      btn.setAttribute("aria-label", tip);
+      btn.setAttribute("title", tip);
+      try{ btn.dataset.nativeTitle = tip; }catch(_e){}
     }catch(_){}
   }
 
@@ -4073,6 +4554,21 @@ function computeRootHintFromPreset(preset){
     if (!Array.isArray(targets) || !targets.length) return;
     pushUndoAction({ type:"cellSnapshots", reason, targets });
   }
+  function snapshotSplitStateForCol(col){
+    try{
+      if (typeof splitStateByCol === "undefined" || !splitStateByCol || !splitStateByCol.has(col)) return null;
+      return cloneUndoValue(splitStateByCol.get(col));
+    }catch(_e){
+      return null;
+    }
+  }
+  function restoreSplitStateForCol(col, snapshot){
+    try{
+      if (typeof splitStateByCol === "undefined" || !splitStateByCol) return;
+      if (snapshot) splitStateByCol.set(col, cloneUndoValue(snapshot));
+      else splitStateByCol.delete(col);
+    }catch(_e){}
+  }
   function applyCellSnapshotAction(action, which){
     const targets = Array.isArray(action && action.targets) ? action.targets : [];
     if (!targets.length) return;
@@ -4082,6 +4578,9 @@ function computeRootHintFromPreset(preset){
       if (!snap) continue;
       touchedCols.add(snap.col|0);
       restoreCellState(snap);
+    }
+    if (action && typeof action.splitCol === "number"){
+      restoreSplitStateForCol(action.splitCol|0, which === "before" ? action.splitBefore : action.splitAfter);
     }
     touchedCols.forEach(col => { try{ updateColUI(col); }catch(_e){} });
     try{ updateInspector(); }catch(_e){}
@@ -4202,6 +4701,131 @@ let waveUndoBtnEl = null;
   let waveSrcNameEl = null;
   let waveScissorIconEl = null;
 
+  const WAVE_SNAP_KEY = "tcm_wave_editor_snap";
+  function readWaveSnapPref(){
+    try{
+      const raw = String(localStorage.getItem(WAVE_SNAP_KEY) || "").trim().toLowerCase();
+      if (raw === "on" || raw === "true" || raw === "1") return true;
+      if (raw === "off" || raw === "false" || raw === "0") return false;
+    }catch(_e){}
+    return false; // v2.12.27: Snap is off by default
+  }
+  function saveWaveSnapPref(value){
+    try{ localStorage.setItem(WAVE_SNAP_KEY, value ? "on" : "off"); }catch(_e){}
+  }
+  function updateWaveSnapButton(){
+    if (!waveSnapBtnEl) return;
+    waveSnapBtnEl.textContent = "Snap";
+    waveSnapBtnEl.classList.toggle("tcmActiveBtn", !!waveEditor.snap);
+  }
+
+  function getWaveEditorSelectionFrames(){
+    const cell = (state && state.cells && state.cells[waveEditor.col] && state.cells[waveEditor.col][waveEditor.row]) || null;
+    const srcTotal = (waveEditor && waveEditor.src && waveEditor.src.L) ? (waveEditor.src.L.length|0) : 0;
+    const cellTotal = (cell && cell.left) ? (cell.left.length|0) : 0;
+    const total = Math.max(1, srcTotal || cellTotal || 1);
+    const len = clamp(Math.round(Number(waveEditor.selLen) || 1), 1, total);
+    const start = clamp(Math.round(Number(waveEditor.selStart) || 0), 0, Math.max(0, total - len));
+    return { total, start, len, end: Math.min(total, start + len) };
+  }
+
+  function syncWaveEditorSelectionFrames(){
+    const q = getWaveEditorSelectionFrames();
+    waveEditor.selStart = q.start;
+    waveEditor.selLen = q.len;
+    return q;
+  }
+
+  function snapWaveEditorEdgeIfNeeded(edgeMode){
+    const q0 = syncWaveEditorSelectionFrames();
+    try{
+      const edge = String(edgeMode || "").toUpperCase();
+      if (!waveEditor.snap || !waveEditor.src || !waveEditor.src.L || typeof findNearestZeroCrossing !== "function") return q0;
+      if (edge !== "L" && edge !== "R") return q0;
+
+      const total = q0.total;
+      const maxLen = Math.max(1, Math.min((getCellFrames(waveEditor.row)|0) || total, total));
+      let start = q0.start;
+      let end = q0.end;
+
+      if (edge === "L"){
+        let startSn = findNearestZeroCrossing(waveEditor.src.L, start, 4096, waveEditor.src.R);
+        startSn = clamp(Math.round(startSn), 0, Math.max(0, end - 1));
+        let len = end - startSn;
+        if (len > maxLen){
+          len = maxLen;
+          startSn = Math.max(0, end - len);
+        }
+        start = startSn;
+        end = Math.min(total, start + Math.max(1, len));
+      }else{
+        let endSn = findNearestZeroCrossing(waveEditor.src.L, end, 4096, waveEditor.src.R);
+        endSn = clamp(Math.round(endSn), Math.min(total, start + 1), total);
+        let len = endSn - start;
+        if (len > maxLen){
+          len = maxLen;
+          endSn = Math.min(total, start + len);
+        }
+        end = endSn;
+      }
+
+      waveEditor.selStart = clamp(start, 0, Math.max(0, total - 1));
+      waveEditor.selLen = clamp(end - waveEditor.selStart, 1, Math.min(maxLen, total - waveEditor.selStart));
+      waveEditor._lastSnapEdge = edge;
+    }catch(_e){}
+    return syncWaveEditorSelectionFrames();
+  }
+
+  function snapWaveEditorSelectionIfNeeded(){
+    // v2.12.30: keep this helper as a safe selection normalizer only.
+    // Snap is applied explicitly once on L/R handle release, and after L/R arrow nudges settle.
+    return syncWaveEditorSelectionFrames();
+  }
+
+  function clearWaveNudgeSnapTimer(){
+    try{
+      if (waveEditor && waveEditor._nudgeSnapTimer){
+        clearTimeout(waveEditor._nudgeSnapTimer);
+        waveEditor._nudgeSnapTimer = 0;
+      }
+    }catch(_e){}
+  }
+
+  function refreshWaveMagnifierAfterSelection(){
+    try{
+      if (!(typeof _mag !== 'undefined' && _mag && _mag.on && (_mag.srcTag||"")=="wave")) return;
+      if (!waveEditor || !waveEditor.src || !waveEditor.src.L) return;
+      const total = waveEditor.src.L.length|0;
+      const stt = waveEditor.selStart|0;
+      const enn = (stt + (waveEditor.selLen|0))|0;
+      const edge = (_mag && _mag.edge) ? _mag.edge : "C";
+      const ax = magAnchorWave(total|0, stt, enn, edge);
+      try{
+        if (!(edge==='L' || edge==='R')) _mag.centerPos = ((stt + enn) >> 1);
+      }catch(_e){}
+      const y = (typeof _mag.lastYWave==='number') ? _mag.lastYWave : (ax ? ax.y : undefined);
+      magUpdate({ selStart: stt, selEnd: enn, x: ax ? ax.x : undefined, y });
+    }catch(_e){}
+  }
+
+  function scheduleWaveNudgeSnap(edgeMode){
+    try{
+      const edge = String(edgeMode || "").toUpperCase();
+      clearWaveNudgeSnapTimer();
+      if (!waveEditor || !waveEditor.open || !waveEditor.snap || (edge !== "L" && edge !== "R")) return;
+      waveEditor._nudgeSnapTimer = setTimeout(() => {
+        waveEditor._nudgeSnapTimer = 0;
+        try{
+          if (!waveEditor.open || !waveEditor.snap) return;
+          snapWaveEditorEdgeIfNeeded(edge);
+          commitWaveSelection();
+          scheduleWaveDraw();
+          refreshWaveMagnifierAfterSelection();
+        }catch(_e){}
+      }, 160);
+    }catch(_e){}
+  }
+
   const waveEditor = {
     open:false,
     undo:[],
@@ -4212,7 +4836,7 @@ let waveUndoBtnEl = null;
     selLen:0,
     dragging:false,
     dragDx:0,
-    snap:true,
+    snap: readWaveSnapPref(),
     mode:"move",
     _px0:0,
     _start0:0,
@@ -4312,6 +4936,41 @@ let waveUndoBtnEl = null;
     });
   }
 
+  // Wave Editor view range. Kept centralized like the Slice Editor so waveform drawing,
+  // selection rectangles and pointer/zoom anchors use the exact same frame range.
+  // Currently the Wave Editor shows the full active source, so this preserves existing behavior.
+  let waveViewStartFrames = 0;
+  let waveViewLenFrames = null; // null = full active source
+
+  function waveGetViewRange(srcLen){
+    srcLen = Math.max(0, srcLen|0);
+    if (!srcLen) return {vs:0, vl:0};
+    let vl = (waveViewLenFrames==null) ? srcLen : (waveViewLenFrames|0);
+    vl = Math.max(1, Math.min(srcLen, vl));
+    let vs = (waveViewStartFrames|0);
+    vs = Math.max(0, Math.min(srcLen - vl, vs));
+    return {vs, vl};
+  }
+  function waveIsReverse(){
+    try{ return !!(state?.cells?.[waveEditor.col]?.[waveEditor.row]?.settings?.reverse); }
+    catch(_e){ return false; }
+  }
+  function waveFramesToX(frames, srcLen, w){
+    const v = waveGetViewRange(srcLen|0);
+    if (!v.vl || !w) return 0;
+    const f = Math.max(v.vs, Math.min(v.vs + v.vl, frames|0));
+    const t = waveIsReverse() ? ((v.vs + v.vl - f) / v.vl) : ((f - v.vs) / v.vl);
+    return t * w;
+  }
+  function waveXToFrames(x, srcLen, w){
+    if (!w) return 0;
+    const v = waveGetViewRange(srcLen|0);
+    if (!v.vl) return 0;
+    const t = Math.max(0, Math.min(1, x / w));
+    const tt = waveIsReverse() ? (1 - t) : t;
+    return (v.vs + Math.round(tt * v.vl))|0;
+  }
+
   function waveDraw(){
     if (!ensureWaveEls()) return;
     if (!waveBigEl || !waveEditor.src) return;
@@ -4323,15 +4982,17 @@ let waveUndoBtnEl = null;
     ctx.fillStyle = "rgba(0,0,0,0.22)";
     ctx.fillRect(0,0,W,H);
 
-    const peaks = getSourcePeaks(waveEditor.src, W);
+    const total = waveEditor.src.L.length|0;
+    const v = waveGetViewRange(total);
+    const peaks = computePeaksRange(waveEditor.src.L, waveEditor.src.R || waveEditor.src.L, v.vs, v.vl, W);
     const mid = Math.floor(H/2);
     ctx.strokeStyle = "rgba(255,255,255,0.85)";
     ctx.lineWidth = 1;
     ctx.beginPath();
-    const rev = !!(state?.cells?.[waveEditor.col]?.[waveEditor.row]?.settings?.reverse);
+    const rev = waveIsReverse();
     for (let x=0; x<W; x++){
       const ix = rev ? (W-1-x) : x;
-      const p = peaks[Math.min(peaks.length-1, ix)];
+      const p = peaks[Math.min(peaks.length-1, ix)] || 0;
       const y1 = mid - p*(mid-10);
       const y2 = mid + p*(mid-10);
       ctx.moveTo(x+0.5, y1);
@@ -4339,16 +5000,11 @@ let waveUndoBtnEl = null;
     }
     ctx.stroke();
 
-    const total = waveEditor.src.L.length;
     const a = clamp(waveEditor.selStart, 0, Math.max(0, total - waveEditor.selLen));
     const b = a + waveEditor.selLen;
 
-    let x1 = Math.floor((a/total)*W);
-    let x2 = Math.max(x1+2, Math.floor((b/total)*W));
-    if (rev){
-      x1 = Math.floor(((total - b)/total)*W);
-      x2 = Math.max(x1+2, Math.floor(((total - a)/total)*W));
-    }
+    let x1 = Math.floor(waveFramesToX(a, total, W));
+    let x2 = Math.max(x1+2, Math.floor(waveFramesToX(b, total, W)));
     if (x2 < x1){ const t=x1; x1=x2; x2=t; }
 
     ctx.fillStyle = "rgba(255,255,255,0.10)";
@@ -4447,6 +5103,8 @@ let waveUndoBtnEl = null;
     try{ if (reverseEl) reverseEl.disabled = true; }catch(_e){}
 
     const total = waveEditor.src.L.length;
+    waveViewStartFrames = 0;
+    waveViewLenFrames = null;
     const cellFrames = getCellFrames(row);
     // Show scissors only when there is an actual applied edit (Apply/Trim) and Undo is available
     const hasEdit = !!(cell && (cell.selEdited === true || cell.trimStartSrcFrames != null));
@@ -4507,7 +5165,7 @@ if (waveTitleEl){
       if (hint) {
         if (isSliceCell) {
           hint.textContent = "Slice";
-          hint.title = "Editing a slice buffer. Use Load+Slice to edit/re-slice the original sample.";
+          hint.title = "Editing a slice buffer. Use Slice 8 to edit/re-slice the original sample.";
           hint.style.display = "block";
         } else {
           hint.style.display = "none";
@@ -4517,9 +5175,7 @@ if (waveTitleEl){
       const pill = document.getElementById("waveSliceHintPill");
       if (pill) pill.style.display = "none";
     } catch (_e) {}
-if (waveSnapBtnEl){
-      waveSnapBtnEl.textContent = "Snap: " + (waveEditor.snap ? "on" : "off");
-    }
+updateWaveSnapButton();
 
     if (waveOverlayEl){
       waveOverlayEl.style.display = "flex";
@@ -4534,11 +5190,28 @@ if (waveSnapBtnEl){
   }
 
   function closeWaveEditor(){
+    clearWaveNudgeSnapTimer();
     const _col = waveEditor.col|0;
     const _row = waveEditor.row|0;
     try{
       if (waveEditor && waveEditor._tmpKey && typeof waveEditor._tmpKey === "string" && waveEditor._tmpKey.startsWith("__cellbuf__")){
-        sourceStore.delete(waveEditor._tmpKey);
+        const tmpKey = waveEditor._tmpKey;
+        const tmpCell = (state && state.cells && state.cells[_col] && state.cells[_col][_row]) ? state.cells[_col][_row] : null;
+        // Slice cells use a temporary cell-buffer source in the Wave Editor.
+        // If the user moves/resizes the selection and closes with Esc, renderCellToTarget still needs
+        // this sourceStore entry to apply the stored selStart/selLen window during playback/export.
+        if (tmpCell && tmpCell.left && tmpCell.right){
+          sourceStore.set(tmpKey, {
+            L: tmpCell.left,
+            R: (tmpCell.right && tmpCell.right.length === tmpCell.left.length) ? tmpCell.right : tmpCell.left,
+            sr: tmpCell.sr || SR,
+            frames: tmpCell.left.length,
+            name: tmpCell.fileName || tmpCell.name || "slice",
+            peaksByW: new Map()
+          });
+        }else{
+          sourceStore.delete(tmpKey);
+        }
         waveEditor._tmpKey = "";
       }
     }catch(_){ }
@@ -4547,10 +5220,14 @@ magHide();
     try{
       const _cell = state.cells?.[_col]?.[_row];
       if (_cell){
+        // Closing with Esc is non-destructive, but the edited selection must still be
+        // stored as the active selection for Trim/Fit/playback/export.
+        if (waveEditor && waveEditor.src) commitWaveSelection();
+        const q = (waveEditor && waveEditor.src) ? syncWaveEditorSelectionFrames() : null;
         _cell.editorKey = waveEditor.key || _cell.editorKey;
         _cell.editorUndo = Array.isArray(waveEditor.undo) ? waveEditor.undo.slice() : [];
-        _cell.editorSelStart = waveEditor.selStart;
-        _cell.editorSelLen = waveEditor.selLen;
+        _cell.editorSelStart = q ? q.start : waveEditor.selStart;
+        _cell.editorSelLen = q ? q.len : waveEditor.selLen;
       }
     }catch(_e){}
     
@@ -4586,45 +5263,103 @@ magHide();
 
   function commitWaveSelection(){
     const cell = state.cells[waveEditor.col][waveEditor.row];
+    if (!cell) return;
+
     // Keep original relink key stable; track the active editor source separately.
     // - When editing the original full source, waveEditor.key equals cell.sourceKey.
     if (waveEditor.key) cell.sourceKey = (cell.sourceKey || waveEditor.key);
-cell.selStartFrames = waveEditor.selStart;
-    cell.selLenFrames = waveEditor.selLen;
+
+    const q = syncWaveEditorSelectionFrames();
+    const total = q.total;
+    const safeTotal = Math.max(1, total || 1);
+    const selLen = q.len;
+    const selStart = q.start;
+
+    cell.selStartFrames = selStart;
+    cell.selLenFrames = selLen;
+
+    // A Wave Editor selection changed then closed with Esc must still be treated as an edited
+    // selection. Trim/Fit uses this flag to decide whether to fit the selected region or the
+    // whole long source. Without it, edited long samples fall back to the full source.
+    try{
+      const cellFrames = Math.max(1, getCellFrames(waveEditor.row)|0);
+      const defaultLen = Math.max(1, Math.min(cellFrames, safeTotal));
+      const selectionChanged = (selStart !== 0) || (selLen !== defaultLen);
+      const hasAppliedTrim = !!(
+        (Number.isFinite(cell.trimStartSrcFrames) && Number.isFinite(cell.trimLenSrcFrames) && (cell.trimLenSrcFrames > 0)) ||
+        (cell.editorKey && String(cell.editorKey).includes('::trim@'))
+      );
+
+      if (selectionChanged){
+        cell.selEdited = true;
+        cell.scissors = true;
+      }else if (!hasAppliedTrim){
+        cell.selEdited = false;
+        cell.scissors = false;
+      }
+    }catch(_e){}
+
+    // Selection/selEdited affects renderCellToTarget, so clear cached rendered audio.
+    cell.cache = { key:"", L:null, R:null, frames:0 };
+
     // keep mini waveform in sync
     try{ markWaveDirty(waveEditor.col, waveEditor.row); }catch(_){ }
   }
 
   
-  function findNearestZeroCrossing(arr, idx, window=2048){
-    // Find index near idx where signal is closest to 0 and/or crosses 0.
+  function findNearestZeroCrossing(arr, idx, window=2048, arrR=null){
+    // v2.12.31: snap only to the nearest zero crossing inside a small symmetric window.
+    // Do not choose a far-away low-amplitude point; if no nearby crossing exists, keep idx.
     if (!arr || !arr.length) return idx;
-    const n = arr.length;
-    const a = Math.max(1, idx - window);
-    const b = Math.min(n-2, idx + window);
-    let best = idx;
-    let bestAbs = Math.abs(arr[Math.min(n-1, Math.max(0, idx))]);
+    const n = arr.length|0;
+    const rawIdx = Math.round(Number(idx) || 0);
+    const safeIdx = clamp(rawIdx, 0, n);
+    const maxSnapFrames = Math.max(1, Math.round(SR * 0.020)); // 20 ms hard cap
+    const radius = Math.max(1, Math.min(Math.round(Number(window) || 0), maxSnapFrames, Math.max(1, n - 1)));
 
-    for (let i=a; i<=b; i++){
-      const v0 = arr[i];
-      const v1 = arr[i+1];
-      const ab = Math.abs(v0);
-      // Prefer actual sign change (crossing), else minimum abs.
-      const crossing = (v0 === 0) || (v0 > 0 && v1 < 0) || (v0 < 0 && v1 > 0);
-      if (crossing){
-        // pick the smaller abs among v0/v1
-        const cand = (Math.abs(v0) <= Math.abs(v1)) ? i : (i+1);
-        const cab = Math.abs(arr[cand]);
-        if (cab <= bestAbs){
-          bestAbs = cab;
+    function sampleAt(i){
+      i = clamp(i|0, 0, n - 1);
+      const l = Number(arr[i] || 0);
+      if (arrR && arrR.length === n){
+        return (l + Number(arrR[i] || 0)) * 0.5;
+      }
+      return l;
+    }
+
+    function crossingCandidate(segmentIndex){
+      const i = segmentIndex|0;
+      if (i < 0 || i >= n - 1) return null;
+      const v0 = sampleAt(i);
+      const v1 = sampleAt(i + 1);
+      const crosses = (v0 === 0) || (v1 === 0) || (v0 < 0 && v1 > 0) || (v0 > 0 && v1 < 0);
+      if (!crosses) return null;
+      const cand = (Math.abs(v0) <= Math.abs(v1)) ? i : (i + 1);
+      return { frame:cand, dist:Math.abs(cand - safeIdx), amp:Math.abs(sampleAt(cand)) };
+    }
+
+    let best = null;
+    const centerSeg = clamp(safeIdx, 0, Math.max(0, n - 2));
+    for (let d=0; d<=radius; d++){
+      const left = centerSeg - d;
+      const right = centerSeg + d;
+      const candidates = [];
+      const cLeft = crossingCandidate(left);
+      if (cLeft) candidates.push(cLeft);
+      if (right !== left){
+        const cRight = crossingCandidate(right);
+        if (cRight) candidates.push(cRight);
+      }
+      for (const cand of candidates){
+        if (!best || cand.dist < best.dist || (cand.dist === best.dist && cand.amp < best.amp)){
           best = cand;
         }
-      } else if (ab < bestAbs){
-        bestAbs = ab;
-        best = i;
       }
+      // Because d expands outward from the handle, once we have found a crossing at this
+      // distance there cannot be a closer unchecked crossing outside this ring.
+      if (best && best.dist <= d + 1) break;
     }
-    return best;
+
+    return best ? best.frame : safeIdx;
   }
 
   function waveNudge(framesDelta){
@@ -4643,7 +5378,7 @@ cell.selStartFrames = waveEditor.selStart;
       if (typeof _mag !== 'undefined' && _mag && _mag.on){
         const stt = waveEditor.selStart|0;
         const enn = (stt + (waveEditor.selLen|0))|0;
-        const ax = magAnchorWave(total|0, stt, enn);
+        const ax = magAnchorWave(total|0, stt, enn, (_mag && _mag.edge) ? _mag.edge : "C");
         // In center/move mode, re-anchor the magnifier window to the selection center so it follows nudges
         try{
           if (!(_mag.edge==='L' || _mag.edge==='R')){
@@ -4695,25 +5430,16 @@ cell.selStartFrames = waveEditor.selStart;
 
     waveEditor.selStart = s;
     waveEditor.selLen = l;
+    waveEditor._lastSnapEdge = "";
     commitWaveSelection();
     scheduleWaveDraw();
+    refreshWaveMagnifierAfterSelection();
 
-    // Keep magnifier selection in sync
-    try{
-      if (typeof _mag !== 'undefined' && _mag && _mag.on && (_mag.srcTag||"")==="wave"){
-        const stt = waveEditor.selStart|0;
-        const enn = (stt + (waveEditor.selLen|0))|0;
-        const ax = magAnchorWave(total|0, stt, enn);
-        // In center/move mode, keep magnifier window anchored to the moving selection
-        try{
-          if (!(_mag.edge==='L' || _mag.edge==='R')){
-            _mag.centerPos = ((stt + enn) >> 1);
-          }
-        }catch(_e){}
-        const y = (typeof _mag.lastYWave==='number') ? _mag.lastYWave : (ax ? ax.y : undefined);
-        magUpdate({ selStart: stt, selEnd: enn, x: ax ? ax.x : undefined, y });
-      }
-    }catch(_){ }
+    if (mode === "L" || mode === "R"){
+      scheduleWaveNudgeSnap(mode);
+    }else{
+      clearWaveNudgeSnapTimer();
+    }
   }
 
 async function _playLR(L, R){
@@ -4809,55 +5535,15 @@ function applyWaveSelectionToCell(){
   cell._waveApplyUndo = _waveMakeSnapshotFromCell(cell);
     if (!waveEditor.src) return;
 
-    const total = waveEditor.src.L.length;
+    const q = snapWaveEditorSelectionIfNeeded();
+    const total = q.total;
 // Quantize selection to integer frames once, and use those same integers everywhere.
 // This avoids off-by-one drift when moving/resizing the selection.
-let len = Math.max(1, Math.round(waveEditor.selLen));
-let start = clamp(Math.round(waveEditor.selStart), 0, Math.max(0, total - len));
-let end = Math.min(total, start + len);
+let len = q.len;
+let start = q.start;
+let end = q.end;
 
-// Edge-aware Snap:
-// Infer which edge moved based on selection at drag start (recorded on pointerdown) vs current selection.
-// - if start unchanged but len changed => RIGHT edge move
-// - if end unchanged but start changed => LEFT edge move
-// - otherwise => MOVE
-if (waveEditor.snap && (total > getCellFrames(waveEditor.row)) && typeof findNearestZeroCrossing === "function" && waveEditor.src && waveEditor.src.L){
-  const s0 = (typeof waveEditor._dragStart0 === "number") ? waveEditor._dragStart0 : start;
-  const l0 = (typeof waveEditor._dragLen0 === "number") ? waveEditor._dragLen0 : len;
-  const end0 = s0 + l0;
-
-  const startNow = start;
-  const endNow = start + len;
-
-  const startMoved = Math.abs(startNow - s0) >= 1;
-  const endMoved   = Math.abs(endNow - end0) >= 1;
-
-  const mode = (!startMoved && endMoved) ? "resizeR" : (startMoved && !endMoved) ? "resizeL" : "move";
-
-  if (mode === "resizeR"){
-    let endSn = findNearestZeroCrossing(waveEditor.src.L, end, 4096);
-    endSn = clamp(endSn, start + 1, total);
-    end = endSn;
-    len = Math.max(1, end - start);
-  }else if (mode === "resizeL"){
-    let startSn = findNearestZeroCrossing(waveEditor.src.L, start, 4096);
-    startSn = clamp(startSn, 0, Math.max(0, total - len));
-    start = startSn;
-    end = Math.min(total, start + len);
-  }else{
-    // move: snap start for predictable behavior
-    let startSn = findNearestZeroCrossing(waveEditor.src.L, start, 4096);
-    startSn = clamp(startSn, 0, Math.max(0, total - len));
-    start = startSn;
-    end = Math.min(total, start + len);
-  }
-
-  // Keep editor view consistent with what Apply actually does.
-  waveEditor.selStart = start;
-  waveEditor.selLen = len;
-}
-
-
+// Snap is applied on L/R handle release only; Trim/Apply uses the current stored selection exactly.
 
 const cellFrames = getCellFrames(waveEditor.row);
 const defaultStart = 0;
@@ -4874,20 +5560,24 @@ const editorIsTrimmed = !!(
   (Array.isArray(waveEditor.undo) && waveEditor.undo.length > 0)
 );
 
-if (!editorIsTrimmed && !selectionChanged){
-  // No real change: do not mark as edited, do not show scissors, keep original buffers
+const selectionCoversWholeSource = (start === 0 && selLenNow === total);
+
+if (!editorIsTrimmed && !selectionChanged && selectionCoversWholeSource){
+  // No real change: selection already covers the full source.
+  // Important: for long sources the default Wave Editor window is only one cell long;
+  // pressing Trim must still materialize that default window into the cell.
   cell.selEdited = false;
         cell.scissors = false;
   cell.trimStartSrcFrames = null;
   cell.trimLenSrcFrames   = null;
-  // Keep selection window at default (for long samples we keep left window; for short samples hidden)
+  // Keep selection window at default for short/full-source samples.
   cell.selStartFrames = defaultStart;
   cell.selLenFrames   = defaultLen;
   cell.cache = { key:"", L:null, R:null, frames:0 };
   updateCellUI(waveEditor.col, waveEditor.row);
   markWaveDirty(waveEditor.col, waveEditor.row);
   updateInspector();
-  setStatus("Apply: no changes", "info");
+  setStatus("Trim: no changes", "info");
   return;
 }
 
@@ -4922,11 +5612,15 @@ const _targetLen = (()=>{
   }catch(_e){ return ((end-start)|0); }
 })();
 const _didMoveSel = !((start|0) === 0 && (((end-start)|0) === (_targetLen|0)));
+// A default Trim of a long source is still a real destructive trim: it must draw the new cell buffer.
+// Keep scissors reserved for user-moved selections, but force the mini-wave to refresh whenever Trim
+// materializes a window smaller than the full source.
+const _materializedTrimWindow = !selectionCoversWholeSource;
 cell.scissors = !!_didMoveSel;
 cell.selEdited = !!_didMoveSel;
 
 
-cell._forceCellWave = !!_didMoveSel;
+cell._forceCellWave = !!(_didMoveSel || _materializedTrimWindow);
 // Slice full source into the cell's audio buffers (used for playback/export)
 const L = waveEditor.src.L.subarray(start, end);
 const R = waveEditor.src.R.subarray(start, end);
@@ -5030,26 +5724,24 @@ if (editorIsTrimmed){
   }
 
   function wavePickFromX(clientX){
+    waveEditor._lastSnapEdge = "";
     const rect = waveBigEl.getBoundingClientRect();
     const px = clamp(clientX - rect.left, 0, rect.width);
-    const rev = !!(state?.cells?.[waveEditor.col]?.[waveEditor.row]?.settings?.reverse);
-    const t = px / rect.width;
-    const tt = rev ? (1 - t) : t;
     const total = waveEditor.src.L.length;
-    const start = Math.round(tt * total - waveEditor.selLen/2);
+    const srcAtPx = waveXToFrames(px, total, rect.width);
+    const start = Math.round(srcAtPx - waveEditor.selLen/2);
     waveEditor.selStart = clamp(start, 0, Math.max(0, total - waveEditor.selLen));
     commitWaveSelection();
     scheduleWaveDraw();
   }
 
   function waveDragFromX(clientX){
+    waveEditor._lastSnapEdge = "";
     const rect = waveBigEl.getBoundingClientRect();
     const px = clamp(clientX - rect.left, 0, rect.width);
-    const rev = !!(state?.cells?.[waveEditor.col]?.[waveEditor.row]?.settings?.reverse);
-    const t = px / rect.width;
-    const tt = rev ? (1 - t) : t;
     const total = waveEditor.src.L.length;
-    const start = Math.round(tt * total - waveEditor.dragDx);
+    const srcAtPx = waveXToFrames(px, total, rect.width);
+    const start = Math.round(srcAtPx - waveEditor.dragDx);
     waveEditor.selStart = clamp(start, 0, Math.max(0, total - waveEditor.selLen));
     commitWaveSelection();
     scheduleWaveDraw();
@@ -5064,7 +5756,7 @@ if (editorIsTrimmed){
       const total = waveEditor.src.L.length|0;
       const stt = waveEditor.selStart|0;
       const enn = (stt + (waveEditor.selLen|0))|0;
-      const ax = magAnchorWave(total|0, stt, enn);
+      const ax = magAnchorWave(total|0, stt, enn, (_mag && _mag.edge) ? _mag.edge : "C");
       // If magnifier is in center/move mode, keep its anchor following the moving selection
       try{
         if (typeof _mag !== 'undefined' && _mag && _mag.on && (_mag.srcTag||"")==='wave' && !(_mag.edge==='L' || _mag.edge==='R')){
@@ -5140,9 +5832,79 @@ if (editorIsTrimmed){
   }
 
   let splitSelStartEl=null, splitSelLenEl=null, splitSrcNameEl=null, splitNameEl=null, splitViewZoomEl=null;
-  let splitLoadBtnEl=null, splitAutoBtnEl=null, splitPlaySelBtnEl=null, splitPlayFullBtnEl=null, splitUndoBtnEl=null, splitApplyBtnEl=null, splitCloseBtnEl=null, splitHelpBtnEl=null, splitHintEl=null;
+  let splitLoadBtnEl=null, splitAutoBtnEl=null, splitSnapBtnEl=null, splitPlaySelBtnEl=null, splitPlayFullBtnEl=null, splitUndoBtnEl=null, splitApplyBtnEl=null, splitCloseBtnEl=null, splitHelpBtnEl=null, splitHintEl=null;
   let splitCol = 0;
   let splitTargetCol = 0;
+
+  const SPLIT_SNAP_KEY = "tcm_slice_editor_snap";
+  function readSplitSnapPref(){
+    try{
+      const raw = String(localStorage.getItem(SPLIT_SNAP_KEY) || "").trim().toLowerCase();
+      if (raw === "on" || raw === "true" || raw === "1") return true;
+      if (raw === "off" || raw === "false" || raw === "0") return false;
+    }catch(_e){}
+    return false;
+  }
+  function saveSplitSnapPref(value){
+    try{ localStorage.setItem(SPLIT_SNAP_KEY, value ? "on" : "off"); }catch(_e){}
+  }
+  let splitSnap = readSplitSnapPref();
+  function updateSplitSnapButton(){
+    const btn = splitSnapBtnEl || document.getElementById("splitSnapBtn");
+    if (!btn) return;
+    const tip = "Snap slice L/R handles to the nearest nearby zero-crossing after mouse release or after L/R arrow nudges settle. Move mode and Space do not snap.";
+    btn.textContent = "Snap";
+    btn.classList.toggle("tcmActiveBtn", !!splitSnap);
+    btn.setAttribute("title", tip);
+    btn.setAttribute("aria-label", tip);
+    try{ btn.dataset.nativeTitle = tip; }catch(_e){}
+  }
+
+  let splitNudgeSnapTimer = 0;
+  let splitNudgeSnapEdge = "";
+  function clearSplitNudgeSnapTimer(){
+    try{
+      if (splitNudgeSnapTimer){
+        clearTimeout(splitNudgeSnapTimer);
+        splitNudgeSnapTimer = 0;
+      }
+      splitNudgeSnapEdge = "";
+    }catch(_e){}
+  }
+  function scheduleSplitNudgeSnap(edgeMode){
+    try{
+      const edge = String(edgeMode || "").toUpperCase();
+      clearSplitNudgeSnapTimer();
+      if (!splitSnap || (edge !== "L" && edge !== "R")) return;
+      splitNudgeSnapEdge = edge;
+      splitNudgeSnapTimer = setTimeout(() => {
+        splitNudgeSnapTimer = 0;
+        const snapEdge = splitNudgeSnapEdge;
+        splitNudgeSnapEdge = "";
+        try{
+          if (!splitIsOpen()) return;
+          const st = splitGetState(splitCol);
+          const changed = snapSplitBlockEdgeIfNeeded(st, splitActiveIdx|0, snapEdge);
+          if (changed){
+            splitScheduleDraw();
+            try{
+              if (_mag && _mag.on && (_mag.srcTag === "split") && st && st.sourceKey && sourceStore.has(st.sourceKey)){
+                const b = st.blocks[splitActiveIdx|0];
+                const src = sourceStore.get(st.sourceKey);
+                const ax = src && src.L ? magAnchorSplit((src.L.length|0), b) : null;
+                magUpdate({
+                  selStart:(b.s|0),
+                  selEnd:((b.s|0)+(b.l|0)),
+                  x: ax ? ax.x : undefined,
+                  y: ax ? ax.y : undefined
+                });
+              }
+            }catch(_m){}
+          }
+        }catch(_e){}
+      }, 150);
+    }catch(_e){}
+  }
   // Pinned column for Slice Editor: never rely on mutable globals for routing.
   function splitPinnedCol(){
     try{
@@ -5230,6 +5992,8 @@ let splitPointerId = null; let splitActiveIdx = 0;
     splitBigEl = document.getElementById("splitBig");
     splitLoadBtnEl = document.getElementById("splitLoadBtn");
     splitAutoBtnEl = document.getElementById("splitAutoBtn");
+    splitSnapBtnEl = document.getElementById("splitSnapBtn");
+    try{ updateSplitSnapButton(); }catch(_e){}
     splitPlaySelBtnEl = document.getElementById("splitPlaySelBtn");
     splitPlayFullBtnEl = document.getElementById("splitPlayFullBtn");
     splitUndoBtnEl = document.getElementById("splitUndoBtn");
@@ -5328,6 +6092,536 @@ let splitPointerId = null; let splitActiveIdx = 0;
     }
     splitScheduleDraw();
   }
+
+
+  function splitClampTransientPercent(v, lo, hi){
+    return Math.max(lo, Math.min(hi, v));
+  }
+
+  function splitDetectTransientStarts(src, wantedCount, cellMax, mode="spread"){
+    const L = src && src.L;
+    const R = src && src.R;
+    const total = L ? (L.length|0) : 0;
+    const count = Math.max(1, wantedCount|0);
+    if (!L || !total) return [];
+
+    // Fase 1.2 transient slicer:
+    // - include a valid first onset instead of skipping the start of the loop
+    // - detect attack movement, not just loud bodies/tails
+    // - backtrack each peak to the local attack foot
+    // - keep candidates spaced and return final starts chronologically.
+    const hop = 96;              // ~2 ms at 48 kHz; keeps attack starts tighter
+    const win = 384;             // ~8 ms RMS window
+    const n = Math.max(1, Math.floor((total + hop - 1) / hop));
+    const env = new Float32Array(n);
+
+    for (let i=0; i<n; i++){
+      const start = i * hop;
+      const end = Math.min(total, start + win);
+      let sum = 0;
+      const frames = Math.max(1, end - start);
+      for (let j=start; j<end; j++){
+        const l = L[j] || 0;
+        const r = R ? (R[j] || 0) : l;
+        const m = 0.5 * (l + r);
+        sum += m * m;
+      }
+      env[i] = Math.sqrt(sum / frames);
+    }
+
+    // Light smoothing only; heavy smoothing places starts late.
+    const smooth = new Float32Array(n);
+    for (let i=0; i<n; i++){
+      const a = env[Math.max(0, i-1)] || 0;
+      const b = env[i] || 0;
+      const c = env[Math.min(n-1, i+1)] || 0;
+      smooth[i] = (a + b*2 + c) / 4;
+    }
+
+    const onset = new Float32Array(n);
+    let onsetSum = 0;
+    let envSum = 0;
+    let envMax = 0;
+    for (let i=0; i<n; i++){
+      const e = smooth[i] || 0;
+      envSum += e;
+      if (e > envMax) envMax = e;
+      if (i > 0){
+        const prev = smooth[Math.max(0, i-2)] || 0;
+        const v = Math.max(0, e - prev);
+        onset[i] = v;
+        onsetSum += v;
+      }
+    }
+    const envMean = envSum / Math.max(1, n);
+    const onsetMean = onsetSum / Math.max(1, n-1);
+    let onsetVar = 0;
+    let onsetMax = 0;
+    for (let i=1; i<n; i++){
+      if (onset[i] > onsetMax) onsetMax = onset[i];
+      const d = onset[i] - onsetMean;
+      onsetVar += d*d;
+    }
+    const onsetStd = Math.sqrt(onsetVar / Math.max(1, n-1));
+    if (onsetMax <= 0 || envMax <= 0) return [];
+
+    // v2.12.53: First 8 should include soft but clear transient blocks
+    // (hi-hats/shakers), while Strong/Spread keep the stricter detector.
+    const transientModeKey = String(mode || "spread").toLowerCase();
+    const isFirstMode = transientModeKey === "first";
+    const threshold = isFirstMode
+      ? Math.max(onsetMean * 0.55, onsetMax * 0.012)
+      : Math.max(onsetMean + onsetStd * 0.70, onsetMax * 0.045);
+    const envFloor = isFirstMode
+      ? Math.max(envMean * 0.16, envMax * 0.004)
+      : Math.max(envMean * 0.28, envMax * 0.008);
+
+    function backtrackToAttackStart(peakIdx){
+      // Place the slice on the first clear attack rise, not on the quiet lead-in.
+      // Earlier versions backtracked to a low "attack foot"; that worked for
+      // hard one-shots but started conga/flutter loops visibly before the hit.
+      const safePeakIdx = Math.max(0, Math.min(n-1, peakIdx|0));
+      const peakEnv = smooth[safePeakIdx] || 0;
+      const maxBack = Math.max(3, Math.round((SR * 0.07) / hop)); // 70 ms bounded lookback
+      const lo = Math.max(0, safePeakIdx - maxBack);
+
+      let valleyVal = peakEnv;
+      for (let k=safePeakIdx-1; k>=lo; k--){
+        const e = smooth[k] || 0;
+        if (e < valleyVal) valleyVal = e;
+      }
+
+      const rise = Math.max(0, peakEnv - valleyVal);
+      if (rise <= 0) return Math.max(0, Math.min(total-1, safePeakIdx * hop));
+
+      // Walk backward from the onset peak and stop at the last point below a
+      // stronger attack threshold. This ignores low pre-ringing and puts the
+      // left edge on the visible transient rise. No extra pre-roll here: slices
+      // should start where the transient starts.
+      const target = valleyVal + rise * 0.62;
+      let startIdx = safePeakIdx;
+      for (let k=safePeakIdx; k>=lo; k--){
+        const e = smooth[k] || 0;
+        if (e < target){
+          startIdx = Math.min(safePeakIdx, k + 1);
+          break;
+        }
+      }
+
+      // Avoid landing on a single noisy bin before the real rise: require that
+      // the next few bins are not falling back below the threshold. If they are,
+      // step forward to the next stable attack bin.
+      for (let k=startIdx; k<safePeakIdx; k++){
+        const e0 = smooth[k] || 0;
+        const e1 = smooth[Math.min(n-1, k+1)] || 0;
+        const e2 = smooth[Math.min(n-1, k+2)] || 0;
+        if (e0 >= target && (e1 >= target * 0.82 || e2 >= target * 0.82)){
+          startIdx = k;
+          break;
+        }
+      }
+
+      return Math.max(0, Math.min(total-1, startIdx * hop));
+    }
+
+    function refineTransientStartFrame(frame, peakFrame, isAnchor){
+      // The RMS/onset bins above are good for finding candidate hits, but they
+      // can still leave the slice edge on a quiet pre-hit ramp. Refine the final
+      // frame at sample resolution: look forward from the candidate start and
+      // place the block on the first clearly audible attack frame. Keep true
+      // file-start anchors at 0 so a hit that begins at the source boundary is
+      // not cut late.
+      const base = Math.max(0, Math.min(total-1, Math.round(Number(frame) || 0)));
+      if (isAnchor && base <= Math.round(SR * 0.003)) return base;
+
+      const peak = Math.max(base, Math.min(total-1, Math.round(Number(peakFrame) || base)));
+      const searchEnd = Math.min(total-1, Math.max(peak + Math.round(SR * 0.030), base + Math.round(SR * 0.090)));
+      if (searchEnd <= base) return base;
+
+      let peakAbs = 0;
+      for (let j=base; j<=searchEnd; j++){
+        const l = L[j] || 0;
+        const r = R ? (R[j] || 0) : l;
+        const a = Math.abs(0.5 * (l + r));
+        if (a > peakAbs) peakAbs = a;
+      }
+      if (!Number.isFinite(peakAbs) || peakAbs <= 1e-8) return base;
+
+      const threshold = peakAbs * 0.05;
+      for (let j=base; j<=searchEnd; j++){
+        const l = L[j] || 0;
+        const r = R ? (R[j] || 0) : l;
+        if (Math.abs(0.5 * (l + r)) >= threshold) return j;
+      }
+      return base;
+    }
+
+    const rawCandidates = [];
+
+    // Explicit start anchor: onset detection based on positive differences cannot see
+    // the attack that starts at frame 0, so add it when the file begins with energy
+    // or the first clear rise happens very near the beginning.
+    const firstThresh = Math.max(envMean * 0.45, envMax * 0.018);
+    let firstIdx = -1;
+    const firstScanEnd = Math.min(n-1, Math.round((SR * 0.75) / hop));
+    for (let i=0; i<=firstScanEnd; i++){
+      if ((smooth[i] || 0) >= firstThresh){ firstIdx = i; break; }
+    }
+    if (firstIdx >= 0){
+      const peakEnd = Math.min(n-1, firstIdx + Math.round((SR * 0.12) / hop));
+      let pk = firstIdx;
+      let pkVal = smooth[firstIdx] || 0;
+      for (let k=firstIdx+1; k<=peakEnd; k++){
+        const e = smooth[k] || 0;
+        if (e > pkVal){ pk = k; pkVal = e; }
+      }
+      const peakFrame = Math.max(0, Math.min(total-1, pk * hop));
+      const baseFrame = (firstIdx <= Math.round((SR * 0.025) / hop)) ? 0 : backtrackToAttackStart(pk);
+      const frame = refineTransientStartFrame(baseFrame, peakFrame, true);
+      rawCandidates.push({ frame, peakFrame, score: Math.max(onsetMax * 1.1, pkVal), anchor:true });
+    }
+
+    for (let i=2; i<n-2; i++){
+      const v = onset[i];
+      if (v < threshold) continue;
+      if ((smooth[i] || 0) < envFloor) continue;
+      if (v < onset[i-1] || v < onset[i+1]) continue;
+      if (v < onset[i-2] || v < onset[i+2]) continue;
+      const peakFrame = Math.max(0, Math.min(total-1, i * hop));
+      const frame = refineTransientStartFrame(backtrackToAttackStart(i), peakFrame, false);
+      const score = v + (smooth[i] || 0) * 0.18;
+      rawCandidates.push({ frame, peakFrame, score, anchor:false });
+    }
+    if (!rawCandidates.length) return [];
+
+    // Collapse repeated peaks from the same hit. The start anchor is protected so
+    // the first loop transient is not replaced by a later, louder part of the hit.
+    const mergeGap = Math.round(SR * 0.055); // 55 ms
+    rawCandidates.sort((a,b)=>a.frame - b.frame);
+    const merged = [];
+    for (const cand of rawCandidates){
+      const last = merged[merged.length - 1];
+      if (last && Math.abs(cand.frame - last.frame) < mergeGap){
+        if (last.anchor){
+          if (cand.score > last.score){
+            last.score = cand.score;
+            last.peakFrame = cand.peakFrame;
+          }
+        }else if (cand.anchor || cand.score > last.score){
+          last.frame = cand.frame;
+          last.peakFrame = cand.peakFrame;
+          last.score = cand.score;
+          last.anchor = !!cand.anchor;
+        }
+      }else{
+        merged.push({ frame:cand.frame, peakFrame:cand.peakFrame, score:cand.score, anchor:!!cand.anchor });
+      }
+    }
+
+    const minGapFrames = Math.round(splitClampTransientPercent(total / (count * 5), SR * 0.09, SR * 0.20));
+
+    function canAdd(list, cand, gap=minGapFrames){
+      return cand && !list.some(x => Math.abs(x.frame - cand.frame) < gap);
+    }
+    function addCandidate(list, cand, gap=minGapFrames){
+      if (!cand || list.length >= count) return false;
+      if (!canAdd(list, cand, gap)) return false;
+      list.push(cand);
+      return true;
+    }
+    function fillWithEven(list){
+      if (list.length >= count) return;
+      const rawLen = Math.max(1, Math.floor(total / count));
+      const blockLen = Math.min(cellMax || rawLen, rawLen);
+      const span = Math.max(0, total - blockLen);
+      for (let i=0; i<count && list.length<count; i++){
+        const frame = (i===count-1) ? span : Math.round((i/(count-1)) * span);
+        addCandidate(list, {frame, peakFrame:frame, score:0, anchor:false}, minGapFrames * 0.5);
+      }
+    }
+
+    const chosen = [];
+
+    // v2.12.56: First 8 should mean the first 8 separated transient events,
+    // not the first 8 small peaks inside one resonant hit. A new candidate is
+    // accepted only after the envelope has dropped into a real valley between
+    // the previous event and the next attack. This keeps soft hats/shakers when
+    // they are clearly separated, but ignores internal ringing/pulses in a tail.
+    const firstGapFrames = Math.round(SR * 0.032);
+    const hardDuplicateFrames = Math.round(SR * 0.026);
+
+    function envIndexForFrame(frame){
+      return Math.max(0, Math.min(n-1, Math.round((Number(frame) || 0) / hop)));
+    }
+    function peakEnvAroundFrame(frame, radiusFrames){
+      const idx = envIndexForFrame(frame);
+      const rad = Math.max(1, Math.round((Number(radiusFrames) || Math.round(SR * 0.018)) / hop));
+      let peak = 0;
+      for (let k=Math.max(0, idx-rad); k<=Math.min(n-1, idx+rad); k++){
+        const e = smooth[k] || 0;
+        if (e > peak) peak = e;
+      }
+      return peak;
+    }
+    function valleyEnvBetweenFrames(aFrame, bFrame){
+      const a = Math.max(0, Math.min(total-1, Math.round(Number(aFrame) || 0)));
+      const b = Math.max(a, Math.min(total-1, Math.round(Number(bFrame) || a)));
+      const guardA = Math.round(SR * 0.018);
+      const guardB = Math.round(SR * 0.008);
+      let ia = envIndexForFrame(a + guardA);
+      let ib = envIndexForFrame(b - guardB);
+      if (ib < ia){
+        ia = envIndexForFrame(a);
+        ib = envIndexForFrame(b);
+      }
+      let valley = Infinity;
+      for (let k=Math.max(0, ia); k<=Math.min(n-1, ib); k++){
+        const e = smooth[k] || 0;
+        if (e < valley) valley = e;
+      }
+      return Number.isFinite(valley) ? valley : Math.min(smooth[envIndexForFrame(a)] || 0, smooth[envIndexForFrame(b)] || 0);
+    }
+    function first8Separated(prev, cand){
+      if (!prev) return true;
+      if (!cand) return false;
+      const dt = Math.max(0, Number(cand.frame || 0) - Number(prev.frame || 0));
+      if (dt < hardDuplicateFrames) return false;
+
+      const prevPeak = peakEnvAroundFrame(prev.peakFrame || prev.frame, Math.round(SR * 0.025));
+      const candPeak = peakEnvAroundFrame(cand.peakFrame || cand.frame, Math.round(SR * 0.025));
+      const valley = valleyEnvBetweenFrames(prev.frame || 0, cand.frame || 0);
+      const smallPeak = Math.max(1e-9, Math.min(prevPeak || 0, candPeak || 0));
+      const bigPeak = Math.max(1e-9, Math.max(prevPeak || 0, candPeak || 0));
+
+      // Clear event boundary: the signal has fallen well below the weaker of
+      // the two event peaks. This is what lets soft hats through when they are
+      // separated by silence/low energy, while long noisy decays remain one hit.
+      if (valley <= Math.max(envMean * 0.30, smallPeak * 0.62)) return true;
+      if (valley <= Math.max(envMean * 0.22, bigPeak * 0.34) && dt > Math.round(SR * 0.060)) return true;
+
+      // If there is a long gap, accept a clearly rising later candidate even if
+      // tape/noise floor keeps the measured valley from getting very low.
+      const candScore = Math.max(0, Number(cand.score || 0));
+      if (dt > Math.round(SR * 0.22) && candScore >= Math.max(onsetMean * 0.55, onsetMax * 0.014)) return true;
+
+      return false;
+    }
+
+    for (const cand of merged){
+      if (chosen.length >= count) break;
+      const prev = chosen.length ? chosen[chosen.length - 1] : null;
+      if (!first8Separated(prev, cand)) continue;
+      addCandidate(chosen, cand, firstGapFrames);
+    }
+
+    fillWithEven(chosen);
+
+    return chosen
+      .sort((a,b)=>a.frame - b.frame)
+      .slice(0, count)
+      .map(x => Math.max(0, Math.min(total-1, x.frame|0)));
+  }
+
+  const TRANSIENT_SLICE_DEFAULT_MODE = "first";
+  function normalizeTransientSliceMode(_mode){
+    return TRANSIENT_SLICE_DEFAULT_MODE;
+  }
+  function getTransientSliceModeLabel(_mode){
+    return "First 8";
+  }
+  function loadTransientSliceMode(){
+    try{ localStorage.removeItem("tcm_transient_slice_mode_v2"); }catch(_e){}
+    return TRANSIENT_SLICE_DEFAULT_MODE;
+  }
+  function updateTransientModeButton(){
+    try{ localStorage.removeItem("tcm_transient_slice_mode_v2"); }catch(_e){}
+  }
+
+  function findZeroCrossingAtOrBeforeFrame(left, right, frame, windowFrames){
+    try{
+      if (!left || !left.length) return Math.round(Number(frame) || 0);
+      const n = left.length|0;
+      const target = Math.max(0, Math.min(n, Math.round(Number(frame) || 0)));
+      const radius = Math.max(1, Math.min(Math.round(Number(windowFrames) || 0), Math.round(SR * 0.020), Math.max(1, n - 1)));
+      const lo = Math.max(0, target - radius);
+      const hi = Math.max(0, Math.min(n - 2, target - 1));
+
+      function sampleAt(i){
+        i = Math.max(0, Math.min(n - 1, i|0));
+        const l = Number(left[i] || 0);
+        if (right && right.length === n) return (l + Number(right[i] || 0)) * 0.5;
+        return l;
+      }
+
+      let best = null;
+      for (let i=hi; i>=lo; i--){
+        const v0 = sampleAt(i);
+        const v1 = sampleAt(i + 1);
+        const crosses = (v0 === 0) || (v1 === 0) || (v0 < 0 && v1 > 0) || (v0 > 0 && v1 < 0);
+        if (!crosses) continue;
+        const cand = (Math.abs(v0) <= Math.abs(v1)) ? i : (i + 1);
+        if (cand > target) continue;
+        const dist = Math.abs(target - cand);
+        const amp = Math.abs(sampleAt(cand));
+        if (!best || dist < best.dist || (dist === best.dist && amp < best.amp)){
+          best = { frame:cand, dist, amp };
+        }
+        // Scanning backwards from the boundary means the first close crossing is
+        // already the nearest previous crossing; keep a tiny amp tie-break window.
+        if (best && dist > best.dist + 2) break;
+      }
+      return best ? best.frame : target;
+    }catch(_e){
+      return Math.round(Number(frame) || 0);
+    }
+  }
+
+  function findNearestZeroCrossingInFrameRange(left, right, targetFrame, loFrame, hiFrame, windowFrames){
+    try{
+      if (!left || !left.length) return Math.round(Number(targetFrame) || 0);
+      const n = left.length|0;
+      const lo = Math.max(0, Math.min(n - 1, Math.round(Number(loFrame) || 0)));
+      const hi = Math.max(lo, Math.min(n - 1, Math.round(Number(hiFrame) || lo)));
+      const target = Math.max(lo, Math.min(hi, Math.round(Number(targetFrame) || lo)));
+      const radius = Math.max(1, Math.min(Math.round(Number(windowFrames) || 0), Math.round(SR * 0.020), Math.max(1, n - 1)));
+      const scanLo = Math.max(lo, target - radius);
+      const scanHi = Math.min(Math.max(0, n - 2), hi - 1, target + radius);
+
+      function sampleAt(i){
+        i = Math.max(0, Math.min(n - 1, i|0));
+        const l = Number(left[i] || 0);
+        if (right && right.length === n) return (l + Number(right[i] || 0)) * 0.5;
+        return l;
+      }
+
+      let best = null;
+      for (let i=scanLo; i<=scanHi; i++){
+        const v0 = sampleAt(i);
+        const v1 = sampleAt(i + 1);
+        const crosses = (v0 === 0) || (v1 === 0) || (v0 < 0 && v1 > 0) || (v0 > 0 && v1 < 0);
+        if (!crosses) continue;
+        const cand = (Math.abs(v0) <= Math.abs(v1)) ? i : (i + 1);
+        if (cand < lo || cand > hi) continue;
+        const dist = Math.abs(cand - target);
+        const amp = Math.abs(sampleAt(cand));
+        if (!best || dist < best.dist || (dist === best.dist && amp < best.amp)){
+          best = { frame:cand, dist, amp };
+        }
+      }
+      return best ? best.frame : target;
+    }catch(_e){
+      return Math.round(Number(targetFrame) || 0);
+    }
+  }
+
+  function findTransientValleyEndFrame(left, right, startFrame, nextFrame, cellMax){
+    try{
+      if (!left || !left.length) return Math.round(Number(nextFrame) || 0);
+      const n = left.length|0;
+      const start = Math.max(0, Math.min(n - 1, Math.round(Number(startFrame) || 0)));
+      const next = Math.max(start + 1, Math.min(n, Math.round(Number(nextFrame) || (start + 1))));
+      const span = Math.max(1, next - start);
+
+      // v2.12.47: end transient slices at the lowest-energy valley between hits,
+      // not at a fixed number of frames before the next hit. This usually lands
+      // in the natural decay/attack dip and avoids clicks better than a hard guard.
+      const leadGuard = Math.max(8, Math.min(Math.round(SR * 0.010), Math.round(span * 0.22)));
+      const nextGuard = Math.max(8, Math.min(Math.round(SR * 0.004), Math.round(span * 0.16)));
+      let lo = Math.min(next - 1, start + leadGuard);
+      let hi = Math.max(lo, next - nextGuard);
+      if (hi <= lo + 8){
+        lo = Math.min(next - 1, start + Math.max(1, Math.round(span * 0.18)));
+        hi = Math.max(lo, next - Math.max(1, Math.round(span * 0.08)));
+      }
+      hi = Math.max(lo, Math.min(hi, Math.min(next - 1, start + Math.max(1, cellMax || span))));
+
+      const rmsRadius = Math.max(8, Math.min(Math.round(SR * 0.0015), Math.max(8, Math.round(span * 0.025))));
+      const hop = Math.max(4, Math.min(64, Math.round(span / 160)));
+
+      function sampleAt(i){
+        i = Math.max(0, Math.min(n - 1, i|0));
+        const l = Number(left[i] || 0);
+        if (right && right.length === n) return (l + Number(right[i] || 0)) * 0.5;
+        return l;
+      }
+      function localRms(center){
+        const a = Math.max(start, center - rmsRadius);
+        const b = Math.min(next - 1, center + rmsRadius);
+        let sum = 0;
+        let cnt = 0;
+        for (let j=a; j<=b; j++){
+          const m = sampleAt(j);
+          sum += m*m;
+          cnt++;
+        }
+        return Math.sqrt(sum / Math.max(1, cnt));
+      }
+
+      let bestFrame = lo;
+      let bestVal = Infinity;
+      for (let f=lo; f<=hi; f+=hop){
+        const v = localRms(f);
+        if (v < bestVal){
+          bestVal = v;
+          bestFrame = f;
+        }
+      }
+      // Refine around the best coarse point at sample-level steps.
+      const refineLo = Math.max(lo, bestFrame - hop * 2);
+      const refineHi = Math.min(hi, bestFrame + hop * 2);
+      for (let f=refineLo; f<=refineHi; f++){
+        const v = localRms(f);
+        if (v < bestVal){
+          bestVal = v;
+          bestFrame = f;
+        }
+      }
+
+      const safeHi = Math.max(start + 1, Math.min(next - 1, hi));
+      const z = findNearestZeroCrossingInFrameRange(left, right, bestFrame, Math.max(start + 1, lo), safeHi, Math.round(SR * 0.006));
+      return Math.max(start + 1, Math.min(safeHi, Math.round(Number(z) || bestFrame)));
+    }catch(_e){
+      return Math.max(1, Math.round(Number(nextFrame) || 1) - 6);
+    }
+  }
+
+  function splitPlaceTransientSlices(mode=null){
+    const st = splitGetState(splitCol);
+    const src = st.sourceKey ? sourceStore.get(st.sourceKey) : null;
+    if (!src || !src.L){ toast("Load a sample first."); return; }
+    const total = src.L.length|0;
+    const cellMax = splitCellMaxFrames();
+    const modeKey = normalizeTransientSliceMode(mode || loadTransientSliceMode());
+    const starts = splitDetectTransientStarts(src, 8, cellMax, modeKey);
+    if (!starts.length){
+      toast("No clear transients found", 1800);
+      return;
+    }
+    splitPushUndo();
+    const rawLen = Math.max(1, Math.floor(total/8));
+    const fallbackLen = Math.min(cellMax, rawLen);
+    for (let i=0; i<8; i++){
+      const start = (starts[i] != null) ? starts[i] : Math.min(Math.max(0,total-1), i*fallbackLen);
+      const next = (starts[i+1] != null) ? starts[i+1] : Math.min(total, start + fallbackLen);
+      const naturalLen = Math.max(1, next - start);
+      const hasNextTransient = (starts[i+1] != null);
+      st.blocks[i].s = Math.max(0, Math.min(start|0, Math.max(0,total-1)));
+
+      let endFrame = Math.min(total, st.blocks[i].s + Math.min(cellMax, naturalLen));
+      if (hasNextTransient && naturalLen > 12){
+        endFrame = findTransientValleyEndFrame(src.L, src.R, st.blocks[i].s, next|0, cellMax);
+        if (!Number.isFinite(endFrame) || endFrame <= st.blocks[i].s) endFrame = Math.max(st.blocks[i].s + 1, Math.min(total, (next|0) - 6));
+      }
+      const len = Math.max(1, Math.min(cellMax, Math.max(1, endFrame - st.blocks[i].s)));
+      st.blocks[i].l = Math.min(len|0, Math.max(1,total - st.blocks[i].s));
+      splitClampBlock(st, i);
+    }
+    splitActiveIdx = 0;
+    splitCenterOnActive(total);
+    splitScheduleDraw();
+    if (starts.length < 8) toast(`Transients: ${starts.length} found, filled the rest evenly`, 2200);
+    else toast(`Transients placed (${getTransientSliceModeLabel(modeKey)})`, 1400);
+  }
     // --- modal scroll lock (Wave/Slice editors) ---
   let __prevBodyOverflow = null;
   let __prevHtmlOverflow = null;
@@ -5408,6 +6702,7 @@ let splitPointerId = null; let splitActiveIdx = 0;
     splitScheduleDraw();
   }
   function splitClose(){
+clearSplitNudgeSnapTimer();
 magHide();
 splitEnsureEls();
     // Make sure we fully release any pointer capture so mouse works again after closing/apply
@@ -5508,6 +6803,52 @@ splitEnsureEls();
     if (b.s + b.l > total) b.l = Math.max(1, total - b.s);
   }
 
+  function snapSplitBlockEdgeIfNeeded(st, idx, edgeMode){
+    try{
+      const edge = String(edgeMode || "").toUpperCase();
+      if (!splitSnap || (edge !== "L" && edge !== "R")) return false;
+      const src = st && st.sourceKey ? sourceStore.get(st.sourceKey) : null;
+      if (!src || !src.L || typeof findNearestZeroCrossing !== "function") return false;
+      const b = st.blocks[idx|0];
+      if (!b) return false;
+      const total = src.L.length|0;
+      if (!total) return false;
+      const maxLen = Math.max(1, Math.min((getCellFrames(idx|0)|0) || total, total));
+      let start = clamp(Math.round(Number(b.s) || 0), 0, Math.max(0, total - 1));
+      let end = clamp(Math.round(start + (Number(b.l) || 1)), Math.min(total, start + 1), total);
+      const beforeS = start;
+      const beforeE = end;
+
+      if (edge === "L"){
+        let sn = findNearestZeroCrossing(src.L, start, 4096, src.R);
+        sn = clamp(Math.round(sn), 0, Math.max(0, end - 1));
+        let len = end - sn;
+        if (len > maxLen){
+          len = maxLen;
+          sn = Math.max(0, end - len);
+        }
+        start = sn;
+        end = Math.min(total, start + Math.max(1, len));
+      }else{
+        let en = findNearestZeroCrossing(src.L, end, 4096, src.R);
+        en = clamp(Math.round(en), Math.min(total, start + 1), total);
+        let len = en - start;
+        if (len > maxLen){
+          len = maxLen;
+          en = Math.min(total, start + len);
+        }
+        end = en;
+      }
+
+      b.s = start|0;
+      b.l = Math.max(1, (end - start)|0);
+      splitClampBlock(st, idx|0);
+      return (b.s|0) !== beforeS || ((b.s|0) + (b.l|0)) !== beforeE;
+    }catch(_e){
+      return false;
+    }
+  }
+
   
   
 function splitNudgeActive(dirSamples, mode){
@@ -5557,6 +6898,39 @@ function splitPlayActiveSlice(){
     // Always (re)play: _playLR() stops any current preview.
     const L = src.L.subarray(start, end);
     const R = src.R.subarray(start, end);
+    _playLR(L, R);
+  }
+
+function splitPlayAllSlices(){
+    if (!splitOverlayEl || splitOverlayEl.style.display === "none") return;
+    const st = splitGetState(splitCol|0);
+    if (!st || !st.sourceKey || !sourceStore.has(st.sourceKey)) { toast("No sample loaded", "warn"); return; }
+    const src = sourceStore.get(st.sourceKey);
+    const blocks = Array.isArray(st.blocks) ? st.blocks : [];
+    const parts = [];
+    let totalFrames = 0;
+
+    for (let i = 0; i < 8; i++){
+      const b = blocks[i];
+      if (!b) continue;
+      const start = Math.max(0, b.s|0);
+      const end = Math.min(src.L.length, start + (b.l|0));
+      if (end <= start + 1) continue;
+      parts.push({ start, end, len: end - start });
+      totalFrames += (end - start);
+    }
+
+    if (!parts.length || totalFrames <= 1) return;
+
+    const L = new Float32Array(totalFrames);
+    const R = new Float32Array(totalFrames);
+    let pos = 0;
+    for (const p of parts){
+      L.set(src.L.subarray(p.start, p.end), pos);
+      R.set(src.R.subarray(p.start, p.end), pos);
+      pos += p.len;
+    }
+
     _playLR(L, R);
   }
 
@@ -5726,6 +7100,13 @@ function splitDraw(){
     splitHelpBtnEl?.addEventListener("click", ()=>{ try{ openHelp(); }catch(e){} });
     splitLoadBtnEl.addEventListener("click", ()=>splitPickSample(null));
     splitAutoBtnEl.addEventListener("click", ()=>{ const st=splitGetState(splitCol); if(!st.sourceKey) return; splitPushUndo(); splitAutoTile(); });
+    splitSnapBtnEl?.addEventListener("click", (e)=>{
+      e?.preventDefault?.();
+      splitSnap = !splitSnap;
+      if (!splitSnap) clearSplitNudgeSnapTimer();
+      saveSplitSnapPref(splitSnap);
+      updateSplitSnapButton();
+    });
 
     splitPlaySelBtnEl?.addEventListener("click", (e)=>{
       e.preventDefault();
@@ -5736,12 +7117,9 @@ function splitDraw(){
       e.preventDefault();
       try{ e.currentTarget && e.currentTarget.blur && e.currentTarget.blur(); }catch(_){}
       try{
-        const st = splitGetState(splitCol|0);
-        if (!st || !st.sourceKey || !sourceStore.has(st.sourceKey)) { toast("No sample loaded", "warn"); return; }
-        const src = sourceStore.get(st.sourceKey);
         // toggle play/stop
         if (state.currentSrc){ stopPlayback(); return; }
-        _playLR(src.L, src.R);
+        splitPlayAllSlices();
       }catch(err){
         console.error(err);
         toast((err && err.message) ? err.message : String(err), 6500);
@@ -5753,14 +7131,31 @@ function splitDraw(){
     const waveZoomBtnEl  = document.getElementById("waveZoomBtn");
     const splitZoomAutoHideBtnEl = document.getElementById("splitZoomAutoHideBtn");
     const waveZoomAutoHideBtnEl  = document.getElementById("waveZoomAutoHideBtn");
+    const ZOOM_AUTO_HIDE_STORAGE_KEY = "tcm_zoom_auto_hide";
+    function loadZoomAutoHidePreference(){
+      try{
+        const stored = localStorage.getItem(ZOOM_AUTO_HIDE_STORAGE_KEY);
+        if (stored === "1" || stored === "true") _mag.autoHide = true;
+        else if (stored === "0" || stored === "false") _mag.autoHide = false;
+      }catch(_){}
+    }
+    function saveZoomAutoHidePreference(){
+      try{ localStorage.setItem(ZOOM_AUTO_HIDE_STORAGE_KEY, (_mag.autoHide === true) ? "1" : "0"); }catch(_){}
+    }
     function _syncZoomBtns(){
       const on = (_mag.userEnabled !== false);
       const autoHideOn = (_mag.autoHide === true);
-      try{ splitZoomBtnEl && (splitZoomBtnEl.textContent = on ? "Zoom: on" : "Zoom: off"); }catch(_){}
-      try{ waveZoomBtnEl  && (waveZoomBtnEl.textContent  = on ? "Zoom: on" : "Zoom: off"); }catch(_){}
-      try{ splitZoomAutoHideBtnEl && (splitZoomAutoHideBtnEl.textContent = autoHideOn ? "Zoom: Auto Hide on" : "Zoom: Auto Hide off"); }catch(_){}
-      try{ waveZoomAutoHideBtnEl  && (waveZoomAutoHideBtnEl.textContent  = autoHideOn ? "Zoom: Auto Hide on" : "Zoom: Auto Hide off"); }catch(_){}
+      const setActive = (btn, active) => { try{ if (btn) btn.classList.toggle("tcmActiveBtn", !!active); }catch(_e){} };
+      try{ if (splitZoomBtnEl) splitZoomBtnEl.textContent = "Zoom"; }catch(_){}
+      try{ if (waveZoomBtnEl) waveZoomBtnEl.textContent = "Zoom"; }catch(_){}
+      try{ if (splitZoomAutoHideBtnEl) splitZoomAutoHideBtnEl.textContent = "Zoom: auto hide"; }catch(_){}
+      try{ if (waveZoomAutoHideBtnEl) waveZoomAutoHideBtnEl.textContent = "Zoom: auto hide"; }catch(_){}
+      setActive(splitZoomBtnEl, on);
+      setActive(waveZoomBtnEl, on);
+      setActive(splitZoomAutoHideBtnEl, autoHideOn);
+      setActive(waveZoomAutoHideBtnEl, autoHideOn);
     }
+    loadZoomAutoHidePreference();
     splitZoomBtnEl?.addEventListener("mousedown", (e)=>{ try{ e.preventDefault(); }catch(_){ } });
     splitZoomBtnEl?.addEventListener("click", (e)=>{
       e.preventDefault();
@@ -5784,6 +7179,7 @@ function splitDraw(){
       e.preventDefault();
       try{ e.currentTarget && e.currentTarget.blur && e.currentTarget.blur(); }catch(_){ }
       _mag.autoHide = !_mag.autoHide;
+      saveZoomAutoHidePreference();
       _syncZoomBtns();
       try{ toast((_mag.autoHide===true) ? "Zoom auto hide on" : "Zoom auto hide off"); }catch(_){}
     });
@@ -5792,6 +7188,7 @@ function splitDraw(){
       e.preventDefault();
       try{ e.currentTarget && e.currentTarget.blur && e.currentTarget.blur(); }catch(_){ }
       _mag.autoHide = !_mag.autoHide;
+      saveZoomAutoHidePreference();
       _syncZoomBtns();
       try{ toast((_mag.autoHide===true) ? "Zoom auto hide on" : "Zoom auto hide off"); }catch(_){}
     });
@@ -5935,7 +7332,7 @@ ev.preventDefault();
       const prevIdx = splitActiveIdx;
       if (prevIdx !== hit.i){ try{ magHide(); }catch(_){ } }
       splitActiveIdx = hit.i;
-      try{ if (src && splitIsZoomed(srcLen)) splitCenterOnActive(srcLen); }catch(_){ }
+      // Keep the current Slice view stable while selecting/dragging; do not recenter on pointer down.
       splitDraw();
       
       // Auto magnifier on dense waveforms (click anywhere on block)
@@ -6003,7 +7400,7 @@ splitPointerId = ev.pointerId;
         const maxLen = getCellFrames(splitDragging.i)|0;
         const wanted = splitDragging.origL + dx;
         if (wanted > maxLen && dx > 0){
-          b.s = splitDragging.origS + dx;
+          // Right/end handle stops at max length; do not slide the slice window.
           b.l = maxLen;
         }else{
           b.l = Math.max(1, Math.min(maxLen, wanted));
@@ -6027,9 +7424,33 @@ if (_mag.on && (splitDragging.mode==="left" || splitDragging.mode==="right")){
         }catch(_){ }
       }
 });
-    splitBigEl.addEventListener("pointerup", (ev)=>{ 
-if(!splitDragging) return; splitDragging=null; try{ splitBigEl.releasePointerCapture(ev.pointerId);}catch(e){} splitPointerId=null; if(_mag.autoHide===true && _mag.on && (_mag.srcTag==="split")){ try{ magHide(); }catch(_){ } } });
-    splitBigEl.addEventListener("pointercancel", ()=>{ splitDragging=null; splitPointerId=null; try{splitBigEl.releasePointerCapture(splitPointerId);}catch(e){} if(_mag.autoHide===true && _mag.on && (_mag.srcTag==="split")){ try{ magHide(); }catch(_){ } } });
+    splitBigEl.addEventListener("pointerup", (ev)=>{
+      clearSplitNudgeSnapTimer();
+      if(!splitDragging) return;
+      const drag = splitDragging;
+      try{
+        if (drag && (drag.mode === "left" || drag.mode === "right")){
+          const st = splitGetState(splitCol);
+          const changed = snapSplitBlockEdgeIfNeeded(st, drag.i, drag.mode === "left" ? "L" : "R");
+          if (changed){
+            splitScheduleDraw();
+            try{
+              if (_mag.on && (_mag.srcTag === "split") && st && st.sourceKey && sourceStore.has(st.sourceKey)){
+                const bb = st.blocks[drag.i];
+                const src = sourceStore.get(st.sourceKey);
+                const ax = magAnchorSplit((src.L.length|0), bb);
+                magUpdate({selStart:(bb.s|0), selEnd:((bb.s|0)+(bb.l|0)), x: ax ? ax.x : ev.clientX, y: ev.clientY});
+              }
+            }catch(_e){}
+          }
+        }
+      }catch(_e){}
+      splitDragging=null;
+      try{ splitBigEl.releasePointerCapture(ev.pointerId);}catch(e){}
+      splitPointerId=null;
+      if(_mag.autoHide===true && _mag.on && (_mag.srcTag==="split")){ try{ magHide(); }catch(_){ } }
+    });
+    splitBigEl.addEventListener("pointercancel", ()=>{ clearSplitNudgeSnapTimer(); splitDragging=null; splitPointerId=null; try{splitBigEl.releasePointerCapture(splitPointerId);}catch(e){} if(_mag.autoHide===true && _mag.on && (_mag.srcTag==="split")){ try{ magHide(); }catch(_){ } } });
   }
 
 function waveAttachHandlers(){
@@ -6046,10 +7467,12 @@ function waveAttachHandlers(){
       const cell = getCell(waveEditor.col, waveEditor.row);
       const isRev = !!(cell && cell.settings && cell.settings.reverse);
 
-      const total = waveEditor.src.L.length;
-      const start = clamp(waveEditor.selStart, 0, Math.max(0, total - waveEditor.selLen));
-          const len = Math.max(1, Math.round(waveEditor.selLen));
-      const end = Math.min(total, start + len);
+      const q = snapWaveEditorSelectionIfNeeded();
+      const total = q.total;
+      const start = q.start;
+      const len = q.len;
+      const end = q.end;
+      commitWaveSelection();
 
       let L = waveEditor.src.L.subarray(start, end);
       let R = waveEditor.src.R.subarray(start, end);
@@ -6067,42 +7490,17 @@ function waveAttachHandlers(){
       }
 
       await _playLR(L, R);
-    // If Snap is ON, snap the selection start to the nearest zero-cross AFTER the drag ends,
-// so dragging stays smooth but Apply/Play sel remain identical.
-try{
-  if (waveEditor.snap && waveEditor.src && waveEditor.src.L){
-    const total = waveEditor.src.L.length;
-    const len = Math.max(1, Math.round(waveEditor.selLen));
-    let start = clamp(Math.round(waveEditor.selStart), 0, Math.max(0, total - len));
-    start = findNearestZeroCrossing(waveEditor.src.L, start, 4096);
-    start = clamp(start, 0, Math.max(0, total - len));
-    waveEditor.selStart = start;
-    if (typeof renderWaveEditor === "function") renderWaveEditor();
-  }
-}catch(_e){}
+    try{ if (typeof renderWaveEditor === "function") renderWaveEditor(); }catch(_e){}
 });
 
 
     waveSnapBtnEl?.addEventListener("click", (e)=>{ 
   e.preventDefault();
   waveEditor.snap = !waveEditor.snap;
-  if (waveSnapBtnEl) waveSnapBtnEl.textContent = "Snap: " + (waveEditor.snap ? "on" : "off");
-
-  // IMPORTANT: When toggling Snap ON, immediately update the editor selection to the snapped start,
-  // so what you SEE/HEAR in Play sel matches what Apply will do (no surprise shift after Apply).
-  try{
-    if (waveEditor.snap && waveEditor.src && waveEditor.src.L){
-      const total = waveEditor.src.L.length;
-      const len = Math.max(1, Math.round(waveEditor.selLen));
-      let start = clamp(Math.round(waveEditor.selStart), 0, Math.max(0, total - len));
-      start = findNearestZeroCrossing(waveEditor.src.L, start, 4096);
-      start = clamp(start, 0, Math.max(0, total - len));
-      waveEditor.selStart = start;
-      waveEditor.selStart = start;
-      // keep len as-is
-      if (typeof renderWaveEditor === "function") renderWaveEditor();
-    }
-  }catch(_e){}
+  saveWaveSnapPref(waveEditor.snap);
+  updateWaveSnapButton();
+  try{ waveEditor._lastSnapEdge = ""; }catch(_e){}
+  try{ if (typeof renderWaveEditor === "function") renderWaveEditor(); }catch(_e){}
 });
 wavePlayFullBtnEl?.addEventListener("click", async (e)=>{ 
       e.preventDefault();
@@ -6173,10 +7571,11 @@ wavePlayFullBtnEl?.addEventListener("click", async (e)=>{
     function waveEditorTrimToSelection(){
       const cell = _getWaveEditorCell();
       if (!cell || !waveEditor.src) return;
-      const total = waveEditor.src.L.length;
-      const len = clamp(Math.round(waveEditor.selLen||0), 1, total);
-      const start = clamp(Math.round(waveEditor.selStart||0), 0, Math.max(0, total - len));
-      const end = Math.min(total, start + len);
+      const q = snapWaveEditorSelectionIfNeeded();
+      const total = q.total;
+      const len = q.len;
+      const start = q.start;
+      const end = q.end;
 
       // Push undo snapshot (key + selection)
       waveEditor.undo = waveEditor.undo || [];
@@ -6284,7 +7683,7 @@ wavePlayFullBtnEl?.addEventListener("click", async (e)=>{
           scheduleWaveDraw();
         }catch(_e){}
 
-        setStatus("Undid Apply", "ok");
+        setStatus("Undid Trim", "ok");
         return;
       }
 
@@ -6387,6 +7786,7 @@ if (!cell || !waveEditor.undo || !waveEditor.undo.length) return;
 waveOverlayEl.addEventListener("click", (e)=>{ if (e.target === waveOverlayEl) closeWaveEditor(); });
 
     waveBigEl.addEventListener("pointerdown", (e)=>{
+      clearWaveNudgeSnapTimer();
       // Remember selection at drag start so we can infer which edge moved (L/R/move)
       waveEditor._dragStart0 = Math.round(waveEditor.selStart||0);
       waveEditor._dragLen0   = Math.round(waveEditor.selLen||0);
@@ -6399,16 +7799,12 @@ waveOverlayEl.addEventListener("click", (e)=>{ if (e.target === waveOverlayEl) c
       const W = rect.width;
       const total = waveEditor.src.L.length;
 
-      const rev = !!(state?.cells?.[waveEditor.col]?.[waveEditor.row]?.settings?.reverse);
+      const rev = waveIsReverse();
       const a = clamp(waveEditor.selStart, 0, Math.max(0, total - waveEditor.selLen));
       const b = a + waveEditor.selLen;
 
-      let x1 = (a/total)*W;
-      let x2 = (b/total)*W;
-      if (rev){
-        x1 = ((total - b)/total)*W;
-        x2 = ((total - a)/total)*W;
-      }
+      let x1 = waveFramesToX(a, total, W);
+      let x2 = waveFramesToX(b, total, W);
       if (x2 < x1){ const t=x1; x1=x2; x2=t; }
 
       const px = clamp(e.clientX - rect.left, 0, W);
@@ -6469,8 +7865,8 @@ waveOverlayEl.addEventListener("click", (e)=>{ if (e.target === waveOverlayEl) c
           if (allowMag){
             const stt = waveEditor.selStart|0;
             const enn = (waveEditor.selStart|0) + (waveEditor.selLen|0);
-            const xSelL = (stt / Math.max(1,total)) * Wm;
-            const xSelR = (enn / Math.max(1,total)) * Wm;
+            const xSelL = waveFramesToX(stt, total, Wm);
+            const xSelR = waveFramesToX(enn, total, Wm);
 
             let edge = "C";
             if (waveEditor.mode==="resizeL") edge = "L";
@@ -6486,9 +7882,10 @@ waveOverlayEl.addEventListener("click", (e)=>{ if (e.target === waveOverlayEl) c
               selStart: stt,
               selEnd: enn,
               edge,
-              centerPos: (edge==="C" ? Math.round((px / Math.max(1,Wm)) * total) : null),
-              x: (magAnchorWave(total, stt, enn)?.x ?? e.clientX),
+              centerPos: (edge==="C" ? ((stt + enn) >> 1) : null),
+              x: (magAnchorWave(total, stt, enn, edge, rev)?.x ?? e.clientX),
               y: e.clientY,
+              reverse: rev,
               label: (edge==="L"?"Resize L":(edge==="R"?"Resize R":"Move")) + "  (Esc: hide zoom)"
             });
             }
@@ -6500,16 +7897,14 @@ waveEditor._px0 = px;
       waveEditor._len0 = waveEditor.selLen;
 
       // for move mode we keep the old dragDx behavior (grab anywhere inside selection)
-      const t = px / W;
-      const tt = rev ? (1 - t) : t;
-      const srcAtPx = clamp(Math.round(tt * total), 0, total);
+      const srcAtPx = waveXToFrames(px, total, W);
             waveEditor._grabSrcAtPx = srcAtPx;
       // anchors for grip resizing (important because grips sit slightly outside the selection)
       waveEditor._edgeL0 = waveEditor._start0|0;
       waveEditor._edgeR0 = (waveEditor._start0|0) + (waveEditor._len0|0);
       waveEditor.dragDx = clamp(srcAtPx - a, 0, waveEditor.selLen);
 
-      const selW = (waveEditor.selLen/total)*W;
+      const selW = Math.abs(waveFramesToX(a + waveEditor.selLen, total, W) - waveFramesToX(a, total, W));
       if (waveEditor.mode === "move"){
         if (px < x1 || px > x1 + selW){
           waveEditor.dragDx = Math.round(waveEditor.selLen/2);
@@ -6535,13 +7930,12 @@ waveEditor._px0 = px;
       const rect = waveBigEl.getBoundingClientRect();
       const W = rect.width;
       const total = waveEditor.src.L.length;
-      const rev = !!(state?.cells?.[waveEditor.col]?.[waveEditor.row]?.settings?.reverse);
+      const rev = waveIsReverse();
       const px = clamp(e.clientX - rect.left, 0, W);
 
-      const t = px / W;
-      const tt = rev ? (1 - t) : t;
-      const srcAtPx = clamp(Math.round(tt * total), 0, total);
-      const dFrames = Math.round((px - waveEditor._px0) / W * total);
+      const srcAtPx = waveXToFrames(px, total, W);
+      const startSrcAtPx = waveXToFrames(waveEditor._px0 || 0, total, W);
+      const dFrames = srcAtPx - startSrcAtPx;
 
       const cellFrames = getCellFrames(waveEditor.row);
       const maxLen = Math.max(1, Math.min(cellFrames, total));
@@ -6556,11 +7950,9 @@ waveEditor._px0 = px;
           let end = clamp((waveEditor._edgeR0|0) + dFrames, start + 1, total);
           let newLen = end - start;
           if (newLen > maxLen){
-            // slide window when at max length (like split editor)
-            const overflow = newLen - maxLen;
-            start = clamp(start + overflow, 0, Math.max(0, total - maxLen));
-            end = start + maxLen;
+            // Right/end handle stops at max length; do not slide the selection window.
             newLen = maxLen;
+            end = start + maxLen;
           }
           // also clamp if near end
           if (start + newLen > total) newLen = Math.max(1, total - start);
@@ -6578,10 +7970,9 @@ waveEditor._px0 = px;
           let end = clamp((waveEditor._edgeR0|0) + (srcAtPx - (waveEditor._grabSrcAtPx|0)), start + 1, total);
           let newLen = end - start;
           if (newLen > maxLen){
-            const overflow = newLen - maxLen;
-            start = clamp(start + overflow, 0, Math.max(0, total - maxLen));
-            end = start + maxLen;
+            // End handle stops at max length; do not slide the selection window.
             newLen = maxLen;
+            end = start + maxLen;
           }
           if (start + newLen > total) newLen = Math.max(1, total - start);
           len = clamp(newLen, 1, Math.min(maxLen, total - start));
@@ -6591,6 +7982,12 @@ waveEditor._px0 = px;
 
       waveEditor.selStart = start;
       waveEditor.selLen = len;
+      if (waveEditor.mode !== "move"){
+        waveEditor._pendingSnapEdge = ((!rev && waveEditor.mode === "resizeR") || (rev && waveEditor.mode === "resizeL")) ? "R" : "L";
+      }else{
+        waveEditor._pendingSnapEdge = "";
+        waveEditor._lastSnapEdge = "";
+      }
       commitWaveSelection();
       scheduleWaveDraw();
       waveMagSync(e.clientX, e.clientY);
@@ -6598,13 +7995,26 @@ waveEditor._px0 = px;
 
     waveBigEl.addEventListener("pointerup", (e)=>{
 if (!waveEditor.open) return;
+      const wasDragging = !!waveEditor.dragging;
+      const snapEdge = String(waveEditor._pendingSnapEdge || "").toUpperCase();
       waveEditor.dragging = false;
+      clearWaveNudgeSnapTimer();
+      if (wasDragging && waveEditor.snap && (snapEdge === "L" || snapEdge === "R")){
+        try{
+          snapWaveEditorEdgeIfNeeded(snapEdge);
+          commitWaveSelection();
+          scheduleWaveDraw();
+          try{ waveMagSync(e.clientX, e.clientY); }catch(_e){}
+        }catch(_e){}
+      }
+      waveEditor._pendingSnapEdge = "";
       try{ waveBigEl.releasePointerCapture(e.pointerId); }catch(_){}
       if(_mag.autoHide===true && _mag.on && (_mag.srcTag==="wave")){ try{ magHide(); }catch(_){ } }
     });
     waveBigEl.addEventListener("pointercancel", ()=>{
       if (!waveEditor.open) return;
       waveEditor.dragging = false;
+      waveEditor._pendingSnapEdge = "";
       if(_mag.autoHide===true && _mag.on && (_mag.srcTag==="wave")){ try{ magHide(); }catch(_){ } }
     });
 
@@ -6644,10 +8054,12 @@ if (!waveEditor.open) return;
         const _ae = document.activeElement;
         if (_ae && _ae.tagName === "BUTTON") _ae.blur();
 try{
-          const total = waveEditor.src.L.length;
-          const len = Math.max(1, Math.round(waveEditor.selLen));
-          const start = clamp(Math.round(waveEditor.selStart), 0, Math.max(0, total - len));
-          const end = Math.min(total, start + len);
+          const q = snapWaveEditorSelectionIfNeeded();
+          const total = q.total;
+          const len = q.len;
+          const start = q.start;
+          const end = q.end;
+          try{ scheduleWaveDraw(); }catch(_e){}
 
           const cell = getCell(waveEditor.col, waveEditor.row);
           const isRev = !!(cell && cell.settings && cell.settings.reverse);
@@ -6685,6 +8097,8 @@ try{
           try{
             if (typeof _mag !== 'undefined' && _mag && _mag.el && _mag.el.style.display !== 'none'){
               _mag.edge = edge;
+              _mag.labelBase = (edge === 'L' ? 'Resize L' : (edge === 'R' ? 'Resize R' : 'Move')) + '  (Esc: hide zoom)';
+              magSetLabelText(_mag.labelBase);
               // keep the zoom window in sync visually
               magRenderZIndicators();
               magRequestDraw();
@@ -6704,7 +8118,7 @@ try{
         const base = 256;                         // ~5.3ms at 48k
         const step = fine || coarse || base;
         // If magnifier is open on the Wave editor, use its edge (L/R/C) to decide what nudges.
-        const mode = ((_mag && _mag.on && (_mag.edge==='L' || _mag.edge==='R')) ? _mag.edge : (waveEditor.nudgeEdge||'C'));
+        const mode = ((_mag && _mag.on) ? (_mag.edge || 'C') : (waveEditor.nudgeEdge || 'C'));
 
         // If Slice Editor is open, nudge its active block; otherwise nudge Wave Editor selection.
         let didSplit = false;
@@ -7114,6 +8528,16 @@ const exportAllBtn = document.getElementById("exportAllBtn");
   const inspPrepLoopBtn = document.getElementById("inspPrepLoopBtn");
   const inspFitAllBtn = document.getElementById("inspFitAllBtn");
   const inspTunerBtn = document.getElementById("inspTunerBtn");
+  const inspAutoFadeBtn = document.getElementById("inspAutoFadeBtn");
+
+  const autoFadeOverlayEl = document.getElementById("autoFadeOverlay");
+  const autoFadeCloseBtnEl = document.getElementById("autoFadeCloseBtn");
+  const autoFadeStartPctEl = document.getElementById("autoFadeStartPct");
+  const autoFadeEndPctEl = document.getElementById("autoFadeEndPct");
+  const autoFadeModeEls = Array.from(document.querySelectorAll('input[name="autoFadeMode"]'));
+  const autoFadeDefaultsBtnEl = document.getElementById("autoFadeDefaultsBtn");
+  const autoFadeCancelBtnEl = document.getElementById("autoFadeCancelBtn");
+  const autoFadeApplyBtnEl = document.getElementById("autoFadeApplyBtn");
 
   const volEl = document.getElementById("vol");
   const volValEl = document.getElementById("volVal");
@@ -7165,6 +8589,7 @@ const exportAllBtn = document.getElementById("exportAllBtn");
   _bindInspectorNoFocus(inspPrepLoopBtn);
   _bindInspectorNoFocus(inspFitAllBtn);
   _bindInspectorNoFocus(inspTunerBtn);
+  _bindInspectorNoFocus(inspAutoFadeBtn);
 
 
   // Also release focus after using inspector sliders (vol/fades/pitch),
@@ -7847,7 +9272,7 @@ function stopPlayback(){
     if (tunerOverflowActionsEl) tunerOverflowActionsEl.style.display = show ? 'flex' : 'none';
     if (tunerApplyOverflowBtnEl){
       tunerApplyOverflowBtnEl.disabled = !show || !!pendingOverflowTuneApplying;
-      tunerApplyOverflowBtnEl.textContent = show ? `Apply Overflow (${(pending.underCells|0) + 1} cells)` : 'Apply Overflow';
+      tunerApplyOverflowBtnEl.textContent = show ? `Apply overflow (${(pending.underCells|0) + 1} cells)` : 'Apply overflow';
       if (show && tunerState.open){
         requestAnimationFrame(() => {
           try{
@@ -7978,13 +9403,13 @@ function stopPlayback(){
     if (e.key === 'ArrowLeft' || e.key === 'ArrowDown'){
       e.preventDefault();
       e.stopPropagation();
-      tunerNudgePitch(e.altKey ? -0.01 : (e.shiftKey ? -1.0 : -0.1));
+      tunerNudgePitch(e.altKey ? -0.01 : (e.shiftKey ? -0.1 : -1.0));
       return;
     }
     if (e.key === 'ArrowRight' || e.key === 'ArrowUp'){
       e.preventDefault();
       e.stopPropagation();
-      tunerNudgePitch(e.altKey ? 0.01 : (e.shiftKey ? 1.0 : 0.1));
+      tunerNudgePitch(e.altKey ? 0.01 : (e.shiftKey ? 0.1 : 1.0));
     }
   }
   document.addEventListener('keydown', onTunerKeydown, true);
@@ -8115,16 +9540,22 @@ function stopPlayback(){
   function computePeaksRange(left, right, startFrame, lenFrames, points=72){
     if (!left || !right) return null;
     const n = left.length|0;
+    points = Math.max(1, points|0);
     if (!n) return new Float32Array(points);
     startFrame = Math.max(0, Math.min(n, startFrame|0));
     lenFrames = Math.max(0, Math.min(n - startFrame, lenFrames|0));
     if (!lenFrames) return new Float32Array(points);
 
     const peaks = new Float32Array(points);
-    const step = Math.max(1, Math.floor(lenFrames / points));
+    const rangeEnd = startFrame + lenFrames;
+    // Map every canvas pixel to the exact same frame range used by splitFramesToX().
+    // The old fixed floor(step) skipped the remainder of fractional zoom windows, so
+    // the waveform and selection rectangle drifted at zoom factors such as x6.5/x12.5/x17.4.
     for (let p=0; p<points; p++){
-      const s = startFrame + p*step;
-      const e = Math.min(startFrame + lenFrames, s + step);
+      let s = startFrame + Math.floor((p / points) * lenFrames);
+      let e = startFrame + Math.floor(((p + 1) / points) * lenFrames);
+      s = Math.max(startFrame, Math.min(rangeEnd - 1, s));
+      e = Math.max(s + 1, Math.min(rangeEnd, e));
       let mx = 0;
       for (let i=s; i<e; i++){
         const a = Math.abs(left[i]);
@@ -8158,6 +9589,24 @@ function computePeaks(left, right, points=72){
       peaks[p] = mx;
     }
     return peaks;
+  }
+
+
+  // Stronger user fade curve: same slider duration, more audible fade effect.
+  const USER_FADE_CURVE_POWER = 2.25;
+  function shapeUserFadeEnvelope(v){
+    return Math.pow(clamp(Number(v) || 0, 0, 1), USER_FADE_CURVE_POWER);
+  }
+  function userFadeInEnvAt(localFrame, fadeFrames){
+    const n = Math.max(0, Number(fadeFrames) || 0);
+    if (n <= 1) return 1;
+    return shapeUserFadeEnvelope(clamp((Number(localFrame) || 0) / (n - 1), 0, 1));
+  }
+  function userFadeOutEnvAt(localFrame, regionFrames, fadeFrames){
+    const n = Math.max(0, Number(fadeFrames) || 0);
+    const total = Math.max(0, Number(regionFrames) || 0);
+    if (n <= 1) return 0;
+    return shapeUserFadeEnvelope(clamp(((total - 1) - (Number(localFrame) || 0)) / (n - 1), 0, 1));
   }
 
   function drawWave(canvas, peaks, settings=null, targetFrames=0, reverse=false, selStartFrames=null, selLenFrames=null, totalFrames=null){
@@ -8208,21 +9657,27 @@ function computePeaks(left, right, points=72){
     const baseGain = mute ? 0 : 1;
 
     // fade frames (allow full audible length, like a DAW/Audition style envelope)
+    // For normal trim/pad mode, fades are relative to the audible source window.
+    // For Fit/Rate mode, the audible source window is time-fit into the cell, so draw fades over the rendered cell length.
+    const drawFitRate = !!(settings && settings.fitMode === "rate" && targetFrames > 0);
+    const envFrames = hasSel
+      ? Math.max(1, drawFitRate ? targetFrames : (selLenFrames != null ? selLenFrames : targetFrames))
+      : targetFrames;
     let fi = 0, fo = 0;
-    if (settings && targetFrames > 0){
+    if (settings && envFrames > 0){
       fi = Math.round((Number(settings.fadeInMs || 0)/1000) * SR);
       fo = Math.round((Number(settings.fadeOutMs || 0)/1000) * SR);
-      fi = Math.max(0, Math.min(fi, targetFrames));
-      fo = Math.max(0, Math.min(fo, targetFrames));
+      fi = Math.max(0, Math.min(fi, envFrames));
+      fo = Math.max(0, Math.min(fo, envFrames));
     }
 
     // helper: envelope at normalized time t (0..1)
     function envAtT(t){
-      if (!settings || targetFrames <= 0) return gain;
-      const frame = t * (targetFrames - 1);
+      if (!settings || envFrames <= 0) return gain;
+      const frame = t * (envFrames - 1);
       let env = 1;
-      if (fi > 0 && frame < fi) env = frame / fi;
-      if (fo > 0 && frame > (targetFrames - fo)) env = (targetFrames - frame) / fo;
+      if (fi > 0 && frame < fi) env *= userFadeInEnvAt(frame, fi);
+      if (fo > 0 && frame >= Math.max(0, envFrames - fo)) env *= userFadeOutEnvAt(frame, envFrames, fo);
       env = Math.max(0, Math.min(1, env));
       return env * gain;
     }
@@ -8237,7 +9692,7 @@ function computePeaks(left, right, points=72){
 
       // For mini-wave visualization, fades should be relative to the *audible window* (cell/selection),
       // not the full source length when we are drawing a selection window.
-      const visFrames = hasSel ? (Math.max(1, (selLenFrames!=null ? selLenFrames : targetFrames))) : targetFrames;
+      const visFrames = Math.max(1, envFrames || targetFrames || 1);
       if (fi > 0){
         const xw = (fi / visFrames) * baseW;
         ctx.fillRect(baseX, 0, xw, h);
@@ -8450,10 +9905,11 @@ function computePeaks(left, right, points=72){
                 const moved0 = (selStart0 > 0) || (selLen0 !== defaultSelLen0);
                 const useFullSource0 = edited0 || moved0 || (srcFrames0 > (cellFrames0|0));
                 if (useFullSource0){
-                  const showSel0 = edited0 || moved0 || ((srcFrames0 > (cellFrames0|0)) && ((cell.settings && cell.settings.fitMode) !== "rate"));
+                  const showSel0 = ((cell.settings && cell.settings.fitMode) === "rate") ? false : (edited0 || moved0 || ((srcFrames0 > (cellFrames0|0)) && ((cell.settings && cell.settings.fitMode) !== "rate")));
                   const drawSelStart0 = showSel0 ? ((edited0 || moved0) ? selStart0 : 0) : null;
                   const drawSelLen0   = showSel0 ? ((edited0 || moved0) ? selLen0   : defaultSelLen0) : null;
-                  drawWave(cv, peaks0, cell.settings, srcFrames0, !!cell.settings.reverse, drawSelStart0, drawSelLen0, srcFrames0);
+                  const drawTargetFrames0 = ((cell.settings && cell.settings.fitMode) === "rate") ? cellFrames0 : srcFrames0;
+                  drawWave(cv, peaks0, cell.settings, drawTargetFrames0, !!cell.settings.reverse, drawSelStart0, drawSelLen0, srcFrames0);
                   return;
                 }
               }
@@ -8502,7 +9958,7 @@ function computePeaks(left, right, points=72){
           const srcFrames = (cell.origin && cell.origin.split && cell.origin.split.frames) ? cell.origin.split.frames : total;
           const totalFramesForSel = edited ? srcFrames : total;
 
-          const showSel = edited || (isLong && ((cell.settings && cell.settings.fitMode) !== "rate"));
+          const showSel = ((cell.settings && cell.settings.fitMode) === "rate") ? false : (edited || (isLong && ((cell.settings && cell.settings.fitMode) !== "rate")));
           const drawSelStart = showSel ? ((edited || moved) ? selStart : 0) : null;
           const drawSelLen   = showSel ? ((edited || moved) ? selLen   : cellFrames) : null;
 
@@ -8525,10 +9981,11 @@ const isLong = (src.L.length > cellFrames);
 const edited = (cell.selEdited === true);
 const defaultSelLen = isLong ? cellFrames : src.L.length;
 const moved = (selStart > 0) || (selLen !== defaultSelLen);
-const showSel = edited || (isLong && ((cell.settings && cell.settings.fitMode) !== "rate"));
+const showSel = ((cell.settings && cell.settings.fitMode) === "rate") ? false : (edited || (isLong && ((cell.settings && cell.settings.fitMode) !== "rate")));
 const drawSelStart = showSel ? ((edited || moved) ? selStart : 0) : null;
 const drawSelLen   = showSel ? ((edited || moved) ? selLen   : cellFrames) : null;
-drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSelStart, drawSelLen, src.L.length);
+const drawTargetFrames = ((cell.settings && cell.settings.fitMode) === "rate") ? cellFrames : src.L.length;
+drawWave(cv, peaks, cell.settings, drawTargetFrames, !!cell.settings.reverse, drawSelStart, drawSelLen, src.L.length);
 
           }else{
             drawWave(cv, cell.peaks, cell.settings, getCellFrames(meta.row), !!cell.settings.reverse);
@@ -8613,22 +10070,35 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
       return;
     }
 
+    let fadeStart = 0;
+    let fadeEnd = targetFrames;
+    if (autoFadeRegion && Number.isFinite(autoFadeRegion.start) && Number.isFinite(autoFadeRegion.end)){
+      fadeStart = clamp(autoFadeRegion.start|0, 0, targetFrames);
+      fadeEnd = clamp(autoFadeRegion.end|0, fadeStart, targetFrames);
+      if (fadeEnd <= fadeStart){ fadeStart = 0; fadeEnd = targetFrames; }
+    }
+    const fadeFrames = Math.max(0, fadeEnd - fadeStart);
+
     let fi = Math.round((settings.fadeInMs/1000) * SR);
     let fo = Math.round((settings.fadeOutMs/1000) * SR);
 
     // allow full audible length per fade (start/end can overlap, like a DAW envelope)
-    fi = clamp(fi, 0, targetFrames);
-    fo = clamp(fo, 0, targetFrames);
+    // For short/trimmed cells, user fades follow the audible sample region, not padded silence.
+    fi = clamp(fi, 0, fadeFrames);
+    fo = clamp(fo, 0, fadeFrames);
 
     // apply envelope + gain
     for (let i=0; i<targetFrames; i++){
       let env = 1.0;
 
-      if (fi > 0 && i < fi){
-        env *= (i / fi);
-      }
-      if (fo > 0 && i >= targetFrames - fo){
-        env *= ((targetFrames - i) / fo);
+      if (i >= fadeStart && i < fadeEnd){
+        const local = i - fadeStart;
+        if (fi > 0 && local < fi){
+          env *= userFadeInEnvAt(local, fi);
+        }
+        if (fo > 0 && local >= fadeFrames - fo){
+          env *= userFadeOutEnvAt(local, fadeFrames, fo);
+        }
       }
 
       const g = env * gain;
@@ -8732,10 +10202,12 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
       const key = (cell.editorKey && sourceStore.has(cell.editorKey)) ? cell.editorKey : (cell.sourceKey || "");
       const hasSel = (typeof cell.selStartFrames === "number") && (typeof cell.selLenFrames === "number");
 
-      // For long samples we show a default selection window (one cell). In fitMode "rate" the user typically
-      // expects the *full* sample to be time-fit into the cell. So: if selection is still default (not edited),
-      // ignore the default window and resample the full source.
-      const useSelection = !(s.fitMode === "rate" && cell.selEdited !== true);
+      // Trim mode uses the active Wave Editor selection window.
+      // Fit mode must still time-fit the full long source after Esc; otherwise a moved one-cell
+      // selection makes Trim and Fit render the same audio. Only use a selection in Fit when it is
+      // actually longer than the target cell, so rate-fit can still differ from pad/trim.
+      const selLenForDecision = hasSel ? (cell.selLenFrames|0) : 0;
+      const useSelection = (s.fitMode === "rate") ? (cell.selEdited === true && selLenForDecision > targetFrames) : true;
 
       if (useSelection && key && hasSel && sourceStore && sourceStore.has(key)){
         const src = sourceStore.get(key);
@@ -9073,7 +10545,7 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     if (mode === 'overflow_fit'){
       cellLoadOverflowHintEl.textContent = `Uses ${totalCells} cell${totalCells===1?'':'s'} total and fits the whole sample exactly into ${capSec}s by changing pitch.`;
     } else if (mode === 'overflow_tune'){
-      cellLoadOverflowHintEl.textContent = `Uses ${totalCells} cell${totalCells===1?'':'s'} total. Tuner opens first; Apply Overflow writes the tuned audio into those cells.`;
+      cellLoadOverflowHintEl.textContent = `Uses ${totalCells} cell${totalCells===1?'':'s'} total. Tuner opens first; Apply overflow writes the tuned audio into those cells.`;
     } else {
       cellLoadOverflowHintEl.textContent = `Uses ${totalCells} cell${totalCells===1?'':'s'} total and gives ${capSec}s space.${restTrimmed ? ' Any remaining audio is trimmed.' : ''}`;
     }
@@ -9187,7 +10659,7 @@ drawWave(cv, peaks, cell.settings, src.L.length, !!cell.settings.reverse, drawSe
     updateInspector();
     openTunerOverlay();
     syncTunerOverflowApplyButton();
-    toast('Tune the cell, then click Apply Overflow in the Tuner.', 3200);
+    toast('Tune the cell, then click Apply overflow in the Tuner.', 3200);
   }
 
   async function loadChosenFileIntoCellWithPrompt(col, row, file, opts={}){
@@ -9714,7 +11186,7 @@ try{
     }
 
     updateColUI(col);
-    toast(`Load+Slice: column ${col+1}`);
+    toast(`Slice 8: column ${col+1}`);
   }
 
 
@@ -10240,9 +11712,9 @@ nameInput.addEventListener("click", (e) => e.stopPropagation());nameBox.appendCh
 const btns = document.createElement("div");
       btns.className = "colBtns";
 
-      const loadSplitBtn = mkBtn("Load+Slice", "tiny", async () => {
+      const loadSplitBtn = mkBtn("Slice 8", "tiny secondary", async () => {
         try{ openSplitEditor(c); }catch(e){ showFatal(e); }
-      }, "Pick one sample, then split it into 8 slices with the new editor (zoom, L/M/R, Z auto-norm).");
+      }, "Pick one sample, then split it into 8 slices with the Slice Editor (zoom, L/M/R, Z auto-norm).");
 
       const load8Btn = mkBtn("Load 8", "tiny secondary", async (e) => {
         await handleColumnLoad8Action(c, e);
@@ -10254,17 +11726,17 @@ const btns = document.createElement("div");
         await playColumn(c);
       }, "Preview this whole column (play/stop). ");
 
-      const exportBtn = mkBtn("Export", "tiny warn", () => {
+      const exportBtn = mkBtn("Export", "tiny secondary", () => {
         exportColumnDirect(c);
       }, "Export this column as WAV (Tempera-ready). ");
 
-      const export8Btn = mkBtn("Export 8", "tiny warn secondary", () => {
+      const export8Btn = mkBtn("Export 8", "tiny secondary", () => {
         export8Cells(c);
       }, "Export the 8 cells as separate WAV files (zipped). Filenames use column name + cell name.");
 
-      const clearBtn = mkBtn("Clear", "tiny danger secondary", () => {
-        clearColumn(c);
-      }, "Clear all 8 cells in this column.");
+      const clearBtn = mkBtn("Clear", "tiny secondary", () => {
+        clearColumnWithUndo(c);
+      }, "Clear all 8 cells in this column. Cmd/Ctrl+Z restores it.");
 
       btns.appendChild(loadSplitBtn);
       btns.appendChild(export8Btn);
@@ -10293,7 +11765,7 @@ const btns = document.createElement("div");
         cellEl.innerHTML = `
   <div class="cellTop">
     <span class="tag cellId">C${r+1}</span>
-    <span class="tag warn mode" id="icMode-${c}-${r}">fit</span>
+    <span class="tag mode" id="icMode-${c}-${r}">fit</span>
     <div class="icons">
       <span class="icon" id="icMute-${c}-${r}">M</span>
       <span class="icon" id="icRev-${c}-${r}">R</span>
@@ -10925,23 +12397,24 @@ function cellKey(col,row){ return `${col}:${row}`; }
       if (!inspNormalizeBtn.disabled) inspNormalizeBtn.disabled = true;
       if (inspLockColBtn){
         inspLockColBtn.disabled = true;
-        if (inspLockColBtn.textContent !== "Lock Col") inspLockColBtn.textContent = "Lock Col";
+        if (inspLockColBtn.textContent !== "Lock col") inspLockColBtn.textContent = "Lock col";
       }
       if (inspLockRowBtn){
         inspLockRowBtn.disabled = true;
-        if (inspLockRowBtn.textContent !== "Lock Row") inspLockRowBtn.textContent = "Lock Row";
+        if (inspLockRowBtn.textContent !== "Lock row") inspLockRowBtn.textContent = "Lock row";
       }
       if (inspSelectColBtn){
         inspSelectColBtn.disabled = true;
-        if (inspSelectColBtn.textContent !== "Sel Col") inspSelectColBtn.textContent = "Sel Col";
+        if (inspSelectColBtn.textContent !== "Sel col") inspSelectColBtn.textContent = "Sel col";
       }
       if (inspSelectRowBtn){
         inspSelectRowBtn.disabled = true;
-        if (inspSelectRowBtn.textContent !== "Sel Row") inspSelectRowBtn.textContent = "Sel Row";
+        if (inspSelectRowBtn.textContent !== "Sel row") inspSelectRowBtn.textContent = "Sel row";
       }
       if (inspRemixBtn) inspRemixBtn.disabled = true;
       if (inspPrepLoopBtn) inspPrepLoopBtn.disabled = true;
       if (inspTunerBtn) inspTunerBtn.disabled = true;
+      if (inspAutoFadeBtn) inspAutoFadeBtn.disabled = true;
       if (tunerState.open) tunerScheduleRefresh();
       return;
     }
@@ -11038,30 +12511,7 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
     // - fitMode "rate": audio always fills the full cell (time-stretch via resample)
     // - fitMode "padtrim"/"loop": audio can be shorter than the cell; fades should scale to the audible portion
     // - template-only empty cells must keep imported fade values until a sample is loaded
-    let effFramesForFade = getCellFrames(row);
-    try{
-      const fit = cell.settings.fitMode || "rate";
-      if (fit === "padtrim" || fit === "loop"){
-        let srcLen = (cell.left && cell.left.length) ? cell.left.length : 0;
-
-        // If selection metadata exists and we still have the full source, prefer the selection length.
-        const key = (cell.editorKey && sourceStore && sourceStore.has(cell.editorKey)) ? cell.editorKey : (cell.sourceKey || "");
-        const hasSel = (typeof cell.selStartFrames === "number") && (typeof cell.selLenFrames === "number");
-        if (key && hasSel && sourceStore && sourceStore.has(key)){
-          const src = sourceStore.get(key);
-          const srcN = (src && src.L) ? src.L.length : 0;
-          if (srcN > 0 && srcLen === srcN && cell.selLenFrames > 0){
-            srcLen = clamp(cell.selLenFrames|0, 1, srcN);
-          }
-        }
-
-        if (srcLen > 0){
-          effFramesForFade = Math.max(1, Math.min(getCellFrames(row), srcLen|0));
-        }else{
-          effFramesForFade = Math.max(1, getCellFrames(row)|0);
-        }
-      }
-    }catch(_){}
+    const effFramesForFade = getEffectiveFadeFramesForCell(cell, row);
 
     const maxFadeMs = Math.max(0, Math.floor((effFramesForFade / SR) * 1000));
     const maxFadeMsStr = String(maxFadeMs);
@@ -11129,10 +12579,11 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
       __inspCache.has = has;
     }
     if (inspTunerBtn) inspTunerBtn.disabled = !has;
+    if (inspAutoFadeBtn) inspAutoFadeBtn.disabled = !has;
 
     const colLockedCount = state.cells[col].reduce((n, it) => n + (it && it.locked ? 1 : 0), 0);
     const allColLocked = colLockedCount === ROWS;
-    const lockColText = allColLocked ? "Unlock Col" : "Lock Col";
+    const lockColText = allColLocked ? "Unlock col" : "Lock col";
     if (__inspCache.lockColText !== lockColText){
       if (inspLockColBtn) inspLockColBtn.textContent = lockColText;
       __inspCache.lockColText = lockColText;
@@ -11144,7 +12595,7 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
 
     const rowLockedCount = state.cells.reduce((n, colCells) => n + ((colCells && colCells[row] && colCells[row].locked) ? 1 : 0), 0);
     const allRowLocked = rowLockedCount === COLS;
-    const lockRowText = allRowLocked ? "Unlock Row" : "Lock Row";
+    const lockRowText = allRowLocked ? "Unlock row" : "Lock row";
     if (__inspCache.lockRowText !== lockRowText){
       if (inspLockRowBtn) inspLockRowBtn.textContent = lockRowText;
       __inspCache.lockRowText = lockRowText;
@@ -11154,7 +12605,7 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
       __inspCache.lockRowDisabled = false;
     }
 
-    const selectColText = isCurrentColumnFullySelected() ? "DeSel Col" : "Sel Col";
+    const selectColText = isCurrentColumnFullySelected() ? "Deselect col" : "Sel col";
     if (__inspCache.selectColText !== selectColText){
       if (inspSelectColBtn) inspSelectColBtn.textContent = selectColText;
       __inspCache.selectColText = selectColText;
@@ -11164,7 +12615,7 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
       __inspCache.selectColDisabled = false;
     }
 
-    const selectRowText = isCurrentRowFullySelected() ? "DeSel Row" : "Sel Row";
+    const selectRowText = isCurrentRowFullySelected() ? "Deselect row" : "Sel row";
     if (__inspCache.selectRowText !== selectRowText){
       if (inspSelectRowBtn) inspSelectRowBtn.textContent = selectRowText;
       __inspCache.selectRowText = selectRowText;
@@ -11258,14 +12709,136 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
     });
   });
 
-  pitchEl.addEventListener("input", () => {
+  // Cell Pitch stepping: mouse drag and +/- shortcuts use Tuner-style steps.
+  // Normal = 1.0 st, Shift = 0.1 st, Alt/Option = 0.01 st.
+  const pitchSliderStepState = { active:false, dragging:false, shift:false, alt:false };
+  function setPitchSliderActive(on){
+    pitchSliderStepState.active = !!on;
+    try{ pitchEl.classList.toggle("pitchSliderActive", !!on); }catch(_e){}
+  }
+  function focusPitchSlider(){
+    setPitchSliderActive(true);
+    try{ pitchEl.focus({ preventScroll:true }); }
+    catch(_e){ try{ pitchEl.focus(); }catch(__){} }
+  }
+  function updatePitchSliderStepState(e){
+    if (!e) return;
+    if (typeof e.shiftKey === "boolean") pitchSliderStepState.shift = !!e.shiftKey;
+    if (typeof e.altKey === "boolean") pitchSliderStepState.alt = !!e.altKey;
+  }
+  function getPitchSliderStep(e){
+    if (e) updatePitchSliderStepState(e);
+    if (pitchSliderStepState.alt) return 0.01;
+    if (pitchSliderStepState.shift) return 0.1;
+    return 1.0;
+  }
+  function quantizePitchSliderValue(value, step){
+    const s = Number(step || 0.1);
+    const decimals = (s < 0.1) ? 2 : ((s < 1) ? 1 : 0);
+    const snapped = Math.round(Number(value || 0) / s) * s;
+    return clamp(Number(snapped.toFixed(decimals)), -24, 24);
+  }
+  function applyPitchSliderValue(value){
     const cell = getSelectedCell(); if (!cell) return;
-    const value = Number(pitchEl.value);
-    if (pitchValEl) pitchValEl.textContent = formatPitchSemitonesLabel(value);
+    const nextValue = clamp(Number(value || 0), -24, 24);
+    if (pitchEl && Number(pitchEl.value) !== nextValue) pitchEl.value = String(nextValue);
+    if (pitchValEl) pitchValEl.textContent = formatPitchSemitonesLabel(nextValue);
     applySettingsToSelectedCells((target) => {
-      target.settings.pitchSemitones = value;
+      target.settings.pitchSemitones = nextValue;
     });
     if (tunerState.open) tunerScheduleRefresh();
+  }
+  // Retrigger selected cell once while pitch is adjusted.
+  // Throttled so mouse/trackpad drags do not start a new preview for every tiny browser input event.
+  let pitchPreviewTimer = 0;
+  let pitchPreviewLastMs = 0;
+  const PITCH_PREVIEW_THROTTLE_MS = 140;
+  function previewPitchChangedCell(){
+    try{
+      if (!state || !state.selected || !state.selected.has) return;
+      const col = state.selected.col|0;
+      const row = state.selected.row|0;
+      const cell = state.cells?.[col]?.[row];
+      if (!cell || !cell.left || !cell.right) return;
+
+      const run = () => {
+        pitchPreviewTimer = 0;
+        pitchPreviewLastMs = Date.now();
+        try{
+          const cellEl = getCellEl(col, row) || colsEl.querySelector(`.cell[data-col="${col}"][data-row="${row}"]`) || null;
+          playCell(col, row, cellEl);
+        }catch(_e){}
+      };
+
+      const now = Date.now();
+      const wait = Math.max(0, PITCH_PREVIEW_THROTTLE_MS - (now - pitchPreviewLastMs));
+      if (wait <= 0){
+        if (pitchPreviewTimer){ clearTimeout(pitchPreviewTimer); pitchPreviewTimer = 0; }
+        run();
+      }else{
+        if (pitchPreviewTimer) clearTimeout(pitchPreviewTimer);
+        pitchPreviewTimer = setTimeout(run, wait);
+      }
+    }catch(_e){}
+  }
+
+  function pitchSliderNudge(dir, e){
+    const cell = getSelectedCell(); if (!cell) return;
+    const step = getPitchSliderStep(e);
+    const base = Number(cell.settings.pitchSemitones || 0);
+    const nextValue = quantizePitchSliderValue(base + (dir * step), step);
+    captureSettingsUndo();
+    applyPitchSliderValue(nextValue);
+    commitSettingsUndo();
+    previewPitchChangedCell();
+  }
+
+  function pitchSliderPointerStart(e){
+    pitchSliderStepState.dragging = true;
+    updatePitchSliderStepState(e);
+    focusPitchSlider();
+  }
+  pitchEl.addEventListener("pointerdown", pitchSliderPointerStart, true);
+  pitchEl.addEventListener("mousedown", pitchSliderPointerStart, true);
+  pitchEl.addEventListener("touchstart", pitchSliderPointerStart, true);
+  pitchEl.addEventListener("click", () => focusPitchSlider(), true);
+  pitchEl.addEventListener("focus", () => setPitchSliderActive(true));
+  pitchEl.addEventListener("blur", () => {
+    if (!pitchSliderStepState.dragging) setPitchSliderActive(false);
+  });
+  document.addEventListener("pointerdown", (e) => {
+    if (e && e.target !== pitchEl) setPitchSliderActive(false);
+  }, true);
+  document.addEventListener("mousedown", (e) => {
+    if (e && e.target !== pitchEl) setPitchSliderActive(false);
+  }, true);
+  document.addEventListener("pointermove", (e) => {
+    if (pitchSliderStepState.dragging) updatePitchSliderStepState(e);
+  }, true);
+  window.addEventListener("pointerup", () => {
+    pitchSliderStepState.dragging = false;
+  }, true);
+  window.addEventListener("mouseup", () => {
+    pitchSliderStepState.dragging = false;
+  }, true);
+
+  window.addEventListener("keydown", (e) => {
+    const isPitchActive = pitchSliderStepState.active || pitchSliderStepState.dragging || document.activeElement === pitchEl;
+    if (isPitchActive || e.key === "Shift" || e.key === "Alt") updatePitchSliderStepState(e);
+    // Arrow keys are intentionally not captured here; they remain matrix navigation.
+  }, true);
+  window.addEventListener("keyup", (e) => {
+    const isPitchActive = pitchSliderStepState.active || pitchSliderStepState.dragging || document.activeElement === pitchEl;
+    if (isPitchActive || e.key === "Shift" || e.key === "Alt") updatePitchSliderStepState(e);
+  }, true);
+
+  pitchEl.addEventListener("input", () => {
+    const cell = getSelectedCell(); if (!cell) return;
+    focusPitchSlider();
+    const step = getPitchSliderStep();
+    const value = quantizePitchSliderValue(Number(pitchEl.value), step);
+    applyPitchSliderValue(value);
+    previewPitchChangedCell();
   });
 
   // Double-click sliders to reset to defaults
@@ -11281,6 +12854,288 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
   fadeOutEl.addEventListener("dblclick", (e) => { e.preventDefault(); resetRange(fadeOutEl, 0); });
   pitchEl.addEventListener("dblclick", (e) => { e.preventDefault(); resetRange(pitchEl, 0); });
 
+
+  function getEffectiveFadeFramesForCell(cell, row){
+    let effFrames = getCellFrames(row);
+    try{
+      if (!cell || !cell.left || !cell.right) return Math.max(1, effFrames|0);
+      const fit = cell.settings?.fitMode || "rate";
+      if (fit === "rate") return Math.max(1, effFrames|0);
+
+      let srcLen = (cell.left && cell.left.length) ? cell.left.length : 0;
+
+      // If a non-destructive Wave Editor selection is active, scale fades to that window.
+      const key = (cell.editorKey && sourceStore && sourceStore.has(cell.editorKey)) ? cell.editorKey : (cell.sourceKey || "");
+      const hasSel = (typeof cell.selStartFrames === "number") && (typeof cell.selLenFrames === "number");
+      if (key && hasSel && sourceStore && sourceStore.has(key)){
+        const src = sourceStore.get(key);
+        const srcN = (src && src.L) ? src.L.length : 0;
+        if (srcN > 0 && srcLen === srcN && cell.selLenFrames > 0){
+          srcLen = clamp(cell.selLenFrames|0, 1, srcN);
+        }
+      }
+
+      if (srcLen > 0) effFrames = Math.max(1, Math.min(getCellFrames(row), srcLen|0));
+      else effFrames = Math.max(1, getCellFrames(row)|0);
+    }catch(_e){
+      effFrames = Math.max(1, getCellFrames(row)|0);
+    }
+    return Math.max(1, effFrames|0);
+  }
+
+  const AUTO_FADE_DEFAULT_START_PCT = 0.5;
+  const AUTO_FADE_DEFAULT_END_PCT = 1.5;
+  const AUTO_FADE_PREF_KEY = "tcm_auto_fade_pref_v1";
+  const AUTO_FADE_PRESETS = {
+    clicksafe: { mode:"clicksafe", label:"Click-safe", startPct:0.5, endPct:1.5, useDefaultCaps:true },
+    soft:      { mode:"soft",      label:"Soft",       startPct:1,   endPct:3,   useDefaultCaps:true },
+    strong:    { mode:"strong",    label:"Strong",     startPct:2,   endPct:6,   useDefaultCaps:true },
+  };
+  const AUTO_FADE_DEFAULT_MODE = "clicksafe";
+
+  function normalizeAutoFadePct(value, fallback){
+    const n = Number(String(value ?? "").replace(",", "."));
+    const base = Number.isFinite(n) ? n : fallback;
+    return Math.round(clamp(base, 0, 100) * 10) / 10;
+  }
+
+  function makeAutoFadeConfig(mode, startPct, endPct){
+    const m = String(mode || AUTO_FADE_DEFAULT_MODE).toLowerCase();
+    const preset = AUTO_FADE_PRESETS[m];
+    if (preset) return { ...preset };
+    return {
+      mode:"custom",
+      label:"Custom",
+      startPct: normalizeAutoFadePct(startPct, AUTO_FADE_DEFAULT_START_PCT),
+      endPct: normalizeAutoFadePct(endPct, AUTO_FADE_DEFAULT_END_PCT),
+      useDefaultCaps:false,
+    };
+  }
+
+  function getDefaultAutoFadeConfig(){
+    return makeAutoFadeConfig(AUTO_FADE_DEFAULT_MODE);
+  }
+
+  function loadAutoFadeConfig(){
+    try{
+      const raw = localStorage.getItem(AUTO_FADE_PREF_KEY) || "";
+      if (!raw) return getDefaultAutoFadeConfig();
+      const parsed = JSON.parse(raw);
+      return makeAutoFadeConfig(parsed?.mode, parsed?.startPct, parsed?.endPct);
+    }catch(_e){
+      return getDefaultAutoFadeConfig();
+    }
+  }
+
+  function saveAutoFadeConfig(cfg){
+    const safe = makeAutoFadeConfig(cfg?.mode, cfg?.startPct, cfg?.endPct);
+    try{
+      localStorage.setItem(AUTO_FADE_PREF_KEY, JSON.stringify({
+        mode:safe.mode,
+        startPct:safe.startPct,
+        endPct:safe.endPct,
+      }));
+    }catch(_e){}
+    updateAutoFadeButtonState(safe);
+    return safe;
+  }
+
+  function isDefaultAutoFadeConfig(cfg){
+    const safe = makeAutoFadeConfig(cfg?.mode, cfg?.startPct, cfg?.endPct);
+    const def = getDefaultAutoFadeConfig();
+    return safe.mode === def.mode && safe.startPct === def.startPct && safe.endPct === def.endPct;
+  }
+
+  function formatPctLabel(n){
+    const v = normalizeAutoFadePct(n, 0);
+    return Number.isInteger(v) ? String(v) : String(v).replace(/0+$/, "").replace(/\.$/, "");
+  }
+
+  function getAutoFadeConfigLabel(cfg){
+    const safe = makeAutoFadeConfig(cfg?.mode, cfg?.startPct, cfg?.endPct);
+    return `${safe.label} ${formatPctLabel(safe.startPct)}%/${formatPctLabel(safe.endPct)}%`;
+  }
+
+  function updateAutoFadeButtonState(cfg=null){
+    if (!inspAutoFadeBtn) return;
+    const safe = cfg ? makeAutoFadeConfig(cfg.mode, cfg.startPct, cfg.endPct) : loadAutoFadeConfig();
+    const custom = !isDefaultAutoFadeConfig(safe);
+    inspAutoFadeBtn.textContent = "Auto fade";
+    inspAutoFadeBtn.classList.toggle("autoFadeNonDefault", custom);
+    inspAutoFadeBtn.classList.toggle("tcmActiveBtn", custom);
+    const tip = custom
+      ? `Auto fade saved scale: ${getAutoFadeConfigLabel(safe)}. Button is green because a non-default scale is saved. Shift-click or Shift+A to change.`
+      : "Set Fade In and Fade Out automatically from the audible cell or slice length. Shift-click or Shift+A opens presets and custom Start/End percentages.";
+    inspAutoFadeBtn.setAttribute("aria-label", tip);
+    try{ inspAutoFadeBtn.dataset.nativeTitle = tip; }catch(_e){}
+  }
+
+  function getAutoFadeMsForCell(cell, row, opts=null){
+    const frames = getEffectiveFadeFramesForCell(cell, row);
+    const lenMs = Math.max(0, (frames / SR) * 1000);
+    if (!lenMs) return { fadeInMs:0, fadeOutMs:0 };
+
+    const startPct = normalizeAutoFadePct(opts?.startPct ?? AUTO_FADE_DEFAULT_START_PCT, AUTO_FADE_DEFAULT_START_PCT);
+    const endPct = normalizeAutoFadePct(opts?.endPct ?? AUTO_FADE_DEFAULT_END_PCT, AUTO_FADE_DEFAULT_END_PCT);
+    const useDefaultCaps = !opts || opts.useDefaultCaps !== false;
+
+    // Scalable values. Presets use the safe v2.12.15 caps; Custom uses the requested 0-100% values.
+    let fadeInMs = startPct > 0 ? Math.round(lenMs * (startPct / 100)) : 0;
+    let fadeOutMs = endPct > 0 ? Math.round(lenMs * (endPct / 100)) : 0;
+
+    if (useDefaultCaps){
+      if (startPct > 0) fadeInMs = clamp(fadeInMs, 2, 250);
+      if (endPct > 0) fadeOutMs = clamp(fadeOutMs, 5, 750);
+    }
+
+    // Do not let auto fade eat too much of very short slices.
+    const maxCombinedRatio = useDefaultCaps ? 0.35 : 0.90;
+    const maxCombined = Math.max(1, Math.floor(lenMs * maxCombinedRatio));
+    const combined = fadeInMs + fadeOutMs;
+    if (combined > maxCombined){
+      const scale = maxCombined / combined;
+      fadeInMs = Math.max(startPct > 0 ? 1 : 0, Math.floor(fadeInMs * scale));
+      fadeOutMs = Math.max(endPct > 0 ? 1 : 0, Math.floor(fadeOutMs * scale));
+    }
+
+    fadeInMs = Math.max(0, Math.min(Math.floor(lenMs), fadeInMs));
+    fadeOutMs = Math.max(0, Math.min(Math.floor(lenMs), fadeOutMs));
+    return { fadeInMs, fadeOutMs };
+  }
+
+  function getLoadedSelectedCoordsForAutoFade(){
+    return getSelectedCoords().filter(({col,row}) => {
+      const cell = state.cells?.[col]?.[row];
+      return !!(cell && cell.left && cell.right);
+    });
+  }
+
+  function readAutoFadePercentInput(el, fallback){
+    return normalizeAutoFadePct(el?.value, fallback);
+  }
+
+  function selectAutoFadeMode(mode){
+    const m = String(mode || AUTO_FADE_DEFAULT_MODE).toLowerCase();
+    autoFadeModeEls.forEach(el => { el.checked = (String(el.value || "").toLowerCase() === m); });
+  }
+
+  function setAutoFadeFieldsFromConfig(cfg){
+    const safe = makeAutoFadeConfig(cfg?.mode, cfg?.startPct, cfg?.endPct);
+    selectAutoFadeMode(safe.mode);
+    if (autoFadeStartPctEl) autoFadeStartPctEl.value = String(safe.startPct);
+    if (autoFadeEndPctEl) autoFadeEndPctEl.value = String(safe.endPct);
+  }
+
+  function getAutoFadePopupConfig(){
+    const checked = autoFadeModeEls.find(el => el && el.checked);
+    const mode = String(checked?.value || AUTO_FADE_DEFAULT_MODE).toLowerCase();
+    if (AUTO_FADE_PRESETS[mode]) return makeAutoFadeConfig(mode);
+    const startPct = readAutoFadePercentInput(autoFadeStartPctEl, AUTO_FADE_DEFAULT_START_PCT);
+    const endPct = readAutoFadePercentInput(autoFadeEndPctEl, AUTO_FADE_DEFAULT_END_PCT);
+    if (autoFadeStartPctEl) autoFadeStartPctEl.value = String(startPct);
+    if (autoFadeEndPctEl) autoFadeEndPctEl.value = String(endPct);
+    return makeAutoFadeConfig("custom", startPct, endPct);
+  }
+
+  function setAutoFadePopupDefaults(){
+    setAutoFadeFieldsFromConfig(getDefaultAutoFadeConfig());
+  }
+
+  function isAutoFadeFocusableEl(el){
+    try{
+      if (!el || el.disabled) return false;
+      if (el.getAttribute && el.getAttribute("aria-hidden") === "true") return false;
+      const style = window.getComputedStyle(el);
+      return style.display !== "none" && style.visibility !== "hidden";
+    }catch(_e){ return false; }
+  }
+
+  function getAutoFadeCycleEls(){
+    // Keep the keyboard cycle inside the actual Auto fade setting controls only.
+    // Buttons remain clickable, while Tab follows: presets -> Start % -> End % -> presets.
+    return [
+      ...autoFadeModeEls,
+      autoFadeStartPctEl,
+      autoFadeEndPctEl,
+    ].filter(isAutoFadeFocusableEl);
+  }
+
+  function focusFirstAutoFadeChoice(){
+    const items = getAutoFadeCycleEls();
+    if (!items.length) return;
+    try{ items[0].focus(); }catch(_e){}
+  }
+
+  function focusNextAutoFadeEl(backwards){
+    const items = getAutoFadeCycleEls();
+    if (!items.length) return;
+    const active = document.activeElement;
+    let idx = items.indexOf(active);
+    if (idx < 0){
+      idx = backwards ? 0 : -1;
+    }
+    const next = backwards
+      ? (idx - 1 + items.length) % items.length
+      : (idx + 1) % items.length;
+    try{ items[next].focus(); }catch(_e){}
+  }
+
+  function openAutoFadeOverlay(){
+    const coords = getLoadedSelectedCoordsForAutoFade();
+    if (!coords.length){
+      toast("No loaded cells for Auto fade", 1400);
+      return;
+    }
+    try{ window.__hideTCMTip && window.__hideTCMTip(); }catch(_e){}
+    setAutoFadeFieldsFromConfig(loadAutoFadeConfig());
+    if (autoFadeOverlayEl){
+      autoFadeOverlayEl.style.display = "flex";
+      autoFadeOverlayEl.classList.add("show");
+      autoFadeOverlayEl.setAttribute("aria-hidden", "false");
+      setTimeout(() => { try{ focusFirstAutoFadeChoice(); }catch(_e){} }, 0);
+    }
+  }
+
+  function closeAutoFadeOverlay(){
+    if (!autoFadeOverlayEl) return;
+    autoFadeOverlayEl.classList.remove("show");
+    autoFadeOverlayEl.setAttribute("aria-hidden", "true");
+    autoFadeOverlayEl.style.display = "none";
+  }
+
+  function applyAutoFadeToSelectedCells(opts=null){
+    const coords = getLoadedSelectedCoordsForAutoFade();
+    if (!coords.length){
+      toast("No loaded cells for Auto fade", 1400);
+      return;
+    }
+
+    const cfg = makeAutoFadeConfig(opts?.mode || opts?.label || "custom", opts?.startPct, opts?.endPct);
+    captureSettingsUndo();
+    for (const {col,row} of coords){
+      const cell = state.cells[col][row];
+      const fades = getAutoFadeMsForCell(cell, row, cfg);
+      cell.settings.fadeInMs = fades.fadeInMs;
+      cell.settings.fadeOutMs = fades.fadeOutMs;
+      invalidateCellCache(col, row);
+      updateCellUI(col, row);
+    }
+    commitSettingsUndo();
+    updateInspector();
+
+    toast(`Auto fade ${getAutoFadeConfigLabel(cfg)} applied to ${coords.length} cell${coords.length === 1 ? "" : "s"}`);
+  }
+
+  function applySavedAutoFadeToSelectedCells(){
+    applyAutoFadeToSelectedCells(loadAutoFadeConfig());
+  }
+
+  function applyAutoFadePopupValues(){
+    const cfg = saveAutoFadeConfig(getAutoFadePopupConfig());
+    setAutoFadeFieldsFromConfig(cfg);
+    applyAutoFadeToSelectedCells(cfg);
+    closeAutoFadeOverlay();
+  }
 
   function applyFitModeToCell(target, row, fitValue){
     let nextFit = (fitValue === "rate") ? "rate" : "padtrim";
@@ -11720,7 +13575,7 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
   function updateAutoPreviewButton(){
     if (!autoPreviewBtn) return;
     const on = !!state.autoPreview;
-    autoPreviewBtn.textContent = on ? "Auto preview: On" : "Auto preview: Off";
+    autoPreviewBtn.textContent = "Auto preview";
     autoPreviewBtn.classList.toggle("good", on);
     autoPreviewBtn.classList.toggle("secondary", !on);
   }
@@ -11928,6 +13783,70 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
     toast(fitCount > 0 ? `${fitCount} cell${fitCount === 1 ? "" : "s"} set to Fit` : "No cells needed Fit");
   });
 
+  inspAutoFadeBtn?.addEventListener("click", (e) => {
+    if (e && e.shiftKey){
+      e.preventDefault();
+      openAutoFadeOverlay();
+      return;
+    }
+    applySavedAutoFadeToSelectedCells();
+  });
+
+  autoFadeModeEls.forEach(el => {
+    const presetRow = () => {
+      try{ return el?.closest ? el.closest(".autoFadePreset") : null; }catch(_e){ return null; }
+    };
+    const setPresetFocusVisible = (on) => {
+      try{ presetRow()?.classList.toggle("autoFadePresetFocus", !!on); }catch(_e){}
+    };
+    const keepAutoFadePresetFocus = () => {
+      try{ el && el.focus && el.focus(); }catch(_e){}
+      setPresetFocusVisible(true);
+    };
+    el?.addEventListener("focus", () => setPresetFocusVisible(true));
+    el?.addEventListener("blur", () => setPresetFocusVisible(false));
+    el?.addEventListener("pointerdown", () => { setTimeout(keepAutoFadePresetFocus, 0); });
+    el?.addEventListener("click", keepAutoFadePresetFocus);
+    el?.addEventListener("change", () => {
+      keepAutoFadePresetFocus();
+      const cfg = makeAutoFadeConfig(el.value, autoFadeStartPctEl?.value, autoFadeEndPctEl?.value);
+      if (cfg.mode !== "custom"){
+        if (autoFadeStartPctEl) autoFadeStartPctEl.value = String(cfg.startPct);
+        if (autoFadeEndPctEl) autoFadeEndPctEl.value = String(cfg.endPct);
+      }
+    });
+  });
+  [autoFadeStartPctEl, autoFadeEndPctEl].forEach(el => {
+    el?.addEventListener("input", () => { selectAutoFadeMode("custom"); });
+    el?.addEventListener("change", () => {
+      const fallback = (el === autoFadeStartPctEl) ? AUTO_FADE_DEFAULT_START_PCT : AUTO_FADE_DEFAULT_END_PCT;
+      el.value = String(readAutoFadePercentInput(el, fallback));
+      selectAutoFadeMode("custom");
+    });
+  });
+
+  autoFadeCloseBtnEl?.addEventListener("click", (e) => { e.preventDefault(); closeAutoFadeOverlay(); });
+  autoFadeCancelBtnEl?.addEventListener("click", (e) => { e.preventDefault(); closeAutoFadeOverlay(); });
+  autoFadeDefaultsBtnEl?.addEventListener("click", (e) => { e.preventDefault(); setAutoFadePopupDefaults(); });
+  autoFadeApplyBtnEl?.addEventListener("click", (e) => { e.preventDefault(); applyAutoFadePopupValues(); });
+  autoFadeOverlayEl?.addEventListener("click", (e) => { if (e.target === autoFadeOverlayEl) closeAutoFadeOverlay(); });
+  autoFadeOverlayEl?.addEventListener("keydown", (e) => {
+    if (!autoFadeOverlayEl?.classList.contains("show")) return;
+    if (e.key === "Tab"){
+      e.preventDefault();
+      e.stopPropagation();
+      focusNextAutoFadeEl(!!e.shiftKey);
+    }else if (e.key === "Escape"){
+      e.preventDefault();
+      e.stopPropagation();
+      closeAutoFadeOverlay();
+    }else if (e.key === "Enter"){
+      e.preventDefault();
+      e.stopPropagation();
+      applyAutoFadePopupValues();
+    }
+  });
+
   inspTunerBtn?.addEventListener("click", () => {
     openTunerOverlay();
   });
@@ -12029,6 +13948,28 @@ const descOut = (selCount > 1) ? `Primary: ${descText}` : descText;
     updateColUI(col);
     if (refreshInspector || (state.selected && state.selected.has && state.selected.col === col)) updateInspector();
     if (!silent) toast(`Cleared column ${col+1}`);
+  }
+
+  function clearColumnWithUndo(col, opts={}){
+    const targets = [];
+    for (let r=0;r<ROWS;r++){
+      targets.push({ before: snapshotCellState(col, r), after: null });
+    }
+    const splitBefore = snapshotSplitStateForCol(col);
+    clearColumn(col, { silent:true, refreshInspector:true });
+    for (let r=0;r<ROWS;r++){
+      targets[r].after = snapshotCellState(col, r);
+    }
+    pushUndoAction({
+      type:"cellSnapshots",
+      reason:"clearColumn",
+      targets,
+      splitCol: col|0,
+      splitBefore,
+      splitAfter: snapshotSplitStateForCol(col),
+    });
+    if (!(opts && opts.silent)) toast(`Cleared column ${col+1}`);
+    return true;
   }
 
   function clearAll(){
@@ -14248,8 +16189,9 @@ const _flacCrc8Table = (() => {
 stopBtn.addEventListener("click", () => stopPlayback());
 
 
-  function openHelp(){
+  function openHelp(opts){
     if (!helpOverlayEl) return;
+    const jumpToReleaseNotes = !!(opts && opts.releaseNotes);
     // Always bring help in front of other overlays (Slice/Wave editors)
     try{
       document.body.appendChild(helpOverlayEl);
@@ -14258,7 +16200,15 @@ stopBtn.addEventListener("click", () => stopPlayback());
     }catch{}
     helpOverlayEl.classList.add("show");
     helpOverlayEl.setAttribute("aria-hidden", "false");
-    focusOverlayElement(document.getElementById("helpCloseBtn") || helpOverlayEl);
+    if (jumpToReleaseNotes){
+      requestAnimationFrame(() => {
+        const releaseEl = document.getElementById("releaseNotesCard") || document.getElementById("releaseNotes") || helpOverlayEl;
+        try{ releaseEl.scrollIntoView({ block:"start", inline:"nearest" }); }catch(_e){}
+        try{ releaseEl.focus({ preventScroll:true }); }catch(_e){ try{ releaseEl.focus(); }catch(_e2){} }
+      });
+    }else{
+      focusOverlayElement(document.getElementById("helpCloseBtn") || helpOverlayEl);
+    }
   }
   function closeHelp(){
     if (!helpOverlayEl) return;
@@ -14523,6 +16473,7 @@ const cleanup = () => {
     random64SourcesBtn.title = live.length
       ? `Manage ${live.length} live random source folder(s). Random 64 and the column Load 8 / Random 8 action use this combined pool.`
       : (total ? `Manage ${total} remembered random source folder(s). Add folders again to make them live.` : "Manage a reusable live folder list for Random 64 and the column Load 8 / Random 8 action");
+    try{ updateRandom64FilterIndicator(); }catch(_e){}
   }
 
   function renderRandom64SourcesOverlay(){
@@ -16051,6 +18002,25 @@ if (Array.isArray(preset.cellNames)){
       if (e.stopImmediatePropagation) e.stopImmediatePropagation();
       return;
     }
+    if (splitOpen && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key==="l" || e.key==="L" || e.key==="m" || e.key==="M" || e.key==="r" || e.key==="R")){
+      const k = e.key;
+      const edge = (k==="l" || k==="L") ? "L" : ((k==="r" || k==="R") ? "R" : "C");
+      try{ if (waveEditor) waveEditor.nudgeEdge = edge; }catch(_e){}
+      try{
+        if (_mag && _mag.on && (_mag.srcTag || "") === "split"){
+          _mag.edge = edge;
+          _mag.labelBase = (edge === "L" ? "Resize L" : (edge === "R" ? "Resize R" : "Move")) + "  (Space: play sel)";
+          magSetLabelText(_mag.labelBase);
+          magRenderZIndicators();
+          magRequestDraw();
+        }
+      }catch(_e){}
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+      return;
+    }
+
     if (splitOpen && (e.key==="ArrowLeft" || e.key==="ArrowRight" || e.key==="ArrowUp" || e.key==="ArrowDown")){
       // Debug toast to confirm key is captured
       const fine = e.altKey ? 16 : 0;          // ~1.3ms at 48k
@@ -16058,23 +18028,52 @@ if (Array.isArray(preset.cellNames)){
       const baseStep = 128;                     // ~5.3ms at 48k
       const step = fine || coarse || baseStep;
       const dir = (e.key==="ArrowLeft" || e.key==="ArrowUp") ? -1 : 1;
-      const mode = ((_mag && _mag.on && (_mag.edge==='L' || _mag.edge==='R')) ? _mag.edge : (waveEditor.nudgeEdge||'C'));
+      const mode = ((_mag && _mag.on) ? (_mag.edge || 'C') : (waveEditor.nudgeEdge || 'C'));
 
       e.preventDefault();
       e.stopPropagation();
       if (e.stopImmediatePropagation) e.stopImmediatePropagation();
 
-      splitNudgeActive(dir * step, mode);
-      // keep magnifier selection in sync if it's open
+      const didNudge = splitNudgeActive(dir * step, mode);
+      if (didNudge && splitSnap && (mode === "L" || mode === "R")) scheduleSplitNudgeSnap(mode);
+      else if (!(mode === "L" || mode === "R")) clearSplitNudgeSnapTimer();
+      // keep magnifier selection and anchor in sync if it's open
       try{
         if (_mag && _mag.on){
           const st = splitGetState(splitCol);
           const b = st.blocks[splitActiveIdx|0];
-          if (b) magUpdate({selStart:(b.s|0), selEnd:((b.s|0)+(b.l|0))});
+          const src = st && st.sourceKey ? sourceStore.get(st.sourceKey) : null;
+          if (b){
+            const ax = src && src.L ? magAnchorSplit((src.L.length|0), b) : null;
+            magUpdate({
+              selStart:(b.s|0),
+              selEnd:((b.s|0)+(b.l|0)),
+              x: ax ? ax.x : undefined,
+              y: ax ? ax.y : undefined
+            });
+          }
         }
       }catch(_){}
       return;
     }
+
+// Cell Pitch direct tuning with + / - (outside text fields and editors).
+    try{
+      const ae = document.activeElement;
+      const tag = ae ? ae.tagName : "";
+      const typing = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (ae && ae.isContentEditable);
+      const overlayOpen = !!Array.from(document.querySelectorAll('.overlay.show')).find(el => el.style.display !== 'none' && el.getAttribute('aria-hidden') !== 'true');
+      const waveOpen = !!(window.waveEditor && window.waveEditor.open);
+      const plusKey = (e.key === "+" || e.key === "=" || e.code === "Equal" || e.code === "NumpadAdd");
+      const minusKey = (e.key === "-" || e.key === "_" || e.code === "Minus" || e.code === "NumpadSubtract");
+      if (!mod && !typing && !overlayOpen && !waveOpen && !splitOpen && state && state.selected && state.selected.has && (plusKey || minusKey)){
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+        pitchSliderNudge(plusKey ? 1 : -1, e);
+        return;
+      }
+    }catch(_e){}
 
 // Arrow-key navigation between cells (only when no overlay is open and not typing in a field)
     if (!mod && !e.altKey){
@@ -16100,9 +18099,20 @@ if (Array.isArray(preset.cellNames)){
           normalizeSelectedCellAudio();
           return;
         }
-        if (e.key === 't' || e.key === 'T'){
+        if (e.key === 'a' || e.key === 'A'){
+          e.preventDefault();
+          if (e.shiftKey) openAutoFadeOverlay();
+          else applySavedAutoFadeToSelectedCells();
+          return;
+        }
+        if (e.key === 'f' || e.key === 'F'){
           e.preventDefault();
           toggleSelectedFitMode();
+          return;
+        }
+        if (e.key === 't' || e.key === 'T'){
+          e.preventDefault();
+          openTunerOverlay();
           return;
         }
         if (e.key === 'm' || e.key === 'M'){
@@ -16214,7 +18224,7 @@ if (e.key === "Escape"){
           const {left, right, name} = await decodeFileToStereo48k(file);
           const durSec = left.length / SR;
           if (durSec > MAX_SPLIT_LOAD_SEC) {
-            toast(`Sample too long for Load+Slice (${durSec.toFixed(1)}s). Max is ${MAX_SPLIT_LOAD_SEC}s.`);
+            toast(`Sample too long for Slice 8 (${durSec.toFixed(1)}s). Max is ${MAX_SPLIT_LOAD_SEC}s.`);
             return;
           }
           const key = getSourceKeyFromFile(file, name);
@@ -16245,6 +18255,8 @@ if (e.key === "Escape"){
   updateSpecLine();
   
   renderReleaseNotes();
+  updateAutoFadeButtonState();
+  initMatrixPalette();
   // Fill version text (avoids manual sync in multiple places)
   const cEl = document.getElementById("copyrightText");
   if (cEl) cEl.textContent = `© 2026 Patronix`;
@@ -16268,8 +18280,16 @@ if (e.key === "Escape"){
       }
     }catch(_e){}
 const bd = (typeof APP_BUILD_DATE !== "undefined" && APP_BUILD_DATE) ? APP_BUILD_DATE : "";
-    aboutEl.title = bd ? (`Version ${APP_VERSION} · Build ${bd}`) : (`Version ${APP_VERSION}`);
-    aboutEl.addEventListener("click", (e)=>{ e.preventDefault(); try{ document.getElementById("helpBtn")?.click(); }catch(_){} });
+    aboutEl.title = bd ? (`Version ${APP_VERSION} · Build ${bd} · Release notes`) : (`Version ${APP_VERSION} · Release notes`);
+    aboutEl.setAttribute("role", "button");
+    aboutEl.setAttribute("tabindex", "0");
+    aboutEl.addEventListener("click", (e)=>{ e.preventDefault(); try{ openHelp({ releaseNotes:true }); }catch(_){} });
+    aboutEl.addEventListener("keydown", (e)=>{
+      if (e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        try{ openHelp({ releaseNotes:true }); }catch(_){}
+      }
+    });
     aboutEl.style.cursor = "pointer";
   }
 
@@ -16281,6 +18301,7 @@ const bd = (typeof APP_BUILD_DATE !== "undefined" && APP_BUILD_DATE) ? APP_BUILD
     try{ disableNativeTitleTooltips(); }catch(e){}
     try{ initCustomTooltips(); }catch(e){}
     try{ installTitleStripObserver(); }catch(e){}
+    try{ updateAutoFadeButtonState(); }catch(e){}
 
     try{ waveAttachHandlers(); }catch(e){ showFatal(e); }
     try{ splitAttachHandlers(); }catch(e){ showFatal(e); }
@@ -16377,6 +18398,7 @@ const _mag = {
   autoNorm: false,
   userEnabled: true,
   autoHide: false,
+  reverse: false,
   baseHalfWinFrames: 0
 ,
  on:false, src:null, total:0, selStart:0, selEnd:0, edge:"R", halfWinFrames:0, el:null, cv:null, ctx:null, lbl:null, _raf:0 };
@@ -16459,11 +18481,12 @@ function magSetLabelText(t){
   }catch(_){}
 }
 
-function magShow({src, total, selStart, selEnd, edge, x, y, label, centerPos, tag}){
+function magShow({src, total, selStart, selEnd, edge, x, y, label, centerPos, tag, reverse}){
   magInit();
   if(_mag.userEnabled === false) return;
   _mag.on = true;
   _mag.srcTag = tag || _mag.srcTag || "";
+  _mag.reverse = ((_mag.srcTag || "") === "wave") && !!reverse;
   // Wave editor uses a smaller magnifier so it doesn't dominate the UI
   try{
     const isSmall = (_mag.srcTag === "wave" || _mag.srcTag === "split");
@@ -16566,10 +18589,11 @@ function magDraw(){
   const L = _mag.src.L;
   const R = _mag.src.R || _mag.src.L;
   const total = _mag.total|0;
-    const edgePos = (_mag.edge === "L") ? (_mag.selStart|0) : (_mag.edge === "R" ? (_mag.selEnd|0) : ( (_mag.centerPos!=null) ? (_mag.centerPos|0) : (((_mag.selStart|0)+(_mag.selEnd|0))>>1) ));
+  const edgePos = (_mag.edge === "L") ? (_mag.selStart|0) : (_mag.edge === "R" ? (_mag.selEnd|0) : ( (_mag.centerPos!=null) ? (_mag.centerPos|0) : (((_mag.selStart|0)+(_mag.selEnd|0))>>1) ));
   const half = _mag.halfWinFrames|0;
 
-  // Keep zoom factor consistent even near file start/end by shifting the window instead of shrinking it
+  // Keep zoom factor consistent even near file start/end by shifting the window instead of shrinking it.
+  // This matches the stable pre-2.11.87 coordinate math used by both editors.
   const targetLen = Math.max(1, Math.min(total, (half*2)|0));
   let winA = (edgePos - half)|0;
   winA = magClamp(winA, 0, Math.max(0, total - targetLen));
@@ -16629,15 +18653,8 @@ function magDraw(){
   const xl = magClamp(Math.min(xSelL, xSelR), 0, W);
   const xr = magClamp(Math.max(xSelL, xSelR), 0, W);
 
-  ctx.fillStyle = "rgba(120,200,120,0.08)";
+  ctx.fillStyle = "rgba(255,255,255,0.10)";
   ctx.fillRect(xl, 0, Math.max(0, xr-xl), H);
-
-  ctx.strokeStyle = "rgba(255,255,255,0.95)";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(xl+0.5, 0); ctx.lineTo(xl+0.5, H);
-  ctx.moveTo(xr+0.5, 0); ctx.lineTo(xr+0.5, H);
-  ctx.stroke();
 
   const xEdge = (_mag.edge === "L") ? xl : (_mag.edge === "R" ? xr : Math.round((xl+xr)/2));
   ctx.strokeStyle = "rgba(255,220,120,0.95)";
@@ -16660,12 +18677,14 @@ document.addEventListener("keydown", (ev) => {
   magHide();
 });
 
-function magAnchorWave(total, selStart, selEnd){
+function magAnchorWave(total, selStart, selEnd, edge){
   try{
     const rect = waveBigEl.getBoundingClientRect();
     const t = Math.max(1, total|0);
-    const frac = ((selStart + selEnd) * 0.5) / t;
-    return { x: rect.left + frac * rect.width, y: rect.top + rect.height*0.5 };
+    const e = edge || "C";
+    const frame = (e === "L") ? (selStart|0) : (e === "R" ? (selEnd|0) : (((selStart|0) + (selEnd|0)) >> 1));
+    const x = (typeof waveFramesToX === "function") ? waveFramesToX(frame, t, rect.width) : ((frame / t) * rect.width);
+    return { x: rect.left + x, y: rect.top + rect.height*0.5 };
   }catch(_){ return null; }
 }
 function magAnchorSplit(total, bb){
@@ -16772,7 +18791,7 @@ window.addEventListener("keydown", (ev)=>{
         if (el === document.documentElement || el === document.body) el.classList.add("noScrollbarGlobal");
       }
     }
-    btn.textContent = on ? "Scrollbar: On" : "Scrollbar: Off";
+    btn.textContent = "Scrollbar";
     btn.classList.toggle("good", !!on);
     btn.classList.toggle("secondary", !on);
   }
@@ -16804,10 +18823,10 @@ window.addEventListener("keydown", (ev)=>{
         <div style="display:flex; gap:8px; align-items:center;">
           <button class="helpClose" type="button" id="wavePlaySelBtn" title="Play current selection">Play sel</button>
           <button class="helpClose" type="button" id="wavePlayFullBtn" title="Play full source">Play full</button>
-          <button class="helpClose" type="button" id="waveZoomBtn" title="Toggle zoom window">Zoom: on</button>
-          <button class="helpClose" type="button" id="waveZoomAutoHideBtn" title="Hide zoom window automatically when mouse is released">Zoom: Auto Hide off</button>
-          <button class="helpClose" type="button" id="waveSnapBtn" title="Snap apply to zero-crossing">Snap: on</button> <button class="helpClose" type="button" id="waveUndoBtn" title="Undo trim (Ctrl/Cmd+Z)">Undo</button>
-<button class="helpClose" type="button" id="waveApplyBtn" title="Apply selection to the cell">Apply</button>
+          <button class="helpClose" type="button" id="waveZoomBtn" title="Toggle zoom window">Zoom</button>
+          <button class="helpClose" type="button" id="waveZoomAutoHideBtn" title="Hide zoom window automatically when mouse is released">Zoom: auto hide</button>
+          <button class="helpClose" type="button" id="waveSnapBtn" title="Snap trim to zero-crossing">Snap</button> <button class="helpClose" type="button" id="waveUndoBtn" title="Undo trim (Ctrl/Cmd+Z)">Undo</button>
+<button class="helpClose" type="button" id="waveApplyBtn" title="Trim selection into the cell. Exported WAVs and saved/exported presets use the trimmed cell audio.">Trim</button>
           <button class="helpClose" type="button" id="waveResetBtn" title="Reset selection to full cell length">Reset</button>
           <button class="helpClose" type="button" id="waveHelpBtn" title="Help">?</button>
         <button class="helpClose" type="button" id="waveCloseBtn" title="Close">✕</button>
@@ -16840,7 +18859,7 @@ window.addEventListener("keydown", (ev)=>{
               <li><b>Z</b> — auto-normalize (when zoom window is visible)</li>
               <li><b>Esc</b> — hide zoom (if visible) / close editor</li>
             </ul>
-            <div class="waveShortcutsNote">Tip: <b>Snap</b> affects <b>Apply</b> (zero-crossing start). <b>Zoom: Auto Hide</b> closes the zoom window on mouse release.</div>
+            <div class="waveShortcutsNote">Tip: <b>Snap</b> only adjusts L/R trim edges after mouse/touch release. Space and arrow nudges do not snap by themselves. <b>Zoom: auto hide</b> closes the zoom window on mouse release.</div>
           </div>
 
         </div>
@@ -16857,10 +18876,11 @@ window.addEventListener("keydown", (ev)=>{
         <div style="display:flex; gap:8px; align-items:center;">
           <button class="helpClose" type="button" id="splitLoadBtn" title="Load a new sample for splitting">Load new</button>
           <button class="helpClose" type="button" id="splitAutoBtn" title="Auto tile 8 slices across the sample">Auto</button>
+          <button class="helpClose" type="button" id="splitSnapBtn" title="Snap slice L/R handles to the nearest nearby zero-crossing after mouse release or after L/R arrow nudges settle">Snap</button>
           <button class="helpClose" type="button" id="splitPlaySelBtn" title="Play focused slice (Space)">Play sel</button>
-          <button class="helpClose" type="button" id="splitPlayFullBtn" title="Play full sample">Play all</button>
-          <button class="helpClose" type="button" id="splitZoomBtn" title="Toggle zoom window">Zoom: on</button>
-          <button class="helpClose" type="button" id="splitZoomAutoHideBtn" title="Hide zoom window automatically when mouse is released">Zoom: Auto Hide off</button>
+          <button class="helpClose" type="button" id="splitPlayFullBtn" title="Play all 8 selected slices">Play all</button>
+          <button class="helpClose" type="button" id="splitZoomBtn" title="Toggle zoom window">Zoom</button>
+          <button class="helpClose" type="button" id="splitZoomAutoHideBtn" title="Hide zoom window automatically when mouse is released">Zoom: auto hide</button>
 <button class="helpClose" type="button" id="splitUndoBtn" title="Undo last split edit" disabled>Undo</button>
           <button class="helpClose" type="button" id="splitApplyBtn" title="Apply splits into the column">Apply</button>
           <button class="helpClose" type="button" id="splitHelpBtn" title="Help" style="margin-left:6px; width:34px; padding:0;">?</button>
@@ -16894,7 +18914,7 @@ window.addEventListener("keydown", (ev)=>{
             <li><b>Z</b> — auto-normalize (when zoom window is visible)</li>
             <li><b>Esc</b> — hide zoom (if visible) / close editor</li>
           </ul>
-          <div class="waveShortcutsNote">Tip: <b>Auto</b> spreads all 8 slices evenly across the whole sample. <b>Zoom: Auto Hide</b> closes the zoom window on mouse release.</div>
+          <div class="waveShortcutsNote">Tip: <b>Auto</b> spreads all 8 slices evenly across the whole sample. <b>Zoom: auto hide</b> closes the zoom window on mouse release.</div>
         </div>
 
       </div>
