@@ -156,7 +156,7 @@ editing and exporting samples for Tempera and other sampler workflows.
 ![TCM Wave Editor](./screenshots/wave-editor.png)
 
 ### Main 8x8 Matrix
-![TCM Wave Editor](./screenshots/matrix-overview.jpeg)
+![TCM Wave Editor](./screenshots/matrix-overview.png)
 ---
 
 ## 📄 License
