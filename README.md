@@ -1,6 +1,6 @@
 # Tempera Cell Matrix (TCM)
 
-![version](https://img.shields.io/badge/version-2.12.81-blue)
+![version](https://img.shields.io/badge/version-2.13.65-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![platform](https://img.shields.io/badge/platform-Web%20Audio-orange)
 
@@ -13,60 +13,54 @@ https://patronix-music.github.io/tempera-cell-matrix/
 
 ---
 
-## 🔥 TCM v2.12.81 🔥
+## 🔥 TCM v2.13.65 🔥
+
+This update collects the main changes from **v2.12.82 to v2.13.65**, with a major focus on the new **Matrix Slicer**, better recovery, and experimental wavetable export.
 
 ### Main new features:
 
-- 🎚️ **Auto fade presets**
-  Added Click-safe, Soft, Strong and Custom Auto fade presets.
-  `A` applies Auto fade, while `Shift+A` opens the settings.
+* 🧩 **Matrix Slicer** — Load one long sample, place custom In/Out points, and spread selected parts across the full 8×8 matrix.
 
-- 🎵 **Improved Cell Pitch workflow**
-  Cell Pitch now supports faster and finer tuning steps:
-  normal, Shift and Alt/Option precision control. Keyboard shortcut: `-` / `+`
+* ✂️ **Point-based slicing** — Use the mouse, playback position, or keyboard shortcuts to create precise segment pairs instead of relying on fixed slicing.
 
-- 🎛️ **Compact Tuner shortcuts**
-  `T` opens now the Tuner. `F` is now for fitting your long samples.
+* 🔍 **Segment zoom workflow** — Click segment blocks to zoom in, edit In/Out points, jump between segments, and fine-tune details quickly.
 
-- 🧲 **Wave Editor Snap**
-  Wave Snap now defaults to off, remembers its setting, and snaps
-  released L/R handles to the nearest nearby zero crossing.
+* 🎚️ **Per-segment volume and fades** — Adjust volume directly on the waveform and draw fade-in/fade-out handles per segment.
 
-- ✂️ **Slice Editor Snap**
-  Slice Snap was added for L/R handle release and also works after
-  L/R arrow nudges settle.
+* 🧼 **Segment Normalize and Auto fade** — Normalize and apply Auto fade inside segment mode, based on what the segment actually sounds like.
 
-- 🎨 **Matrix palettes**
-  The app logo now cycles and remembers matrix palettes, including
-  stronger fun-style "Logo 4" colors.
+* 🎵 **Segment Tuner** — Tune individual Matrix Slicer segments with a compact tuner and non-destructive per-segment pitch.
 
+* 🧭 **Pitch-aware segment placement** — Tuned segments update their effective length, cell span, playhead, preview, Apply and exports.
 
-### Fixes and improvements:
+* 🏷️ **Segment naming** — Name segments for cleaner exports and automatic matrix cell naming after Apply.
 
-- 🧩 **Wave and Slice zoom mapping stabilized**
-  Zoom and magnifier mapping are now more consistent in both editors.
+* 📦 **Export segments** — Export all Matrix Slicer segments as separate WAV files for reuse outside the matrix layout.
 
-- ↩️ **Better undo coverage**
-  Column Clear can now be undone with `Cmd/Ctrl+Z`.
+* 🌊 **Export WT from Matrix Slicer** — Create experimental Tonverk-style wavetables from a selected segment.
 
-- ✂️ **Wave Editor selection fixes**
-  Wave Editor `Esc` now preserves long-sample selections, and sliced
-  cell edits persist correctly.
+* 🧬 **Cycle-scan wavetable rendering** — Export WT now scans for usable single-cycle waves, giving fuller and smoother results.
 
-- 🔊 **Fade rendering fixes**
-  Fade-out and fade envelopes now follow the audible trimmed or
-  fit-rendered sample length more accurately.
+* 🧪 **Matrix Export WT** — Export a 64 × 2048 wavetable directly from loaded matrix cells using the same cycle-scan technique.
 
-- 🎛️ **Fit mode fix**
-  Fit mode no longer mirrors temporary Wave Editor selections, so
-  Trim and Fit behave separately again.
+* 🛟 **Autosave toggle** — Autosave can be paused from the header, while Enable audio only appears when the browser blocks playback.
 
-- 📘 **Help shortcut**
-  Clicking the version text opens Help directly at the Release notes.
+* 💾 **Local Quick save** — `Ctrl/Cmd+S` saves a local recovery snapshot, and `S` opens Export all.
 
-- 🧹 **Interface cleanup**
-  Colors are reduced (better with matrix palletes),
-  buttons (also with shift function) are visible on or off and consistent.  
+* 🕒 **Auto save** — TCM automatically stores a local recovery snapshot about once a minute when something changed, without storing audio.
+
+* 💾 **Better Quick save and Autosave recovery** — Matrix Slicer work is now preserved in recovery, including points, segments, names, fades, volume, pitch, zoom state and source relinking.
+
+* 🔁 **Recovery relink retry** — If the wrong folder is selected during recovery relink, TCM returns to the relink screen instead of losing the recovery.
+
+* ⌨️ **More editor shortcuts** — Matrix Slicer now supports a cleaner shortcut workflow for segment navigation, tuning, normalize, Auto fade and quick saving.
+
+* 🧰 **Improved Sources workflow** — The Sources window can now open Random 64 filters directly.
+
+* 💾 **Local Quick save** — `Ctrl/Cmd+S` saves a local recovery snapshot, and `S` opens Export all.
+
+* 🌊 **Wave Editor shortcut** — Press `E` to open the selected cell directly in the Wave Editor.
+
 ---
 
 ## What TCM can do
