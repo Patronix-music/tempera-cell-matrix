@@ -1,6 +1,6 @@
 # Tempera Cell Matrix (TCM)
 
-![version](https://img.shields.io/badge/version-2.13.75-blue)
+![version](https://img.shields.io/badge/version-2.13.81-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![platform](https://img.shields.io/badge/platform-Web%20Audio-orange)
 
@@ -13,7 +13,7 @@ https://patronix-music.github.io/tempera-cell-matrix/
 
 ---
 
-## 🔥 TCM v2.13.75 🔥
+## 🔥 TCM v2.13.81 🔥
 
 This update introduces **Megabreak**, a new way to turn 64 loops into a playable Beetlecrab Tempera canvas, along with workflow improvements and fixes.
 
@@ -26,8 +26,14 @@ This update introduces **Megabreak**, a new way to turn 64 loops into a playable
 - 🎹 **64-loop keytracking** — Select individual loops with MIDI notes while a synchronized Saw LFO scans through their eight slices.
 - 📦 **Flexible export** — Use the built-in canvas template, load your own `.canvas`, or export eight WAV tracks.
 
-### Improvements & bug fixes
 
+### Latest additions & improvements
+
+- 🎹 **Megabreak Multi-Pitch Export** — Export multiple Tempera canvases at once with Original, −5, −7 and −12 semitone variations.
+- 🥁 **One-Shot Support** — Mix short kicks, snares, hi-hats and FX with full loops using optional silence padding.
+- ⏱️ **Smart Auto BPM** — Detect the most common BPM from filenames, with Matrix Tempo priority and manual override.
+- 📂 **Improved Safari Support** — Restored folder selection for Random 64 and Sources, with Finder drag-and-drop support.
+- 🛡️ **Safari Memory Protection** — Skip long WAV, AIFF and FLAC files before decoding to reduce memory usage.
 - ⏱️ **Correct BPM handling** — Megabreak preserves the original loop timing and sound across different source tempos.
 - 🔄 **Tempo-aware selections** — Changing BPM or Beats/cell now updates untouched matrix selections without affecting manual edits.
 - 🏷️ **Clearer filenames** — Exports include the selected bar mode and BPM.
