@@ -1,6 +1,6 @@
 # Tempera Cell Matrix (TCM)
 
-![version](https://img.shields.io/badge/version-2.13.65-blue)
+![version](https://img.shields.io/badge/version-2.13.75-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![platform](https://img.shields.io/badge/platform-Web%20Audio-orange)
 
@@ -10,6 +10,31 @@ exporting clean WAV/ZIP presets without leaving the browser.
 
 👉 **Live app:**  
 https://patronix-music.github.io/tempera-cell-matrix/
+
+---
+
+## 🔥 TCM v2.13.75 🔥
+
+This update introduces **Megabreak**, a new way to turn 64 loops into a playable Beetlecrab Tempera canvas, along with workflow improvements and fixes.
+
+### Main new features
+
+- 🥁 **Megabreak** — Turn 64 loops into eight rearranged slice tracks, ready for rhythmic scanning and playback on Tempera.
+- 🎛️ **Ready-to-play canvas** — Automatically export a `.canvas` with a built-in three-emitter template: **Original Loops**, **Stutter Loops**, and **Bounce Loops**.
+- 🎲 **Random Stutter & Bounce** — The template includes 10 configured modulators, macro assignments, effects, and additional emitters muted by default.
+- ✂️ **Flexible bar selection** — Choose First bar, Random bar, All bars, or Whole file. Set the source BPM manually or detect it from filenames.
+- 🎹 **64-loop keytracking** — Select individual loops with MIDI notes while a synchronized Saw LFO scans through their eight slices.
+- 📦 **Flexible export** — Use the built-in canvas template, load your own `.canvas`, or export eight WAV tracks.
+
+### Improvements & bug fixes
+
+- ⏱️ **Correct BPM handling** — Megabreak preserves the original loop timing and sound across different source tempos.
+- 🔄 **Tempo-aware selections** — Changing BPM or Beats/cell now updates untouched matrix selections without affecting manual edits.
+- 🏷️ **Clearer filenames** — Exports include the selected bar mode and BPM.
+- 🖥️ **Cleaner interface** — Compact Megabreak dialog, improved Help layout, and a wider export-name field.
+- 🛠️ **Long-loop support** — Megabreak can process longer loops already loaded through Random 64.
+
+**Note:** Full 64-loop selection works with an external MIDI keyboard. Tempera's built-in keyboard overlay may not cover all 64 consecutive notes at once.
 
 ---
 
