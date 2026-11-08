@@ -2788,6 +2788,34 @@ html[data-matrix-palette="logo4"] #pitch::-webkit-slider-thumb:active{ box-shado
   background:rgba(255,255,255,0.55);
 }
 
+
+/* v2.13.75: let Name fill remaining header-row space, aligned at right. */
+.actions > .field.nameTpl{
+  flex: 1 1 170px !important;
+  min-width: 145px !important;
+  max-width: none !important;
+}
+#megabreakOverlay .helpPanel{ width:min(660px, calc(100vw - 24px)); }
+#megabreakOverlay .megabreakStatus{ margin-top:8px; color:var(--muted); font-size:12px; line-height:1.4; overflow-wrap:anywhere; }
+#megabreakOverlay .megabreakActions{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+#megabreakOverlay button:disabled{ cursor:not-allowed; opacity:0.5; }
+/* v2.13.73: compact Megabreak content; keep export controls visible. */
+#megabreakOverlay .helpPanel{ display:flex; flex-direction:column; overflow:hidden; max-height:min(94vh, 900px); }
+#megabreakOverlay .helpHead{ flex:0 0 auto; }
+#megabreakOverlay .helpBody{ flex:1 1 auto; min-height:0; overflow-y:auto; padding:7px 10px; }
+#megabreakOverlay .helpBody > p{ margin:0 0 4px; line-height:1.25; font-size:12px; }
+#megabreakOverlay .helpCard{ padding:7px 9px; margin-top:6px !important; }
+#megabreakOverlay .helpCardTitle{ margin-bottom:4px; }
+#megabreakOverlay .helpCard p{ font-size:12px; line-height:1.25; margin:5px 0 0 !important; }
+#megabreakOverlay .megabreakActions{ gap:6px; }
+#megabreakOverlay .megabreakStatus{ margin-top:5px; line-height:1.25; }
+#megabreakOverlay #megabreakProgress:empty{ display:none; }
+#megabreakOverlay .megabreakFooter{
+  flex:0 0 auto; display:flex; justify-content:flex-end; gap:8px;
+  margin:0; padding:9px 12px; border-top:1px solid rgba(255,255,255,0.12);
+  background:rgba(7,12,20,0.98);
+}
+
 </style>
 </head>
 <body>
@@ -2806,6 +2834,7 @@ html[data-matrix-palette="logo4"] #pitch::-webkit-slider-thumb:active{ box-shado
           <button class="secondary" id="exportAllBtn">Export all (ZIP)</button>
           <button class="secondary" id="exportCanvasBtn" title="Export Tempera .canvas">Export .canvas</button>
           <button class="secondary" id="exportGridBtn" title="Export loaded cells as one evenly sliced sampler grid WAV">Export grid</button>
+          <button class="secondary" id="exportMegabreakBtn" title="Megabreak: turn 64 one-bar loops into 8 tracks of 64 slices for Tempera keytracking">Megabreak</button>
           <button class="secondary" id="exportWTBtn" title="Export loaded matrix cells as one 64 x 2048 mono wavetable WAV using cycle scan">Export WT</button>
           <button class="secondary" id="importPresetBtn" title="Load preset JSON or exported ZIP. ZIP imports can auto-use embedded TCM_Sources.">Import preset</button>
           <button class="secondary" id="helpBtn" title="Show help / shortcuts">Help</button></div>
@@ -3149,6 +3178,71 @@ html[data-matrix-palette="logo4"] #pitch::-webkit-slider-thumb:active{ box-shado
 </div>
 <!-- /Grid Name Overlay -->
 
+<!-- Megabreak export dialog (isolated from matrix and normal exports) -->
+<div class="overlay" id="megabreakOverlay" aria-hidden="true">
+  <div class="helpPanel" role="dialog" aria-modal="true" aria-label="Megabreak export">
+    <div class="helpHead">
+      <div class="helpTitle">Megabreak - 64 loops / 8 tracks</div>
+      <button class="helpClose" id="megabreakCloseBtn" type="button" title="Close">x</button>
+    </div>
+    <div class="helpBody" style="font-size:13px;">
+      <p class="muted">64 loops → 8 tracks. Each selected 4/4 bar is divided into eight slices.</p>
+      <div class="helpCard" style="margin-top:10px;">
+        <label class="muted" for="megabreakNameInput" style="display:block;margin-bottom:6px;">ZIP base name (mode + BPM added)</label>
+        <input id="megabreakNameInput" class="colTitleInput" type="text" autocomplete="off" spellcheck="false" value="TCM_Megabreak_64x8" />
+      </div>
+      <div class="helpCard" style="margin-top:10px;">
+        <div class="helpCardTitle">Choose source</div>
+        <div class="megabreakActions">
+          <button class="secondary" id="megabreakPickFilesBtn" type="button">Choose 64 loop files...</button>
+          <button class="secondary" id="megabreakUseMatrixBtn" type="button">Use loaded matrix</button>
+        </div>
+        <p class="muted">Files: sorted by name. Matrix: 64 raw cell buffers, in column/row order; no trims or inspector effects.</p>
+        <div class="megabreakStatus" id="megabreakSelectionStatus" role="status">Choose 64 loop files.</div>
+      </div>
+      <div class="helpCard" style="margin-top:10px;">
+        <div class="helpCardTitle">Auto bar (4/4 loops)</div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:8px;">
+          <label class="muted" for="megabreakSourceBpm" style="display:flex;align-items:center;gap:7px;">Source BPM
+            <input id="megabreakSourceBpm" type="number" min="20" max="400" step="0.01" value="120" style="width:76px;min-width:76px;height:30px;text-align:center;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.12);border-radius:9px;color:var(--text);" />
+          </label>
+          <label class="muted" for="megabreakBarMode" style="display:flex;align-items:center;gap:7px;">Bar selection
+            <select id="megabreakBarMode" style="height:30px;max-width:190px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.12);border-radius:9px;color:var(--text);">
+              <option value="first" selected>First bar</option>
+              <option value="random">Random bar</option>
+              <option value="all">All bars (up to 4)</option>
+              <option value="whole">Whole file (legacy)</option>
+            </select>
+          </label>
+        </div>
+        <label class="chk" style="margin-top:10px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <input id="megabreakFilenameBpm" type="checkbox" checked /> BPM from filename when available (otherwise Source BPM).
+        </label>
+        <p class="muted">Loops must start on a bar boundary. All bars: up to 4 matching sets. Whole file: legacy mode.</p>
+      </div>
+      <div class="helpCard" style="margin-top:10px;">
+        <div class="helpCardTitle">Tempera .canvas preset</div>
+        <div class="megabreakActions">
+          <button class="secondary tcmActiveBtn" id="megabreakBuiltInCanvasBtn" type="button">Built-in canvas</button>
+          <button class="secondary" id="megabreakPickCanvasBtn" type="button">Choose .canvas...</button>
+          <button class="secondary" id="megabreakClearCanvasBtn" type="button">WAV only</button>
+        </div>
+        <div class="megabreakStatus" id="megabreakCanvasStatus">Built-in: Original, Stutter and Bounce Loops; E2/E3 muted.</div>
+        <p class="muted">Built-in includes 3 emitters, 10 modulators and macros. Canvas BPM follows the loops; track Base tempo stays ~175.78. Use external MIDI for all 64 loops. Custom .canvas preserves its settings; WAV only exports tracks.</p>
+      </div>
+      <p class="muted" style="margin:6px 0 0;">Fixed audio: 48 kHz, 64 slices/track, ~175.78 BPM. No fades at slice boundaries.</p>
+      <div class="megabreakStatus" id="megabreakProgress" role="status" aria-live="polite"></div>
+    </div>
+    <div class="overlayActions helpActions megabreakFooter">
+      <button class="secondary" id="megabreakCancelBtn" type="button">Cancel</button>
+      <button class="good" id="megabreakExportBtn" type="button" disabled>Export 8 tracks (ZIP)</button>
+    </div>
+  </div>
+</div>
+<input id="megabreakFileInput" type="file" accept="audio/*,.wav,.aif,.aiff,.flac,.mp3,.ogg,.m4a,.aac" multiple hidden />
+<input id="megabreakCanvasInput" type="file" accept=".canvas,application/zip,application/octet-stream" hidden />
+<!-- /Megabreak export dialog -->
+
 
 
 
@@ -3417,23 +3511,26 @@ html[data-matrix-palette="logo4"] #pitch::-webkit-slider-thumb:active{ box-shado
                             </ul>
                           </li>              
             <li><b>Drag and drop</b> samples in cells and columns</li>             
-            </ul></div><div class="helpCard"><h3>Import / Export</h3>
+            </ul></div><div class="helpCard"><h3>Import</h3>
 <p><b>Import preset</b>: load the preset JSON exported by this app (e.g. <span class="kbd">zz_TCM-Preset_MyPreset_20260111.json</span>), or load the exported ZIP directly for automatic embedded-sample relinking. JSON import still asks for your top-level sample folder. Subfolders are included. The folder overlay shows example filenames to help you pick the right folder.</p>
-                          <ul class="helpList">
-                            <li><b>Quick save recovery</b>: when <b>Autosave</b> is active, TCM stores local recovery data about once a minute. Use Recover to open relink; choose a folder, a TCM ZIP, or Choose Sources for multiple Random Source folders and relink-only recovery folders.</li>
-                            <li><b>Export</b> in a column: exports that column to WAV.</li>
-                            <li>The header <b>Name</b> template supports placeholders such as <b>{col}</b>, <b>{colname}</b>, <b>{celname}</b>, <b>{mode}</b>, <b>{bpm}</b>, <b>{sr}</b>, <b>{frames}</b> and <b>{date}</b>. Recent templates can be selected from the dropdown; the default template stays protected.</li>
-                            <li><b>Export 8</b> in a column: exports the 8 cells as separate WAV files (downloaded as one ZIP). Filenames use Sample + C# by default, or the Name template when it includes <b>{celname}</b>.</li>
-                            <li><b>Export all (ZIP)</b>: exports up to 8 columns and downloads one ZIP file.</li>
-                            <li>Empty columns are skipped.</li>
-                            <li><b>Template only</b>: export settings + layout only, with no audio files in the ZIP. Good for reusing a canvas setup and swapping samples later.</li>
-                            <li><b>Include original samples in ZIP</b> for handpicked samples in the Matrix and TCM preset sharing.</li>
-                            <li><b>Export .canvas</b>: optionally use an existing Tempera .canvas as a settings template; TCM preserves its settings and replaces the track audio.</li>
-                            <li><b>Export grid</b>: exports loaded cells as one evenly spaced 4/8/16/32/64-slice WAV for Grid/Slice samplers such as Digitakt II, MPC/Force, SP-404MKII, Octatrack, Polyend Tracker/Play and 1010music Blackbox.</li>
-                            <li><b>Export grid rules</b>: empty cells are skipped. If the loaded count is not exactly 4/8/16/32/64, TCM uses the nearest lower grid size in matrix order, e.g. 10 loaded cells exports the first 8 and skips the last 2.</li>
-                            <li><b>Export grid sample rate</b>: choose <b>48 kHz</b> for Digitakt II / TCM default, or <b>44.1 kHz</b> for wider sampler compatibility. Grid WAVs are exported as 16-bit PCM.</li>
-                            <li><b>Export WT</b>: exports loaded matrix cells as one experimental 64 × 2048 sample mono wavetable WAV at 48 kHz using Cycle scan per cell when possible.</li>
-                          </ul></div><div class="helpCard helpCardRelease" id="releaseNotesCard" tabindex="-1">
+<ul class="helpList">
+<li><b>Quick save recovery</b>: when <b>Autosave</b> is active, TCM stores local recovery data about once a minute. Use Recover to open relink; choose a folder, a TCM ZIP, or Choose Sources for multiple Random Source folders and relink-only recovery folders.</li>
+</ul></div><div class="helpCard"><h3>Export</h3>
+<ul class="helpList">
+<li><b>Export</b> in a column: exports that column to WAV.</li>
+<li>The header <b>Name</b> template supports placeholders such as <b>{col}</b>, <b>{colname}</b>, <b>{celname}</b>, <b>{mode}</b>, <b>{bpm}</b>, <b>{sr}</b>, <b>{frames}</b> and <b>{date}</b>. Recent templates can be selected from the dropdown; the default template stays protected.</li>
+<li><b>Export 8</b> in a column: exports the 8 cells as separate WAV files (downloaded as one ZIP). Filenames use Sample + C# by default, or the Name template when it includes <b>{celname}</b>.</li>
+<li><b>Export all (ZIP)</b>: exports up to 8 columns and downloads one ZIP file.</li>
+<li>Empty columns are skipped.</li>
+<li><b>Template only</b>: export settings + layout only, with no audio files in the ZIP. Good for reusing a canvas setup and swapping samples later.</li>
+<li><b>Include original samples in ZIP</b> for handpicked samples in the Matrix and TCM preset sharing.</li>
+<li><b>Export .canvas</b>: optionally use an existing Tempera .canvas as a settings template; TCM preserves its settings and replaces the track audio.</li>
+<li><b>Export grid</b>: exports loaded cells as one evenly spaced 4/8/16/32/64-slice WAV for Grid/Slice samplers such as Digitakt II, MPC/Force, SP-404MKII, Octatrack, Polyend Tracker/Play and 1010music Blackbox.</li>
+<li><b>Export grid rules</b>: empty cells are skipped. If the loaded count is not exactly 4/8/16/32/64, TCM uses the nearest lower grid size in matrix order, e.g. 10 loaded cells exports the first 8 and skips the last 2.</li>
+<li><b>Export grid sample rate</b>: choose <b>48 kHz</b> for Digitakt II / TCM default, or <b>44.1 kHz</b> for wider sampler compatibility. Grid WAVs are exported as 16-bit PCM.</li>
+<li><b>Megabreak</b>: choose 64 loops, set Source BPM and First/Random/All bars (up to four sets), or Whole file for the legacy mode. BPM may be read from filenames. Each set rearranges 8 slices from each loop into 8 fixed-length Tempera tracks. Default export uses the built-in configured Megabreak .canvas (Original Loops, Stutter Loops and Bounce Loops with all 10 modulators and macro assignments; E2/E3 muted initially). A custom .canvas or WAV-only export remains selectable. The built-in canvas sets its clock to the common Source BPM and keeps track Base tempo fixed (~175.78 BPM); mixed source BPMs cannot all have their original pitch restored. Full 64-note access requires external MIDI. Speed resampling changes pitch until the Tempera track-speed compensation is applied.</li>
+<li><b>Export WT</b>: exports loaded matrix cells as one experimental 64 × 2048 sample mono wavetable WAV at 48 kHz using Cycle scan per cell when possible.</li>
+</ul></div><div class="helpCard helpCardRelease" id="releaseNotesCard" tabindex="-1">
             <h3>Release notes</h3>
             <ul class="helpList" id="releaseNotes"></ul>
           </div>
@@ -3605,7 +3702,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-const APP_VERSION = '2.13.65';
+const APP_VERSION = '2.13.75';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -3769,8 +3866,18 @@ const APP_VERSION = '2.13.65';
   }
 
 
-  const APP_BUILD_DATE = '2026-06-01';
+  const APP_BUILD_DATE = '2026-11-08';
   const CHANGELOG = [
+  '2.13.75 - Header Name field fills available row width.',
+  '2.13.74 - Megabreak filenames include bar selection and source BPM.',
+  '2.13.73 - Compact Megabreak dialog; Import/Export Help split.',
+  '2.13.72 - Tempo changes update untouched cell selections.',
+  '2.13.71 - Megabreak preset: 3 emitters, 10 modulators and macros.',
+  '2.13.70 - Megabreak track Base tempo stays fixed across source BPMs.',
+  '2.13.69 - Built-in Megabreak canvas with custom/WAV options.',
+  '2.13.68 - Megabreak accepts longer loaded matrix loops.',
+  '2.13.67 - Megabreak bar selection and canvas-template support.',
+  '2.13.66 - Megabreak maps 64 loops onto 8 tracks.',
   '2.13.64 - Matrix slicer playhead follows pitch-adjusted playback.',
   '2.13.63 - Segment pitch is non-destructive and keeps source In/Out fixed.',
   '2.13.62 - Segment Normalize uses audible fades, pitch and volume.',
@@ -10394,6 +10501,7 @@ window.addEventListener("resize", () => {
 const exportAllBtn = document.getElementById("exportAllBtn");
   const exportCanvasBtn = document.getElementById("exportCanvasBtn");
   const exportGridBtn = document.getElementById("exportGridBtn");
+  const exportMegabreakBtn = document.getElementById("exportMegabreakBtn");
   const exportWTBtn = document.getElementById("exportWTBtn");
   const helpBtn = document.getElementById("helpBtn");
   const autoPreviewBtn = document.getElementById("autoPreviewBtn");
@@ -12820,6 +12928,7 @@ drawWave(cv, peaks, cell.settings, drawTargetFrames, !!cell.settings.reverse, dr
   function resetCellForOverflowLoad(cell){
     cell.scissors = false;
     cell.selEdited = false;
+    cell._timingAutoSelLen = null; // overflow parts have their own fixed selection/source offsets
     cell.trimStartSrcFrames = null;
     cell.trimLenSrcFrames = null;
     cell._forceCellWave = false;
@@ -12995,6 +13104,7 @@ try{
   cell.editorSelLen = null;
   cell.trimStartSrcFrames = null;
   cell.trimLenSrcFrames = null;
+  cell._timingAutoSelLen = null; // re-established only for a fresh, non-imported default selection
   if (cell.origin && cell.origin.type === "split") cell.origin = null;
       cell.selEdited = false; // selection edits via Apply
 }catch(_e){}
@@ -13072,6 +13182,8 @@ if (!preserveSelection){
   const total = left.length;
   cell.selStartFrames = 0;
   cell.selLenFrames   = Math.max(1, Math.min(cellFrames, total));
+  // Only new sample loads may follow later Tempo changes. Imported selection windows stay fixed.
+  if (!_isImport) cell._timingAutoSelLen = cell.selLenFrames;
 }
 
     
@@ -16949,6 +17061,662 @@ src.onended = () => {
   }
 
 
+
+  // ====== Megabreak: auto-bar prep, rearrangement, optional configured canvas ======
+  // Isolated export path. The 8x8 matrix, normal WAV/Grid and .canvas paths stay unchanged.
+  const MEGABREAK_LOOP_COUNT = 64;
+  const MEGABREAK_SLICE_COUNT = 8;
+  const MEGABREAK_MAX_BAR_SETS = 4;
+  // Embedded from the verified triple-emitter Tempera Megabreak canvas.
+  // Three placed emitters (Original, Stutter, Bounce), ten modulators and macro mappings.
+  // parameters.txt only, no sample audio; the existing FLAC renderer creates fresh tracks.
+  // Kept independent from regular .canvas export, with fixed track Base tempo.
+  const MEGABREAK_BUILTIN_PARAMS_B64 = [
+    "TUkwOjE3Ck1JMToxNwpNSTEwOjE5Ck1JMTE6MApNSTEyOjEKTUkxMzowCk1JMTQ6MwpNSTE1OjE2Ck1JMjoxNwpNSTM6MApNSTQ6MTYKTUk1OjE2",
+    "Ck1JNjoxNgpNSTc6MApNSTg6MTkKTUk5OjE5Ck1MMDoxNApNTDE6MTUKTUwxMDoxNgpNTDExOjAKTUwxMjo0Ck1MMTM6NApNTDE0OjQKTUwxNTo0",
+    "Ck1MMjoxNgpNTDM6MApNTDQ6MTQKTUw1OjE1Ck1MNjoxNgpNTDc6MApNTDg6MTQKTUw5OjE1CmFjdGl2ZUVtaXR0b3I6MAphbXBBdHRhY2s6MC4w",
+    "MTQxNjcxCmFtcERlY2F5OjAKYW1wUmVsZWFzZTowLjAxNDU3CmFtcFN1c3RhaW46MQpjYW52YXNWZXJzaW9uOjIxCmNlbGxFbWl0dGVyMDowCmNl",
+    "bGxFbWl0dGVyMToxCmNlbGxFbWl0dGVyMTA6LTEKY2VsbEVtaXR0ZXIxMTotMQpjZWxsRW1pdHRlcjEyOi0xCmNlbGxFbWl0dGVyMTM6LTEKY2Vs",
+    "bEVtaXR0ZXIxNDotMQpjZWxsRW1pdHRlcjE1Oi0xCmNlbGxFbWl0dGVyMTY6LTEKY2VsbEVtaXR0ZXIxNzotMQpjZWxsRW1pdHRlcjE4Oi0xCmNl",
+    "bGxFbWl0dGVyMTk6LTEKY2VsbEVtaXR0ZXIyOjIKY2VsbEVtaXR0ZXIyMDotMQpjZWxsRW1pdHRlcjIxOi0xCmNlbGxFbWl0dGVyMjI6LTEKY2Vs",
+    "bEVtaXR0ZXIyMzotMQpjZWxsRW1pdHRlcjI0Oi0xCmNlbGxFbWl0dGVyMjU6LTEKY2VsbEVtaXR0ZXIyNjotMQpjZWxsRW1pdHRlcjI3Oi0xCmNl",
+    "bGxFbWl0dGVyMjg6LTEKY2VsbEVtaXR0ZXIyOTotMQpjZWxsRW1pdHRlcjM6LTEKY2VsbEVtaXR0ZXIzMDotMQpjZWxsRW1pdHRlcjMxOi0xCmNl",
+    "bGxFbWl0dGVyMzI6LTEKY2VsbEVtaXR0ZXIzMzotMQpjZWxsRW1pdHRlcjM0Oi0xCmNlbGxFbWl0dGVyMzU6LTEKY2VsbEVtaXR0ZXIzNjotMQpj",
+    "ZWxsRW1pdHRlcjM3Oi0xCmNlbGxFbWl0dGVyMzg6LTEKY2VsbEVtaXR0ZXIzOTotMQpjZWxsRW1pdHRlcjQ6LTEKY2VsbEVtaXR0ZXI0MDotMQpj",
+    "ZWxsRW1pdHRlcjQxOi0xCmNlbGxFbWl0dGVyNDI6LTEKY2VsbEVtaXR0ZXI0MzotMQpjZWxsRW1pdHRlcjQ0Oi0xCmNlbGxFbWl0dGVyNDU6LTEK",
+    "Y2VsbEVtaXR0ZXI0NjotMQpjZWxsRW1pdHRlcjQ3Oi0xCmNlbGxFbWl0dGVyNDg6LTEKY2VsbEVtaXR0ZXI0OTotMQpjZWxsRW1pdHRlcjU6LTEK",
+    "Y2VsbEVtaXR0ZXI1MDotMQpjZWxsRW1pdHRlcjUxOi0xCmNlbGxFbWl0dGVyNTI6LTEKY2VsbEVtaXR0ZXI1MzotMQpjZWxsRW1pdHRlcjU0Oi0x",
+    "CmNlbGxFbWl0dGVyNTU6LTEKY2VsbEVtaXR0ZXI1NjotMQpjZWxsRW1pdHRlcjU3Oi0xCmNlbGxFbWl0dGVyNTg6LTEKY2VsbEVtaXR0ZXI1OTot",
+    "MQpjZWxsRW1pdHRlcjY6LTEKY2VsbEVtaXR0ZXI2MDotMQpjZWxsRW1pdHRlcjYxOi0xCmNlbGxFbWl0dGVyNjI6LTEKY2VsbEVtaXR0ZXI2Mzot",
+    "MQpjZWxsRW1pdHRlcjc6LTEKY2VsbEVtaXR0ZXI4Oi0xCmNlbGxFbWl0dGVyOTotMQpjaG9ydXNEZXB0aDowLjEKY2hvcnVzRmxhbmdlOjAKY2hv",
+    "cnVzTWl4OjAKY2hvcnVzU3BlZWQ6MC4yNQpkZWZhdWx0UGxheU1vZGU6MApkZWdyYWRlQWdlOjAuMjAzNjQ0CmRlZ3JhZGVDb21wcmVzczowLjIw",
+    "MzU3NwpkZWdyYWRlTWl4OjEKZGVncmFkZVNsaXA6MApkZWxheUNvbG9yOjAuNTAwNTUzCmRlbGF5Q29sb3JBY3RpdmU6MQpkZWxheURvdDoxCmRl",
+    "bGF5RmVlZGJhY2s6MC43MDIxOTUKZGVsYXlNaXg6MgpkZWxheVBpbmdQb25nOjEKZGVsYXlTeW5jOjEKZGVsYXlUaW1lOjAuNjA2NzQzCmVmZmVj",
+    "dHNDaGFubmVsU2VuZDoxCmVtaXR0b3IwQ2hvcnVzU2VuZDowCmVtaXR0b3IwRGVsYXlTZW5kOi0wLjQwMzMyNwplbWl0dG9yMERpcmVjdGlvbjow",
+    "CmVtaXR0b3IwRGlyZWN0aW9uU2tpcFRvZ2dsZTowCmVtaXR0b3IwRWZmZWN0c1NlbmQ6MQplbWl0dG9yMEV1Y2xpZFJvdGF0ZTowCmVtaXR0b3Iw",
+    "RXVjbGlkWDoxCmVtaXR0b3IwRXVjbGlkWToxCmVtaXR0b3IwRlhGaWx0ZXJUb2dnbGU6MAplbWl0dG9yMEZhZGVJbjowCmVtaXR0b3IwRmFkZUlu",
+    "RmFkZU91dFRvZ2dsZTowCmVtaXR0b3IwRmFkZU91dDowCmVtaXR0b3IwRmlsdGVyOjEKZW1pdHRvcjBGaWx0ZXJTZW5kOi0wLjQ1OTM5MQplbWl0",
+    "dG9yMEdyYWluQWxpZ246MAplbWl0dG9yMEdyYWluQWxpZ25YOjEKZW1pdHRvcjBHcmFpbkRlbnNpdHk6MQplbWl0dG9yMEdyYWluRGVuc2l0eUpp",
+    "dHRlcjowCmVtaXR0b3IwR3JhaW5FbnZlbG9wZUF0dGFjazoxCmVtaXR0b3IwR3JhaW5GYWRlOjAuMDEzNTYyOAplbWl0dG9yMEdyYWluRmFkZVRp",
+    "bHQ6MC4wMDEyOTk5NAplbWl0dG9yMEdyYWluUGFuOjAuNQplbWl0dG9yMEdyYWluUGFuSml0dGVyOjAKZW1pdHRvcjBHcmFpblBhbk1pZFNpZGU6",
+    "MAplbWl0dG9yMEdyYWluU2l6ZTowLjEyNQplbWl0dG9yMEdyYWluU2l6ZUppdHRlcjowCmVtaXR0b3IwR3JhaW5TaXplTW9kZToxCmVtaXR0b3Iw",
+    "R3JhaW5TaXplVGltZToxMQplbWl0dG9yMExvY2s6MAplbWl0dG9yME1pZGlDaGFubmVsOjAKZW1pdHRvcjBNdXRlOjAKZW1pdHRvcjBOYW1lOk9y",
+    "aWdpbmFsIExvb3BzCmVtaXR0b3IwT2N0YXZlOjMKZW1pdHRvcjBQaXRjaDowCmVtaXR0b3IwUGxhY2VtZW50TW9kZToxCmVtaXR0b3IwUXVhbnRp",
+    "emVBbW91bnQ6MQplbWl0dG9yMFF1YW50aXplTm90ZToxMQplbWl0dG9yMFJlbFg6MAplbWl0dG9yMFJlbFk6MAplbWl0dG9yMFJldmVyYlNlbmQ6",
+    "LTAuMjkyODEKZW1pdHRvcjBTa2lwOjAKZW1pdHRvcjBTcHJheVg6MAplbWl0dG9yMFNwcmF5WTowCmVtaXR0b3IwVGlsdEZpbHRlckNlbnRlcldp",
+    "ZHRoVG9nZ2xlOjAKZW1pdHRvcjBUaWx0RmlsdGVyQ2VudHJlOjAuNQplbWl0dG9yMFRpbHRGaWx0ZXJXaWR0aDowLjUKZW1pdHRvcjBUdW5lU3By",
+    "ZWFkOjAKZW1pdHRvcjBUdW5lU3ByZWFkRmlmdGhTbmFwOjAKZW1pdHRvcjBUdW5lU3ByZWFkT2N0YXZlU25hcDowCmVtaXR0b3IwVHdvTGFuZTow",
+    "CmVtaXR0b3IwVm9sdW1lOjEKZW1pdHRvcjFDaG9ydXNTZW5kOjAKZW1pdHRvcjFEZWxheVNlbmQ6LTAuNDAzMzI3CmVtaXR0b3IxRGlyZWN0aW9u",
+    "OjAKZW1pdHRvcjFEaXJlY3Rpb25Ta2lwVG9nZ2xlOjAKZW1pdHRvcjFFZmZlY3RzU2VuZDoxCmVtaXR0b3IxRXVjbGlkUm90YXRlOjAKZW1pdHRv",
+    "cjFFdWNsaWRYOjEKZW1pdHRvcjFFdWNsaWRZOjEKZW1pdHRvcjFGWEZpbHRlclRvZ2dsZTowCmVtaXR0b3IxRmFkZUluOjAKZW1pdHRvcjFGYWRl",
+    "SW5GYWRlT3V0VG9nZ2xlOjAKZW1pdHRvcjFGYWRlT3V0OjAKZW1pdHRvcjFGaWx0ZXI6MQplbWl0dG9yMUZpbHRlclNlbmQ6LTAuNDU5MzkxCmVt",
+    "aXR0b3IxR3JhaW5BbGlnbjowCmVtaXR0b3IxR3JhaW5BbGlnblg6MQplbWl0dG9yMUdyYWluRGVuc2l0eToxCmVtaXR0b3IxR3JhaW5EZW5zaXR5",
+    "Sml0dGVyOjAKZW1pdHRvcjFHcmFpbkVudmVsb3BlQXR0YWNrOjEKZW1pdHRvcjFHcmFpbkZhZGU6MC4wMTM1NjI4CmVtaXR0b3IxR3JhaW5GYWRl",
+    "VGlsdDowLjAwMTI5OTk0CmVtaXR0b3IxR3JhaW5QYW46MC40OTg3MzcKZW1pdHRvcjFHcmFpblBhbkppdHRlcjowCmVtaXR0b3IxR3JhaW5QYW5N",
+    "aWRTaWRlOjAKZW1pdHRvcjFHcmFpblNpemU6MC4wNjI1CmVtaXR0b3IxR3JhaW5TaXplSml0dGVyOjAKZW1pdHRvcjFHcmFpblNpemVNb2RlOjEK",
+    "ZW1pdHRvcjFHcmFpblNpemVUaW1lOjE2CmVtaXR0b3IxTG9jazowCmVtaXR0b3IxTWlkaUNoYW5uZWw6MAplbWl0dG9yMU11dGU6MQplbWl0dG9y",
+    "MU5hbWU6U3R1dHRlciBMb29wcwplbWl0dG9yMU9jdGF2ZTozCmVtaXR0b3IxUGl0Y2g6MAplbWl0dG9yMVBsYWNlbWVudE1vZGU6MQplbWl0dG9y",
+    "MVF1YW50aXplQW1vdW50OjEKZW1pdHRvcjFRdWFudGl6ZU5vdGU6MTkKZW1pdHRvcjFSZWxYOi0wLjk5NzQ3MwplbWl0dG9yMVJlbFk6MAplbWl0",
+    "dG9yMVJldmVyYlNlbmQ6LTAuMjkyODEKZW1pdHRvcjFTa2lwOjAKZW1pdHRvcjFTcHJheVg6MAplbWl0dG9yMVNwcmF5WTowCmVtaXR0b3IxVGls",
+    "dEZpbHRlckNlbnRlcldpZHRoVG9nZ2xlOjAKZW1pdHRvcjFUaWx0RmlsdGVyQ2VudHJlOjAuNQplbWl0dG9yMVRpbHRGaWx0ZXJXaWR0aDowLjUK",
+    "ZW1pdHRvcjFUdW5lU3ByZWFkOjAKZW1pdHRvcjFUdW5lU3ByZWFkRmlmdGhTbmFwOjAKZW1pdHRvcjFUdW5lU3ByZWFkT2N0YXZlU25hcDowCmVt",
+    "aXR0b3IxVHdvTGFuZTowCmVtaXR0b3IxVm9sdW1lOjAKZW1pdHRvcjJDaG9ydXNTZW5kOjAKZW1pdHRvcjJEZWxheVNlbmQ6LTAuNDAzMzI3CmVt",
+    "aXR0b3IyRGlyZWN0aW9uOjAuMTUyMjEzCmVtaXR0b3IyRGlyZWN0aW9uU2tpcFRvZ2dsZTowCmVtaXR0b3IyRWZmZWN0c1NlbmQ6MQplbWl0dG9y",
+    "MkV1Y2xpZFJvdGF0ZToxCmVtaXR0b3IyRXVjbGlkWDozCmVtaXR0b3IyRXVjbGlkWTo2CmVtaXR0b3IyRlhGaWx0ZXJUb2dnbGU6MAplbWl0dG9y",
+    "MkZhZGVJbjowCmVtaXR0b3IyRmFkZUluRmFkZU91dFRvZ2dsZTowCmVtaXR0b3IyRmFkZU91dDowCmVtaXR0b3IyRmlsdGVyOjEKZW1pdHRvcjJG",
+    "aWx0ZXJTZW5kOi0wLjQ1OTM5MQplbWl0dG9yMkdyYWluQWxpZ246MAplbWl0dG9yMkdyYWluQWxpZ25YOjEKZW1pdHRvcjJHcmFpbkRlbnNpdHk6",
+    "MQplbWl0dG9yMkdyYWluRGVuc2l0eUppdHRlcjowCmVtaXR0b3IyR3JhaW5FbnZlbG9wZUF0dGFjazoxCmVtaXR0b3IyR3JhaW5GYWRlOjAuMDIz",
+    "MDk3MQplbWl0dG9yMkdyYWluRmFkZVRpbHQ6MC4wMDEyOTk5NAplbWl0dG9yMkdyYWluUGFuOjAuMTIzMzg0CmVtaXR0b3IyR3JhaW5QYW5KaXR0",
+    "ZXI6MC43ODE5ODcKZW1pdHRvcjJHcmFpblBhbk1pZFNpZGU6MQplbWl0dG9yMkdyYWluU2l6ZTowLjEyNQplbWl0dG9yMkdyYWluU2l6ZUppdHRl",
+    "cjowCmVtaXR0b3IyR3JhaW5TaXplTW9kZToxCmVtaXR0b3IyR3JhaW5TaXplVGltZToxNgplbWl0dG9yMkxvY2s6MAplbWl0dG9yMk1pZGlDaGFu",
+    "bmVsOjAKZW1pdHRvcjJNdXRlOjEKZW1pdHRvcjJOYW1lOkJvdW5jZSBMb29wcwplbWl0dG9yMk9jdGF2ZTozCmVtaXR0b3IyUGl0Y2g6MAplbWl0",
+    "dG9yMlBsYWNlbWVudE1vZGU6MQplbWl0dG9yMlF1YW50aXplQW1vdW50OjEKZW1pdHRvcjJRdWFudGl6ZU5vdGU6MTEKZW1pdHRvcjJSZWxYOi0y",
+    "Ljk5Nzc5CmVtaXR0b3IyUmVsWTowLjAwMDUzNzE0MgplbWl0dG9yMlJldmVyYlNlbmQ6LTAuMjkyODEKZW1pdHRvcjJTa2lwOjAuNDk4NzM3CmVt",
+    "aXR0b3IyU3ByYXlYOjAKZW1pdHRvcjJTcHJheVk6MAplbWl0dG9yMlRpbHRGaWx0ZXJDZW50ZXJXaWR0aFRvZ2dsZTowCmVtaXR0b3IyVGlsdEZp",
+    "bHRlckNlbnRyZTowLjUKZW1pdHRvcjJUaWx0RmlsdGVyV2lkdGg6MC41CmVtaXR0b3IyVHVuZVNwcmVhZDowLjE2MTAxNwplbWl0dG9yMlR1bmVT",
+    "cHJlYWRGaWZ0aFNuYXA6MQplbWl0dG9yMlR1bmVTcHJlYWRPY3RhdmVTbmFwOjEKZW1pdHRvcjJUd29MYW5lOjAKZW1pdHRvcjJWb2x1bWU6MC44",
+    "MjI0MDcKZW1pdHRvcjNDaG9ydXNTZW5kOjAKZW1pdHRvcjNEZWxheVNlbmQ6MAplbWl0dG9yM0RpcmVjdGlvbjowCmVtaXR0b3IzRGlyZWN0aW9u",
+    "U2tpcFRvZ2dsZTowCmVtaXR0b3IzRWZmZWN0c1NlbmQ6MQplbWl0dG9yM0V1Y2xpZFJvdGF0ZTowCmVtaXR0b3IzRXVjbGlkWDoxCmVtaXR0b3Iz",
+    "RXVjbGlkWToxCmVtaXR0b3IzRlhGaWx0ZXJUb2dnbGU6MAplbWl0dG9yM0ZhZGVJbjowCmVtaXR0b3IzRmFkZUluRmFkZU91dFRvZ2dsZTowCmVt",
+    "aXR0b3IzRmFkZU91dDowCmVtaXR0b3IzRmlsdGVyOjEKZW1pdHRvcjNGaWx0ZXJTZW5kOjAKZW1pdHRvcjNHcmFpbkFsaWduOjAKZW1pdHRvcjNH",
+    "cmFpbkFsaWduWDoxCmVtaXR0b3IzR3JhaW5EZW5zaXR5OjEKZW1pdHRvcjNHcmFpbkRlbnNpdHlKaXR0ZXI6MAplbWl0dG9yM0dyYWluRW52ZWxv",
+    "cGVBdHRhY2s6MAplbWl0dG9yM0dyYWluRmFkZTowLjUKZW1pdHRvcjNHcmFpbkZhZGVUaWx0OjAKZW1pdHRvcjNHcmFpblBhbjowLjUKZW1pdHRv",
+    "cjNHcmFpblBhbkppdHRlcjowCmVtaXR0b3IzR3JhaW5QYW5NaWRTaWRlOjAKZW1pdHRvcjNHcmFpblNpemU6MQplbWl0dG9yM0dyYWluU2l6ZUpp",
+    "dHRlcjowCmVtaXR0b3IzR3JhaW5TaXplTW9kZTowCmVtaXR0b3IzR3JhaW5TaXplVGltZTo3CmVtaXR0b3IzTG9jazowCmVtaXR0b3IzTWlkaUNo",
+    "YW5uZWw6MAplbWl0dG9yM011dGU6MAplbWl0dG9yM05hbWU6RW1pdHRlciA0CmVtaXR0b3IzT2N0YXZlOjMKZW1pdHRvcjNQaXRjaDowCmVtaXR0",
+    "b3IzUGxhY2VtZW50TW9kZTowCmVtaXR0b3IzUXVhbnRpemVBbW91bnQ6MAplbWl0dG9yM1F1YW50aXplTm90ZTo2CmVtaXR0b3IzUmVsWDowCmVt",
+    "aXR0b3IzUmVsWTowCmVtaXR0b3IzUmV2ZXJiU2VuZDowCmVtaXR0b3IzU2tpcDowCmVtaXR0b3IzU3ByYXlYOjAKZW1pdHRvcjNTcHJheVk6MApl",
+    "bWl0dG9yM1RpbHRGaWx0ZXJDZW50ZXJXaWR0aFRvZ2dsZTowCmVtaXR0b3IzVGlsdEZpbHRlckNlbnRyZTowLjUKZW1pdHRvcjNUaWx0RmlsdGVy",
+    "V2lkdGg6MC41CmVtaXR0b3IzVHVuZVNwcmVhZDowCmVtaXR0b3IzVHVuZVNwcmVhZEZpZnRoU25hcDowCmVtaXR0b3IzVHVuZVNwcmVhZE9jdGF2",
+    "ZVNuYXA6MAplbWl0dG9yM1R3b0xhbmU6MAplbWl0dG9yM1ZvbHVtZTowLjkxMjkyOAplbWl0dG9yUGxheU1vZGU6MApmaWx0ZXJDdXRvZmY6MC4y",
+    "MTMyMTkKZmlsdGVyS2V5dHJhY2s6MC42OTc3MjIKZmlsdGVyUmVzb25hbmNlOjAuMjc3ODExCmZpbHRlclR5cGU6NQpoZWxkTm90ZUNoYW5uZWww",
+    "Oi0xCmhlbGROb3RlQ2hhbm5lbDE6LTEKaGVsZE5vdGVDaGFubmVsMTA6LTEKaGVsZE5vdGVDaGFubmVsMTE6LTEKaGVsZE5vdGVDaGFubmVsMTI6",
+    "LTEKaGVsZE5vdGVDaGFubmVsMTM6LTEKaGVsZE5vdGVDaGFubmVsMTQ6LTEKaGVsZE5vdGVDaGFubmVsMTU6LTEKaGVsZE5vdGVDaGFubmVsMTY6",
+    "LTEKaGVsZE5vdGVDaGFubmVsMTc6LTEKaGVsZE5vdGVDaGFubmVsMTg6LTEKaGVsZE5vdGVDaGFubmVsMTk6LTEKaGVsZE5vdGVDaGFubmVsMjot",
+    "MQpoZWxkTm90ZUNoYW5uZWwyMDotMQpoZWxkTm90ZUNoYW5uZWwyMTotMQpoZWxkTm90ZUNoYW5uZWwyMjotMQpoZWxkTm90ZUNoYW5uZWwyMzot",
+    "MQpoZWxkTm90ZUNoYW5uZWwyNDotMQpoZWxkTm90ZUNoYW5uZWwyNTotMQpoZWxkTm90ZUNoYW5uZWwyNjotMQpoZWxkTm90ZUNoYW5uZWwyNzot",
+    "MQpoZWxkTm90ZUNoYW5uZWwyODotMQpoZWxkTm90ZUNoYW5uZWwyOTotMQpoZWxkTm90ZUNoYW5uZWwzOi0xCmhlbGROb3RlQ2hhbm5lbDMwOi0x",
+    "CmhlbGROb3RlQ2hhbm5lbDMxOi0xCmhlbGROb3RlQ2hhbm5lbDMyOi0xCmhlbGROb3RlQ2hhbm5lbDMzOi0xCmhlbGROb3RlQ2hhbm5lbDM0Oi0x",
+    "CmhlbGROb3RlQ2hhbm5lbDM1Oi0xCmhlbGROb3RlQ2hhbm5lbDM2Oi0xCmhlbGROb3RlQ2hhbm5lbDM3Oi0xCmhlbGROb3RlQ2hhbm5lbDM4Oi0x",
+    "CmhlbGROb3RlQ2hhbm5lbDM5Oi0xCmhlbGROb3RlQ2hhbm5lbDQ6LTEKaGVsZE5vdGVDaGFubmVsNDA6LTEKaGVsZE5vdGVDaGFubmVsNDE6LTEK",
+    "aGVsZE5vdGVDaGFubmVsNDI6LTEKaGVsZE5vdGVDaGFubmVsNDM6LTEKaGVsZE5vdGVDaGFubmVsNDQ6LTEKaGVsZE5vdGVDaGFubmVsNDU6LTEK",
+    "aGVsZE5vdGVDaGFubmVsNDY6LTEKaGVsZE5vdGVDaGFubmVsNDc6LTEKaGVsZE5vdGVDaGFubmVsNDg6LTEKaGVsZE5vdGVDaGFubmVsNDk6LTEK",
+    "aGVsZE5vdGVDaGFubmVsNTotMQpoZWxkTm90ZUNoYW5uZWw1MDotMQpoZWxkTm90ZUNoYW5uZWw1MTotMQpoZWxkTm90ZUNoYW5uZWw1MjotMQpo",
+    "ZWxkTm90ZUNoYW5uZWw1MzotMQpoZWxkTm90ZUNoYW5uZWw1NDotMQpoZWxkTm90ZUNoYW5uZWw1NTotMQpoZWxkTm90ZUNoYW5uZWw1NjotMQpo",
+    "ZWxkTm90ZUNoYW5uZWw1NzotMQpoZWxkTm90ZUNoYW5uZWw1ODotMQpoZWxkTm90ZUNoYW5uZWw1OTotMQpoZWxkTm90ZUNoYW5uZWw2Oi0xCmhl",
+    "bGROb3RlQ2hhbm5lbDYwOi0xCmhlbGROb3RlQ2hhbm5lbDYxOi0xCmhlbGROb3RlQ2hhbm5lbDYyOi0xCmhlbGROb3RlQ2hhbm5lbDYzOi0xCmhl",
+    "bGROb3RlQ2hhbm5lbDc6LTEKaGVsZE5vdGVDaGFubmVsODotMQpoZWxkTm90ZUNoYW5uZWw5Oi0xCmhlbGROb3RlTnVtYmVyMDotMQpoZWxkTm90",
+    "ZU51bWJlcjE6LTEKaGVsZE5vdGVOdW1iZXIxMDotMQpoZWxkTm90ZU51bWJlcjExOi0xCmhlbGROb3RlTnVtYmVyMTI6LTEKaGVsZE5vdGVOdW1i",
+    "ZXIxMzotMQpoZWxkTm90ZU51bWJlcjE0Oi0xCmhlbGROb3RlTnVtYmVyMTU6LTEKaGVsZE5vdGVOdW1iZXIxNjotMQpoZWxkTm90ZU51bWJlcjE3",
+    "Oi0xCmhlbGROb3RlTnVtYmVyMTg6LTEKaGVsZE5vdGVOdW1iZXIxOTotMQpoZWxkTm90ZU51bWJlcjI6LTEKaGVsZE5vdGVOdW1iZXIyMDotMQpo",
+    "ZWxkTm90ZU51bWJlcjIxOi0xCmhlbGROb3RlTnVtYmVyMjI6LTEKaGVsZE5vdGVOdW1iZXIyMzotMQpoZWxkTm90ZU51bWJlcjI0Oi0xCmhlbGRO",
+    "b3RlTnVtYmVyMjU6LTEKaGVsZE5vdGVOdW1iZXIyNjotMQpoZWxkTm90ZU51bWJlcjI3Oi0xCmhlbGROb3RlTnVtYmVyMjg6LTEKaGVsZE5vdGVO",
+    "dW1iZXIyOTotMQpoZWxkTm90ZU51bWJlcjM6LTEKaGVsZE5vdGVOdW1iZXIzMDotMQpoZWxkTm90ZU51bWJlcjMxOi0xCmhlbGROb3RlTnVtYmVy",
+    "MzI6LTEKaGVsZE5vdGVOdW1iZXIzMzotMQpoZWxkTm90ZU51bWJlcjM0Oi0xCmhlbGROb3RlTnVtYmVyMzU6LTEKaGVsZE5vdGVOdW1iZXIzNjot",
+    "MQpoZWxkTm90ZU51bWJlcjM3Oi0xCmhlbGROb3RlTnVtYmVyMzg6LTEKaGVsZE5vdGVOdW1iZXIzOTotMQpoZWxkTm90ZU51bWJlcjQ6LTEKaGVs",
+    "ZE5vdGVOdW1iZXI0MDotMQpoZWxkTm90ZU51bWJlcjQxOi0xCmhlbGROb3RlTnVtYmVyNDI6LTEKaGVsZE5vdGVOdW1iZXI0MzotMQpoZWxkTm90",
+    "ZU51bWJlcjQ0Oi0xCmhlbGROb3RlTnVtYmVyNDU6LTEKaGVsZE5vdGVOdW1iZXI0NjotMQpoZWxkTm90ZU51bWJlcjQ3Oi0xCmhlbGROb3RlTnVt",
+    "YmVyNDg6LTEKaGVsZE5vdGVOdW1iZXI0OTotMQpoZWxkTm90ZU51bWJlcjU6LTEKaGVsZE5vdGVOdW1iZXI1MDotMQpoZWxkTm90ZU51bWJlcjUx",
+    "Oi0xCmhlbGROb3RlTnVtYmVyNTI6LTEKaGVsZE5vdGVOdW1iZXI1MzotMQpoZWxkTm90ZU51bWJlcjU0Oi0xCmhlbGROb3RlTnVtYmVyNTU6LTEK",
+    "aGVsZE5vdGVOdW1iZXI1NjotMQpoZWxkTm90ZU51bWJlcjU3Oi0xCmhlbGROb3RlTnVtYmVyNTg6LTEKaGVsZE5vdGVOdW1iZXI1OTotMQpoZWxk",
+    "Tm90ZU51bWJlcjY6LTEKaGVsZE5vdGVOdW1iZXI2MDotMQpoZWxkTm90ZU51bWJlcjYxOi0xCmhlbGROb3RlTnVtYmVyNjI6LTEKaGVsZE5vdGVO",
+    "dW1iZXI2MzotMQpoZWxkTm90ZU51bWJlcjc6LTEKaGVsZE5vdGVOdW1iZXI4Oi0xCmhlbGROb3RlTnVtYmVyOTotMQprZXlib2FyZEVtaXR0ZXJU",
+    "YXJnZXQ6MTUKa2V5Ym9hcmRIb2xkOjEKbWFudWFsQ29udHJvbDA6MC41Cm1hbnVhbENvbnRyb2wxOjAuNQptYW51YWxDb250cm9sMjowLjUKbWFu",
+    "dWFsQ29udHJvbDM6MC41Cm1hc3RlclZvbHVtZTowLjQ5MjE4OAptb2R1bGF0b3IwQW1vdW50OjEKbW9kdWxhdG9yMERlc3RpbmF0aW9uOjMKbW9k",
+    "dWxhdG9yMEZyZWU6MAptb2R1bGF0b3IwUDE6MC4yMjg4NQptb2R1bGF0b3IwUDI6MAptb2R1bGF0b3IwUG9sYXJpdHk6MAptb2R1bGF0b3IwUXVh",
+    "bnRpemU6MAptb2R1bGF0b3IwUmV0cmlnZ2VyOjAKbW9kdWxhdG9yMFN0ZXAwOjAuNQptb2R1bGF0b3IwU3RlcDE6MC41Cm1vZHVsYXRvcjBTdGVw",
+    "MTA6MC41Cm1vZHVsYXRvcjBTdGVwMTE6MC41Cm1vZHVsYXRvcjBTdGVwMTI6MC41Cm1vZHVsYXRvcjBTdGVwMTM6MC41Cm1vZHVsYXRvcjBTdGVw",
+    "MTQ6MC41Cm1vZHVsYXRvcjBTdGVwMTU6MC41Cm1vZHVsYXRvcjBTdGVwMjowLjUKbW9kdWxhdG9yMFN0ZXAzOjAuNQptb2R1bGF0b3IwU3RlcDQ6",
+    "MC41Cm1vZHVsYXRvcjBTdGVwNTowLjUKbW9kdWxhdG9yMFN0ZXA2OjAuNQptb2R1bGF0b3IwU3RlcDc6MC41Cm1vZHVsYXRvcjBTdGVwODowLjUK",
+    "bW9kdWxhdG9yMFN0ZXA5OjAuNQptb2R1bGF0b3IwU3RlcENvdW50OjgKbW9kdWxhdG9yMFN5bmM6MQptb2R1bGF0b3IwVHlwZTo1Cm1vZHVsYXRv",
+    "cjFBbW91bnQ6MQptb2R1bGF0b3IxRGVzdGluYXRpb246NAptb2R1bGF0b3IxRnJlZTowCm1vZHVsYXRvcjFQMTowLjI4NTQyNAptb2R1bGF0b3Ix",
+    "UDI6MC43OTE2OAptb2R1bGF0b3IxUG9sYXJpdHk6MQptb2R1bGF0b3IxUXVhbnRpemU6MAptb2R1bGF0b3IxUmV0cmlnZ2VyOjAKbW9kdWxhdG9y",
+    "MVN0ZXAwOjAuNQptb2R1bGF0b3IxU3RlcDE6MC41Cm1vZHVsYXRvcjFTdGVwMTA6MC41Cm1vZHVsYXRvcjFTdGVwMTE6MC41Cm1vZHVsYXRvcjFT",
+    "dGVwMTI6MC41Cm1vZHVsYXRvcjFTdGVwMTM6MC41Cm1vZHVsYXRvcjFTdGVwMTQ6MC41Cm1vZHVsYXRvcjFTdGVwMTU6MC41Cm1vZHVsYXRvcjFT",
+    "dGVwMjowLjUKbW9kdWxhdG9yMVN0ZXAzOjAuNQptb2R1bGF0b3IxU3RlcDQ6MC41Cm1vZHVsYXRvcjFTdGVwNTowLjUKbW9kdWxhdG9yMVN0ZXA2",
+    "OjAuNQptb2R1bGF0b3IxU3RlcDc6MC41Cm1vZHVsYXRvcjFTdGVwODowLjUKbW9kdWxhdG9yMVN0ZXA5OjAuNQptb2R1bGF0b3IxU3RlcENvdW50",
+    "OjgKbW9kdWxhdG9yMVN5bmM6MQptb2R1bGF0b3IxVHlwZToxMQptb2R1bGF0b3IyQW1vdW50OjEKbW9kdWxhdG9yMkRlc3RpbmF0aW9uOjEzCm1v",
+    "ZHVsYXRvcjJGcmVlOjAKbW9kdWxhdG9yMlAxOjAuMjI0NDU2Cm1vZHVsYXRvcjJQMjowCm1vZHVsYXRvcjJQb2xhcml0eTowCm1vZHVsYXRvcjJR",
+    "dWFudGl6ZTowCm1vZHVsYXRvcjJSZXRyaWdnZXI6MAptb2R1bGF0b3IyU3RlcDA6MC41Cm1vZHVsYXRvcjJTdGVwMTowLjUKbW9kdWxhdG9yMlN0",
+    "ZXAxMDowLjUKbW9kdWxhdG9yMlN0ZXAxMTowLjUKbW9kdWxhdG9yMlN0ZXAxMjowLjUKbW9kdWxhdG9yMlN0ZXAxMzowLjUKbW9kdWxhdG9yMlN0",
+    "ZXAxNDowLjUKbW9kdWxhdG9yMlN0ZXAxNTowLjUKbW9kdWxhdG9yMlN0ZXAyOjAuNQptb2R1bGF0b3IyU3RlcDM6MC41Cm1vZHVsYXRvcjJTdGVw",
+    "NDowLjUKbW9kdWxhdG9yMlN0ZXA1OjAuNQptb2R1bGF0b3IyU3RlcDY6MC41Cm1vZHVsYXRvcjJTdGVwNzowLjUKbW9kdWxhdG9yMlN0ZXA4OjAu",
+    "NQptb2R1bGF0b3IyU3RlcDk6MC41Cm1vZHVsYXRvcjJTdGVwQ291bnQ6OAptb2R1bGF0b3IyU3luYzoxCm1vZHVsYXRvcjJUeXBlOjUKbW9kdWxh",
+    "dG9yM0Ftb3VudDoxCm1vZHVsYXRvcjNEZXN0aW5hdGlvbjoxNAptb2R1bGF0b3IzRnJlZTowCm1vZHVsYXRvcjNQMTowLjI4NDMyOQptb2R1bGF0",
+    "b3IzUDI6MC43OTIzNTEKbW9kdWxhdG9yM1BvbGFyaXR5OjEKbW9kdWxhdG9yM1F1YW50aXplOjAKbW9kdWxhdG9yM1JldHJpZ2dlcjowCm1vZHVs",
+    "YXRvcjNTdGVwMDowLjUKbW9kdWxhdG9yM1N0ZXAxOjAuNQptb2R1bGF0b3IzU3RlcDEwOjAuNQptb2R1bGF0b3IzU3RlcDExOjAuNQptb2R1bGF0",
+    "b3IzU3RlcDEyOjAuNQptb2R1bGF0b3IzU3RlcDEzOjAuNQptb2R1bGF0b3IzU3RlcDE0OjAuNQptb2R1bGF0b3IzU3RlcDE1OjAuNQptb2R1bGF0",
+    "b3IzU3RlcDI6MC41Cm1vZHVsYXRvcjNTdGVwMzowLjUKbW9kdWxhdG9yM1N0ZXA0OjAuNQptb2R1bGF0b3IzU3RlcDU6MC41Cm1vZHVsYXRvcjNT",
+    "dGVwNjowLjUKbW9kdWxhdG9yM1N0ZXA3OjAuNQptb2R1bGF0b3IzU3RlcDg6MC41Cm1vZHVsYXRvcjNTdGVwOTowLjUKbW9kdWxhdG9yM1N0ZXBD",
+    "b3VudDo4Cm1vZHVsYXRvcjNTeW5jOjEKbW9kdWxhdG9yM1R5cGU6MTEKbW9kdWxhdG9yNEFtb3VudDowLjAwMDE3NzcwOQptb2R1bGF0b3I0RGVz",
+    "dGluYXRpb246MTIKbW9kdWxhdG9yNEZyZWU6MAptb2R1bGF0b3I0UDE6MC4xMzcxMDkKbW9kdWxhdG9yNFAyOjAKbW9kdWxhdG9yNFBvbGFyaXR5",
+    "OjAKbW9kdWxhdG9yNFF1YW50aXplOjAKbW9kdWxhdG9yNFJldHJpZ2dlcjowCm1vZHVsYXRvcjRTdGVwMDowCm1vZHVsYXRvcjRTdGVwMTowCm1v",
+    "ZHVsYXRvcjRTdGVwMTA6MAptb2R1bGF0b3I0U3RlcDExOjAKbW9kdWxhdG9yNFN0ZXAxMjowCm1vZHVsYXRvcjRTdGVwMTM6MAptb2R1bGF0b3I0",
+    "U3RlcDE0OjAKbW9kdWxhdG9yNFN0ZXAxNToxCm1vZHVsYXRvcjRTdGVwMjowCm1vZHVsYXRvcjRTdGVwMzowCm1vZHVsYXRvcjRTdGVwNDowCm1v",
+    "ZHVsYXRvcjRTdGVwNTowLjY2ODg3Nwptb2R1bGF0b3I0U3RlcDY6MC43NzI0NzgKbW9kdWxhdG9yNFN0ZXA3OjEKbW9kdWxhdG9yNFN0ZXA4OjAK",
+    "bW9kdWxhdG9yNFN0ZXA5OjAKbW9kdWxhdG9yNFN0ZXBDb3VudDoxNgptb2R1bGF0b3I0U3luYzoxCm1vZHVsYXRvcjRUeXBlOjEyCm1vZHVsYXRv",
+    "cjVBbW91bnQ6MC43ODc0MjYKbW9kdWxhdG9yNURlc3RpbmF0aW9uOjU0Cm1vZHVsYXRvcjVGcmVlOjAKbW9kdWxhdG9yNVAxOjAuNjIyNDgxCm1v",
+    "ZHVsYXRvcjVQMjowCm1vZHVsYXRvcjVQb2xhcml0eTowCm1vZHVsYXRvcjVRdWFudGl6ZTowCm1vZHVsYXRvcjVSZXRyaWdnZXI6MAptb2R1bGF0",
+    "b3I1U3RlcDA6MC41Cm1vZHVsYXRvcjVTdGVwMTowLjUKbW9kdWxhdG9yNVN0ZXAxMDowLjUKbW9kdWxhdG9yNVN0ZXAxMTowLjUKbW9kdWxhdG9y",
+    "NVN0ZXAxMjowLjUKbW9kdWxhdG9yNVN0ZXAxMzowLjUKbW9kdWxhdG9yNVN0ZXAxNDowLjUKbW9kdWxhdG9yNVN0ZXAxNTowLjUKbW9kdWxhdG9y",
+    "NVN0ZXAyOjAuNQptb2R1bGF0b3I1U3RlcDM6MC41Cm1vZHVsYXRvcjVTdGVwNDowLjUKbW9kdWxhdG9yNVN0ZXA1OjAuNQptb2R1bGF0b3I1U3Rl",
+    "cDY6MC41Cm1vZHVsYXRvcjVTdGVwNzowLjUKbW9kdWxhdG9yNVN0ZXA4OjAuNQptb2R1bGF0b3I1U3RlcDk6MC41Cm1vZHVsYXRvcjVTdGVwQ291",
+    "bnQ6OAptb2R1bGF0b3I1U3luYzoxCm1vZHVsYXRvcjVUeXBlOjYKbW9kdWxhdG9yNkFtb3VudDowLjE3Mjg5Mwptb2R1bGF0b3I2RGVzdGluYXRp",
+    "b246MTcKbW9kdWxhdG9yNkZyZWU6MAptb2R1bGF0b3I2UDE6MC4zODk5NjUKbW9kdWxhdG9yNlAyOjAKbW9kdWxhdG9yNlBvbGFyaXR5OjAKbW9k",
+    "dWxhdG9yNlF1YW50aXplOjAKbW9kdWxhdG9yNlJldHJpZ2dlcjowCm1vZHVsYXRvcjZTdGVwMDowLjUKbW9kdWxhdG9yNlN0ZXAxOjAuNQptb2R1",
+    "bGF0b3I2U3RlcDEwOjAuNQptb2R1bGF0b3I2U3RlcDExOjAuNQptb2R1bGF0b3I2U3RlcDEyOjAuNQptb2R1bGF0b3I2U3RlcDEzOjAuNQptb2R1",
+    "bGF0b3I2U3RlcDE0OjAuNQptb2R1bGF0b3I2U3RlcDE1OjAuNQptb2R1bGF0b3I2U3RlcDI6MC41Cm1vZHVsYXRvcjZTdGVwMzowLjUKbW9kdWxh",
+    "dG9yNlN0ZXA0OjAuNQptb2R1bGF0b3I2U3RlcDU6MC41Cm1vZHVsYXRvcjZTdGVwNjowLjUKbW9kdWxhdG9yNlN0ZXA3OjAuNQptb2R1bGF0b3I2",
+    "U3RlcDg6MC41Cm1vZHVsYXRvcjZTdGVwOTowLjUKbW9kdWxhdG9yNlN0ZXBDb3VudDo4Cm1vZHVsYXRvcjZTeW5jOjEKbW9kdWxhdG9yNlR5cGU6",
+    "Ngptb2R1bGF0b3I3QW1vdW50OjAuMTk5NjgzCm1vZHVsYXRvcjdEZXN0aW5hdGlvbjo1Ngptb2R1bGF0b3I3RnJlZTowCm1vZHVsYXRvcjdQMTow",
+    "LjE4Mzc3Cm1vZHVsYXRvcjdQMjowCm1vZHVsYXRvcjdQb2xhcml0eTowCm1vZHVsYXRvcjdRdWFudGl6ZTowCm1vZHVsYXRvcjdSZXRyaWdnZXI6",
+    "MAptb2R1bGF0b3I3U3RlcDA6MC41Cm1vZHVsYXRvcjdTdGVwMTowLjUKbW9kdWxhdG9yN1N0ZXAxMDowLjUKbW9kdWxhdG9yN1N0ZXAxMTowLjUK",
+    "bW9kdWxhdG9yN1N0ZXAxMjowLjUKbW9kdWxhdG9yN1N0ZXAxMzowLjUKbW9kdWxhdG9yN1N0ZXAxNDowLjUKbW9kdWxhdG9yN1N0ZXAxNTowLjUK",
+    "bW9kdWxhdG9yN1N0ZXAyOjAuNQptb2R1bGF0b3I3U3RlcDM6MC41Cm1vZHVsYXRvcjdTdGVwNDowLjUKbW9kdWxhdG9yN1N0ZXA1OjAuNQptb2R1",
+    "bGF0b3I3U3RlcDY6MC41Cm1vZHVsYXRvcjdTdGVwNzowLjUKbW9kdWxhdG9yN1N0ZXA4OjAuNQptb2R1bGF0b3I3U3RlcDk6MC41Cm1vZHVsYXRv",
+    "cjdTdGVwQ291bnQ6OAptb2R1bGF0b3I3U3luYzoxCm1vZHVsYXRvcjdUeXBlOjYKbW9kdWxhdG9yOEFtb3VudDoxCm1vZHVsYXRvcjhEZXN0aW5h",
+    "dGlvbjoyMwptb2R1bGF0b3I4RnJlZTowCm1vZHVsYXRvcjhQMTowLjIzNTQwMwptb2R1bGF0b3I4UDI6MAptb2R1bGF0b3I4UG9sYXJpdHk6MApt",
+    "b2R1bGF0b3I4UXVhbnRpemU6MAptb2R1bGF0b3I4UmV0cmlnZ2VyOjAKbW9kdWxhdG9yOFN0ZXAwOjAuNQptb2R1bGF0b3I4U3RlcDE6MC41Cm1v",
+    "ZHVsYXRvcjhTdGVwMTA6MC41Cm1vZHVsYXRvcjhTdGVwMTE6MC41Cm1vZHVsYXRvcjhTdGVwMTI6MC41Cm1vZHVsYXRvcjhTdGVwMTM6MC41Cm1v",
+    "ZHVsYXRvcjhTdGVwMTQ6MC41Cm1vZHVsYXRvcjhTdGVwMTU6MC41Cm1vZHVsYXRvcjhTdGVwMjowLjUKbW9kdWxhdG9yOFN0ZXAzOjAuNQptb2R1",
+    "bGF0b3I4U3RlcDQ6MC41Cm1vZHVsYXRvcjhTdGVwNTowLjUKbW9kdWxhdG9yOFN0ZXA2OjAuNQptb2R1bGF0b3I4U3RlcDc6MC41Cm1vZHVsYXRv",
+    "cjhTdGVwODowLjUKbW9kdWxhdG9yOFN0ZXA5OjAuNQptb2R1bGF0b3I4U3RlcENvdW50OjgKbW9kdWxhdG9yOFN5bmM6MQptb2R1bGF0b3I4VHlw",
+    "ZTo1Cm1vZHVsYXRvcjlBbW91bnQ6MQptb2R1bGF0b3I5RGVzdGluYXRpb246MjQKbW9kdWxhdG9yOUZyZWU6MAptb2R1bGF0b3I5UDE6MC4yODcz",
+    "NzEKbW9kdWxhdG9yOVAyOjAuNzk0MzY2Cm1vZHVsYXRvcjlQb2xhcml0eTowCm1vZHVsYXRvcjlRdWFudGl6ZTowCm1vZHVsYXRvcjlSZXRyaWdn",
+    "ZXI6MAptb2R1bGF0b3I5U3RlcDA6MC41Cm1vZHVsYXRvcjlTdGVwMTowLjUKbW9kdWxhdG9yOVN0ZXAxMDowLjUKbW9kdWxhdG9yOVN0ZXAxMTow",
+    "LjUKbW9kdWxhdG9yOVN0ZXAxMjowLjUKbW9kdWxhdG9yOVN0ZXAxMzowLjUKbW9kdWxhdG9yOVN0ZXAxNDowLjUKbW9kdWxhdG9yOVN0ZXAxNTow",
+    "LjUKbW9kdWxhdG9yOVN0ZXAyOjAuNQptb2R1bGF0b3I5U3RlcDM6MC41Cm1vZHVsYXRvcjlTdGVwNDowLjUKbW9kdWxhdG9yOVN0ZXA1OjAuNQpt",
+    "b2R1bGF0b3I5U3RlcDY6MC41Cm1vZHVsYXRvcjlTdGVwNzowLjUKbW9kdWxhdG9yOVN0ZXA4OjAuNQptb2R1bGF0b3I5U3RlcDk6MC41Cm1vZHVs",
+    "YXRvcjlTdGVwQ291bnQ6OAptb2R1bGF0b3I5U3luYzowCm1vZHVsYXRvcjlUeXBlOjExCm1vZHVsYXRvclNpemVUYXJnZXQ6MQptb2R1bGF0b3JT",
+    "aXplVGFyZ2V0MDowCm1vZHVsYXRvclNpemVUYXJnZXQxOjAKbW9kdWxhdG9yU2l6ZVRhcmdldDI6MQptb2R1bGF0b3JTaXplVGFyZ2V0MzowCm1v",
+    "ZHVsYXRvclNpemVUYXJnZXQ0OjAKbW9kdWxhdG9yU2l6ZVRhcmdldDU6MAptb2R1bGF0b3JTaXplVGFyZ2V0NjowCm1vZHVsYXRvclNpemVUYXJn",
+    "ZXQ3OjAKbW9kdWxhdG9yU2l6ZVRhcmdldDg6MAptb2R1bGF0b3JTaXplVGFyZ2V0OTowCm92ZXJsYXlLZXlib2FyZEhpZGRlbjowCnJldmVyYkNv",
+    "bG9yOjAuNTMwMDY4CnJldmVyYkRhbXA6MApyZXZlcmJNaXg6MQpyZXZlcmJTaXplOjAKc2F2ZUhlbGROb3RlczowCnN1cGVybWFjcm8wQWRqdXN0",
+    "bWVudDowCnN1cGVybWFjcm8xQWRqdXN0bWVudDowCnN1cGVybWFjcm8yQWRqdXN0bWVudDowCnN1cGVybWFjcm8zQWRqdXN0bWVudDowCnRlbXBv",
+    "Q2xvY2tCUE1DYW52YXM6ODAKdG91Y2hncmlkS2V5Ym9hcmRDaGFubmVsOjAKdG91Y2hncmlkTGF5b3V0OjAKdG91Y2hncmlkT3ZlcmxheU1vZGU6",
+    "OQp0b3VjaGdyaWRQbGF5TW9kZToxCnRvdWNoZ3JpZFRyYW5zcG9zZTowCnRyYWNrMEFtcDowLjc1MDA2MQp0cmFjazFBbXA6MC43NQp0cmFjazJB",
+    "bXA6MC43NQp0cmFjazNBbXA6MC43NQp0cmFjazRBbXA6MC43NQp0cmFjazVBbXA6MC43NQp0cmFjazZBbXA6MC43NQp0cmFjazdBbXA6MC43NQp0",
+    "cmFjazBUdW5pbmc6NjQ0LjUwOQp0cmFjazFUdW5pbmc6NjQ0LjUzMwp0cmFjazJUdW5pbmc6NjQ0LjU0NAp0cmFjazNUdW5pbmc6NjQ0LjUzMwp0",
+    "cmFjazRUdW5pbmc6NjQ0LjUxOAp0cmFjazVUdW5pbmc6NjQ0LjUzMQp0cmFjazZUdW5pbmc6NjQ0LjU0CnRyYWNrN1R1bmluZzo2NDQuNTE0CnRy",
+    "YWNrME5hbWU6TWVnYWJyZWFrIEIxIFNsaWNlIDEKdHJhY2sxTmFtZTpNZWdhYnJlYWsgQjEgU2xpY2UgMgp0cmFjazJOYW1lOk1lZ2FicmVhayBC",
+    "MSBTbGljZSAzCnRyYWNrM05hbWU6TWVnYWJyZWFrIEIxIFNsaWNlIDQKdHJhY2s0TmFtZTpNZWdhYnJlYWsgQjEgU2xpY2UgNQp0cmFjazVOYW1l",
+    "Ok1lZ2FicmVhayBCMSBTbGljZSA2CnRyYWNrNk5hbWU6TWVnYWJyZWFrIEIxIFNsaWNlIDcKdHJhY2s3TmFtZTpNZWdhYnJlYWsgQjEgU2xpY2Ug",
+    "OAp0cmFjazBGcm9tOjAKdHJhY2sxRnJvbTowCnRyYWNrMkZyb206MAp0cmFjazNGcm9tOjAKdHJhY2s0RnJvbTowCnRyYWNrNUZyb206MAp0cmFj",
+    "azZGcm9tOjAKdHJhY2s3RnJvbTowCnRyYWNrMFRvOjEwNDg1NzUKdHJhY2sxVG86MTA0ODU3NQp0cmFjazJUbzoxMDQ4NTc1CnRyYWNrM1RvOjEw",
+    "NDg1NzUKdHJhY2s0VG86MTA0ODU3NQp0cmFjazVUbzoxMDQ4NTc1CnRyYWNrNlRvOjEwNDg1NzUKdHJhY2s3VG86MTA0ODU3NQp0cmFjazBUdW5p",
+    "bmdNb2RlOjEKdHJhY2sxVHVuaW5nTW9kZToxCnRyYWNrMlR1bmluZ01vZGU6MQp0cmFjazNUdW5pbmdNb2RlOjEKdHJhY2s0VHVuaW5nTW9kZTox",
+    "CnRyYWNrNVR1bmluZ01vZGU6MQp0cmFjazZUdW5pbmdNb2RlOjEKdHJhY2s3VHVuaW5nTW9kZToxCnRyYWNrME1hcmtlckFkanVzdG1lbnQwOjAK",
+    "dHJhY2sxTWFya2VyQWRqdXN0bWVudDA6MAp0cmFjazJNYXJrZXJBZGp1c3RtZW50MDowCnRyYWNrM01hcmtlckFkanVzdG1lbnQwOjAKdHJhY2s0",
+    "TWFya2VyQWRqdXN0bWVudDA6MAp0cmFjazVNYXJrZXJBZGp1c3RtZW50MDowCnRyYWNrNk1hcmtlckFkanVzdG1lbnQwOjAKdHJhY2s3TWFya2Vy",
+    "QWRqdXN0bWVudDA6MAp0cmFjazBNYXJrZXJBZGp1c3RtZW50MTowCnRyYWNrMU1hcmtlckFkanVzdG1lbnQxOjAKdHJhY2syTWFya2VyQWRqdXN0",
+    "bWVudDE6MAp0cmFjazNNYXJrZXJBZGp1c3RtZW50MTowCnRyYWNrNE1hcmtlckFkanVzdG1lbnQxOjAKdHJhY2s1TWFya2VyQWRqdXN0bWVudDE6",
+    "MAp0cmFjazZNYXJrZXJBZGp1c3RtZW50MTowCnRyYWNrN01hcmtlckFkanVzdG1lbnQxOjAKdHJhY2swTWFya2VyQWRqdXN0bWVudDI6MAp0cmFj",
+    "azFNYXJrZXJBZGp1c3RtZW50MjowCnRyYWNrMk1hcmtlckFkanVzdG1lbnQyOjAKdHJhY2szTWFya2VyQWRqdXN0bWVudDI6MAp0cmFjazRNYXJr",
+    "ZXJBZGp1c3RtZW50MjowCnRyYWNrNU1hcmtlckFkanVzdG1lbnQyOjAKdHJhY2s2TWFya2VyQWRqdXN0bWVudDI6MAp0cmFjazdNYXJrZXJBZGp1",
+    "c3RtZW50MjowCnRyYWNrME1hcmtlckFkanVzdG1lbnQzOjAKdHJhY2sxTWFya2VyQWRqdXN0bWVudDM6MAp0cmFjazJNYXJrZXJBZGp1c3RtZW50",
+    "MzowCnRyYWNrM01hcmtlckFkanVzdG1lbnQzOjAKdHJhY2s0TWFya2VyQWRqdXN0bWVudDM6MAp0cmFjazVNYXJrZXJBZGp1c3RtZW50MzowCnRy",
+    "YWNrNk1hcmtlckFkanVzdG1lbnQzOjAKdHJhY2s3TWFya2VyQWRqdXN0bWVudDM6MAp0cmFjazBNYXJrZXJBZGp1c3RtZW50NDowCnRyYWNrMU1h",
+    "cmtlckFkanVzdG1lbnQ0OjAKdHJhY2syTWFya2VyQWRqdXN0bWVudDQ6MAp0cmFjazNNYXJrZXJBZGp1c3RtZW50NDowCnRyYWNrNE1hcmtlckFk",
+    "anVzdG1lbnQ0OjAKdHJhY2s1TWFya2VyQWRqdXN0bWVudDQ6MAp0cmFjazZNYXJrZXJBZGp1c3RtZW50NDowCnRyYWNrN01hcmtlckFkanVzdG1l",
+    "bnQ0OjAKdHJhY2swTWFya2VyQWRqdXN0bWVudDU6MAp0cmFjazFNYXJrZXJBZGp1c3RtZW50NTowCnRyYWNrMk1hcmtlckFkanVzdG1lbnQ1OjAK",
+    "dHJhY2szTWFya2VyQWRqdXN0bWVudDU6MAp0cmFjazRNYXJrZXJBZGp1c3RtZW50NTowCnRyYWNrNU1hcmtlckFkanVzdG1lbnQ1OjAKdHJhY2s2",
+    "TWFya2VyQWRqdXN0bWVudDU6MAp0cmFjazdNYXJrZXJBZGp1c3RtZW50NTowCnRyYWNrME1hcmtlckFkanVzdG1lbnQ2OjAKdHJhY2sxTWFya2Vy",
+    "QWRqdXN0bWVudDY6MAp0cmFjazJNYXJrZXJBZGp1c3RtZW50NjowCnRyYWNrM01hcmtlckFkanVzdG1lbnQ2OjAKdHJhY2s0TWFya2VyQWRqdXN0",
+    "bWVudDY6MAp0cmFjazVNYXJrZXJBZGp1c3RtZW50NjowCnRyYWNrNk1hcmtlckFkanVzdG1lbnQ2OjAKdHJhY2s3TWFya2VyQWRqdXN0bWVudDY6",
+    "MAp0cmFjazBNYXJrZXJBZGp1c3RtZW50NzowCnRyYWNrMU1hcmtlckFkanVzdG1lbnQ3OjAKdHJhY2syTWFya2VyQWRqdXN0bWVudDc6MAp0cmFj",
+    "azNNYXJrZXJBZGp1c3RtZW50NzowCnRyYWNrNE1hcmtlckFkanVzdG1lbnQ3OjAKdHJhY2s1TWFya2VyQWRqdXN0bWVudDc6MAp0cmFjazZNYXJr",
+    "ZXJBZGp1c3RtZW50NzowCnRyYWNrN01hcmtlckFkanVzdG1lbnQ3OjAK"
+  ].join("");
+  function megabreakReadBuiltInCanvas(){
+    const raw = atob(MEGABREAK_BUILTIN_PARAMS_B64);
+    const data = Uint8Array.from(raw, ch => ch.charCodeAt(0));
+    return {entries:[], paramsEntry:{name:"parameters.txt", data}};
+  }
+  const megabreakOverlayEl = document.getElementById("megabreakOverlay");
+  const megabreakFileInputEl = document.getElementById("megabreakFileInput");
+  const megabreakNameInputEl = document.getElementById("megabreakNameInput");
+  const megabreakSelectionStatusEl = document.getElementById("megabreakSelectionStatus");
+  const megabreakProgressEl = document.getElementById("megabreakProgress");
+  const megabreakPickFilesBtnEl = document.getElementById("megabreakPickFilesBtn");
+  const megabreakUseMatrixBtnEl = document.getElementById("megabreakUseMatrixBtn");
+  const megabreakExportBtnEl = document.getElementById("megabreakExportBtn");
+  const megabreakCancelBtnEl = document.getElementById("megabreakCancelBtn");
+  const megabreakCloseBtnEl = document.getElementById("megabreakCloseBtn");
+  const megabreakSourceBpmEl = document.getElementById("megabreakSourceBpm");
+  const megabreakBarModeEl = document.getElementById("megabreakBarMode");
+  const megabreakFilenameBpmEl = document.getElementById("megabreakFilenameBpm");
+  const megabreakCanvasInputEl = document.getElementById("megabreakCanvasInput");
+  const megabreakBuiltInCanvasBtnEl = document.getElementById("megabreakBuiltInCanvasBtn");
+  const megabreakPickCanvasBtnEl = document.getElementById("megabreakPickCanvasBtn");
+  const megabreakClearCanvasBtnEl = document.getElementById("megabreakClearCanvasBtn");
+  const megabreakCanvasStatusEl = document.getElementById("megabreakCanvasStatus");
+  let megabreakFiles = [];
+  let megabreakSource = "";
+  let megabreakBusy = false;
+  let megabreakCanvasFile = null;
+  let megabreakTemplateMode = "builtin"; // builtin (default), external or wav
+
+  function megabreakSetSelectionStatus(text){
+    if (megabreakSelectionStatusEl) megabreakSelectionStatusEl.textContent = String(text || "");
+  }
+  function megabreakSetProgress(text){
+    if (megabreakProgressEl) megabreakProgressEl.textContent = String(text || "");
+  }
+  function megabreakUpdateCanvasStatus(){
+    const isBuiltIn = megabreakTemplateMode === "builtin";
+    const isExternal = megabreakTemplateMode === "external" && !!megabreakCanvasFile;
+    if (megabreakCanvasStatusEl) megabreakCanvasStatusEl.textContent = isBuiltIn
+      ? "Built-in: Original, Stutter and Bounce Loops; 10 modulators and macros, E2/E3 muted."
+      : (isExternal
+        ? `${megabreakCanvasFile.name} - preserve its settings; replace audio and slice track names.`
+        : "WAV only: eight tracks without a .canvas preset.");
+    megabreakBuiltInCanvasBtnEl?.classList.toggle("tcmActiveBtn", isBuiltIn);
+    megabreakPickCanvasBtnEl?.classList.toggle("tcmActiveBtn", isExternal);
+    megabreakClearCanvasBtnEl?.classList.toggle("tcmActiveBtn", megabreakTemplateMode === "wav");
+  }
+  function megabreakLoadedMatrixRefs(){
+    return getLoadedGridCellRefs(); // column-major, like Export grid
+  }
+  function megabreakRefreshSelection(){
+    const loadedCount = megabreakLoadedMatrixRefs().length;
+    if (megabreakUseMatrixBtnEl){
+      megabreakUseMatrixBtnEl.disabled = megabreakBusy || loadedCount !== MEGABREAK_LOOP_COUNT;
+      megabreakUseMatrixBtnEl.textContent = `Use loaded matrix (${loadedCount}/64)`;
+    }
+    const sourceCount = megabreakSource === "files" ? megabreakFiles.length
+      : (megabreakSource === "matrix" ? loadedCount : 0);
+    if (megabreakExportBtnEl) megabreakExportBtnEl.disabled = megabreakBusy || sourceCount !== MEGABREAK_LOOP_COUNT;
+    if (megabreakPickFilesBtnEl) megabreakPickFilesBtnEl.disabled = megabreakBusy;
+    if (megabreakCancelBtnEl) megabreakCancelBtnEl.disabled = megabreakBusy;
+    if (megabreakCloseBtnEl) megabreakCloseBtnEl.disabled = megabreakBusy;
+    if (megabreakNameInputEl) megabreakNameInputEl.disabled = megabreakBusy;
+    if (megabreakBarModeEl) megabreakBarModeEl.disabled = megabreakBusy;
+    if (megabreakSourceBpmEl) megabreakSourceBpmEl.disabled = megabreakBusy;
+    if (megabreakFilenameBpmEl) megabreakFilenameBpmEl.disabled = megabreakBusy;
+    if (megabreakBuiltInCanvasBtnEl) megabreakBuiltInCanvasBtnEl.disabled = megabreakBusy;
+    if (megabreakPickCanvasBtnEl) megabreakPickCanvasBtnEl.disabled = megabreakBusy;
+    if (megabreakClearCanvasBtnEl) megabreakClearCanvasBtnEl.disabled = megabreakBusy;
+    if (megabreakExportBtnEl) megabreakExportBtnEl.textContent = megabreakTemplateMode === "wav" ? "Export 8 tracks (ZIP)" : "Export .canvas (ZIP)";
+  }
+  function closeMegabreakOverlay(){
+    if (megabreakBusy || !megabreakOverlayEl) return;
+    megabreakOverlayEl.classList.remove("show");
+    megabreakOverlayEl.setAttribute("aria-hidden", "true");
+    megabreakFiles = [];
+    megabreakSource = "";
+    megabreakCanvasFile = null;
+    megabreakTemplateMode = "builtin";
+    if (megabreakFileInputEl) megabreakFileInputEl.value = "";
+    if (megabreakCanvasInputEl) megabreakCanvasInputEl.value = "";
+  }
+  function openMegabreakOverlay(){
+    if (!megabreakOverlayEl || megabreakBusy) return;
+    megabreakFiles = [];
+    megabreakCanvasFile = null;
+    megabreakTemplateMode = "builtin";
+    megabreakSource = megabreakLoadedMatrixRefs().length === MEGABREAK_LOOP_COUNT ? "matrix" : "";
+    if (megabreakNameInputEl) megabreakNameInputEl.value = `TCM_Megabreak_64x8_${getDateStamp()}`;
+    megabreakSetProgress("");
+    megabreakSetSelectionStatus(megabreakSource === "matrix"
+      ? "64 loaded matrix cells selected (raw audio buffers, in column/row order)."
+      : "Choose exactly 64 loop files (one or several complete 4/4 bars each).");
+    megabreakUpdateCanvasStatus();
+    megabreakRefreshSelection();
+    try{ disableNativeTooltips(); }catch(_e){ try{ disableNativeTitleTooltips(); }catch(__){} }
+    megabreakOverlayEl.classList.add("show");
+    megabreakOverlayEl.setAttribute("aria-hidden", "false");
+    try{ megabreakNameInputEl?.focus({preventScroll:true}); }catch(_e){}
+  }
+
+  if (megabreakPickFilesBtnEl && megabreakFileInputEl){
+    megabreakPickFilesBtnEl.addEventListener("click", () => {
+      if (!megabreakBusy){
+        megabreakFileInputEl.value = "";
+        megabreakFileInputEl.click();
+      }
+    });
+    megabreakFileInputEl.addEventListener("change", () => {
+      if (megabreakBusy) return;
+      const files = Array.from(megabreakFileInputEl.files || []);
+      if (!files.length) return;
+      megabreakFiles = files.filter(isAudioFile).sort((a, b) => {
+        const an = String(a.webkitRelativePath || a.name || "");
+        const bn = String(b.webkitRelativePath || b.name || "");
+        return an.localeCompare(bn, undefined, {numeric:true, sensitivity:"base"});
+      });
+      megabreakSource = "files";
+      const rejected = files.length - megabreakFiles.length;
+      const note = rejected ? ` (${rejected} non-audio file(s) ignored)` : "";
+      if (megabreakFiles.length === MEGABREAK_LOOP_COUNT){
+        megabreakSetSelectionStatus(`64 audio loops selected${note}. Order: ${megabreakFiles[0].name} ... ${megabreakFiles[63].name}.`);
+      }else{
+        megabreakSetSelectionStatus(`${megabreakFiles.length}/64 audio loops selected${note}. Select exactly 64 to export.`);
+      }
+      megabreakSetProgress("");
+      megabreakRefreshSelection();
+    });
+  }
+  if (megabreakUseMatrixBtnEl){
+    megabreakUseMatrixBtnEl.addEventListener("click", () => {
+      if (megabreakBusy || megabreakLoadedMatrixRefs().length !== MEGABREAK_LOOP_COUNT) return;
+      megabreakSource = "matrix";
+      megabreakSetSelectionStatus("64 loaded matrix cells selected (raw audio buffers, in column/row order). Inspector effects are not rendered.");
+      megabreakSetProgress("");
+      megabreakRefreshSelection();
+    });
+  }
+  megabreakBuiltInCanvasBtnEl?.addEventListener("click", () => {
+    if (megabreakBusy) return;
+    megabreakTemplateMode = "builtin";
+    megabreakCanvasFile = null;
+    megabreakUpdateCanvasStatus();
+    megabreakRefreshSelection();
+  });
+  megabreakPickCanvasBtnEl?.addEventListener("click", () => {
+    if (!megabreakBusy && megabreakCanvasInputEl){
+      megabreakCanvasInputEl.value = "";
+      megabreakCanvasInputEl.click();
+    }
+  });
+  megabreakCanvasInputEl?.addEventListener("change", () => {
+    if (megabreakBusy) return;
+    const file = megabreakCanvasInputEl.files?.[0];
+    if (!file) return;
+    megabreakCanvasFile = file;
+    megabreakTemplateMode = "external";
+    megabreakUpdateCanvasStatus();
+    megabreakRefreshSelection();
+  });
+  megabreakClearCanvasBtnEl?.addEventListener("click", () => {
+    if (megabreakBusy) return;
+    megabreakCanvasFile = null;
+    megabreakTemplateMode = "wav";
+    if (megabreakCanvasInputEl) megabreakCanvasInputEl.value = "";
+    megabreakUpdateCanvasStatus();
+    megabreakRefreshSelection();
+  });
+  megabreakCancelBtnEl?.addEventListener("click", closeMegabreakOverlay);
+  megabreakCloseBtnEl?.addEventListener("click", closeMegabreakOverlay);
+  megabreakOverlayEl?.addEventListener("click", e => {
+    if (e.target === megabreakOverlayEl) closeMegabreakOverlay();
+  });
+  window.addEventListener("keydown", e => {
+    if (!megabreakOverlayEl?.classList.contains("show") || e.key !== "Escape") return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    closeMegabreakOverlay();
+  }, true);
+
+  function megabreakBpmFromName(name){
+    const match = String(name || "").match(/(?:^|[^0-9])(\d{2,3})[\s._-]*bpm(?![a-z])/i);
+    if (!match) return null;
+    const bpm = Number(match[1]);
+    return bpm >= 20 && bpm <= 400 ? bpm : null;
+  }
+  function megabreakBarSourceInfo(name, len, baseBpm, autoFilenameBpm, barMode){
+    const bpm = (autoFilenameBpm && barMode !== "whole" ? megabreakBpmFromName(name) : null) || baseBpm;
+    const framesPerBar = barMode === "whole" ? len : Math.round((60 / bpm) * 4 * SR);
+    if (!Number.isFinite(framesPerBar) || framesPerBar <= 0) throw new Error(`Invalid source BPM for ${name}.`);
+    if (barMode === "whole") return {bpm, framesPerBar, fullBars:1, tailFrames:0};
+    // Allow 2% tolerance for minor sampler render / rounding differences at the end.
+    const fullBars = Math.floor((len + framesPerBar * 0.02) / framesPerBar);
+    if (fullBars < 1) throw new Error(`${name}: only ${(len/SR).toFixed(2)}s; a 4/4 bar at ${bpm} BPM needs ${(framesPerBar/SR).toFixed(2)}s. Select Whole file or correct Source BPM.`);
+    const tailFrames = Math.max(0, len - fullBars * framesPerBar);
+    return {bpm, framesPerBar, fullBars, tailFrames};
+  }
+  function megabreakExtractPreparedBar(left, right, len, info, index){
+    const start = index * info.framesPerBar;
+    const end = Math.min(len, start + info.framesPerBar);
+    if (index < 0 || index >= info.fullBars || end - start < info.framesPerBar * 0.98){
+      throw new Error(`Source loop has no complete bar ${index+1}.`);
+    }
+    return {
+      L: resampleToLength(left.subarray(start, end), FIXED_CELL_FRAMES),
+      R: resampleToLength(right.subarray(start, end), FIXED_CELL_FRAMES)
+    };
+  }
+  function megabreakMakeBlankTrackSet(){
+    return Array.from({length:MEGABREAK_SLICE_COUNT}, () => ({
+      L: new Float32Array(FIXED_COL_FRAMES), R: new Float32Array(FIXED_COL_FRAMES)
+    }));
+  }
+  function megabreakAssignBarToTracks(tracks, preparedBar, inputIndex, slotFrames){
+    for (let t=0; t<MEGABREAK_SLICE_COUNT; t++){
+      const srcStart = t * slotFrames;
+      const dstStart = inputIndex * slotFrames;
+      tracks[t].L.set(preparedBar.L.subarray(srcStart, srcStart + slotFrames), dstStart);
+      tracks[t].R.set(preparedBar.R.subarray(srcStart, srcStart + slotFrames), dstStart);
+    }
+  }
+  // Use a known working Tempera canvas to provide modulation setup. No enum guessing.
+  // This function changes only track audio and track names; every other parameter survives.
+  async function megabreakBuildConfiguredCanvasFiles(tracks, baseCanvas, barIndex, canvasBpm, builtIn){
+    const dec = new TextDecoder();
+    const enc = new TextEncoder();
+    const raw = dec.decode(baseCanvas.paramsEntry.data);
+    const ending = /\r\n/.test(raw) ? "\r\n" : "\n";
+    let params = raw.replace(/\r\n/g, "\n");
+    if (builtIn){
+      // Megabreak always renders the same fixed-length audio (524288 frames per track).
+      // On Tempera the template's ~175.78 BPM track Base tempo restores the source pitch
+      // at any canvas BPM. Keep track*Tuning unchanged; update only the canvas clock.
+      // User-supplied .canvas templates are left unchanged.
+      if (!(Number.isFinite(canvasBpm) && canvasBpm >= 20 && canvasBpm <= 400)) throw new Error("Invalid Megabreak canvas tempo.");
+      if (!/^tempoClockBPMCanvas:.*$/m.test(params)) throw new Error("Built-in Megabreak preset is missing canvas tempo.");
+      params = params.replace(/^tempoClockBPMCanvas:.*$/m, `tempoClockBPMCanvas:${canvasBpm}`);
+    }
+    for (let t=0;t<MEGABREAK_SLICE_COUNT;t++){
+      const line = `track${t}Name:${temperaSanitizeTrackName(`Megabreak B${barIndex+1} Slice ${t+1}`, `Slice ${t+1}`)}`;
+      const re = new RegExp(`^track${t}Name:.*$`, "m");
+      if (re.test(params)) params = params.replace(re, line);
+      else params += (params.endsWith("\n") ? "" : "\n") + line;
+    }
+    const files = [{name:"parameters.txt", data:enc.encode(params.replace(/\n/g, ending))}];
+    for (const extra of temperaCollectBaseCanvasExtras(baseCanvas.entries)) files.push(extra);
+    for (let t=0;t<MEGABREAK_SLICE_COUNT;t++){
+      megabreakSetProgress(`Building Tempera mipmaps for set ${barIndex+1}, track ${t+1}/8...`);
+      const mip = await buildTemperaMipChain(tracks[t]);
+      for (let m=0;m<8;m++){
+        files.push({name:`${t}_${m}.flac`, data:buildFlacVerbatimFromFloatLR(mip[m].L, mip[m].R)});
+      }
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+    return files;
+  }
+
+  async function exportMegabreakZip(){
+    if (megabreakBusy) return;
+    const mode = megabreakSource;
+    const refs = mode === "matrix" ? megabreakLoadedMatrixRefs() : [];
+    const inputFiles = mode === "files" ? megabreakFiles.slice() : [];
+    const count = mode === "matrix" ? refs.length : inputFiles.length;
+    if (count !== MEGABREAK_LOOP_COUNT){
+      megabreakSetProgress(`Megabreak requires exactly 64 loops. Current: ${count}.`);
+      megabreakRefreshSelection();
+      return;
+    }
+    const slotFrames = FIXED_COL_FRAMES / MEGABREAK_LOOP_COUNT; // 8192
+    if (!Number.isInteger(slotFrames) || slotFrames * MEGABREAK_SLICE_COUNT !== FIXED_CELL_FRAMES){
+      megabreakSetProgress("Megabreak timing is incompatible with the fixed Tempera grid.");
+      return;
+    }
+    const barMode = String(megabreakBarModeEl?.value || "first");
+    const sourceBpm = Number(megabreakSourceBpmEl?.value);
+    if (barMode !== "whole" && (!Number.isFinite(sourceBpm) || sourceBpm < 20 || sourceBpm > 400)){
+      megabreakSetProgress("Enter a valid Source BPM between 20 and 400.");
+      return;
+    }
+    const autoFilenameBpm = !!megabreakFilenameBpmEl?.checked;
+    const templateMode = megabreakTemplateMode;
+    const preparedCanvasFile = templateMode === "external" ? megabreakCanvasFile : null;
+    const requested = String(megabreakNameInputEl?.value || "TCM_Megabreak_64x8").replace(/\.zip$/i, "");
+    const zipName = sanitizeFilename(requested || "TCM_Megabreak_64x8").replace(/\.zip$/i, "");
+
+    megabreakBusy = true;
+    megabreakRefreshSelection();
+    try{
+      const baseCanvas = templateMode === "builtin" ? megabreakReadBuiltInCanvas()
+        : (preparedCanvasFile ? await temperaReadBaseCanvas(preparedCanvasFile) : null);
+      let commonSourceBpm = null, mixedSourceBpm = false;
+      let trackSets = [];
+      let mappings = [];
+      let shortestSec = Infinity, longestSec = 0;
+      let minBars = Infinity, maxBars = 0;
+      let partialTailCount = 0;
+
+      for (let i=0;i<MEGABREAK_LOOP_COUNT;i++){
+        let left, right, name;
+        if (mode === "files"){
+          const file = inputFiles[i];
+          name = String(file?.name || `Loop_${i+1}`);
+          megabreakSetProgress(`Decoding loop ${i+1}/64: ${name}`);
+          try{
+            const decoded = await decodeFileToStereo48k(file);
+            left = decoded.left;
+            right = decoded.right;
+          }catch(e){
+            throw new Error(`Cannot decode loop ${i+1} (${name}): ${e?.message || e}`);
+          }
+        }else{
+          const ref = refs[i];
+          left = ref.cell.left;
+          right = ref.cell.right;
+          name = String(ref.cell.fileName || ref.cell.name || `Cell_${ref.col+1}_${ref.row+1}`);
+        }
+        const len = Math.min(left?.length || 0, right?.length || 0);
+        if (len < 16) throw new Error(`Loop ${i+1} (${name}) has too little audio.`);
+        // Matrix Auto bar uses already-loaded buffers (Random 64 caps these at 60s).
+        // Keep the 30s guard unchanged for direct files and legacy Whole file.
+        if (len > SR * 30 && (mode !== "matrix" || barMode === "whole")) throw new Error(`Loop ${i+1} (${name}) exceeds the 30-second source limit.`);
+        const info = megabreakBarSourceInfo(name, len, sourceBpm, autoFilenameBpm, barMode);
+        if (commonSourceBpm === null) commonSourceBpm = info.bpm;
+        else if (Math.abs(info.bpm - commonSourceBpm) > 0.01) mixedSourceBpm = true;
+        minBars = Math.min(minBars, info.fullBars);
+        maxBars = Math.max(maxBars, info.fullBars);
+        if (info.tailFrames > info.framesPerBar * 0.05) partialTailCount++;
+        const lengthSec = len / SR;
+        shortestSec = Math.min(shortestSec, lengthSec);
+        longestSec = Math.max(longestSec, lengthSec);
+
+        const needed = barMode === "all" ? Math.min(MEGABREAK_MAX_BAR_SETS, info.fullBars) : 1;
+        if (!trackSets.length){
+          trackSets = Array.from({length:needed}, megabreakMakeBlankTrackSet);
+          mappings = Array.from({length:needed}, () => []);
+        }else if (barMode === "all" && needed < trackSets.length){
+          // All bars includes only positions available in every source.
+          trackSets.length = needed;
+          mappings.length = needed;
+        }
+        for (let set=0;set<trackSets.length;set++){
+          const barIndex = barMode === "all" ? set
+            : (barMode === "random" ? Math.floor(Math.random() * info.fullBars) : 0);
+          const prepared = megabreakExtractPreparedBar(left, right, len, info, barIndex);
+          megabreakAssignBarToTracks(trackSets[set], prepared, i, slotFrames);
+          mappings[set].push(`${String(i+1).padStart(2,"0")}: ${name} | bar ${barIndex+1}/${info.fullBars} | ${info.bpm} BPM | ${lengthSec.toFixed(3)}s`);
+        }
+        if ((i+1) % 4 === 0){
+          megabreakSetProgress(`Arranged ${i+1}/64 loops...`);
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
+      }
+
+      if (!trackSets.length) throw new Error("No complete bars available for export.");
+      // One global clock cannot simultaneously restore the original speed/pitch of mixed-BPM loops.
+      const validFallbackBpm = Number.isFinite(sourceBpm) && sourceBpm >= 20 && sourceBpm <= 400 ? sourceBpm : 120;
+      const canvasBpm = !mixedSourceBpm && commonSourceBpm != null ? commonSourceBpm : validFallbackBpm;
+      const templateDescription = templateMode === "builtin" ? "the built-in Tempera Megabreak preset"
+        : (preparedCanvasFile ? preparedCanvasFile.name : "none");
+      const files = [];
+      const report = [
+        `Tempera Cell Matrix v${APP_VERSION} - Megabreak / Auto bar`,
+        "", "64 source loops -> eight Tempera tracks per selected bar set.",
+        "Track 01 contains slice 1 of all loops, Track 02 slice 2, etc.",
+        "Every output track: 524288 frames (10.922667 s), 48000 Hz, stereo.",
+        "Every keyed loop position: 8192 frames (0.170667 s).",
+        "Each selected bar: 65536 frames (1.365333 s), 8 equal slices.",
+        `Effective fixed audio tempo: 175.78125 BPM per 4/4 bar. Configured canvas clock: ${baseCanvas ? canvasBpm : "not exported"} BPM.`,
+        templateMode === "builtin" ? "Built-in preset canvas clock follows Source BPM; track Base tempo stays fixed at about 175.78 BPM to preserve pitch." : "",
+        "Speed resampling changes pitch; no pitch-preserving timestretch is applied.",
+        "No micro-fades between slices (for continuous grain/loop scanning).",
+        "Auto bar assumes loops start precisely at a bar boundary; it does not detect transients.",
+        `Source: ${mode === "files" ? "selected audio files in natural order" : "raw buffers of loaded matrix cells in column-major order"}`,
+        `Bar selection: ${barMode}; Source BPM fallback: ${sourceBpm}; read BPM from filename: ${autoFilenameBpm ? "yes" : "no"}`,
+        `Original lengths: ${shortestSec.toFixed(3)}-${longestSec.toFixed(3)} s; bars per source: ${minBars}-${maxBars}.`,
+        `Exported sets: ${trackSets.length}${barMode === "all" ? " (common bar positions, max 4)" : ""}.`,
+        partialTailCount ? `WARNING: ${partialTailCount} source(s) have more than 5% leftover audio after complete bar(s); their tails are not used.` : "Source durations align to bar boundaries within 5%.",
+        mixedSourceBpm ? `WARNING: Mixed source BPMs found; canvas uses ${canvasBpm} BPM. A single track tempo cannot restore every source's original pitch.` : "All loops use a common source BPM.",
+        "", baseCanvas
+          ? (templateMode === "builtin" ? `Built-in Megabreak preset: Original, Stutter and Bounce emitters, 10 modulators, macros, effects and mute states retained. Canvas BPM: ${canvasBpm}; track Base tempo stays ~175.78 BPM.`
+              : `Canvas settings reused unchanged from ${templateDescription}; only audio and track names are replaced.`)
+          : "WAV-only: no Tempera canvas preset selected.",
+        templateMode === "builtin" ? "Built-in Megabreak: Original Loops active; Stutter Loops and Bounce Loops muted. Unmute them on Tempera when desired." : "For live Megabreak: synced SAW LFO -> REL X, Key track -> REL Y; validate your preset on real Tempera.",
+        "A .canvas is ready-to-play ONLY if its template already has the correct working settings.",
+        ""
+      ];
+      // Output names reflect the chosen bar selection and effective source tempo.
+      // Only All bars needs a numeric suffix because it can produce multiple sets.
+      const barModeName = ({first:"FirstBar", random:"RandomBar", all:"AllBars", whole:"WholeFile"})[barMode] || "FirstBar";
+      const bpmName = Number(canvasBpm.toFixed(2)).toString().replace(".", "p");
+      const exportName = `${zipName}_${barModeName}_${mixedSourceBpm ? "MixedBPM_" : ""}${bpmName}BPM`;
+      for (let set=0;set<trackSets.length;set++){
+        const prefix = barMode === "all" ? `${exportName}_Bar_${String(set+1).padStart(2,"0")}` : exportName;
+        if (baseCanvas){
+          const canvasFiles = await megabreakBuildConfiguredCanvasFiles(trackSets[set], baseCanvas, set, canvasBpm, templateMode === "builtin");
+          const blob = zipStore(canvasFiles);
+          // The outer ZIP holds one self-contained .canvas per selected bar, not loose FLACs.
+          files.push({name:`${prefix}.canvas`, data:new Uint8Array(await blob.arrayBuffer())});
+        }else{
+          megabreakSetProgress(`Encoding WAVs for bar set ${set+1}/${trackSets.length}...`);
+          for (let t=0;t<MEGABREAK_SLICE_COUNT;t++){
+            files.push({
+              name:`${prefix}_Track_${String(t+1).padStart(2,"0")}_Slice_${String(t+1).padStart(2,"0")}.wav`,
+              data:encodeWav16StereoBytes(trackSets[set][t].L, trackSets[set][t].R)
+            });
+          }
+        }
+        report.push(`Bar set ${set+1} - keytracking order 01..64:`, ...mappings[set], "");
+        // Release this set before the next canvas mip chain to reduce peak memory.
+        trackSets[set] = null;
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+      files.push({name:`${exportName}_mapping.txt`, data:new TextEncoder().encode(report.join("\n"))});
+      const url = URL.createObjectURL(zipStore(files));
+      clickDownload(url, `${exportName}.zip`);
+      setTimeout(() => URL.revokeObjectURL(url), 8000);
+      const unit = baseCanvas ? ".canvas" : "8 WAV tracks";
+      megabreakSetProgress(`Exported ${trackSets.length} bar set(s) with ${unit} per set. Read mapping.txt for timing, choices and warnings.`);
+      toast(`Megabreak: ${trackSets.length} bar set(s) exported (ZIP).`, 3600);
+    }catch(e){
+      console.error(e);
+      megabreakSetProgress(`Megabreak export failed: ${e?.message || e}`);
+      toast(`Megabreak export failed: ${e?.message || e}`, 5200);
+    }finally{
+      megabreakBusy = false;
+      megabreakRefreshSelection();
+    }
+  }
+  megabreakExportBtnEl?.addEventListener("click", () => { exportMegabreakZip(); });
+
   function matrixWavetableDefaultFileName(){
     return sanitizeFilename(`TCM_WT_2048_Matrix_${getDateStamp()}`) + ".wav";
   }
@@ -18475,6 +19243,7 @@ const _flacCrc8Table = (() => {
   exportAllBtn.addEventListener("click", () => { exportAllColumnsZip(); });
   exportCanvasBtn && exportCanvasBtn.addEventListener("click", () => { exportCanvasPOC3(); });
   exportGridBtn && exportGridBtn.addEventListener("click", () => { exportGridWav(); });
+  exportMegabreakBtn && exportMegabreakBtn.addEventListener("click", () => { openMegabreakOverlay(); });
   exportWTBtn && exportWTBtn.addEventListener("click", () => { exportMatrixWavetable(); });
 stopBtn.addEventListener("click", () => stopPlayback());
 
@@ -20608,10 +21377,31 @@ if (e.key === "Escape"){
     }
   });
 
-  // When tempo settings change, update labels and invalidate caches (targetFrames changes)
+  // When tempo settings change, resize only auto-generated selection windows.
+  // Never reinterpret Wave Editor edits, imported selections, or overflow/sliced audio.
   function onTimingChanged(){
     updateSpecLine();
     updateAllTimeLabels();
+
+    for (let c=0;c<COLS;c++){
+      for (let r=0;r<ROWS;r++){
+        const cell = state.cells[c][r];
+        if (!cell || !cell.left || !cell.right ||
+            !Number.isFinite(cell._timingAutoSelLen) ||
+            cell.selEdited === true || cell.scissors === true ||
+            cell.trimStartSrcFrames != null || cell.trimLenSrcFrames != null ||
+            !cell.origin || cell.origin.type !== 'file' || cell.origin.overflow ||
+            cell.selStartFrames !== 0 ||
+            cell.selLenFrames !== cell._timingAutoSelLen) continue;
+
+        const nextLen = Math.max(1, Math.min(getCellFrames(r), cell.left.length, cell.right.length));
+        if (nextLen !== cell.selLenFrames){
+          cell.selLenFrames = nextLen;
+          cell._timingAutoSelLen = nextLen;
+          updateCellUI(c, r);
+        }
+      }
+    }
 
     // invalidate caches because targetFrames may change
     for (let c=0;c<COLS;c++){
