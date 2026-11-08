@@ -2830,7 +2830,7 @@ html[data-matrix-palette="logo4"] #pitch::-webkit-slider-thumb:active{ box-shado
 </div>
 
         <div class="actionsWrap"><div class="actions">
-          <div class="btnGroupInline"><button class="secondary" id="random64Btn" title="Randomly fill all 64 cells. If a Sources list is active, Random 64 uses that live folder pool. Tip: hold Shift to filter which files are used for loading samples.">Random 64</button><button class="secondary" id="random64SourcesBtn" title="Manage a reusable live folder list for Random 64 / Random 8">Sources</button><button class="secondary" id="matrixSlicerBtn" title="Load one sample and place point pairs to distribute slices across the whole matrix">Matrix slicer</button>
+          <div class="btnGroupInline"><button class="secondary" id="random64Btn" title="Randomly fill all 64 cells. If Sources is active, Random 64 uses that live folder pool. Shift-click filters files. In Safari, you can also drop a folder from Finder onto this button.">Random 64</button><button class="secondary" id="random64SourcesBtn" title="Manage a reusable live folder list for Random 64 / Random 8">Sources</button><button class="secondary" id="matrixSlicerBtn" title="Load one sample and place point pairs to distribute slices across the whole matrix">Matrix slicer</button>
           <button class="secondary" id="exportAllBtn">Export all (ZIP)</button>
           <button class="secondary" id="exportCanvasBtn" title="Export Tempera .canvas">Export .canvas</button>
           <button class="secondary" id="exportGridBtn" title="Export loaded cells as one evenly sliced sampler grid WAV">Export grid</button>
@@ -3022,6 +3022,9 @@ html[data-matrix-palette="logo4"] #pitch::-webkit-slider-thumb:active{ box-shado
             Filters still apply to the combined file pool. Use <b>Filters...</b> here to edit the same Random 64 include/exclude filters as Shift-click Random 64. Presets only remember the source list metadata, not live folder access, so imported presets will still need folders to be added again.
           </p>
         </div>
+        <div id="random64SafariFolderDrop" style="display:none; margin-top:10px; padding:10px 12px; border:1px dashed var(--border); border-radius:10px; font-size:12px; line-height:1.4; color:var(--muted);">
+          Safari: If Add folder opens the folder instead of selecting it, drag a folder from Finder here. Subfolders are included; audio files are not decoded while adding Sources.
+        </div>
         <div class="overlayActions helpActions" style="margin-top:12px;">
           <button class="secondary" id="random64SourcesClearBtn">Clear list</button>
           <button class="secondary" id="random64SourcesAddBtn">Add folder…</button>
@@ -3204,8 +3207,9 @@ html[data-matrix-palette="logo4"] #pitch::-webkit-slider-thumb:active{ box-shado
         <div class="helpCardTitle">Auto bar (4/4 loops)</div>
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:8px;">
           <label class="muted" for="megabreakSourceBpm" style="display:flex;align-items:center;gap:7px;">Source BPM
-            <input id="megabreakSourceBpm" type="number" min="20" max="400" step="0.01" value="120" style="width:76px;min-width:76px;height:30px;text-align:center;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.12);border-radius:9px;color:var(--text);" />
+            <input id="megabreakSourceBpm" type="number" title="Starts from TCM Tempo BPM when Tempo is enabled. Editable for this export." min="20" max="400" step="0.01" value="120" style="width:76px;min-width:76px;height:30px;text-align:center;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.12);border-radius:9px;color:var(--text);" />
           </label>
+          <button class="secondary" id="megabreakAutoBpmBtn" type="button" title="Set Source BPM to the most common tempo found in the selected 64 filenames" disabled>Use most common</button>
           <label class="muted" for="megabreakBarMode" style="display:flex;align-items:center;gap:7px;">Bar selection
             <select id="megabreakBarMode" style="height:30px;max-width:190px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.12);border-radius:9px;color:var(--text);">
               <option value="first" selected>First bar</option>
@@ -3215,10 +3219,14 @@ html[data-matrix-palette="logo4"] #pitch::-webkit-slider-thumb:active{ box-shado
             </select>
           </label>
         </div>
-        <label class="chk" style="margin-top:10px;display:flex;align-items:center;gap:8px;cursor:pointer;">
-          <input id="megabreakFilenameBpm" type="checkbox" checked /> BPM from filename when available (otherwise Source BPM).
+        <p class="muted" id="megabreakAutoBpmStatus" role="status" style="margin-top:3px !important;line-height:1.2;font-size:11px;">Select 64 loops to detect the most common BPM.</p>
+        <label class="chk" style="margin-top:7px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <input id="megabreakFilenameBpm" type="checkbox" checked /> BPM from filename (e.g. 110bpm or repeated _110); otherwise Source BPM.
         </label>
-        <p class="muted">Loops must start on a bar boundary. All bars: up to 4 matching sets. Whole file: legacy mode.</p>
+        <label class="chk" style="margin-top:7px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <input id="megabreakPadShortSamples" type="checkbox" /> Pad short samples with silence (one-shots).
+        </label>
+        <p class="muted">Short hits start at beat 1; the rest of the bar stays silent when padding is enabled. No change to Whole file.</p>
       </div>
       <div class="helpCard" style="margin-top:10px;">
         <div class="helpCardTitle">Tempera .canvas preset</div>
@@ -3228,7 +3236,17 @@ html[data-matrix-palette="logo4"] #pitch::-webkit-slider-thumb:active{ box-shado
           <button class="secondary" id="megabreakClearCanvasBtn" type="button">WAV only</button>
         </div>
         <div class="megabreakStatus" id="megabreakCanvasStatus">Built-in: Original, Stutter and Bounce Loops; E2/E3 muted.</div>
-        <p class="muted">Built-in includes 3 emitters, 10 modulators and macros. Canvas BPM follows the loops; track Base tempo stays ~175.78. Use external MIDI for all 64 loops. Custom .canvas preserves its settings; WAV only exports tracks.</p>
+        <div id="megabreakPitchOptions" style="margin-top:8px;">
+          <div class="helpCardTitle" style="font-size:12px;margin-bottom:5px;">Pitch variants (built-in canvas)</div>
+          <div style="display:flex;align-items:center;gap:7px 14px;flex-wrap:wrap;">
+            <label class="chk" style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="checkbox" name="megabreakPitch" value="0" checked /> Original</label>
+            <label class="chk" style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="checkbox" name="megabreakPitch" value="-5" /> -5 st</label>
+            <label class="chk" style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="checkbox" name="megabreakPitch" value="-7" /> -7 st</label>
+            <label class="chk" style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="checkbox" name="megabreakPitch" value="-12" /> -12 st</label>
+          </div>
+          <p class="muted" style="margin:4px 0 0 !important;font-size:11px;line-height:1.25;">Multiple selections create separate canvases in one ZIP (max 4 canvases total with All bars). WAV only / custom canvas: original behavior.</p>
+        </div>
+        <p class="muted">Built-in includes 3 emitters, 10 modulators and macros. Canvas BPM follows the loops; Base tempo ~175.78 for Original. Use external MIDI for all 64 loops.</p>
       </div>
       <p class="muted" style="margin:6px 0 0;">Fixed audio: 48 kHz, 64 slices/track, ~175.78 BPM. No fades at slice boundaries.</p>
       <div class="megabreakStatus" id="megabreakProgress" role="status" aria-live="polite"></div>
@@ -3528,7 +3546,7 @@ html[data-matrix-palette="logo4"] #pitch::-webkit-slider-thumb:active{ box-shado
 <li><b>Export grid</b>: exports loaded cells as one evenly spaced 4/8/16/32/64-slice WAV for Grid/Slice samplers such as Digitakt II, MPC/Force, SP-404MKII, Octatrack, Polyend Tracker/Play and 1010music Blackbox.</li>
 <li><b>Export grid rules</b>: empty cells are skipped. If the loaded count is not exactly 4/8/16/32/64, TCM uses the nearest lower grid size in matrix order, e.g. 10 loaded cells exports the first 8 and skips the last 2.</li>
 <li><b>Export grid sample rate</b>: choose <b>48 kHz</b> for Digitakt II / TCM default, or <b>44.1 kHz</b> for wider sampler compatibility. Grid WAVs are exported as 16-bit PCM.</li>
-<li><b>Megabreak</b>: choose 64 loops, set Source BPM and First/Random/All bars (up to four sets), or Whole file for the legacy mode. BPM may be read from filenames. Each set rearranges 8 slices from each loop into 8 fixed-length Tempera tracks. Default export uses the built-in configured Megabreak .canvas (Original Loops, Stutter Loops and Bounce Loops with all 10 modulators and macro assignments; E2/E3 muted initially). A custom .canvas or WAV-only export remains selectable. The built-in canvas sets its clock to the common Source BPM and keeps track Base tempo fixed (~175.78 BPM); mixed source BPMs cannot all have their original pitch restored. Full 64-note access requires external MIDI. Speed resampling changes pitch until the Tempera track-speed compensation is applied.</li>
+<li><b>Megabreak</b>: choose 64 loops, set Source BPM and First/Random/All bars (up to four sets), or Whole file for the legacy mode. Source BPM starts from TCM Tempo when enabled, otherwise from the most common detected filename BPM; you can always edit it. Each set rearranges 8 slices from each loop into 8 fixed-length Tempera tracks. Default export uses the built-in configured Megabreak .canvas (Original Loops, Stutter Loops and Bounce Loops with all 10 modulators and macro assignments; E2/E3 muted initially). A custom .canvas or WAV-only export remains selectable. The built-in canvas sets its clock to the common Source BPM and keeps track Base tempo fixed (~175.78 BPM); mixed source BPMs cannot all have their original pitch restored. Full 64-note access requires external MIDI. Speed resampling changes pitch until the Tempera track-speed compensation is applied.</li>
 <li><b>Export WT</b>: exports loaded matrix cells as one experimental 64 × 2048 sample mono wavetable WAV at 48 kHz using Cycle scan per cell when possible.</li>
 </ul></div><div class="helpCard helpCardRelease" id="releaseNotesCard" tabindex="-1">
             <h3>Release notes</h3>
@@ -3702,7 +3720,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-const APP_VERSION = '2.13.75';
+const APP_VERSION = '2.13.81';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -3868,6 +3886,12 @@ const APP_VERSION = '2.13.75';
 
   const APP_BUILD_DATE = '2026-11-08';
   const CHANGELOG = [
+  '2.13.81 - Megabreak can export multiple tested pitch variants as separate canvases in one ZIP.',
+  '2.13.80 - Megabreak Auto BPM detects the most common filename tempo; Matrix Tempo takes priority and manual override remains available.',
+  '2.13.79 - Megabreak uses TCM Tempo BPM and recognizes repeated bare BPM values in filenames.',
+  '2.13.78 - Optional silence padding for short Megabreak one-shots.',
+  '2.13.77 - Safari folder selection improved with Finder folder-drop fallback.',
+  '2.13.76 - Safari Random 64/8 skips long WAV, AIFF and FLAC before decode.',
   '2.13.75 - Header Name field fills available row width.',
   '2.13.74 - Megabreak filenames include bar selection and source BPM.',
   '2.13.73 - Compact Megabreak dialog; Import/Export Help split.',
@@ -6257,6 +6281,58 @@ function computeRootHintFromPreset(preset){
     }catch(_e){
       return false;
     }
+  }
+
+  // Safari fallback: obtain folder entries during the drop event (before it expires).
+  // This traverses *names/handles only* and never decodes audio or probes duration.
+  function getSafariDroppedFolderEntries(dataTransfer){
+    const dirs = [];
+    for (const item of Array.from(dataTransfer?.items || [])){
+      if (!item || item.kind !== "file") continue;
+      const getEntry = item.getAsEntry || item.webkitGetAsEntry;
+      if (typeof getEntry !== "function") continue;
+      try{
+        const entry = getEntry.call(item);
+        if (entry && entry.isDirectory) dirs.push(entry);
+      }catch(_e){}
+    }
+    return dirs;
+  }
+
+  async function readSafariDroppedFolderFiles(directories){
+    // The limit is only for this fallback, to avoid an unbounded Finder drop.
+    const MAX_AUDIO_REFS = 25000;
+    let total = 0;
+    const groups = [];
+    async function readEntry(entry, relPath, files){
+      if (entry.isFile){
+        if (!/\.(wav|aif|aiff|flac|mp3|ogg|m4a|aac|opus)$/i.test(entry.name || "")) return;
+        if (total >= MAX_AUDIO_REFS) throw new Error("Folder contains too many audio files for Safari folder drop (max 25000). Try a smaller folder.");
+        const file = await new Promise((resolve, reject) => entry.file(resolve, reject));
+        if (!file || !isAudioFile(file)) return;
+        file._relPath = relPath; // Keep existing Sources/relink path matching.
+        files.push(file);
+        total++;
+        if (total % 250 === 0) await new Promise(resolve => setTimeout(resolve, 0));
+        return;
+      }
+      if (!entry.isDirectory) return;
+      const reader = entry.createReader();
+      // readEntries may return only part of a folder; continue until empty.
+      for (;;){
+        const batch = await new Promise((resolve, reject) => reader.readEntries(resolve, reject));
+        if (!batch || !batch.length) break;
+        for (const child of batch){
+          await readEntry(child, relPath + "/" + child.name, files);
+        }
+      }
+    }
+    for (const dir of directories || []){
+      const files = [];
+      await readEntry(dir, dir.name || "Folder", files);
+      if (files.length) groups.push(files);
+    }
+    return groups;
   }
 
   function shouldPreFilterRandomDurations(){
@@ -10152,6 +10228,19 @@ const fileInput = document.getElementById("fileInput");
   const folderInput = document.getElementById("folderInput");
   const random64Btn = document.getElementById("random64Btn");
 
+  // Safari's native folder picker can ignore the markup-only webkitdirectory flag,
+  // especially when an accept filter is present. Preserve Chrome's existing picker.
+  if (folderInput && isSafariLikeBrowser()){
+    try{
+      folderInput.webkitdirectory = true;
+      folderInput.setAttribute("webkitdirectory", "");
+      folderInput.setAttribute("directory", "");
+      folderInput.multiple = true;
+      folderInput.removeAttribute("accept");
+      folderInput.accept = "";
+    }catch(_e){}
+  }
+
   const enableAudioBtn = document.getElementById("enableAudioBtn");
   const tempoModeEl = document.getElementById("tempoMode");
   const bpmEl = document.getElementById("bpm");
@@ -13146,13 +13235,16 @@ cell.name = "";
 
     try{ inferRelPathForFile(file); }catch(_e){}
 
-    // Random64 / Random8 can skip over-long files lazily during actual loading instead of
-    // pre-scanning an entire folder up front. This keeps large Chrome folder picks responsive.
+    // Random 64/8: check only the file currently being loaded, never the whole folder.
+    // Chrome uses the existing HTML audio metadata probe. Safari may only read small
+    // WAV/AIFF/FLAC headers: no media elements and no full decode of known-long files.
+    // Unsupported Safari formats retain the established safe loading path.
     const maxSec = (opts && typeof opts.maxSec === "number") ? opts.maxSec : MAX_CELL_LOAD_SEC;
-    const allowLazyLongSkip = !isSafariLikeBrowser();
-    if ((opts && opts.skipLongerThanMaxSec) && allowLazyLongSkip && maxSec && maxSec > 0){
+    if ((opts && opts.skipLongerThanMaxSec) && maxSec && maxSec > 0){
       try{
-        const dur = await getFileDurationSec(file);
+        const dur = isSafariLikeBrowser()
+          ? await getSafariHeaderDurationSec(file)
+          : await getFileDurationSec(file);
         if (dur != null && dur > maxSec) throw new Error('TCM_SKIP_OVER_MAXSEC');
       }catch(err){
         if (err && err.message === 'TCM_SKIP_OVER_MAXSEC') throw err;
@@ -13421,6 +13513,68 @@ function isAudioFile(file){
   return ['wav','mp3','ogg','flac','aif','aiff','m4a','aac','opus','wma'].includes(ext);
 }
 
+
+  // Safari-safe, on-demand duration check for uncompressed WAV/AIFF and FLAC.
+  // Reads at most 64 KiB; never creates an Audio element or decodes the audio.
+  // Return null for unknown/unsupported headers, preserving prior Safari behavior.
+  async function getSafariHeaderDurationSec(file){
+    try{
+      const ext = String(file && file.name || "").split(".").pop().toLowerCase();
+      if (!['wav', 'aif', 'aiff', 'flac'].includes(ext) || !file || !file.slice) return null;
+      const view = new DataView(await file.slice(0, 65536).arrayBuffer());
+      const n = view.byteLength;
+      const tag = (p) => (p >= 0 && p + 4 <= n)
+        ? String.fromCharCode(view.getUint8(p), view.getUint8(p+1), view.getUint8(p+2), view.getUint8(p+3)) : "";
+      if (ext === 'flac'){
+        if (n < 42 || tag(0) !== 'fLaC' || (view.getUint8(4) & 127) !== 0) return null;
+        const blockLen = (view.getUint8(5) << 16) | (view.getUint8(6) << 8) | view.getUint8(7);
+        if (blockLen < 34) return null; // STREAMINFO must be the first metadata block
+        const rate = (view.getUint8(18) << 12) | (view.getUint8(19) << 4) | (view.getUint8(20) >>> 4);
+        const frames = (view.getUint8(21) & 15) * 4294967296
+          + view.getUint8(22) * 16777216 + view.getUint8(23) * 65536
+          + view.getUint8(24) * 256 + view.getUint8(25);
+        return rate > 0 && frames > 0 ? frames / rate : null;
+      }
+      if ((tag(0) === 'RIFF' || tag(0) === 'RF64') && tag(8) === 'WAVE' && ext === 'wav'){
+        let rate = 0, formatOK = false, dataBytes = null;
+        for (let p = 12; p + 8 <= n; ){
+          const size = view.getUint32(p + 4, true);
+          if (tag(p) === 'fmt ' && size >= 16 && p + 24 <= n){
+            const format = view.getUint16(p + 8, true);
+            // PCM / IEEE float, including extensible WAV with a recognized subformat.
+            const subtype = (format === 65534 && size >= 40 && p + 34 <= n)
+              ? view.getUint16(p + 32, true) : 0;
+            formatOK = format === 1 || format === 3 || (format === 65534 && (subtype === 1 || subtype === 3));
+            rate = view.getUint32(p + 16, true); // byte rate, not sample rate
+          }
+          if (tag(p) === 'data'){ dataBytes = size; break; }
+          const step = 8 + size + (size & 1);
+          if (step < 8 || p + step <= p) break;
+          p += step;
+        }
+        return formatOK && rate > 0 && dataBytes != null && dataBytes !== 0xffffffff
+          ? dataBytes / rate : null;
+      }
+      if (tag(0) === 'FORM' && (tag(8) === 'AIFF' || tag(8) === 'AIFC') && (ext === 'aif' || ext === 'aiff')){
+        for (let p = 12; p + 8 <= n; ){
+          const size = view.getUint32(p + 4, false);
+          if (tag(p) === 'COMM' && size >= 18 && p + 26 <= n){
+            const frames = view.getUint32(p + 10, false);
+            const q = p + 16; // AIFF 80-bit extended sample rate
+            const exponent = ((view.getUint8(q) & 127) << 8) | view.getUint8(q + 1);
+            const mantissa = view.getUint32(q + 2, false) * 4294967296 + view.getUint32(q + 6, false);
+            const rate = exponent && exponent !== 32767
+              ? mantissa / 9223372036854775808 * Math.pow(2, exponent - 16383) : 0;
+            return Number.isFinite(rate) && rate > 0 && frames > 0 ? frames / rate : null;
+          }
+          const step = 8 + size + (size & 1);
+          if (step < 8 || p + step <= p) break;
+          p += step;
+        }
+      }
+    }catch(_e){}
+    return null;
+  }
 
   // ====== Random 64: fast duration probe (metadata only) ======
   const _tcmDurCache = new WeakMap(); // File -> seconds (number) or null
@@ -17303,18 +17457,39 @@ src.onended = () => {
   const megabreakCancelBtnEl = document.getElementById("megabreakCancelBtn");
   const megabreakCloseBtnEl = document.getElementById("megabreakCloseBtn");
   const megabreakSourceBpmEl = document.getElementById("megabreakSourceBpm");
+  const megabreakAutoBpmBtnEl = document.getElementById("megabreakAutoBpmBtn");
+  const megabreakAutoBpmStatusEl = document.getElementById("megabreakAutoBpmStatus");
   const megabreakBarModeEl = document.getElementById("megabreakBarMode");
   const megabreakFilenameBpmEl = document.getElementById("megabreakFilenameBpm");
+  const megabreakPadShortSamplesEl = document.getElementById("megabreakPadShortSamples");
   const megabreakCanvasInputEl = document.getElementById("megabreakCanvasInput");
   const megabreakBuiltInCanvasBtnEl = document.getElementById("megabreakBuiltInCanvasBtn");
   const megabreakPickCanvasBtnEl = document.getElementById("megabreakPickCanvasBtn");
   const megabreakClearCanvasBtnEl = document.getElementById("megabreakClearCanvasBtn");
   const megabreakCanvasStatusEl = document.getElementById("megabreakCanvasStatus");
+  const megabreakPitchOptionsEl = document.getElementById("megabreakPitchOptions");
+  const megabreakPitchInputs = Array.from(megabreakPitchOptionsEl?.querySelectorAll('input[name="megabreakPitch"]') || []);
+  const MEGABREAK_PITCH_VARIANTS = [
+    {semitones:0, name:"Original", suffix:"Original"},
+    {semitones:-5, name:"-5 st", suffix:"Minus05st"},
+    {semitones:-7, name:"-7 st", suffix:"Minus07st"},
+    {semitones:-12, name:"-12 st", suffix:"Minus12st"}
+  ];
+  // Multi-canvas ZIPs can be large; cap the number of complete canvases for Safari.
+  const MEGABREAK_MAX_CANVASES_PER_ZIP = 4;
+  function megabreakSelectedPitchVariants(){
+    const checked = new Set(megabreakPitchInputs.filter(el => el.checked).map(el => Number(el.value)));
+    return MEGABREAK_PITCH_VARIANTS.filter(v => checked.has(v.semitones));
+  }
   let megabreakFiles = [];
   let megabreakSource = "";
   let megabreakBusy = false;
   let megabreakCanvasFile = null;
   let megabreakTemplateMode = "builtin"; // builtin (default), external or wav
+  let megabreakMostCommonBpm = null;
+  let megabreakBpmManuallySet = false;
+  let megabreakMatrixTempoPriority = false;
+  let megabreakBpmOrigin = "Source BPM";
 
   function megabreakSetSelectionStatus(text){
     if (megabreakSelectionStatusEl) megabreakSelectionStatusEl.textContent = String(text || "");
@@ -17345,17 +17520,21 @@ src.onended = () => {
     }
     const sourceCount = megabreakSource === "files" ? megabreakFiles.length
       : (megabreakSource === "matrix" ? loadedCount : 0);
-    if (megabreakExportBtnEl) megabreakExportBtnEl.disabled = megabreakBusy || sourceCount !== MEGABREAK_LOOP_COUNT;
+    if (megabreakExportBtnEl) megabreakExportBtnEl.disabled = megabreakBusy || sourceCount !== MEGABREAK_LOOP_COUNT || (megabreakTemplateMode === "builtin" && !megabreakSelectedPitchVariants().length);
     if (megabreakPickFilesBtnEl) megabreakPickFilesBtnEl.disabled = megabreakBusy;
     if (megabreakCancelBtnEl) megabreakCancelBtnEl.disabled = megabreakBusy;
     if (megabreakCloseBtnEl) megabreakCloseBtnEl.disabled = megabreakBusy;
     if (megabreakNameInputEl) megabreakNameInputEl.disabled = megabreakBusy;
     if (megabreakBarModeEl) megabreakBarModeEl.disabled = megabreakBusy;
     if (megabreakSourceBpmEl) megabreakSourceBpmEl.disabled = megabreakBusy;
+    if (megabreakAutoBpmBtnEl) megabreakAutoBpmBtnEl.disabled = megabreakBusy || !megabreakMostCommonBpm;
     if (megabreakFilenameBpmEl) megabreakFilenameBpmEl.disabled = megabreakBusy;
+    if (megabreakPadShortSamplesEl) megabreakPadShortSamplesEl.disabled = megabreakBusy;
     if (megabreakBuiltInCanvasBtnEl) megabreakBuiltInCanvasBtnEl.disabled = megabreakBusy;
     if (megabreakPickCanvasBtnEl) megabreakPickCanvasBtnEl.disabled = megabreakBusy;
     if (megabreakClearCanvasBtnEl) megabreakClearCanvasBtnEl.disabled = megabreakBusy;
+    for (const el of megabreakPitchInputs) el.disabled = megabreakBusy || megabreakTemplateMode !== "builtin";
+    if (megabreakPitchOptionsEl) megabreakPitchOptionsEl.style.opacity = megabreakTemplateMode === "builtin" ? "1" : "0.55";
     if (megabreakExportBtnEl) megabreakExportBtnEl.textContent = megabreakTemplateMode === "wav" ? "Export 8 tracks (ZIP)" : "Export .canvas (ZIP)";
   }
   function closeMegabreakOverlay(){
@@ -17374,8 +17553,22 @@ src.onended = () => {
     megabreakFiles = [];
     megabreakCanvasFile = null;
     megabreakTemplateMode = "builtin";
+    // Each new Megabreak session keeps the original single-canvas default.
+    for (const el of megabreakPitchInputs) el.checked = el.value === "0";
     megabreakSource = megabreakLoadedMatrixRefs().length === MEGABREAK_LOOP_COUNT ? "matrix" : "";
     if (megabreakNameInputEl) megabreakNameInputEl.value = `TCM_Megabreak_64x8_${getDateStamp()}`;
+    // Matrix Tempo wins on opening. Otherwise Auto BPM can suggest a clear
+    // filename consensus; an explicit edit always takes precedence afterward.
+    megabreakBpmManuallySet = false;
+    megabreakMatrixTempoPriority = false;
+    megabreakBpmOrigin = "Source BPM";
+    const matrixTempoBpm = Number(bpmEl?.value);
+    if (tempoModeEl?.checked && Number.isFinite(matrixTempoBpm) && matrixTempoBpm >= 20 && matrixTempoBpm <= 400 && megabreakSourceBpmEl){
+      megabreakSourceBpmEl.value = String(matrixTempoBpm);
+      megabreakMatrixTempoPriority = true;
+      megabreakBpmOrigin = "TCM Matrix Tempo";
+    }
+    megabreakUpdateAutoBpm();
     megabreakSetProgress("");
     megabreakSetSelectionStatus(megabreakSource === "matrix"
       ? "64 loaded matrix cells selected (raw audio buffers, in column/row order)."
@@ -17413,6 +17606,7 @@ src.onended = () => {
         megabreakSetSelectionStatus(`${megabreakFiles.length}/64 audio loops selected${note}. Select exactly 64 to export.`);
       }
       megabreakSetProgress("");
+      megabreakUpdateAutoBpm();
       megabreakRefreshSelection();
     });
   }
@@ -17422,6 +17616,7 @@ src.onended = () => {
       megabreakSource = "matrix";
       megabreakSetSelectionStatus("64 loaded matrix cells selected (raw audio buffers, in column/row order). Inspector effects are not rendered.");
       megabreakSetProgress("");
+      megabreakUpdateAutoBpm();
       megabreakRefreshSelection();
     });
   }
@@ -17455,6 +17650,7 @@ src.onended = () => {
     megabreakUpdateCanvasStatus();
     megabreakRefreshSelection();
   });
+  for (const el of megabreakPitchInputs) el.addEventListener("change", megabreakRefreshSelection);
   megabreakCancelBtnEl?.addEventListener("click", closeMegabreakOverlay);
   megabreakCloseBtnEl?.addEventListener("click", closeMegabreakOverlay);
   megabreakOverlayEl?.addEventListener("click", e => {
@@ -17467,28 +17663,156 @@ src.onended = () => {
     closeMegabreakOverlay();
   }, true);
 
-  function megabreakBpmFromName(name){
-    const match = String(name || "").match(/(?:^|[^0-9])(\d{2,3})[\s._-]*bpm(?![a-z])/i);
-    if (!match) return null;
-    const bpm = Number(match[1]);
-    return bpm >= 20 && bpm <= 400 ? bpm : null;
+  function megabreakBareBpmCandidates(name){
+    // Avoid sample indices, bit depths and version/decimal numbers.
+    // Only consider 50..240 as an unlabelled tempo; explicit "bpm" permits 20..400.
+    const stem = String(name || "").replace(/\.[^.]+$/, "");
+    const pattern = /(?:^|[\s_\-()[\]{}])(\d{2,3})(?=$|[\s_\-()[\]{}])/g;
+    const values = new Set();
+    let match;
+    while ((match = pattern.exec(stem)) !== null){
+      const value = Number(match[1]);
+      if (value >= 50 && value <= 240) values.add(value);
+    }
+    return Array.from(values);
   }
-  function megabreakBarSourceInfo(name, len, baseBpm, autoFilenameBpm, barMode){
-    const bpm = (autoFilenameBpm && barMode !== "whole" ? megabreakBpmFromName(name) : null) || baseBpm;
+  function megabreakRepeatedBareBpms(names){
+    const counts = new Map();
+    for (const name of names){
+      for (const bpm of megabreakBareBpmCandidates(name)){
+        counts.set(bpm, (counts.get(bpm) || 0) + 1);
+      }
+    }
+    return counts;
+  }
+  function megabreakBpmFromName(name, baseBpm, bareCounts){
+    const match = String(name || "").match(/(?:^|[^0-9])(\d{2,3})[\s._-]*bpm(?![a-z])/i);
+    if (match){
+      const bpm = Number(match[1]);
+      if (bpm >= 20 && bpm <= 400) return {bpm, source:"filename BPM tag"};
+    }
+    const candidates = megabreakBareBpmCandidates(name);
+    // A candidate matching the user's Source BPM is harmless even if it is a sample number.
+    if (candidates.includes(baseBpm)) return {bpm:baseBpm, source:"filename number (matches Source BPM)"};
+    // Infer an unlabelled BPM only when it recurs in 2+ different selected filenames.
+    // Multiple conflicting numeric tokens are ambiguous: use Source BPM instead.
+    const repeated = candidates.filter(value => (bareCounts?.get(value) || 0) >= 2);
+    if (repeated.length === 1) return {bpm:repeated[0], source:"repeated filename number"};
+    return null;
+  }
+  function megabreakMostCommonFilenameBpm(names){
+    // Names only: no file reads, duration pre-scans, or audio decoding.
+    if (!Array.isArray(names) || names.length !== MEGABREAK_LOOP_COUNT) return null;
+    const bareCounts = megabreakRepeatedBareBpms(names);
+    const bpmCounts = new Map();
+    for (const name of names){
+      // Do not bias detection toward the current Source BPM.
+      const hit = megabreakBpmFromName(name, NaN, bareCounts);
+      if (hit) bpmCounts.set(hit.bpm, (bpmCounts.get(hit.bpm) || 0) + 1);
+    }
+    const ranked = Array.from(bpmCounts, ([bpm, count]) => ({bpm, count}))
+      .sort((a, b) => b.count - a.count || a.bpm - b.bpm);
+    // Reject weak evidence (only 1-2 names) or an equal-frequency tie.
+    if (!ranked.length || ranked[0].count < 3 || (ranked[1] && ranked[0].count === ranked[1].count)) return null;
+    return ranked[0];
+  }
+  function megabreakSelectedSourceNames(){
+    if (megabreakSource === "files" && megabreakFiles.length === MEGABREAK_LOOP_COUNT){
+      return megabreakFiles.map((file, i) => String(file?.name || `Loop_${i+1}`));
+    }
+    if (megabreakSource === "matrix"){
+      const refs = megabreakLoadedMatrixRefs();
+      if (refs.length === MEGABREAK_LOOP_COUNT){
+        return refs.map(ref => String(ref.cell.fileName || ref.cell.name || `Cell_${ref.col+1}_${ref.row+1}`));
+      }
+    }
+    return [];
+  }
+  function megabreakUpdateAutoBpm(){
+    const filenameEnabled = !!megabreakFilenameBpmEl?.checked;
+    const wholeFile = megabreakBarModeEl?.value === "whole";
+    const names = megabreakSelectedSourceNames();
+    megabreakMostCommonBpm = filenameEnabled && !wholeFile ? megabreakMostCommonFilenameBpm(names) : null;
+    if (megabreakMostCommonBpm && !megabreakMatrixTempoPriority && !megabreakBpmManuallySet && megabreakSourceBpmEl){
+      megabreakSourceBpmEl.value = String(megabreakMostCommonBpm.bpm);
+      megabreakBpmOrigin = "Auto BPM (most common)";
+    }
+    if (megabreakAutoBpmBtnEl) megabreakAutoBpmBtnEl.disabled = megabreakBusy || !megabreakMostCommonBpm;
+    if (!megabreakAutoBpmStatusEl) return;
+    if (wholeFile) megabreakAutoBpmStatusEl.textContent = "Whole file does not need bar BPM detection.";
+    else if (!filenameEnabled) megabreakAutoBpmStatusEl.textContent = "Enable BPM from filename to use Auto BPM.";
+    else if (names.length !== MEGABREAK_LOOP_COUNT) megabreakAutoBpmStatusEl.textContent = "Select 64 loops to detect the most common BPM.";
+    else if (!megabreakMostCommonBpm) megabreakAutoBpmStatusEl.textContent = "No clear common BPM in filenames; use Source BPM.";
+    else {
+      const suggestion = `Most common: ${megabreakMostCommonBpm.bpm} BPM (${megabreakMostCommonBpm.count}/64 filenames).`;
+      megabreakAutoBpmStatusEl.textContent = suggestion + (megabreakBpmManuallySet
+        ? " Manual BPM active."
+        : megabreakMatrixTempoPriority ? " Matrix Tempo has priority; use the button to override." : " Auto-selected; editable.");
+    }
+  }
+  megabreakSourceBpmEl?.addEventListener("input", () => {
+    if (megabreakBusy) return;
+    megabreakBpmManuallySet = true;
+    megabreakBpmOrigin = "Manual Source BPM";
+    megabreakUpdateAutoBpm();
+  });
+  megabreakAutoBpmBtnEl?.addEventListener("click", () => {
+    if (megabreakBusy || !megabreakMostCommonBpm || !megabreakSourceBpmEl) return;
+    megabreakSourceBpmEl.value = String(megabreakMostCommonBpm.bpm);
+    // Explicit button choice persists even if the selected files change.
+    megabreakBpmManuallySet = true;
+    megabreakBpmOrigin = "Auto BPM (chosen)";
+    megabreakUpdateAutoBpm();
+  });
+  megabreakFilenameBpmEl?.addEventListener("change", megabreakUpdateAutoBpm);
+  megabreakBarModeEl?.addEventListener("change", megabreakUpdateAutoBpm);
+
+  function megabreakBarSourceInfo(name, len, baseBpm, autoFilenameBpm, barMode, padShortSamples, bareCounts){
+    const detected = autoFilenameBpm && barMode !== "whole" ? megabreakBpmFromName(name, baseBpm, bareCounts) : null;
+    const bpm = detected?.bpm || baseBpm;
+    const bpmSource = detected?.source || "Source BPM";
     const framesPerBar = barMode === "whole" ? len : Math.round((60 / bpm) * 4 * SR);
     if (!Number.isFinite(framesPerBar) || framesPerBar <= 0) throw new Error(`Invalid source BPM for ${name}.`);
-    if (barMode === "whole") return {bpm, framesPerBar, fullBars:1, tailFrames:0};
+    if (barMode === "whole") return {bpm, bpmSource, framesPerBar, fullBars:1, tailFrames:0, padded:false};
+    // Opt-in: treat a short one-shot as the beginning of one full 4/4 bar.
+    // Audio after the one-shot is silent; the original sample is not looped.
+    if (padShortSamples && len < framesPerBar){
+      return {bpm, bpmSource, framesPerBar, fullBars:1, tailFrames:0, padded:true};
+    }
     // Allow 2% tolerance for minor sampler render / rounding differences at the end.
     const fullBars = Math.floor((len + framesPerBar * 0.02) / framesPerBar);
-    if (fullBars < 1) throw new Error(`${name}: only ${(len/SR).toFixed(2)}s; a 4/4 bar at ${bpm} BPM needs ${(framesPerBar/SR).toFixed(2)}s. Select Whole file or correct Source BPM.`);
+    if (fullBars < 1) throw new Error(`${name}: only ${(len/SR).toFixed(2)}s; a 4/4 bar at ${bpm} BPM needs ${(framesPerBar/SR).toFixed(2)}s. Enable Pad short samples or select Whole file.`);
     const tailFrames = Math.max(0, len - fullBars * framesPerBar);
-    return {bpm, framesPerBar, fullBars, tailFrames};
+    return {bpm, bpmSource, framesPerBar, fullBars, tailFrames, padded:false};
+  }
+  function megabreakResamplePaddedOneShot(src, virtualFrames, outFrames){
+    // Sample the virtual bar directly: no full-size padded source buffer allocated.
+    // Interpolate into silence at the one-shot's end, leaving the rest at zero.
+    const out = new Float32Array(outFrames);
+    if (!src.length || outFrames < 1) return out;
+    if (outFrames === 1){ out[0] = src[0]; return out; }
+    const scale = (virtualFrames - 1) / (outFrames - 1);
+    for (let i=0; i<outFrames; i++){
+      const pos = i * scale;
+      const idx = Math.floor(pos);
+      if (idx >= src.length) continue;
+      const a = src[idx];
+      const b = idx + 1 < src.length ? src[idx + 1] : 0;
+      out[i] = lerp(a, b, pos - idx);
+    }
+    return out;
   }
   function megabreakExtractPreparedBar(left, right, len, info, index){
     const start = index * info.framesPerBar;
     const end = Math.min(len, start + info.framesPerBar);
-    if (index < 0 || index >= info.fullBars || end - start < info.framesPerBar * 0.98){
+    if (index < 0 || index >= info.fullBars || (!info.padded && end - start < info.framesPerBar * 0.98)){
       throw new Error(`Source loop has no complete bar ${index+1}.`);
+    }
+    if (info.padded){
+      return {
+        L: megabreakResamplePaddedOneShot(left.subarray(start, end), info.framesPerBar, FIXED_CELL_FRAMES),
+        R: megabreakResamplePaddedOneShot(right.subarray(start, end), info.framesPerBar, FIXED_CELL_FRAMES)
+      };
     }
     return {
       L: resampleToLength(left.subarray(start, end), FIXED_CELL_FRAMES),
@@ -17544,6 +17868,27 @@ src.onended = () => {
     return files;
   }
 
+  function megabreakCanvasFilesWithPitch(canvasFiles, semitones){
+    if (semitones === 0) return canvasFiles;
+    const index = canvasFiles.findIndex(f => f.name === "parameters.txt");
+    if (index < 0) throw new Error("Megabreak canvas parameters are missing.");
+    let params = new TextDecoder().decode(canvasFiles[index].data);
+    const ratio = Math.pow(2, -semitones / 12);
+    for (let t=0;t<MEGABREAK_SLICE_COUNT;t++){
+      const modeRe = new RegExp(`^track${t}TuningMode:([^\r\n]+)$`, "m");
+      const mode = params.match(modeRe);
+      if (!mode || mode[1] !== "1") throw new Error(`Megabreak track ${t+1} is not in BPM mode.`);
+      const tuningRe = new RegExp(`^track${t}Tuning:([^\r\n]+)$`, "m");
+      const tuning = params.match(tuningRe);
+      const base = tuning ? Number(tuning[1]) : NaN;
+      if (!Number.isFinite(base) || base <= 0) throw new Error(`Invalid Base tempo on Megabreak track ${t+1}.`);
+      params = params.replace(tuningRe, `track${t}Tuning:${(base * ratio).toFixed(6)}`);
+    }
+    const pitched = canvasFiles.slice();
+    pitched[index] = {name:"parameters.txt", data:new TextEncoder().encode(params)};
+    return pitched;
+  }
+
   async function exportMegabreakZip(){
     if (megabreakBusy) return;
     const mode = megabreakSource;
@@ -17567,7 +17912,20 @@ src.onended = () => {
       return;
     }
     const autoFilenameBpm = !!megabreakFilenameBpmEl?.checked;
+    // Name-only consensus; no file reads and no additional audio decoding.
+    const sourceNames = mode === "files"
+      ? inputFiles.map((file, i) => String(file?.name || `Loop_${i+1}`))
+      : refs.map(ref => String(ref.cell.fileName || ref.cell.name || `Cell_${ref.col+1}_${ref.row+1}`));
+    const bareBpmCounts = autoFilenameBpm && barMode !== "whole" ? megabreakRepeatedBareBpms(sourceNames) : null;
+    const exportMostCommon = autoFilenameBpm && barMode !== "whole" ? megabreakMostCommonFilenameBpm(sourceNames) : null;
+    const sourceBpmOrigin = megabreakBpmOrigin;
+    const padShortSamples = !!megabreakPadShortSamplesEl?.checked && barMode !== "whole";
     const templateMode = megabreakTemplateMode;
+    const pitchVariants = templateMode === "builtin" ? megabreakSelectedPitchVariants() : [MEGABREAK_PITCH_VARIANTS[0]];
+    if (!pitchVariants.length){
+      megabreakSetProgress("Select at least one pitch variant.");
+      return;
+    }
     const preparedCanvasFile = templateMode === "external" ? megabreakCanvasFile : null;
     const requested = String(megabreakNameInputEl?.value || "TCM_Megabreak_64x8").replace(/\.zip$/i, "");
     const zipName = sanitizeFilename(requested || "TCM_Megabreak_64x8").replace(/\.zip$/i, "");
@@ -17583,6 +17941,7 @@ src.onended = () => {
       let shortestSec = Infinity, longestSec = 0;
       let minBars = Infinity, maxBars = 0;
       let partialTailCount = 0;
+      let paddedOneShotCount = 0;
 
       for (let i=0;i<MEGABREAK_LOOP_COUNT;i++){
         let left, right, name;
@@ -17608,7 +17967,8 @@ src.onended = () => {
         // Matrix Auto bar uses already-loaded buffers (Random 64 caps these at 60s).
         // Keep the 30s guard unchanged for direct files and legacy Whole file.
         if (len > SR * 30 && (mode !== "matrix" || barMode === "whole")) throw new Error(`Loop ${i+1} (${name}) exceeds the 30-second source limit.`);
-        const info = megabreakBarSourceInfo(name, len, sourceBpm, autoFilenameBpm, barMode);
+        const info = megabreakBarSourceInfo(name, len, sourceBpm, autoFilenameBpm, barMode, padShortSamples, bareBpmCounts);
+        if (info.padded) paddedOneShotCount++;
         if (commonSourceBpm === null) commonSourceBpm = info.bpm;
         else if (Math.abs(info.bpm - commonSourceBpm) > 0.01) mixedSourceBpm = true;
         minBars = Math.min(minBars, info.fullBars);
@@ -17632,7 +17992,7 @@ src.onended = () => {
             : (barMode === "random" ? Math.floor(Math.random() * info.fullBars) : 0);
           const prepared = megabreakExtractPreparedBar(left, right, len, info, barIndex);
           megabreakAssignBarToTracks(trackSets[set], prepared, i, slotFrames);
-          mappings[set].push(`${String(i+1).padStart(2,"0")}: ${name} | bar ${barIndex+1}/${info.fullBars} | ${info.bpm} BPM | ${lengthSec.toFixed(3)}s`);
+          mappings[set].push(`${String(i+1).padStart(2,"0")}: ${name} | bar ${barIndex+1}/${info.fullBars} | ${info.bpm} BPM (${info.bpmSource}) | ${lengthSec.toFixed(3)}s${info.padded ? ` | one-shot, silence-padded to ${(info.framesPerBar/SR).toFixed(3)}s` : ""}`);
         }
         if ((i+1) % 4 === 0){
           megabreakSetProgress(`Arranged ${i+1}/64 loops...`);
@@ -17641,6 +18001,9 @@ src.onended = () => {
       }
 
       if (!trackSets.length) throw new Error("No complete bars available for export.");
+      if (templateMode === "builtin" && trackSets.length * pitchVariants.length > MEGABREAK_MAX_CANVASES_PER_ZIP){
+        throw new Error(`This selection would create ${trackSets.length * pitchVariants.length} canvases. Limit: ${MEGABREAK_MAX_CANVASES_PER_ZIP} per ZIP for Safari memory safety. Select fewer pitches or use First/Random bar.`);
+      }
       // One global clock cannot simultaneously restore the original speed/pitch of mixed-BPM loops.
       const validFallbackBpm = Number.isFinite(sourceBpm) && sourceBpm >= 20 && sourceBpm <= 400 ? sourceBpm : 120;
       const canvasBpm = !mixedSourceBpm && commonSourceBpm != null ? commonSourceBpm : validFallbackBpm;
@@ -17655,21 +18018,27 @@ src.onended = () => {
         "Every keyed loop position: 8192 frames (0.170667 s).",
         "Each selected bar: 65536 frames (1.365333 s), 8 equal slices.",
         `Effective fixed audio tempo: 175.78125 BPM per 4/4 bar. Configured canvas clock: ${baseCanvas ? canvasBpm : "not exported"} BPM.`,
-        templateMode === "builtin" ? "Built-in preset canvas clock follows Source BPM; track Base tempo stays fixed at about 175.78 BPM to preserve pitch." : "",
+        templateMode === "builtin" ? "Built-in canvas clock follows Source BPM; Original uses ~175.78 BPM Base tempo. Pitch variants modify only track tuning." : "",
         "Speed resampling changes pitch; no pitch-preserving timestretch is applied.",
         "No micro-fades between slices (for continuous grain/loop scanning).",
         "Auto bar assumes loops start precisely at a bar boundary; it does not detect transients.",
+        "One-shots (when enabled) play from the start of the bar, once; remaining time is silence, never repeated audio.",
         `Source: ${mode === "files" ? "selected audio files in natural order" : "raw buffers of loaded matrix cells in column-major order"}`,
         `Bar selection: ${barMode}; Source BPM fallback: ${sourceBpm}; read BPM from filename: ${autoFilenameBpm ? "yes" : "no"}`,
+        `Source BPM selection: ${sourceBpmOrigin}; most common filename BPM: ${exportMostCommon ? `${exportMostCommon.bpm} BPM (${exportMostCommon.count}/64)` : "not clearly detected"}.`,
+        "TCM Matrix Tempo has priority when enabled; otherwise Auto BPM uses a clear filename consensus. Source BPM remains manually editable.",
+        "Filename priority: explicit BPM tag; unlabelled numbers matching Source BPM or repeated in 2+ selected names; then Source BPM.",
+        `Pad short samples with silence: ${padShortSamples ? "yes" : "no"}; padded one-shots: ${paddedOneShotCount}/64.`,
         `Original lengths: ${shortestSec.toFixed(3)}-${longestSec.toFixed(3)} s; bars per source: ${minBars}-${maxBars}.`,
         `Exported sets: ${trackSets.length}${barMode === "all" ? " (common bar positions, max 4)" : ""}.`,
         partialTailCount ? `WARNING: ${partialTailCount} source(s) have more than 5% leftover audio after complete bar(s); their tails are not used.` : "Source durations align to bar boundaries within 5%.",
         mixedSourceBpm ? `WARNING: Mixed source BPMs found; canvas uses ${canvasBpm} BPM. A single track tempo cannot restore every source's original pitch.` : "All loops use a common source BPM.",
         "", baseCanvas
-          ? (templateMode === "builtin" ? `Built-in Megabreak preset: Original, Stutter and Bounce emitters, 10 modulators, macros, effects and mute states retained. Canvas BPM: ${canvasBpm}; track Base tempo stays ~175.78 BPM.`
+          ? (templateMode === "builtin" ? `Built-in Megabreak preset: Original, Stutter and Bounce emitters, 10 modulators, macros, effects and mute states retained. Canvas BPM: ${canvasBpm}; Original Base tempo ~175.78 BPM.`
               : `Canvas settings reused unchanged from ${templateDescription}; only audio and track names are replaced.`)
           : "WAV-only: no Tempera canvas preset selected.",
         templateMode === "builtin" ? "Built-in Megabreak: Original Loops active; Stutter Loops and Bounce Loops muted. Unmute them on Tempera when desired." : "For live Megabreak: synced SAW LFO -> REL X, Key track -> REL Y; validate your preset on real Tempera.",
+        templateMode === "builtin" ? `Pitch variants: ${pitchVariants.map(v => `${v.name} (Base tempo ~${(175.78125 * Math.pow(2, -v.semitones / 12)).toFixed(2)} BPM)`).join(", ")}. Applied to all 8 BPM-mode tracks; audio and canvas BPM are unchanged.` : "Pitch variants apply to the built-in canvas only; this export retains its original tuning.",
         "A .canvas is ready-to-play ONLY if its template already has the correct working settings.",
         ""
       ];
@@ -17678,13 +18047,23 @@ src.onended = () => {
       const barModeName = ({first:"FirstBar", random:"RandomBar", all:"AllBars", whole:"WholeFile"})[barMode] || "FirstBar";
       const bpmName = Number(canvasBpm.toFixed(2)).toString().replace(".", "p");
       const exportName = `${zipName}_${barModeName}_${mixedSourceBpm ? "MixedBPM_" : ""}${bpmName}BPM`;
+      const pitchFileSuffix = v => templateMode === "builtin" && (pitchVariants.length > 1 || v.semitones !== 0) ? `_${v.suffix}` : "";
+      const bundleSuffix = templateMode === "builtin" ? (pitchVariants.length > 1 ? "_PitchVariants" : pitchFileSuffix(pitchVariants[0])) : "";
+      const bundleName = `${exportName}${bundleSuffix}`;
       for (let set=0;set<trackSets.length;set++){
         const prefix = barMode === "all" ? `${exportName}_Bar_${String(set+1).padStart(2,"0")}` : exportName;
         if (baseCanvas){
+          // Build FLAC mipmaps once per bar set; each variant reuses exactly the
+          // same encoded audio and changes only eight BPM-mode tuning values.
           const canvasFiles = await megabreakBuildConfiguredCanvasFiles(trackSets[set], baseCanvas, set, canvasBpm, templateMode === "builtin");
-          const blob = zipStore(canvasFiles);
-          // The outer ZIP holds one self-contained .canvas per selected bar, not loose FLACs.
-          files.push({name:`${prefix}.canvas`, data:new Uint8Array(await blob.arrayBuffer())});
+          for (const variant of pitchVariants){
+            megabreakSetProgress(`Packaging ${variant.name} canvas for bar set ${set+1}/${trackSets.length}...`);
+            const pitched = templateMode === "builtin" ? megabreakCanvasFilesWithPitch(canvasFiles, variant.semitones) : canvasFiles;
+            const blob = zipStore(pitched);
+            // The outer ZIP holds complete .canvas files, not loose FLACs.
+            files.push({name:`${prefix}${pitchFileSuffix(variant)}.canvas`, data:new Uint8Array(await blob.arrayBuffer())});
+            await new Promise(resolve => setTimeout(resolve, 0));
+          }
         }else{
           megabreakSetProgress(`Encoding WAVs for bar set ${set+1}/${trackSets.length}...`);
           for (let t=0;t<MEGABREAK_SLICE_COUNT;t++){
@@ -17699,13 +18078,14 @@ src.onended = () => {
         trackSets[set] = null;
         await new Promise(resolve => setTimeout(resolve, 0));
       }
-      files.push({name:`${exportName}_mapping.txt`, data:new TextEncoder().encode(report.join("\n"))});
+      files.push({name:`${bundleName}_mapping.txt`, data:new TextEncoder().encode(report.join("\n"))});
       const url = URL.createObjectURL(zipStore(files));
-      clickDownload(url, `${exportName}.zip`);
+      clickDownload(url, `${bundleName}.zip`);
       setTimeout(() => URL.revokeObjectURL(url), 8000);
-      const unit = baseCanvas ? ".canvas" : "8 WAV tracks";
-      megabreakSetProgress(`Exported ${trackSets.length} bar set(s) with ${unit} per set. Read mapping.txt for timing, choices and warnings.`);
-      toast(`Megabreak: ${trackSets.length} bar set(s) exported (ZIP).`, 3600);
+      const outputCount = baseCanvas ? trackSets.length * pitchVariants.length : trackSets.length;
+      const unit = baseCanvas ? ".canvas file(s)" : "sets of 8 WAV tracks";
+      megabreakSetProgress(`Exported ${outputCount} ${unit}. Read mapping.txt for timing, pitch choices and warnings.`);
+      toast(`Megabreak: ${outputCount} ${unit} exported (ZIP).`, 3600);
     }catch(e){
       console.error(e);
       megabreakSetProgress(`Megabreak export failed: ${e?.message || e}`);
@@ -19787,6 +20167,33 @@ const cleanup = () => {
     const closeBtn = document.getElementById("random64SourcesClose");
     if (!ov || !listEl || !addBtn || !filterBtn || !clearBtn || !runBtn || !doneBtn || !closeBtn) return;
 
+    // Safari may show a file picker instead of accepting a folder via webkitdirectory.
+    // Finder folder drop is an isolated fallback for Add folder, with no audio decode.
+    const safariDrop = document.getElementById("random64SafariFolderDrop");
+    if (isSafariLikeBrowser() && safariDrop){
+      safariDrop.style.display = "block";
+      safariDrop.addEventListener("dragover", (e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; });
+      safariDrop.addEventListener("drop", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const directories = getSafariDroppedFolderEntries(e.dataTransfer);
+        if (!directories.length){
+          toast("Drop a folder from Finder, not individual files.", 2600);
+          return;
+        }
+        toast("Reading folder entries (no audio decoding)...", 1800);
+        try{
+          const groups = await readSafariDroppedFolderFiles(directories);
+          if (!groups.length){ toast("No supported audio files in the dropped folder(s).", 3000); return; }
+          for (const files of groups) (window.addRandom64SourceFolder || addRandom64SourceFolder)(files);
+          toast(`${groups.length} Safari folder(s) added to Sources.`, 2600);
+        }catch(err){
+          console.warn("Safari Sources folder drop:", err);
+          toast("Safari folder drop failed: " + (err?.message || String(err)), 4200);
+        }
+      });
+    }
+
     addBtn.addEventListener("click", () => {
       if (random64SourcesOverlayMode === "recovery"){
         state.random64FolderPickMode = "recovery_relink_folder";
@@ -21048,6 +21455,7 @@ if (Array.isArray(preset.cellNames)){
     state.random64SourceReplaceIndex = -1;
     state.randomSourceTargetCol = -1;
     if (!files || !files.length){
+      if (isSafariLikeBrowser()) toast("No folder selected. If Safari opens the folder instead, drag it onto Sources or Random 64 from Finder.", 3600);
       folderInput.value = '';
       return;
     }
@@ -21099,6 +21507,24 @@ if (Array.isArray(preset.cellNames)){
   random64Btn?.addEventListener('drop', async (e) => {
     e.preventDefault();
     random64Btn.classList.remove('dragover');
+    // On Safari a Finder folder may have no usable dataTransfer.files entries.
+    // Get the directory entry synchronously and enumerate audio files without decoding.
+    if (isSafariLikeBrowser()){
+      const directories = getSafariDroppedFolderEntries(e.dataTransfer);
+      if (directories.length){
+        toast("Reading folder entries (no audio decoding)...", 1600);
+        try{
+          const groups = await readSafariDroppedFolderFiles(directories);
+          const files = groups.flat();
+          if (!files.length){ toast("No supported audio files in dropped folder(s).", 2800); return; }
+          await randomFill64FromFiles(files);
+        }catch(err){
+          console.warn("Safari Random 64 folder drop:", err);
+          toast("Safari folder drop failed: " + (err?.message || String(err)), 4200);
+        }
+        return;
+      }
+    }
     const files = e.dataTransfer?.files;
     if (!files || !files.length){
       toast('Nothing to drop. Drop audio files (or pick a folder).', 2600);
