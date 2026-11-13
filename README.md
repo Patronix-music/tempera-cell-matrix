@@ -1,6 +1,6 @@
 # Tempera Cell Matrix (TCM)
 
-![version](https://img.shields.io/badge/version-2.13.81-blue)
+![version](https://img.shields.io/badge/version-2.14-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![platform](https://img.shields.io/badge/platform-Web%20Audio-orange)
 
@@ -13,11 +13,29 @@ https://patronix-music.github.io/tempera-cell-matrix/
 
 ---
 
+## 🔥 TCM v12.14 🔥
+
+A Megabreak-focused update with flexible loop layouts and smoother exporting.
+
+### Main new features:
+
+- 🧩 **Megabreak** — Build 8 Tempera tracks from 64, 32, 16 or 8 loops.
+- 🍫 **Bars per loop** — Choose 1, 2, 4 or 8 bars per loop for longer phrases.
+- 🎲 **Flexible Random fill** — Choose 64/32/16/8 cells from one button.
+
+### 🛠️ Fixes & improvements
+
+Cleaner Megabreak controls, safer Safari loading, older-preset Tempo fixes and clearer filter warnings.
+
+📍 **Tempera note:** Loop 1 (TCM column 1 / cell 1) starts at the bottom-left cell on Tempera. **Base note: -12.**
+
+---
+
 ## 🔥 TCM v2.13.81 🔥
 
 This update introduces **Megabreak**, a new way to turn 64 loops into a playable Beetlecrab Tempera canvas, along with workflow improvements and fixes.
 
-### Main new features
+### Main new features:
 
 - 🥁 **Megabreak** — Turn 64 loops into eight rearranged slice tracks, ready for rhythmic scanning and playback on Tempera.
 - 🎛️ **Ready-to-play canvas** — Automatically export a `.canvas` with a built-in three-emitter template: **Original Loops**, **Stutter Loops**, and **Bounce Loops**.
