@@ -3780,7 +3780,7 @@ const MAX_SPLIT_LOAD_SEC = 300; // seconds
 
 
   // Single source of truth for version text
-const APP_VERSION = '12.14';
+const APP_VERSION = '2.15';
 
   // Disable native browser tooltips (title=) because they can appear on top of overlays/modals.
   // We keep the text in data-native-title for potential future custom tooltips.
@@ -3944,139 +3944,32 @@ const APP_VERSION = '12.14';
   }
 
 
-  const APP_BUILD_DATE = '2026-11-13';
+  const APP_BUILD_DATE = '2026-11-17';
   const CHANGELOG = [
-  '12.14 - Megabreak reserves export status space to prevent layout jumps.',
-  '2.13.99 - Megabreak spacing and text refined; release notes shortened.',
-  '2.13.98 - Megabreak dialog simplified; selection no longer closes it.',
-  '2.13.97 - Random warns when filters exclude all samples.',
-  '2.13.96 - Safari Random memory and legacy-preset Tempo fixes.',
-  '2.13.95 - Safari 16/8: 60s sources and memory guards.',
-  '2.13.94 - Megabreak track tempos unified; -7 st removed.',
-  '2.13.93 - Megabreak remembers Bars for each loop count.',
-  '2.13.92 - Megabreak 4-bar timing fixed; tested layouts documented.',
-  '2.13.91 - Megabreak E1 Note mode and 8-bar timing corrected.',
-  '2.13.90 - Megabreak 16/8-loop 4-bar timing confirmed.',
-  '2.13.89 - Megabreak 16/8-loop modes and automatic layout selection.',
-  '2.13.88 - Random button keeps its width across fill counts.',
+  '2.15 - All bars + padding follows the longest source; gaps stay silent.',
+  '2.14 - Megabreak controls and export status layout refined.',
+  '2.13.96 - Safari Random loading and legacy-preset Tempo fixes.',
+  '2.13.89 - Megabreak gains 16/8-loop layouts and longer phrases.',
   '2.13.87 - Random fill counts share one dropdown.',
-  '2.13.86 - Random styling fixed; Megabreak selects 32-loop layouts.',
-  '2.13.85 - Megabreak 32-loop grain and base note settings improved.',
-  '2.13.84 - Megabreak 32-loop / 2-bar grain length set to 1/4 note.',
-  '2.13.83 - Megabreak 32-loop Keytrack corrected to notes 36–68.',
-  '2.13.82 - Megabreak 32 loops with 1/2 bars and Random fill added.',
   '2.13.81 - Megabreak exports pitch variants as separate canvases.',
   '2.13.80 - Megabreak Auto BPM added; Matrix Tempo takes priority.',
-  '2.13.79 - Megabreak uses Matrix Tempo and bare filename BPM.',
-  '2.13.78 - Optional silence padding for short Megabreak one-shots.',
-  '2.13.77 - Safari folder selection improved with Finder folder-drop fallback.',
-  '2.13.76 - Safari Random 64/8 skips long WAV, AIFF and FLAC before decode.',
-  '2.13.75 - Header Name field fills available row width.',
-  '2.13.74 - Megabreak filenames include bar selection and source BPM.',
-  '2.13.73 - Compact Megabreak dialog; Import/Export Help split.',
-  '2.13.72 - Tempo changes update untouched cell selections.',
-  '2.13.71 - Megabreak preset: 3 emitters, 10 modulators and macros.',
-  '2.13.70 - Megabreak track Base tempo stays fixed across source BPMs.',
-  '2.13.69 - Built-in Megabreak canvas with custom/WAV options.',
-  '2.13.68 - Megabreak accepts longer loaded matrix loops.',
-  '2.13.67 - Megabreak bar selection and canvas-template support.',
-  '2.13.66 - Megabreak maps 64 loops onto 8 tracks.',
-  '2.13.64 - Matrix slicer playhead follows pitch-adjusted playback.',
-  '2.13.63 - Segment pitch is non-destructive and keeps source In/Out fixed.',
-  '2.13.62 - Segment Normalize uses audible fades, pitch and volume.',
-  '2.13.61 - Clear points exits segment zoom back to full sample view.',
-  '2.13.60 - Tuner keys now use fine, coarse and octave pitch steps.',
-  '2.13.55 - Apply keeps segment fades continuous across overflowed cells.',
-  '2.13.53 - Segment Tuner added with per-segment pitch in Matrix slicer.',
-  '2.13.52 - Header Export WT creates cycle-scan WTs from matrix cells.',
-  '2.13.51 - Matrix slicer Export WT now uses cycle-scan rendering.',
-  '2.13.50 - Recovery relink retry and Matrix slicer quick-save fixes.',
-  '2.13.49 - Quick-save recovery preserves Matrix slicer work and source relink.',
-  '2.13.43 - Matrix slicer can export selected segments as Tonverk-style WT.',
-  '2.13.40 - Matrix slicer shortcuts and compact workflow tips refined.',
-  '2.13.33 - Segment Normalize and Auto fade shortcuts added.',
-  '2.13.31 - Matrix slicer segment volume and fade handles added.',
-  '2.13.27 - Matrix slicer segments can be named for export and cell names.',
-  '2.13.21 - Matrix slicer exports all segments as separate WAV files.',
-  '2.13.20 - Matrix slicer phase 3 adds From cel and Delete seg controls.',
-  '2.13.11 - Matrix slicer phase 2 adds segment zoom, snap, nudge and undo.',
-  '2.13.01 - Matrix slicer phase 1 adds point-based matrix slicing.',
-  '2.13.00 - Sources window now opens Random 64 filters.',
-  '2.12.97 - Autosave toggle added and Enable audio is fallback-only.',
-  '2.12.90 - Quick-save autosaves local recovery about once per minute.',
-  '2.12.85 - Startup recovery prompt restores local quick saves.',
-  '2.12.84 - S opens Export all and Ctrl+S quick-saves locally.',
-  '2.12.82 - E opens the selected cell in the Wave Editor.',
-  '2.12.78 - Logo 4 palette keeps fan colors cleaner.',
-  '2.12.68 - Column Clear can now be undone with Cmd/Ctrl+Z.',
-  '2.12.62 - Version text opens Help directly at Release notes.',
-  '2.12.57 - Slice Snap works after L/R arrow nudges settle.',
-  '2.12.55 - Slice Snap added for L/R handle release.',
-  '2.12.32 - Wave Snap works after L/R arrow nudges settle.',
-  '2.12.31 - Wave Snap chooses the nearest nearby zero crossing.',
-  '2.12.27 - Wave Snap defaults to off and remembers its setting.',
-  '2.12.25 - Wave Editor Trim applies the default long-sample selection.',
-  '2.12.19 - A applies Auto fade; Shift+A opens Auto fade settings.',
-  '2.12.18 - Auto fade settings trap Tab and save with Enter.',
-  '2.12.17 - Auto fade presets and saved custom percentages added.',
-  '2.12.15 - Auto fade writes scalable Fade In and Fade Out values.',
-  '2.12.14 - Header controls wrap without horizontal scrolling.',
-  '2.12.11 - F toggles Trim/Fit and T opens Tuner.',
-  '2.12.10 - Fit mode no longer mirrors temporary Wave selections.',
-  '2.12.09 - Wave Editor Esc preserves long-sample selections.',
-  '2.12.08 - Fade envelopes follow trimmed and fit-rendered audio.',
-  '2.12.06 - Fade-out follows audible slice/sample length.',
-  '2.12.05 - Tuner and Cell Pitch use normal/Shift/Alt fine steps.',
-  '2.12.04 - Cell Pitch retriggers selected-cell preview once.',
-  '2.12.03 - Cell Pitch can be tuned with +/- shortcuts.',
-  '2.12.00 - Single-color palettes match Tempera 4 strength.',
-  '2.11.98 - App logo cycles and remembers matrix palettes.',
-  '2.11.96 - Wave and Slice zoom mapping were stabilized.',
-  '2.11.89 - Wave selection edits on sliced cells persist after Esc.',
-  '2.11.85 - Slice L/M/R shortcuts control zoom handle mode.',
-  '2.11.84 - Zoom Auto Hide preference is remembered.',
-  '2.11.82 - Slice Play all previews the eight selected slices.',
-  '2.11.81 - Editor right handles stop without sliding selection.',
+  '2.13.66 - Megabreak maps 64 loops onto 8 Tempera tracks.',
+  '2.13.63 - Matrix Slicer segment pitch is non-destructive.',
+  '2.13.52 - Export WT creates cycle-scan wavetables.',
+  '2.13.49 - Quick-save recovery restores slices and source links.',
+  '2.13.01 - Matrix Slicer adds point-based matrix slicing.',
+  '2.12.68 - Column Clear joins the matrix Undo actions.',
+  '2.12.55 - Both editors offer remembered zero-cross snap.',
+  '2.12.19 - Saved Auto fade presets and keyboard shortcuts.',
+  '2.12.05 - Cell Pitch and Tuner support fine pitch steps.',
   '2.11.78 - Export grid supports 48 kHz and 44.1 kHz WAV.',
-  '2.11.75 - Export grid creates 4/8/16/32/64 slice WAVs.',
   '2.11.73 - Overflow exports stay seamless without boundary fades.',
-  '2.11.72 - Overflow + Tune added for tuned long-sample overflow.',
-  '2.11.68 - Tuner improved for low notes and clean sine samples.',
-  '2.11.66 - WAV export names can use the {celname} placeholder.',
-  '2.11.57 - Tuner popup added for looping and Cell Pitch tuning.',
-  '2.11.56 - Safari Random 64/8 restored to safer loading path.',
-  '2.11.50 - Trim/Fit only fits samples longer than the cell.',
-  '2.11.42 - Cell Pitch added for playback and WAV/ZIP export.',
-  '2.11.30 - Sel Col and Sel Row added to the inspector.',
-  '2.11.26 - Loop prep fits one loop to BPM and slices a column.',
-  '2.11.23 - Remix creates column variants in the next empty column.',
-  '2.11.20 - Duplicate highlighting marks repeats, not originals.',
-  '2.11.18 - Unique-first loading added for Random 64 and Random 8.',
-  '2.11.17 - Load 8 becomes Random 8 when Sources is active.',
-  '2.11.11 - Presets can relink remembered Random 64 Sources.',
-  '2.11.09 - Random 64 Sources added for reusable folder pools.',
-  '2.11.06 - Long samples can use Overflow + Fit.',
-  '2.11.05 - Canvas template metadata is saved in presets.',
-  '2.10.99 - Undo added for Normalize and selected-cell Clear.',
-  '2.10.90 - Random 64 and Load 8 now respect locked cells.',
-  '2.10.87 - Cell lock added with L shortcut and inspector toggle.',
-  '2.10.86 - Auto preview added for arrow-key navigation.',
-  '2.10.83 - Normalize works on audible cells and selections.',
-  '2.10.79 - Standalone cell export gets anti-click micro-fades.',
-  '2.10.76 - Template preset cell settings are preserved.',
-  '2.10.75 - Template presets import as empty matrices.',
-  '2.10.74 - Template-only preset export added.',
-  '2.10.73 - .canvas export can use a Tempera template.',
-  '2.10.71 - Multi-select added for bulk inspector settings.',
-  '2.10.70 - ZIP preset import can relink embedded samples.',
-  '2.10.66 - Zoom Auto Hide added in Wave and Slice editors.',
-  '2.10.62 - Fades can run across the full audible sample length.',
-  '2.10.56 - Long samples can trim in-cell or overflow below.',
+  '2.11.17 - Column Load 8 uses live Random Sources.',
+  '2.10.90 - Random fills and Load 8 preserve locked cells.',
+  '2.10.86 - Auto preview follows cell selection.',
+  '2.10.74 - Template presets save settings without audio.',
+  '2.10.70 - Preset ZIPs automatically relink embedded samples.',
   '2.10.36 - Tempera .canvas export added.',
-  '2.9.55 - Embedded samples added for portable ZIP presets.',
-  '2.9.11 - Slice zoom added with +/- and Tab slice jumps.',
-  '2.7.53 - iOS audio and WAV picker support improved.',
-  '2.7.40 - Safari CPU and memory load reduced.',
 ];
 function renderReleaseNotes(){
     const ul = document.getElementById("releaseNotes");
@@ -18214,14 +18107,18 @@ src.onended = () => {
     };
   }
   function megabreakExtractPreparedPhrase(left, right, len, info, phraseIndex, barsPerLoop, targetFrames, padShortSamples, barMode){
-    // Keep the verified 64/1 route byte-for-byte identical.
-    if (targetFrames === FIXED_CELL_FRAMES && barsPerLoop === 1) return megabreakExtractPreparedBar(left, right, len, info, phraseIndex);
+    // Retain the legacy 64/1 path outside the opt-in All bars + padding mode.
+    const padAllBars = barMode === "all" && padShortSamples;
+    if (targetFrames === FIXED_CELL_FRAMES && barsPerLoop === 1 && !padAllBars) return megabreakExtractPreparedBar(left, right, len, info, phraseIndex);
     const phraseFrames = barMode === "whole" ? len : info.framesPerBar * barsPerLoop;
     const start = barMode === "whole" ? 0 : phraseIndex * phraseFrames;
     const end = Math.min(len, start + phraseFrames);
     const available = end - start;
-    const short = available < phraseFrames * 0.98;
-    if (available < 16 || (short && !padShortSamples)){
+    if (padAllBars && available <= 0){
+      return { L:new Float32Array(targetFrames), R:new Float32Array(targetFrames) };
+    }
+    const short = available < phraseFrames * (padAllBars ? 1 : 0.98);
+    if ((!padAllBars && available < 16) || (short && !padShortSamples)){
       throw new Error(`Source loop has no complete ${barsPerLoop}-bar phrase ${phraseIndex+1}; enable Pad short samples to add silence.`);
     }
     const srcL = left.subarray(start, end), srcR = right.subarray(start, end);
@@ -18386,6 +18283,7 @@ src.onended = () => {
     const exportMostCommon = autoFilenameBpm && barMode !== "whole" ? megabreakMostCommonFilenameBpm(sourceNames) : null;
     const sourceBpmOrigin = megabreakBpmOrigin;
     const padShortSamples = !!megabreakPadShortSamplesEl?.checked && barMode !== "whole";
+    const padAllBars = barMode === "all" && padShortSamples;
     const templateMode = megabreakTemplateMode;
     const pitchVariants = templateMode === "builtin" ? megabreakSelectedPitchVariants() : [MEGABREAK_PITCH_VARIANTS[0]];
     if (!pitchVariants.length){
@@ -18404,6 +18302,8 @@ src.onended = () => {
       let commonSourceBpm = null, mixedSourceBpm = false;
       let trackSets = [];
       let mappings = [];
+      const paddedSourceInfo = []; // Metadata only; never retain decoded source buffers.
+      let paddedSetCount = 0;
       let shortestSec = Infinity, longestSec = 0;
       let minBars = Infinity, maxBars = 0;
       let partialTailCount = 0;
@@ -18438,9 +18338,13 @@ src.onended = () => {
         const phraseFrames = barMode === "whole" ? len : info.framesPerBar * barsPerLoop;
         const phrasePadded = loopCount < 64 && barMode !== "whole"
           ? padShortSamples && len < phraseFrames * 0.98 : info.padded;
-        const availablePhrases = loopCount < 64
-          ? (barMode === "whole" ? 1 : phrasePadded ? 1 : Math.floor((len + phraseFrames*0.02) / phraseFrames))
-          : info.fullBars;
+        // Padding retains partial final phrases. Keep the existing 2% tolerance
+        // so a tiny rounding tail alone does not create another canvas.
+        const availablePhrases = padAllBars
+          ? Math.max(1, Math.ceil((len - phraseFrames*0.02) / phraseFrames))
+          : loopCount < 64
+            ? (barMode === "whole" ? 1 : phrasePadded ? 1 : Math.floor((len + phraseFrames*0.02) / phraseFrames))
+            : info.fullBars;
         if (availablePhrases < 1) throw new Error(`${name}: needs ${barsPerLoop} complete bar(s) at ${info.bpm} BPM. Enable Pad short samples to fill silence.`);
         if (phrasePadded) paddedOneShotCount++;
         if (commonSourceBpm === null) commonSourceBpm = info.bpm;
@@ -18451,13 +18355,25 @@ src.onended = () => {
         const lengthSec = len / SR;
         shortestSec = Math.min(shortestSec, lengthSec);
         longestSec = Math.max(longestSec, lengthSec);
+        if (padAllBars) paddedSourceInfo.push({name, len, phraseFrames, availablePhrases:Math.ceil(len / phraseFrames), lengthSec, bpm:info.bpm, bpmSource:info.bpmSource});
 
         const needed = barMode === "all" ? Math.min(MEGABREAK_MAX_BAR_SETS, availablePhrases) : 1;
+        if (padAllBars) paddedSetCount = Math.max(paddedSetCount, needed);
+        // Retain tiny tails provisionally, in case a later source needs that set.
+        // This keeps audio independent of source order without decoding twice.
+        const renderNeeded = padAllBars ? Math.min(MEGABREAK_MAX_BAR_SETS, Math.ceil(len / phraseFrames)) : needed;
         if (!trackSets.length){
-          trackSets = Array.from({length:needed}, megabreakMakeBlankTrackSet);
-          mappings = Array.from({length:needed}, () => []);
-        }else if (barMode === "all" && needed < trackSets.length){
-          // All bars includes only positions available in every source.
+          trackSets = Array.from({length:renderNeeded}, megabreakMakeBlankTrackSet);
+          mappings = Array.from({length:renderNeeded}, () => []);
+        }else if (padAllBars && renderNeeded > trackSets.length){
+          // Sources are processed once. New sets start silent, including slots
+          // belonging to earlier sources that already ended before this set.
+          while (trackSets.length < renderNeeded){
+            trackSets.push(megabreakMakeBlankTrackSet());
+            mappings.push([]);
+          }
+        }else if (barMode === "all" && !padAllBars && needed < trackSets.length){
+          // Without padding, retain only positions available in every source.
           trackSets.length = needed;
           mappings.length = needed;
         }
@@ -18469,7 +18385,7 @@ src.onended = () => {
           const segmentLabel = loopCount === 64
             ? `bar ${barIndex+1}/${info.fullBars}`
             : `bars ${barIndex*barsPerLoop+1}-${(barIndex+1)*barsPerLoop} (${availablePhrases} phrase(s))`;
-          mappings[set].push(`${String(i+1).padStart(2,"0")}: ${name} | ${segmentLabel} | ${info.bpm} BPM (${info.bpmSource}) | ${lengthSec.toFixed(3)}s${phrasePadded ? ` | silence-padded to ${(phraseFrames/SR).toFixed(3)}s` : ""}`);
+          if (!padAllBars) mappings[set].push(`${String(i+1).padStart(2,"0")}: ${name} | ${segmentLabel} | ${info.bpm} BPM (${info.bpmSource}) | ${lengthSec.toFixed(3)}s${phrasePadded ? ` | silence-padded to ${(phraseFrames/SR).toFixed(3)}s` : ""}`);
         }
         if ((i+1) % 4 === 0){
           megabreakSetProgress(`Arranged ${i+1}/${loopCount} loops...`);
@@ -18477,6 +18393,19 @@ src.onended = () => {
         }
       }
 
+      if (padAllBars){
+        trackSets.length = paddedSetCount;
+        paddedOneShotCount = paddedSourceInfo.filter(src => src.len < trackSets.length * src.phraseFrames).length;
+        // Build complete mappings after the longest source has established the
+        // set count, including silent slots in sets created later in the pass.
+        mappings = trackSets.map((_, set) => paddedSourceInfo.map((src, i) => {
+          const available = Math.max(0, Math.min(src.phraseFrames, src.len - set * src.phraseFrames));
+          const segment = `bars ${set*barsPerLoop+1}-${(set+1)*barsPerLoop} (${src.availablePhrases} phrase(s))`;
+          const padding = available === 0 ? " | silence-only (source ended)"
+            : available < src.phraseFrames ? ` | silence-padded to ${(src.phraseFrames/SR).toFixed(3)}s` : "";
+          return `${String(i+1).padStart(2,"0")}: ${src.name} | ${segment} | ${src.bpm} BPM (${src.bpmSource}) | ${src.lengthSec.toFixed(3)}s${padding}`;
+        }));
+      }
       if (!trackSets.length) throw new Error("No complete bars available for export.");
       if (templateMode === "builtin" && trackSets.length * pitchVariants.length > MEGABREAK_MAX_CANVASES_PER_ZIP){
         throw new Error(`This selection would create ${trackSets.length * pitchVariants.length} canvases. Limit: ${MEGABREAK_MAX_CANVASES_PER_ZIP} per ZIP for Safari memory safety. Select fewer pitches or use First/Random bar.`);
@@ -18507,8 +18436,9 @@ src.onended = () => {
         "Filename priority: explicit BPM tag; unlabelled numbers matching Source BPM or repeated in 2+ selected names; then Source BPM.",
         `Pad short samples with silence: ${padShortSamples ? "yes" : "no"}; padded sources: ${paddedOneShotCount}/${loopCount}.`,
         `Original lengths: ${shortestSec.toFixed(3)}-${longestSec.toFixed(3)} s; bars per source: ${minBars}-${maxBars}.`,
-        `Exported sets: ${trackSets.length}${barMode === "all" ? " (common bar positions, max 4)" : ""}.`,
-        partialTailCount ? `WARNING: ${partialTailCount} source(s) have more than 5% leftover audio after complete bar(s); their tails are not used.` : "Source durations align to bar boundaries within 5%.",
+        `Exported sets: ${trackSets.length}${barMode === "all" ? (padAllBars ? " (longest source; missing audio is silence, max 4)" : " (common bar positions, max 4)") : ""}.`,
+        padAllBars ? "Partial final phrases are silence-padded; tiny rounding tails (up to 2%) do not add sets. Audio beyond the four-set limit is not exported."
+          : partialTailCount ? `WARNING: ${partialTailCount} source(s) have more than 5% leftover audio after complete bar(s); their tails are not used.` : "Source durations align to bar boundaries within 5%.",
         mixedSourceBpm ? `WARNING: Mixed source BPMs found; canvas uses ${canvasBpm} BPM. A single track tempo cannot restore every source's original pitch.` : "All loops use a common source BPM.",
         "", baseCanvas
           ? (templateMode === "builtin" ? `Built-in Megabreak preset: Original, Stutter and Bounce emitters, 10 modulators, macros, effects and mute states retained. Canvas BPM: ${canvasBpm}; Original Base tempo ~${(175.78125*(loopCount/64)*barsPerLoop).toFixed(2)} BPM.`
