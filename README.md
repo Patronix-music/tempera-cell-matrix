@@ -1,6 +1,6 @@
 # Tempera Cell Matrix (TCM)
 
-![version](https://img.shields.io/badge/version-2.14-blue)
+![version](https://img.shields.io/badge/version-2.15-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![platform](https://img.shields.io/badge/platform-Web%20Audio-orange)
 
@@ -13,7 +13,7 @@ https://patronix-music.github.io/tempera-cell-matrix/
 
 ---
 
-## 🔥 TCM v12.14 🔥
+## 🔥 TCM v2.15 🔥
 
 A Megabreak-focused update with flexible loop layouts and smoother exporting.
 
